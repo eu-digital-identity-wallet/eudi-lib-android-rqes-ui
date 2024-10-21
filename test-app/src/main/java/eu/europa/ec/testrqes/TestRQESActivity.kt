@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.testrqes.ui.theme.EudiRQESUiTheme
+import java.net.URI
 
 class TestRQESActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,5 +59,5 @@ private fun ContentPreview() {
 }
 
 private fun showRQESSDK(context: Context) {
-    EudiRQESUi.fromStart(context, 1000)
+    EudiRQESUi.initiate(context, URI.create("https://www.netcompany.com"))
 }
