@@ -39,15 +39,6 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
-
-    libraryVariants.all {
-        val variantName = name
-        sourceSets {
-            getByName("main") {
-                java.srcDir(File("build/generated/ksp/$variantName/kotlin"))
-            }
-        }
-    }
 }
 
 dependencies {
