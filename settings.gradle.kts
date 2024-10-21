@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "EudiRQESUi"
-include(":testApp")
+include(":test-app")
 include(":rqes-ui-sdk")
