@@ -40,7 +40,8 @@ import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_MEDIUM
 
 private val buttonsShape: RoundedCornerShape = RoundedCornerShape(SIZE_100.dp)
 
-private val buttonsContentHorizontalPadding: PaddingValues = PaddingValues(horizontal = SPACING_MEDIUM.dp)
+private val buttonsContentHorizontalPadding: PaddingValues =
+    PaddingValues(horizontal = SPACING_MEDIUM.dp)
 
 @Composable
 fun WrapPrimaryButton(

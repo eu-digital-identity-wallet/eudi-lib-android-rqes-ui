@@ -146,7 +146,7 @@ fun ContentScreen(
         floatingActionButtonPosition = fabPosition,
         snackbarHost = {},
 
-    ) { padding ->
+        ) { padding ->
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -230,7 +230,8 @@ private fun DefaultToolBar(
         actions = {
             ToolBarActions(toolBarActions = toolbarConfig?.actions)
         },
-        colors =  TopAppBarDefaults.topAppBarColors().copy(containerColor = MaterialTheme.colorScheme.background)
+        colors = TopAppBarDefaults.topAppBarColors()
+            .copy(containerColor = MaterialTheme.colorScheme.background)
     )
 }
 
