@@ -14,6 +14,23 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.domain.interactor
+package eu.europa.ec.rqesui.uilogic.component.preview
 
-class ExampleInteractor
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.ui.tooling.preview.Preview
+import eu.europa.ec.rqesui.infrastructure.theme.ThemeColors
+
+
+/**
+ * Creates previews for Light and Dark mode
+ * */
+@Preview(
+    name = "Light Mode", showBackground = true, uiMode = UI_MODE_NIGHT_NO,
+    backgroundColor = ThemeColors.theme_light_background
+)
+@Preview(
+    name = "Dark Mode", showBackground = true, uiMode = UI_MODE_NIGHT_YES,
+    backgroundColor = ThemeColors.theme_dark_background
+)
+annotation class ThemeModePreviews

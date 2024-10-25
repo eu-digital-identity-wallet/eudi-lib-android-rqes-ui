@@ -14,7 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.entities
+package eu.europa.ec.rqesui.uilogic.component
 
-class ExampleUiModel {
-}
+import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
+
+data class ModalOptionUi<T : ViewEvent>(
+    val title: String,
+    val icon: IconData,
+    val event: T
+)

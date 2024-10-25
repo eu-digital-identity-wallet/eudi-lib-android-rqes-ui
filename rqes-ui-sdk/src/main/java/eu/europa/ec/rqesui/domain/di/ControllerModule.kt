@@ -30,7 +30,7 @@ import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Single
 
 @Single
-internal fun providePrefenencesController(context: Context): PreferencesController =
+internal fun providePreferencesController(context: Context): PreferencesController =
     PreferencesControllerImpl(context)
 
 @Single

@@ -14,6 +14,18 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.router
+package eu.europa.ec.rqesui.uilogic.component.preview
 
-class Graph {}
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+
+/**
+ * Provides different strings in order to test view's behavior based on string length
+ * */
+class TextLengthPreviewProvider : PreviewParameterProvider<String> {
+    override val values: Sequence<String>
+        get() = sequenceOf(
+            "Short Text",
+            "A bit longer text.",
+            "This one is really, really long. Like, really long!"
+        )
+}

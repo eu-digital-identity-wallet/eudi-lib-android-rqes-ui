@@ -14,6 +14,13 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.component
+package eu.europa.ec.rqesui.domain.extension
 
-class ExampleComponent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
+
+fun <T> Flow<T>.safeAsync(with: (Throwable) -> (T)): Flow<T> {
+    return this.flowOn(Dispatchers.IO).catch { emit(with(it)) }
+}

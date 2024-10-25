@@ -14,6 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.router
+package eu.europa.ec.rqesui.presentation.entities
 
-class Graph {}
+data class SignDocumentOptionItemUi(
+    val text: String
+)

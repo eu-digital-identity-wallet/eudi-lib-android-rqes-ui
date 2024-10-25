@@ -16,3 +16,11 @@
 
 package eu.europa.ec.rqesui.domain.di
 
+import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractor
+import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractorImpl
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+import org.koin.core.annotation.Factory
+
+@Factory
+fun provideSignDocumentInteractor(resourceProvider: ResourceProvider): SignDocumentInteractor =
+    SignDocumentInteractorImpl(resourceProvider)

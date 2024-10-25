@@ -16,6 +16,7 @@
 
 package eu.europa.ec.rqesui.domain.extension
 
+import android.util.Base64
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 
 /**
@@ -52,3 +53,8 @@ fun String.localizationFormatWithArgs(
         acc.replaceFirst(oldValue = argSeparator, newValue = arg)
     }
 }
+
+fun String.encodeToBase64(): String = Base64.encodeToString(
+    this.toByteArray(Charsets.UTF_8),
+    Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE
+)

@@ -14,6 +14,13 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.router
+package eu.europa.ec.rqesui.domain.di
 
-class Graph {}
+import android.content.Context
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProviderImpl
+import org.koin.core.annotation.Single
+
+@Single
+fun provideResourceProvider(context: Context): ResourceProvider =
+    ResourceProviderImpl(context)
