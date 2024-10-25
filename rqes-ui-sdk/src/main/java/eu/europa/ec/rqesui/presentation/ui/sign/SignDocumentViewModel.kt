@@ -62,6 +62,7 @@ sealed class Event : ViewEvent {
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+        data object CancelConfirmed : BottomSheet()
     }
 }
 
@@ -69,12 +70,11 @@ sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Pop : Navigation()
         data object Finish : Navigation()
-
     }
 }
 
 sealed class BottomSheetContent {
-    data object ConfirmCancellation : BottomSheetContent()
+    // will be implemented for qtsp bottom sheet
 }
 
 @KoinViewModel
@@ -130,9 +130,14 @@ class SignDocumentViewModel(
             is Event.BottomSheet.UpdateBottomSheetState -> {
                 setState {
                     copy(
-                        sheetContent = BottomSheetContent.ConfirmCancellation,
                         isBottomSheetOpen = event.isOpen
                     )
+                }
+            }
+
+            is Event.BottomSheet.CancelConfirmed -> {
+                setEffect {
+                    Effect.Navigation.Finish
                 }
             }
 

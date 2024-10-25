@@ -87,7 +87,6 @@ fun SignDocumentScreen(
         onBack = state.onBackAction,
         contentErrorConfig = state.error,
     ) { paddingValues ->
-
         Content(
             state = state,
             effectFlow = viewModel.effect,
@@ -105,16 +104,11 @@ fun SignDocumentScreen(
         if (isBottomSheetOpen) {
             WrapModalBottomSheet(
                 onDismissRequest = {
-                    viewModel.setEvent(
-                        Event.BottomSheet.UpdateBottomSheetState(
-                            isOpen = false
-                        )
-                    )
+                    viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
                 },
                 sheetState = bottomSheetState
             ) {
                 SignDocumentSheetContent(
-                    sheetContent = state.sheetContent,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
                     }
@@ -168,7 +162,7 @@ private fun Content(
                             enabled = true,
                             onClick = {
                                 onEventSend(
-                                    Event.SignDocument(URI("uriValue"))
+                                    Event.OpenDocument(URI("uriValue"))
                                 )
                             }
                         )
@@ -177,15 +171,15 @@ private fun Content(
                     }
                 }
             }
-
         }
 
         ButtonContainerBottomBar(
             onPositiveClick = {
                 onEventSend(
-                    Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
+                    Event.SignDocument(URI("uriValue"))
                 )
-            })
+            }
+        )
     }
 
     LaunchedEffect(Unit) {
@@ -239,27 +233,24 @@ private fun ButtonContainerBottomBar(
 
 @Composable
 private fun SignDocumentSheetContent(
-    sheetContent: BottomSheetContent?,
     onEventSent: (event: Event) -> Unit
 ) {
-    when (sheetContent) {
-        is BottomSheetContent.ConfirmCancellation, null -> {
-            DialogBottomSheet(
-                title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
-                message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
-                positiveButtonText = stringResource(id = R.string.sign_document_bottom_sheet_continue_button_text),
-                negativeButtonText = stringResource(id = R.string.sign_document_bottom_sheet_cancel_button_text),
-                onPositiveClick = {
-                    onEventSent(
-                        Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
-                    )
-                },
-                onNegativeClick = {
-                    onEventSent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
-                }
+    DialogBottomSheet(
+        title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
+        message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
+        positiveButtonText = stringResource(id = R.string.sign_document_bottom_sheet_continue_button_text),
+        negativeButtonText = stringResource(id = R.string.sign_document_bottom_sheet_cancel_button_text),
+        onPositiveClick = {
+            onEventSent(
+                Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
+            )
+        },
+        onNegativeClick = {
+            onEventSent(
+                Event.BottomSheet.CancelConfirmed
             )
         }
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
