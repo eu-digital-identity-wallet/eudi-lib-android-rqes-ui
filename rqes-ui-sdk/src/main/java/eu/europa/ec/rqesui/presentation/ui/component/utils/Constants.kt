@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.utils
+package eu.europa.ec.rqesui.presentation.ui.component.utils
 
 /**
  * Z index of loading overlay.

@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.content
+package eu.europa.ec.rqesui.presentation.ui.component.content
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,8 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import eu.europa.ec.rqesui.uilogic.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.uilogic.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 
 @Composable
 fun ContentTitleWithSubtitle(

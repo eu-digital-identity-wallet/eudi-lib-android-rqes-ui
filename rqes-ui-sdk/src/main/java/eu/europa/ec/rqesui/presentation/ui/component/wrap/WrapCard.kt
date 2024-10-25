@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.wrap
+package eu.europa.ec.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.ColumnScope
@@ -31,9 +31,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.infrastructure.theme.backgroundDefault
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
-import eu.europa.ec.rqesui.uilogic.component.preview.PreviewTheme
-import eu.europa.ec.rqesui.uilogic.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.uilogic.component.utils.SIZE_MEDIUM
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_MEDIUM
 
 @Composable
 fun WrapCard(

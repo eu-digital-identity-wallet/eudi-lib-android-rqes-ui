@@ -14,14 +14,10 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.preview
+package eu.europa.ec.rqesui.presentation.entities
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-
-@Composable
-fun PreviewTheme(
-    content: @Composable () -> Unit
-) {
-    MaterialTheme { content() }
-}
+data class SelectionItemUi(
+    val title: String,
+    val subTitle: String? = null,
+    val action: String,
+)

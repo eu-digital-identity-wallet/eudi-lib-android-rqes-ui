@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.loader
+package eu.europa.ec.rqesui.presentation.ui.component.loader
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.zIndex
 import eu.europa.ec.rqesui.presentation.extension.clickableNoRipple
-import eu.europa.ec.rqesui.uilogic.component.utils.Z_LOADING
+import eu.europa.ec.rqesui.presentation.ui.component.utils.Z_LOADING
 
 @Composable
 fun LoadingIndicator() {

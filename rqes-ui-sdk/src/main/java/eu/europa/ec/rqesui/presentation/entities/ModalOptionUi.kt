@@ -16,6 +16,11 @@
 
 package eu.europa.ec.rqesui.presentation.entities
 
-data class SignDocumentOptionItemUi(
-    val text: String
+import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
+import eu.europa.ec.rqesui.presentation.ui.component.IconData
+
+data class ModalOptionUi<T : ViewEvent>(
+    val title: String,
+    val icon: IconData,
+    val event: T
 )

@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component
+package eu.europa.ec.rqesui.presentation.ui.component
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

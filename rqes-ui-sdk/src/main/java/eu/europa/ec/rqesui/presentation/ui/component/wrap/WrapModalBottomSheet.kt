@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.wrap
+package eu.europa.ec.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -39,34 +38,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.backgroundDefault
 import eu.europa.ec.rqesui.infrastructure.theme.dividerDefault
 import eu.europa.ec.rqesui.infrastructure.theme.textPrimaryDark
 import eu.europa.ec.rqesui.infrastructure.theme.textSecondaryDark
-import eu.europa.ec.rqesui.infrastructure.theme.topCorneredShapeDefault
-import eu.europa.ec.rqesui.infrastructure.theme.value.Typography
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
+import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
-import eu.europa.ec.rqesui.uilogic.component.AppIcons
-import eu.europa.ec.rqesui.uilogic.component.ModalOptionUi
-import eu.europa.ec.rqesui.uilogic.component.preview.PreviewTheme
-import eu.europa.ec.rqesui.uilogic.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.uilogic.component.utils.HSpacer
-import eu.europa.ec.rqesui.uilogic.component.utils.SIZE_SMALL
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_LARGE
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_MEDIUM
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_SMALL
-import eu.europa.ec.rqesui.uilogic.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.HSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_SMALL
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_SMALL
+import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 
-
-/** value set to SPACING_LARGE, 24dp */
 private val defaultBottomSheetPadding: PaddingValues = PaddingValues(
-    start = SPACING_LARGE.dp,
-    end = SPACING_LARGE.dp,
-    bottom = SPACING_LARGE.dp
+    all = SPACING_LARGE.dp
 )
+
+private val bottomSheetDefaultBackgroundColor: Color
+    @Composable get() = MaterialTheme.colorScheme.background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,7 +71,7 @@ fun WrapModalBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState,
     shape: Shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-    dragHandle: @Composable (() -> Unit)? = null,
+    dragHandle: @Composable (() -> Unit) = { BottomSheetDefaultHandle() },
     sheetContent: @Composable ColumnScope.() -> Unit
 ) {
     ModalBottomSheet(
@@ -96,27 +92,10 @@ fun GenericBaseSheetContent(
     Column(
         modifier = Modifier
             .wrapContentHeight()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = bottomSheetDefaultBackgroundColor)
             .fillMaxWidth()
             .padding(defaultBottomSheetPadding)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.background, // Change this to any color you prefer
-                    shape = MaterialTheme.shapes.topCorneredShapeDefault // Rounded corners with a radius of 12.dp
-                ),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            WrapIcon(
-                iconData = AppIcons.HandleBar,
-                customTint = MaterialTheme.colorScheme.dividerDefault
-            )
-        }
-
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge.copy(
@@ -137,7 +116,7 @@ fun GenericBaseSheetContent(
     Column(
         modifier = Modifier
             .wrapContentHeight()
-            .background(color = MaterialTheme.colorScheme.background)
+            .background(color = bottomSheetDefaultBackgroundColor)
             .fillMaxWidth()
             .padding(defaultBottomSheetPadding)
     ) {
@@ -175,7 +154,7 @@ fun DialogBottomSheet(
                     ) {
                         Text(
                             text = negativeButtonText,
-                            style = Typography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -259,7 +238,7 @@ private fun <T : ViewEvent> OptionListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(SIZE_SMALL.dp))
-            .background(MaterialTheme.colorScheme.backgroundDefault)
+            .background(bottomSheetDefaultBackgroundColor)
             .throttledClickable {
                 itemSelected(item.event)
             }
@@ -279,6 +258,23 @@ private fun <T : ViewEvent> OptionListItem(
             modifier = Modifier.wrapContentWidth(),
             iconData = item.icon,
             customTint = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@Composable
+private fun BottomSheetDefaultHandle() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(bottomSheetDefaultBackgroundColor)
+            .padding(vertical = SPACING_SMALL.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        WrapIcon(
+            iconData = AppIcons.HandleBar,
+            customTint = MaterialTheme.colorScheme.dividerDefault
         )
     }
 }

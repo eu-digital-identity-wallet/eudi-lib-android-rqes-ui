@@ -24,12 +24,12 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -44,27 +44,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.R
-import eu.europa.ec.rqesui.infrastructure.theme.value.Typography
-import eu.europa.ec.rqesui.presentation.entities.SignDocumentOptionItemUi
+import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
-import eu.europa.ec.rqesui.presentation.ui.sign.model.SignDocumentSelectionData
-import eu.europa.ec.rqesui.presentation.ui.sign.model.SignDocumentSelectionItem
-import eu.europa.ec.rqesui.uilogic.component.content.ContentScreen
-import eu.europa.ec.rqesui.uilogic.component.content.ContentTitleWithSubtitle
-import eu.europa.ec.rqesui.uilogic.component.content.ScreenNavigateAction
-import eu.europa.ec.rqesui.uilogic.component.preview.PreviewTheme
-import eu.europa.ec.rqesui.uilogic.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.uilogic.component.utils.HSpacer
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_LARGE
-import eu.europa.ec.rqesui.uilogic.component.utils.VSpacer
-import eu.europa.ec.rqesui.uilogic.component.wrap.DialogBottomSheet
-import eu.europa.ec.rqesui.uilogic.component.wrap.WrapModalBottomSheet
-import eu.europa.ec.rqesui.uilogic.component.wrap.WrapPrimaryButton
+import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
+import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
+import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSubtitle
+import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.HSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 import java.net.URI
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,8 +82,8 @@ fun SignDocumentScreen(
 
     ContentScreen(
         isLoading = state.isLoading,
-        navigatableAction = state.navigatableAction,
-        onBack = state.onBackAction,
+        navigatableAction = ScreenNavigateAction.CANCELABLE,
+        onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
     ) { paddingValues ->
         Content(
@@ -93,7 +92,6 @@ fun SignDocumentScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
-                    is Effect.Navigation.Pop -> navController.popBackStack()
                     is Effect.Navigation.Finish -> context.finish()
                 }
             },
@@ -109,6 +107,7 @@ fun SignDocumentScreen(
                 sheetState = bottomSheetState
             ) {
                 SignDocumentSheetContent(
+                    sheetContent = state.sheetContent,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
                     }
@@ -126,21 +125,20 @@ private fun Content(
     onEventSend: (Event) -> Unit,
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
-    modalBottomSheetState: SheetState? = null
+    modalBottomSheetState: SheetState,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
-            .navigationBarsPadding()
-            .fillMaxSize(),
+            .fillMaxSize()
+            .padding(paddingValues),
         verticalArrangement = Arrangement.Top
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(paddingValues),
+                .weight(1f),
             verticalArrangement = Arrangement.Top
         ) {
             ContentTitleWithSubtitle(
@@ -148,18 +146,14 @@ private fun Content(
                 subtitle = state.subtitle,
             )
 
-            VSpacer.Custom(space = 24)
+            VSpacer.Large()
 
             LazyColumn {
                 state.options.forEach { option ->
                     item {
-                        SignDocumentSelectionItem(
+                        SelectionItem(
                             modifier = Modifier.defaultMinSize(minHeight = 76.dp),
-                            data = SignDocumentSelectionData(
-                                text = option.text,
-                                label = stringResource(R.string.sign_document_pdf_selection_item_label)
-                            ),
-                            enabled = true,
+                            data = option,
                             onClick = {
                                 onEventSend(
                                     Event.OpenDocument(URI("uriValue"))
@@ -186,6 +180,20 @@ private fun Content(
         effectFlow.onEach { effect ->
             when (effect) {
                 is Effect.Navigation -> onNavigationRequested(effect)
+
+                is Effect.CloseBottomSheet -> {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!modalBottomSheetState.isVisible) {
+                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                        }
+                    }
+                }
+
+                is Effect.ShowBottomSheet -> {
+                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                }
             }
         }.collect()
     }
@@ -207,12 +215,9 @@ private fun ButtonContainerBottomBar(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(89.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            HSpacer.Large()
-
             WrapPrimaryButton(
                 modifier = Modifier
                     .weight(1f)
@@ -221,11 +226,9 @@ private fun ButtonContainerBottomBar(
             ) {
                 Text(
                     text = stringResource(R.string.generic_sign_button_text),
-                    style = Typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
-
-            HSpacer.Large()
         }
     }
 }
@@ -233,24 +236,31 @@ private fun ButtonContainerBottomBar(
 
 @Composable
 private fun SignDocumentSheetContent(
+    sheetContent: SignDocumentBottomSheetContent,
     onEventSent: (event: Event) -> Unit
 ) {
-    DialogBottomSheet(
-        title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
-        message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
-        positiveButtonText = stringResource(id = R.string.sign_document_bottom_sheet_continue_button_text),
-        negativeButtonText = stringResource(id = R.string.sign_document_bottom_sheet_cancel_button_text),
-        onPositiveClick = {
-            onEventSent(
-                Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
-            )
-        },
-        onNegativeClick = {
-            onEventSent(
-                Event.BottomSheet.CancelConfirmed
+    when (sheetContent) {
+        is SignDocumentBottomSheetContent.ConfirmCancellation -> {
+            DialogBottomSheet(
+                title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
+                message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
+                positiveButtonText = stringResource(id = R.string.sign_document_bottom_sheet_continue_button_text),
+                negativeButtonText = stringResource(id = R.string.sign_document_bottom_sheet_cancel_button_text),
+                onPositiveClick = {
+                    onEventSent(
+                        Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed
+                    )
+                },
+                onNegativeClick = {
+                    onEventSent(
+                        Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed
+                    )
+                }
             )
         }
-    )
+
+        is SignDocumentBottomSheetContent.SelectQTSP -> TODO()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -260,12 +270,12 @@ private fun DashboardSignDocumentScreenPreview() {
     PreviewTheme {
         Content(
             state = State(
-                navigatableAction = ScreenNavigateAction.CANCELABLE,
                 title = "Sign a document",
                 subtitle = "Select a document to add in your EUDI Wallet",
                 options = listOf(
-                    SignDocumentOptionItemUi(
-                        text = "From your device"
+                    SelectionItemUi(
+                        title = "Document name.PDF",
+                        action = "VIEW",
                     )
                 )
             ),
@@ -273,6 +283,7 @@ private fun DashboardSignDocumentScreenPreview() {
             onEventSend = {},
             onNavigationRequested = {},
             paddingValues = PaddingValues(all = SPACING_LARGE.dp),
+            modalBottomSheetState = rememberModalBottomSheetState(),
         )
     }
 }
@@ -284,20 +295,20 @@ private fun SignDocumentScreenPreview() {
     PreviewTheme {
         Content(
             state = State(
-                navigatableAction = ScreenNavigateAction.NONE,
                 title = "Sign a document",
                 subtitle = "Select a document from your device or scan QR",
-
                 options = listOf(
-                    SignDocumentOptionItemUi(
-                        text = "From your device"
-                    ),
+                    SelectionItemUi(
+                        title = "Document name.PDF",
+                        action = "VIEW",
+                    )
                 )
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},
             onNavigationRequested = {},
             paddingValues = PaddingValues(all = SPACING_LARGE.dp),
+            modalBottomSheetState = rememberModalBottomSheetState(),
         )
     }
 }

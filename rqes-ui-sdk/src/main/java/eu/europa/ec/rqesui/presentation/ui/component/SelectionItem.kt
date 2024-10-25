@@ -14,14 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.sign.model
+package eu.europa.ec.rqesui.presentation.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,32 +32,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.uilogic.component.preview.PreviewTheme
-import eu.europa.ec.rqesui.uilogic.component.preview.TextLengthPreviewProvider
-import eu.europa.ec.rqesui.uilogic.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_MEDIUM
-import eu.europa.ec.rqesui.uilogic.component.wrap.WrapCard
-
-data class SignDocumentSelectionData(
-    val text: String,
-    val label: String
-)
+import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
 
 @Composable
-fun SignDocumentSelectionItem(
+fun SelectionItem(
     modifier: Modifier = Modifier,
-    data: SignDocumentSelectionData,
-    enabled: Boolean = true,
+    data: SelectionItemUi,
+    colors: CardColors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+    ),
     onClick: (() -> Unit)
 ) {
     WrapCard(
         modifier = modifier,
-        enabled = enabled,
         onClick = onClick,
         throttleClicks = true,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        )
+        colors = colors,
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxHeight()) {
             Row(
@@ -63,16 +60,28 @@ fun SignDocumentSelectionItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Text(
+                Column(
                     modifier = Modifier.weight(1f),
-                    text = "Document file name - created at 2024-01-01.pdf",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start,
+                ) {
+                    Text(
+                        text = data.title,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    data.subTitle?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
 
                 Text(
-                    text = data.label,
+                    text = data.action,
                     color = MaterialTheme.colorScheme.primary,
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -84,35 +93,17 @@ fun SignDocumentSelectionItem(
 
 @ThemeModePreviews
 @Composable
-private fun SignDocumentButtonEnabledPreview(
+private fun SelectionItemPreview(
     @PreviewParameter(TextLengthPreviewProvider::class) text: String
 ) {
     PreviewTheme {
-        SignDocumentSelectionItem(
+        SelectionItem(
             modifier = Modifier.fillMaxWidth(),
-            data = SignDocumentSelectionData(
-                text = "test text",
-                label = "VIEW"
+            data = SelectionItemUi(
+                title = "test text",
+                subTitle = "test subtitle",
+                action = "VIEW",
             ),
-            enabled = true,
-            onClick = {}
-        )
-    }
-}
-
-@ThemeModePreviews
-@Composable
-private fun SignDocumentButtonDisabledPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
-) {
-    PreviewTheme {
-        SignDocumentSelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            data = SignDocumentSelectionData(
-                text = "test text",
-                label = "VIEW"
-            ),
-            enabled = false,
             onClick = {}
         )
     }

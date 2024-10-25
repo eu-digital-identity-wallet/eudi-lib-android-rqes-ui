@@ -25,18 +25,14 @@ import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
-import eu.europa.ec.rqesui.presentation.entities.SignDocumentOptionItemUi
-import eu.europa.ec.rqesui.uilogic.component.content.ContentErrorConfig
-import eu.europa.ec.rqesui.uilogic.component.content.ScreenNavigateAction
+import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import java.net.URI
 
 data class State(
     val documentUri: URI? = null,
-
-    val navigatableAction: ScreenNavigateAction,
-    val onBackAction: (() -> Unit)? = null,
 
     val isLoading: Boolean = false,
     val error: ContentErrorConfig? = null,
@@ -46,8 +42,8 @@ data class State(
     val title: String = "",
     val subtitle: String = "",
 
-    val options: List<SignDocumentOptionItemUi> = emptyList(),
-    val sheetContent: BottomSheetContent? = null
+    val options: List<SelectionItemUi> = emptyList(),
+    val sheetContent: SignDocumentBottomSheetContent = SignDocumentBottomSheetContent.ConfirmCancellation,
 ) : ViewState
 
 sealed class Event : ViewEvent {
@@ -62,19 +58,25 @@ sealed class Event : ViewEvent {
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
-        data object CancelConfirmed : BottomSheet()
+        sealed class CancelSignProcess : BottomSheet() {
+            data object PrimaryButtonPressed : CancelSignProcess()
+            data object SecondaryButtonPressed : CancelSignProcess()
+        }
     }
 }
 
 sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
-        data object Pop : Navigation()
         data object Finish : Navigation()
     }
+
+    data object ShowBottomSheet : Effect()
+    data object CloseBottomSheet : Effect()
 }
 
-sealed class BottomSheetContent {
-    // will be implemented for qtsp bottom sheet
+sealed class SignDocumentBottomSheetContent {
+    data object ConfirmCancellation : SignDocumentBottomSheetContent()
+    data object SelectQTSP : SignDocumentBottomSheetContent()
 }
 
 @KoinViewModel
@@ -84,17 +86,14 @@ class SignDocumentViewModel(
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State = State(
-        navigatableAction = ScreenNavigateAction.CANCELABLE,
         title = resourceProvider.getString(R.string.sign_document_title),
         subtitle = resourceProvider.getString(R.string.sign_document_subtitle),
         options = listOf(
-            SignDocumentOptionItemUi(
-                text = "Document name.PDF"
+            SelectionItemUi(
+                title = "Document name.PDF",
+                action = "View"
             )
-        ),
-        onBackAction = {
-            setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
-        }
+        )
     )
 
     override fun handleEvents(event: Event) {
@@ -103,8 +102,12 @@ class SignDocumentViewModel(
                 println("sign document init")
             }
 
-            is Event.Pop -> setEffect { Effect.Navigation.Pop }
+            is Event.Pop -> {
+                showBottomSheet(sheetContent = SignDocumentBottomSheetContent.ConfirmCancellation)
+            }
+
             is Event.Finish -> setEffect { Effect.Navigation.Finish }
+
             is Event.DismissError -> {
                 println("sign document dismiss error ")
             }
@@ -135,7 +138,11 @@ class SignDocumentViewModel(
                 }
             }
 
-            is Event.BottomSheet.CancelConfirmed -> {
+            is Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed -> {
+                hideBottomSheet()
+            }
+
+            is Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed -> {
                 setEffect {
                     Effect.Navigation.Finish
                 }
@@ -144,6 +151,21 @@ class SignDocumentViewModel(
             is Event.OpenDocument -> {
                 println("sign document open document ")
             }
+        }
+    }
+
+    private fun showBottomSheet(sheetContent: SignDocumentBottomSheetContent) {
+        setState {
+            copy(sheetContent = sheetContent)
+        }
+        setEffect {
+            Effect.ShowBottomSheet
+        }
+    }
+
+    private fun hideBottomSheet() {
+        setEffect {
+            Effect.CloseBottomSheet
         }
     }
 }

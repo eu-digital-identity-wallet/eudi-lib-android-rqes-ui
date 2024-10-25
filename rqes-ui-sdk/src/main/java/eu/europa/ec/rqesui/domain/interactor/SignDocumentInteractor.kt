@@ -44,10 +44,10 @@ class SignDocumentInteractorImpl(
 
     override fun signPdfDocument(documentURI: URI): Flow<SignDocumentPartialState> =
         flow {
-            emit(SignDocumentPartialState.Success(null))
+            emit(SignDocumentPartialState.Success(signedDocumentUri = null))
         }.safeAsync {
             SignDocumentPartialState.SigningFailure(
-                error = genericErrorMsg
+                error = it.localizedMessage ?: genericErrorMsg
             )
         }
 }

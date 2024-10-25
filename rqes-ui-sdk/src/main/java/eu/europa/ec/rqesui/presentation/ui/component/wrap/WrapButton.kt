@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.wrap
+package eu.europa.ec.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -34,8 +34,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.infrastructure.theme.textDisabledDark
 import eu.europa.ec.rqesui.infrastructure.theme.textPrimaryDark
-import eu.europa.ec.rqesui.uilogic.component.utils.SIZE_100
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_MEDIUM
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_100
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 
 
 private val buttonsShape: RoundedCornerShape = RoundedCornerShape(SIZE_100.dp)

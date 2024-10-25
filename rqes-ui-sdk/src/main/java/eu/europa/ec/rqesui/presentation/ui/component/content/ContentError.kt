@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.content
+package eu.europa.ec.rqesui.presentation.ui.component.content
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,10 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.R
-import eu.europa.ec.rqesui.uilogic.component.preview.PreviewTheme
-import eu.europa.ec.rqesui.uilogic.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.uilogic.component.utils.SIZE_MEDIUM
-import eu.europa.ec.rqesui.uilogic.component.wrap.WrapPrimaryButton
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_MEDIUM
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 
 @Composable
 internal fun ContentError(config: ContentErrorConfig, paddingValues: PaddingValues) {

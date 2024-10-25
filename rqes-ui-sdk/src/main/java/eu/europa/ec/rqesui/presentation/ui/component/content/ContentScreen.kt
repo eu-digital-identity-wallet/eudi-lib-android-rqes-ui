@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.content
+package eu.europa.ec.rqesui.presentation.ui.component.content
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -43,15 +43,15 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import eu.europa.ec.rqesui.uilogic.component.AppIcons
-import eu.europa.ec.rqesui.uilogic.component.IconData
-import eu.europa.ec.rqesui.uilogic.component.loader.LoadingIndicator
-import eu.europa.ec.rqesui.uilogic.component.utils.MAX_TOOLBAR_ACTIONS
-import eu.europa.ec.rqesui.uilogic.component.utils.SPACING_EXTRA_SMALL
-import eu.europa.ec.rqesui.uilogic.component.utils.TopSpacing
-import eu.europa.ec.rqesui.uilogic.component.utils.Z_STICKY
-import eu.europa.ec.rqesui.uilogic.component.utils.screenPaddings
-import eu.europa.ec.rqesui.uilogic.component.wrap.WrapIconButton
+import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
+import eu.europa.ec.rqesui.presentation.ui.component.IconData
+import eu.europa.ec.rqesui.presentation.ui.component.loader.LoadingIndicator
+import eu.europa.ec.rqesui.presentation.ui.component.utils.MAX_TOOLBAR_ACTIONS
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
+import eu.europa.ec.rqesui.presentation.ui.component.utils.TopSpacing
+import eu.europa.ec.rqesui.presentation.ui.component.utils.Z_STICKY
+import eu.europa.ec.rqesui.presentation.ui.component.utils.screenPaddings
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIconButton
 
 enum class LoadingType {
     NORMAL, NONE

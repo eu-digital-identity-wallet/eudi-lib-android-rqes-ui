@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.wrap
+package eu.europa.ec.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,10 +37,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
-import eu.europa.ec.rqesui.uilogic.component.IconData
-import eu.europa.ec.rqesui.uilogic.component.utils.ALPHA_DISABLED
-import eu.europa.ec.rqesui.uilogic.component.utils.ALPHA_ENABLED
-import eu.europa.ec.rqesui.uilogic.component.utils.DEFAULT_ICON_SIZE
+import eu.europa.ec.rqesui.presentation.ui.component.IconData
+import eu.europa.ec.rqesui.presentation.ui.component.utils.ALPHA_DISABLED
+import eu.europa.ec.rqesui.presentation.ui.component.utils.ALPHA_ENABLED
+import eu.europa.ec.rqesui.presentation.ui.component.utils.DEFAULT_ICON_SIZE
 
 /**
  * Reusable Wrapper Composable to be used instead of plain Icon.

@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.uilogic.component.preview
+package eu.europa.ec.rqesui.presentation.ui.component.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 
