@@ -72,6 +72,6 @@ internal class SignDocumentInteractorImpl(
         }
 
     override fun updateQTSPUserSelection(qtspData: QTSPData) {
-        TODO("Not yet implemented")
+        // TODO set selected QTSP to RQES config
     }
 }
