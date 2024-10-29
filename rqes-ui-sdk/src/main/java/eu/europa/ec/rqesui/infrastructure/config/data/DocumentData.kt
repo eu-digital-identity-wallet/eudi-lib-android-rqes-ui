@@ -14,12 +14,11 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.component.preview
+package eu.europa.ec.rqesui.infrastructure.config.data
 
-import androidx.compose.runtime.Composable
-import eu.europa.ec.rqesui.infrastructure.theme.ThemeManager
+import java.net.URI
 
-@Composable
-internal fun PreviewTheme(content: @Composable () -> Unit) {
-    ThemeManager.instance.Theme { content() }
-}
+data class DocumentData(
+    val documentName: String = "",
+    val uri: URI
+)

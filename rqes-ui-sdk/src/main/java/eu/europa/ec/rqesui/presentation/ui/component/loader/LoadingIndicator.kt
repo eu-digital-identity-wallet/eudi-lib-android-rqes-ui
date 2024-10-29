@@ -28,7 +28,7 @@ import eu.europa.ec.rqesui.presentation.extension.clickableNoRipple
 import eu.europa.ec.rqesui.presentation.ui.component.utils.Z_LOADING
 
 @Composable
-fun LoadingIndicator() {
+internal fun LoadingIndicator() {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier

@@ -35,7 +35,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_MEDIUM
 
 @Composable
-fun WrapCard(
+internal fun WrapCard(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,

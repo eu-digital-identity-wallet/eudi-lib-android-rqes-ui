@@ -164,7 +164,7 @@ private fun Content(
                             data = option,
                             onClick = {
                                 onEventSend(
-                                    Event.OpenDocument(URI("uriValue"))
+                                    Event.ViewDocument(URI("uriValue"))
                                 )
                             }
                         )

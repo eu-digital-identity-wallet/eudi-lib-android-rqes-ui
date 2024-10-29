@@ -21,7 +21,7 @@ import android.content.Intent
 import android.net.Uri
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
 
-fun Context.finish() {
+internal fun Context.finish() {
     (this as? EudiRQESContainer)?.finish()
 }
 
@@ -30,7 +30,7 @@ fun Context.finish() {
  *
  * @param uri the url to parse.
  */
-fun Context.openUrl(uri: Uri) {
+internal fun Context.openUrl(uri: Uri) {
     try {
         startActivity(Intent(Intent.ACTION_VIEW, uri))
     } catch (_: Exception) {

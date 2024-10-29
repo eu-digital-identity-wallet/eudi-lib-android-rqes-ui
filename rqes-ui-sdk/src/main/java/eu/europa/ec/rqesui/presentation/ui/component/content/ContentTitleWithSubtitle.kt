@@ -30,7 +30,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 
 @Composable
-fun ContentTitleWithSubtitle(
+internal fun ContentTitleWithSubtitle(
     title: String,
     subtitle: String
 ) {

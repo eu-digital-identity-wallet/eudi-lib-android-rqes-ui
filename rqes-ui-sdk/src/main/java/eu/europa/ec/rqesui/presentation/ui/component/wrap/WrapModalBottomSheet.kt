@@ -66,7 +66,7 @@ private val bottomSheetDefaultBackgroundColor: Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WrapModalBottomSheet(
+internal fun WrapModalBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState,
@@ -85,7 +85,7 @@ fun WrapModalBottomSheet(
 }
 
 @Composable
-fun GenericBaseSheetContent(
+internal fun GenericBaseSheetContent(
     title: String,
     bodyContent: @Composable () -> Unit
 ) {
@@ -109,7 +109,7 @@ fun GenericBaseSheetContent(
 }
 
 @Composable
-fun GenericBaseSheetContent(
+internal fun GenericBaseSheetContent(
     titleContent: @Composable () -> Unit,
     bodyContent: @Composable () -> Unit,
 ) {
@@ -127,7 +127,7 @@ fun GenericBaseSheetContent(
 }
 
 @Composable
-fun DialogBottomSheet(
+internal fun DialogBottomSheet(
     title: String,
     message: String,
     positiveButtonText: String? = null,

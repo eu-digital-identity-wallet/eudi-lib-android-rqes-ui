@@ -22,12 +22,12 @@ import android.content.Context
 import android.content.Intent
 import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.ksp.generated.module
-import java.net.URI
 
 object EudiRQESUi {
 
@@ -41,7 +41,7 @@ object EudiRQESUi {
 
     fun initiate(
         context: Context,
-        file: URI
+        file: DocumentData
     ) {
         setState(State.Initial(file))
         resume(context)
@@ -79,7 +79,7 @@ object EudiRQESUi {
 
     sealed class State {
         data object None : State()
-        data class Initial(val file: URI) : State()
+        data class Initial(val file: DocumentData) : State()
         data class Certificate(val file: String) : State()
         data class Sign(val value: String) : State()
     }

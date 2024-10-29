@@ -18,4 +18,4 @@ package eu.europa.ec.rqesui.domain.controller
 
 interface RQESCoreController
 
-class RQESCoreControllerImpl : RQESCoreController
+internal class RQESCoreControllerImpl : RQESCoreController

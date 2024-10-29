@@ -42,7 +42,7 @@ private val buttonsContentHorizontalPadding: PaddingValues =
     PaddingValues(horizontal = SPACING_MEDIUM.dp)
 
 @Composable
-fun WrapPrimaryButton(
+internal fun WrapPrimaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit,
@@ -69,7 +69,7 @@ fun WrapPrimaryButton(
 }
 
 @Composable
-fun WrapSecondaryButton(
+internal fun WrapSecondaryButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit,

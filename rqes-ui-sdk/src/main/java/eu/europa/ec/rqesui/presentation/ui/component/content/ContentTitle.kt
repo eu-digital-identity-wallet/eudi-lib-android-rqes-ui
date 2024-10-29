@@ -62,7 +62,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIcon
  * to hide title.
  */
 @Composable
-fun ContentTitle(
+internal fun ContentTitle(
     title: String? = null,
     titleWithBadge: TitleWithBadge? = null,
     onTitleWithBadgeClick: (() -> Unit)? = null,

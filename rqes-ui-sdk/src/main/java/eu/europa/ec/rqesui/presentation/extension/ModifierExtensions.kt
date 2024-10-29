@@ -38,7 +38,7 @@ private data class ClickState(
     var currentTimeInMillis: Long
 )
 
-fun Modifier.throttledClickable(
+internal fun Modifier.throttledClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,

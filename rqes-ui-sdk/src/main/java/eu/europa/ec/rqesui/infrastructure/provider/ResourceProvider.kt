@@ -22,8 +22,10 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import eu.europa.ec.rqesui.R
+import eu.europa.ec.rqesui.domain.controller.LocalizationController
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 
-interface ResourceProvider {
+internal interface ResourceProvider {
 
     fun provideContext(): Context
     fun provideContentResolver(): ContentResolver
@@ -32,10 +34,12 @@ interface ResourceProvider {
     fun getQuantityString(@PluralsRes resId: Int, quantity: Int, vararg formatArgs: Any): String
     fun getString(@StringRes resId: Int, vararg formatArgs: Any): String
     fun genericErrorMessage(): String
+    fun getLocalizedString(localizableKey: LocalizableKey): String
 }
 
-class ResourceProviderImpl(
-    private val context: Context
+internal class ResourceProviderImpl(
+    private val context: Context,
+    private val localizationController: LocalizationController
 ) : ResourceProvider {
 
     override fun provideContext() = context
@@ -76,4 +80,8 @@ class ResourceProviderImpl(
         } catch (_: Exception) {
             ""
         }
+
+    override fun getLocalizedString(localizableKey: LocalizableKey): String {
+        return localizationController.get(localizableKey)
+    }
 }

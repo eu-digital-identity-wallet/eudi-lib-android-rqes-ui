@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.testrqes.ui.theme.EudiRQESUiTheme
 import java.net.URI
 
@@ -75,5 +76,11 @@ private fun ContentPreview() {
 }
 
 private fun showRQESSDK(context: Context) {
-    EudiRQESUi.initiate(context, URI.create("https://www.netcompany.com"))
+    EudiRQESUi.initiate(
+        context = context,
+        file = DocumentData(
+            documentName = "Document.pdf",
+            uri = URI.create("https://endpoint")
+        )
+    )
 }

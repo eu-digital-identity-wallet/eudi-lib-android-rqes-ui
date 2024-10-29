@@ -23,7 +23,7 @@ enum class TopSpacing {
     WithToolbar, WithoutToolbar, MediumSpacing
 }
 
-fun screenPaddings(
+internal fun screenPaddings(
     append: PaddingValues? = null,
     topSpacing: TopSpacing = TopSpacing.WithToolbar
 ) = PaddingValues(

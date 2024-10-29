@@ -22,5 +22,5 @@ import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import org.koin.core.annotation.Factory
 
 @Factory
-fun provideSignDocumentInteractor(resourceProvider: ResourceProvider): SignDocumentInteractor =
+internal fun provideSignDocumentInteractor(resourceProvider: ResourceProvider): SignDocumentInteractor =
     SignDocumentInteractorImpl(resourceProvider)

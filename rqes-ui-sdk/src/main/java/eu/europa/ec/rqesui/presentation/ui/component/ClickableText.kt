@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
  * the character offset within the text that was clicked.
  */
 @Composable
-fun ClickableText(
+internal fun ClickableText(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,

@@ -16,7 +16,7 @@
 
 package eu.europa.ec.rqesui.presentation.entities
 
-data class SelectionItemUi(
+internal data class SelectionItemUi(
     val title: String,
     val subTitle: String? = null,
     val action: String,

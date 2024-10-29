@@ -48,7 +48,7 @@ enum class LocalizableKey {
             SignDocument -> "Sign document"
             SelectDocumentTitle -> "Select a document from your device to sign electronically."
             SelectDocument -> "Select document"
-            ConfirmSelectionTitle -> "Please confirm signing of the following."
+            ConfirmSelectionTitle -> "Please confirm signing of the following"
             SelectService -> "Select service"
             SelectServiceTitle -> "Select remote signing service."
             SelectServiceSubtitle -> "Remote signing enables you to digitally sign documents without the need for locally installed digital identities. Cloud-hosted signing service makes remote signing possible."

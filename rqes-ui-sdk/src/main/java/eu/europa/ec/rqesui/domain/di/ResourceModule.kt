@@ -17,10 +17,13 @@
 package eu.europa.ec.rqesui.domain.di
 
 import android.content.Context
+import eu.europa.ec.rqesui.domain.controller.LocalizationController
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProviderImpl
 import org.koin.core.annotation.Single
 
 @Single
-fun provideResourceProvider(context: Context): ResourceProvider =
-    ResourceProviderImpl(context)
+internal fun provideResourceProvider(
+    context: Context,
+    localizationController: LocalizationController
+): ResourceProvider = ResourceProviderImpl(context, localizationController)

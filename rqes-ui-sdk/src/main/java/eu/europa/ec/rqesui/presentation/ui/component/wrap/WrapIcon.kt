@@ -51,7 +51,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.DEFAULT_ICON_SIZE
  * @param contentAlpha The alpha of its content. [ALPHA_ENABLED] by default.
  */
 @Composable
-fun WrapIcon(
+internal fun WrapIcon(
     iconData: IconData,
     modifier: Modifier = Modifier,
     customTint: Color? = null,
@@ -100,7 +100,7 @@ fun WrapIcon(
  * IMPORTANT NOTE: This icon button has an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  */
 @Composable
-fun WrapIconButton(
+internal fun WrapIconButton(
     modifier: Modifier = Modifier,
     iconData: IconData,
     customTint: Color? = null,

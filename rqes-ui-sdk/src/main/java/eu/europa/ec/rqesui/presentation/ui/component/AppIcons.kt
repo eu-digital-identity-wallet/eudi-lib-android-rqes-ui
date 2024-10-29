@@ -34,7 +34,7 @@ import eu.europa.ec.rqesui.R
  * @throws IllegalArgumentException If both [resourceId] AND [imageVector] are null.
  */
 @Stable
-data class IconData(
+internal data class IconData(
     @DrawableRes val resourceId: Int?,
     @StringRes val contentDescriptionId: Int,
     val imageVector: ImageVector? = null,
@@ -53,7 +53,7 @@ data class IconData(
 /**
  * A Singleton object responsible for providing access to all the app's Icons.
  */
-object AppIcons {
+internal object AppIcons {
 
     val ArrowBack: IconData = IconData(
         resourceId = null,

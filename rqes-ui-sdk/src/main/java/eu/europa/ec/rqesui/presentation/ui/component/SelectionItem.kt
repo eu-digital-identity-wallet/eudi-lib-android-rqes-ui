@@ -42,7 +42,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
 
 @Composable
-fun SelectionItem(
+internal fun SelectionItem(
     modifier: Modifier = Modifier,
     data: SelectionItemUi,
     colors: CardColors = CardDefaults.cardColors(

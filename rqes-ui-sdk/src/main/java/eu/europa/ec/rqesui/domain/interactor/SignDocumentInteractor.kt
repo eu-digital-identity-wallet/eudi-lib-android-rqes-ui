@@ -17,12 +17,14 @@
 package eu.europa.ec.rqesui.domain.interactor
 
 import eu.europa.ec.rqesui.domain.extension.safeAsync
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.net.URI
 
-sealed class SignDocumentPartialState {
+internal sealed class SignDocumentPartialState {
     data class Success(
         val signedDocumentUri: URI?
     ) : SignDocumentPartialState()
@@ -30,17 +32,35 @@ sealed class SignDocumentPartialState {
     data class SigningFailure(val error: String) : SignDocumentPartialState()
 }
 
-interface SignDocumentInteractor {
+internal interface SignDocumentInteractor {
+
+    fun getQTSPList(): List<QTSPData>
+    fun getDocumentName(): String
     fun signPdfDocument(documentURI: URI): Flow<SignDocumentPartialState>
+    fun updateQTSPUserSelection(qtspData: QTSPData)
 }
 
-class SignDocumentInteractorImpl(
+internal class SignDocumentInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val rqesCoreController: Any? = null,
 ) : SignDocumentInteractor {
 
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
+
+    override fun getQTSPList(): List<QTSPData> {
+        return EudiRQESUi.getEudiRQESUiConfig().qtsps
+    }
+
+    override fun getDocumentName(): String {
+        return when (val sdkState = EudiRQESUi.getState()) {
+            is EudiRQESUi.State.Initial -> {
+                sdkState.file.documentName
+            }
+
+            else -> ""
+        }
+    }
 
     override fun signPdfDocument(documentURI: URI): Flow<SignDocumentPartialState> =
         flow {
@@ -50,4 +70,8 @@ class SignDocumentInteractorImpl(
                 error = it.localizedMessage ?: genericErrorMsg
             )
         }
+
+    override fun updateQTSPUserSelection(qtspData: QTSPData) {
+        TODO("Not yet implemented")
+    }
 }

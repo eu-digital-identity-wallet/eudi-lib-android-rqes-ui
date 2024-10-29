@@ -57,14 +57,14 @@ enum class LoadingType {
     NORMAL, NONE
 }
 
-data class ToolbarAction(
+internal data class ToolbarAction(
     val icon: IconData,
     val order: Int = 100,
     val onClick: () -> Unit,
     val enabled: Boolean = true
 )
 
-data class ToolbarConfig(
+internal data class ToolbarConfig(
     val title: String = "",
     val actions: List<ToolbarAction> = listOf()
 )
@@ -74,7 +74,7 @@ enum class ScreenNavigateAction {
 }
 
 @Composable
-fun ContentScreen(
+internal fun ContentScreen(
     isLoading: Boolean = false,
     toolBarConfig: ToolbarConfig? = null,
     navigatableAction: ScreenNavigateAction = ScreenNavigateAction.BACKABLE,
@@ -103,7 +103,7 @@ fun ContentScreen(
 }
 
 @Composable
-fun ContentScreen(
+internal fun ContentScreen(
     loadingType: LoadingType = LoadingType.NONE,
     toolBarConfig: ToolbarConfig? = null,
     navigatableAction: ScreenNavigateAction = ScreenNavigateAction.BACKABLE,

@@ -17,10 +17,9 @@
 package eu.europa.ec.rqesui.presentation.ui.sign
 
 import androidx.lifecycle.viewModelScope
-import eu.europa.ec.rqesui.R
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractor
 import eu.europa.ec.rqesui.domain.interactor.SignDocumentPartialState
-import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -49,7 +48,7 @@ internal data class State(
     val sheetContent: SignDocumentBottomSheetContent = SignDocumentBottomSheetContent.ConfirmCancellation,
 ) : ViewState
 
-sealed class Event : ViewEvent {
+internal sealed class Event : ViewEvent {
     data object Init : Event()
     data object Pop : Event()
     data object Finish : Event()
@@ -58,7 +57,7 @@ sealed class Event : ViewEvent {
 
     data class SignDocument(val documentUri: URI) : Event()
     data class SignDocumentButtonPressed(val documentUri: URI) : Event()
-    data class OpenDocument(val documentUri: URI) : Event()
+    data class ViewDocument(val documentUri: URI) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
@@ -76,7 +75,7 @@ sealed class Event : ViewEvent {
     }
 }
 
-sealed class Effect : ViewSideEffect {
+internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Finish : Navigation()
     }
@@ -100,11 +99,11 @@ internal class SignDocumentViewModel(
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State = State(
-        title = resourceProvider.getString(R.string.sign_document_title),
-        subtitle = resourceProvider.getString(R.string.sign_document_subtitle),
+        title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
+        subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
         options = listOf(
             SelectionItemUi(
-                title = "Document name.PDF",
+                title = signDocumentInteractor.getDocumentName(),
                 action = "VIEW"
             )
         )
@@ -113,7 +112,7 @@ internal class SignDocumentViewModel(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> {
-                println("sign document init")
+                // TODO
             }
 
             is Event.Pop -> {
@@ -123,7 +122,7 @@ internal class SignDocumentViewModel(
             is Event.Finish -> setEffect { Effect.Navigation.Finish }
 
             is Event.DismissError -> {
-                println("sign document dismiss error ")
+                // TODO display error message on screen
             }
 
             is Event.SignDocument -> {
@@ -162,13 +161,13 @@ internal class SignDocumentViewModel(
                 }
             }
 
-            is Event.OpenDocument -> {
-                println("sign document open document ")
+            is Event.ViewDocument -> {
+                // TODO view document in pdf screen
             }
 
             is Event.SignDocumentButtonPressed -> {
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
-                    EudiRQESUi.getEudiRQESUiConfig().qtsps.map { qtspData ->
+                    signDocumentInteractor.getQTSPList().map { qtspData ->
                         ModalOptionUi(
                             title = qtspData.qtspName,
                             icon = null,
@@ -185,7 +184,8 @@ internal class SignDocumentViewModel(
 
             is Event.BottomSheet.QTSPOptions.QTSPForSigningSelected -> {
                 hideBottomSheet()
-                // set effect to redirect to Certificate Selection screen
+                signDocumentInteractor.updateQTSPUserSelection(qtspData = event.qtspData)
+                // TODO redirect to Certificate Selection screen
             }
         }
     }
