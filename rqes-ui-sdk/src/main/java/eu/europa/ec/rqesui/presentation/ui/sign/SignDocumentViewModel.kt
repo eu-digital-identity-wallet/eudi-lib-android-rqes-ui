@@ -20,18 +20,21 @@ import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.R
 import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractor
 import eu.europa.ec.rqesui.domain.interactor.SignDocumentPartialState
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
+import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import java.net.URI
 
-data class State(
+internal data class State(
     val documentUri: URI? = null,
 
     val isLoading: Boolean = false,
@@ -52,15 +55,23 @@ sealed class Event : ViewEvent {
     data object Finish : Event()
 
     data object DismissError : Event()
-    data class SignDocument(val documentUri: URI) : Event()
 
+    data class SignDocument(val documentUri: URI) : Event()
+    data class SignDocumentButtonPressed(val documentUri: URI) : Event()
     data class OpenDocument(val documentUri: URI) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+
         sealed class CancelSignProcess : BottomSheet() {
             data object PrimaryButtonPressed : CancelSignProcess()
             data object SecondaryButtonPressed : CancelSignProcess()
+        }
+
+        sealed class QTSPOptions : BottomSheet() {
+            data class QTSPForSigningSelected(
+                val qtspData: QTSPData
+            ) : QTSPOptions()
         }
     }
 }
@@ -74,13 +85,16 @@ sealed class Effect : ViewSideEffect {
     data object CloseBottomSheet : Effect()
 }
 
-sealed class SignDocumentBottomSheetContent {
+internal sealed class SignDocumentBottomSheetContent {
     data object ConfirmCancellation : SignDocumentBottomSheetContent()
-    data object SelectQTSP : SignDocumentBottomSheetContent()
+
+    data class SelectQTSP(
+        val options: List<ModalOptionUi<Event>>
+    ) : SignDocumentBottomSheetContent()
 }
 
 @KoinViewModel
-class SignDocumentViewModel(
+internal class SignDocumentViewModel(
     private val resourceProvider: ResourceProvider,
     private val signDocumentInteractor: SignDocumentInteractor
 ) : MviViewModel<Event, State, Effect>() {
@@ -91,7 +105,7 @@ class SignDocumentViewModel(
         options = listOf(
             SelectionItemUi(
                 title = "Document name.PDF",
-                action = "View"
+                action = "VIEW"
             )
         )
     )
@@ -150,6 +164,28 @@ class SignDocumentViewModel(
 
             is Event.OpenDocument -> {
                 println("sign document open document ")
+            }
+
+            is Event.SignDocumentButtonPressed -> {
+                val bottomSheetOptions: List<ModalOptionUi<Event>> =
+                    EudiRQESUi.getEudiRQESUiConfig().qtsps.map { qtspData ->
+                        ModalOptionUi(
+                            title = qtspData.qtspName,
+                            icon = null,
+                            event = Event.BottomSheet.QTSPOptions.QTSPForSigningSelected(qtspData)
+                        )
+                    }
+
+                showBottomSheet(
+                    sheetContent = SignDocumentBottomSheetContent.SelectQTSP(
+                        options = bottomSheetOptions
+                    )
+                )
+            }
+
+            is Event.BottomSheet.QTSPOptions.QTSPForSigningSelected -> {
+                hideBottomSheet()
+                // set effect to redirect to Certificate Selection screen
             }
         }
     }

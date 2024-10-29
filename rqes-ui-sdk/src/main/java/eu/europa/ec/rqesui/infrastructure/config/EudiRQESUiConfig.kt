@@ -17,15 +17,15 @@
 package eu.europa.ec.rqesui.infrastructure.config
 
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.theme.ThemeManager
 import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeTypography
-import java.net.URI
 
 interface EudiRQESUiConfig {
 
     // QTSPs List
-    val qtsps: List<URI>
+    val qtsps: List<QTSPData>
 
     /**
      * Provides a map of translations for different locales.

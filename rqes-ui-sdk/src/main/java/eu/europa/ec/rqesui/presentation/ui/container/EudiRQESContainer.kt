@@ -25,7 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import eu.europa.ec.rqesui.infrastructure.theme.EudiRQESUiTheme
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.presentation.ui.sign.SignDocumentScreen
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
@@ -45,7 +45,11 @@ internal class EudiRQESContainer : ComponentActivity() {
                 ) {
                     KoinAndroidContext {
                         val navController = rememberNavController()
-                        SignDocumentScreen(navController = navController, koinViewModel())
+
+                        SignDocumentScreen(
+                            navController = navController,
+                            koinViewModel()
+                        )
                     }
                 }
             }

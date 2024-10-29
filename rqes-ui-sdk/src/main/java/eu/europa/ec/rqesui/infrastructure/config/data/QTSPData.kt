@@ -14,13 +14,11 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.entities
+package eu.europa.ec.rqesui.infrastructure.config.data
 
-import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
-import eu.europa.ec.rqesui.presentation.ui.component.IconData
+import java.net.URI
 
-internal data class ModalOptionUi<T : ViewEvent>(
-    val title: String,
-    val icon: IconData? = null,
-    val event: T
+data class QTSPData(
+    val qtspName: String,
+    val uri: URI
 )

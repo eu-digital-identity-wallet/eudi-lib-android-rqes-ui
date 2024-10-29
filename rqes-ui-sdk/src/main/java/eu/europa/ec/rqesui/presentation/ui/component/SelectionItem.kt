@@ -20,9 +20,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +36,8 @@ import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.ALPHA_CARD_DEFAULT
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
 
@@ -44,7 +46,9 @@ fun SelectionItem(
     modifier: Modifier = Modifier,
     data: SelectionItemUi,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        containerColor = MaterialTheme.colorScheme.primary.copy(
+            alpha = ALPHA_CARD_DEFAULT
+        )
     ),
     onClick: (() -> Unit)
 ) {
@@ -54,9 +58,15 @@ fun SelectionItem(
         throttleClicks = true,
         colors = colors,
     ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxHeight()) {
+        Box(
+            modifier = Modifier.wrapContentHeight(),
+            contentAlignment = Alignment.Center
+        ) {
             Row(
-                modifier = Modifier.padding(SPACING_MEDIUM.dp),
+                modifier = Modifier.padding(
+                    horizontal = SPACING_MEDIUM.dp,
+                    vertical = SPACING_LARGE.dp
+                ),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {

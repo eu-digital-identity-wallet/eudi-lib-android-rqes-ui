@@ -27,9 +27,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -179,7 +180,7 @@ fun DialogBottomSheet(
 }
 
 @Composable
-fun <T : ViewEvent> BottomSheetWithOptionsList(
+internal fun <T : ViewEvent> BottomSheetWithOptionsList(
     title: String,
     message: String,
     options: List<ModalOptionUi<T>>,
@@ -217,14 +218,23 @@ private fun <T : ViewEvent> OptionsList(
     optionItems: List<ModalOptionUi<T>>,
     itemSelected: (T) -> Unit
 ) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
-    ) {
-        items(optionItems) { item ->
+    LazyColumn {
+        itemsIndexed(optionItems) { index, item ->
+            VSpacer.Small()
+
             OptionListItem(
                 item = item,
                 itemSelected = itemSelected
             )
+
+            VSpacer.Small()
+
+            if (index < optionItems.lastIndex) {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.dividerDefault // check correct color
+                )
+            }
         }
     }
 }
@@ -252,13 +262,16 @@ private fun <T : ViewEvent> OptionListItem(
         Text(
             modifier = Modifier.weight(1f),
             text = item.title,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyLarge
         )
-        WrapIcon(
-            modifier = Modifier.wrapContentWidth(),
-            iconData = item.icon,
-            customTint = MaterialTheme.colorScheme.primary
-        )
+
+        item.icon?.let {
+            WrapIcon(
+                modifier = Modifier.wrapContentWidth(),
+                iconData = item.icon,
+                customTint = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
@@ -268,7 +281,7 @@ private fun BottomSheetDefaultHandle() {
         modifier = Modifier
             .fillMaxWidth()
             .background(bottomSheetDefaultBackgroundColor)
-            .padding(vertical = SPACING_SMALL.dp),
+            .padding(vertical = SPACING_MEDIUM.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -303,4 +316,10 @@ private fun BottomSheetWithOptionsListPreview() {
             onEventSent = {}
         )
     }
+}
+
+@ThemeModePreviews
+@Composable
+private fun BottomSheetDefaultHandlePreview() {
+    BottomSheetDefaultHandle()
 }

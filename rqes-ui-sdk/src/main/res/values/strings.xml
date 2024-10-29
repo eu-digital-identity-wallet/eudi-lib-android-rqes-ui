@@ -30,6 +30,11 @@
     <string name="sign_document_bottom_sheet_cancel_button_text">Cancel signing</string>
     <string name="sign_document_pdf_selection_item_label">VIEW</string>
 
+    <string name="sign_document_qtsp_title">Select remote signing service</string>
+    <string name="sign_document_qtsp_subtitle">Remote signing enables you to digitally sign documents
+        without the need for locally installed digital identities. Cloud-hosted signing service makes
+        remote signing possible.</string>
+
     <!-- Generic -->
     <string name="generic_error_button_retry">TRY AGAIN</string>
     <string name="generic_error_message">Oups! Something went wrong</string>

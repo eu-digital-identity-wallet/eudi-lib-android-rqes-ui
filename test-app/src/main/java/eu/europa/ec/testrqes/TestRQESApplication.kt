@@ -21,6 +21,7 @@ import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import java.net.URI
 
 class TestRQESApplication : Application() {
@@ -37,8 +38,12 @@ class TestRQESApplication : Application() {
 
 private class DefaultConfig : EudiRQESUiConfig {
 
-    override val qtsps: List<URI>
-        get() = emptyList()
+    override val qtsps: List<QTSPData>
+        get() = listOf(
+            QTSPData("Entrust", URI("uri")),
+            QTSPData("Docusign", URI("uri")),
+            QTSPData("Ascertia", URI("uri"))
+        )
 
     override val translations: Map<String, Map<LocalizableKey, String>>
         get() {

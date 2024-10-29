@@ -20,10 +20,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,12 +37,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.R
+import eu.europa.ec.rqesui.infrastructure.theme.dividerDefault
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
@@ -52,9 +51,9 @@ import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSub
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
@@ -68,7 +67,7 @@ import java.net.URI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignDocumentScreen(
+internal fun SignDocumentScreen(
     navController: NavController,
     viewModel: SignDocumentViewModel
 ) {
@@ -85,6 +84,15 @@ fun SignDocumentScreen(
         navigatableAction = ScreenNavigateAction.CANCELABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
+        bottomBar = {
+            ButtonContainerBottomBar(
+                onPositiveClick = {
+                    viewModel.setEvent(
+                        Event.SignDocumentButtonPressed(documentUri = URI("uri"))
+                    )
+                }
+            )
+        }
     ) { paddingValues ->
         Content(
             state = state,
@@ -152,7 +160,7 @@ private fun Content(
                 state.options.forEach { option ->
                     item {
                         SelectionItem(
-                            modifier = Modifier.defaultMinSize(minHeight = 76.dp),
+                            modifier = Modifier.wrapContentHeight(),
                             data = option,
                             onClick = {
                                 onEventSend(
@@ -167,13 +175,6 @@ private fun Content(
             }
         }
 
-        ButtonContainerBottomBar(
-            onPositiveClick = {
-                onEventSend(
-                    Event.SignDocument(URI("uriValue"))
-                )
-            }
-        )
     }
 
     LaunchedEffect(Unit) {
@@ -205,23 +206,24 @@ private fun ButtonContainerBottomBar(
 ) {
     Column(
         modifier = Modifier
-            .wrapContentHeight()
+            .navigationBarsPadding()
             .fillMaxWidth()
     ) {
         HorizontalDivider(
             thickness = 1.dp,
-            color = Color(0xFFCAC4D0)
+            color = MaterialTheme.colorScheme.dividerDefault // check correct color
         )
 
         Row(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(
+                    all = SPACING_LARGE.dp
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             WrapPrimaryButton(
-                modifier = Modifier
-                    .weight(1f)
-                    .defaultMinSize(minHeight = 40.dp),
+                modifier = Modifier.fillMaxWidth(),
                 onClick = { onPositiveClick.invoke() }
             ) {
                 Text(
@@ -259,7 +261,18 @@ private fun SignDocumentSheetContent(
             )
         }
 
-        is SignDocumentBottomSheetContent.SelectQTSP -> TODO()
+        is SignDocumentBottomSheetContent.SelectQTSP -> {
+            BottomSheetWithOptionsList(
+                title = stringResource(
+                    id = R.string.sign_document_qtsp_title
+                ),
+                message = stringResource(
+                    id = R.string.sign_document_qtsp_subtitle
+                ),
+                options = sheetContent.options,
+                onEventSent = onEventSent
+            )
+        }
     }
 }
 

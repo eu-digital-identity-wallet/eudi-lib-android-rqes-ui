@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import eu.europa.ec.rqesui.domain.extension.safeLet
+import eu.europa.ec.rqesui.domain.util.safeLet
 import eu.europa.ec.rqesui.infrastructure.theme.textPrimaryDark
 import eu.europa.ec.rqesui.infrastructure.theme.textSecondaryDark
 import eu.europa.ec.rqesui.presentation.extension.clickableNoRipple
