@@ -42,7 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.R
-import eu.europa.ec.rqesui.infrastructure.theme.dividerDefault
+import eu.europa.ec.rqesui.infrastructure.theme.values.devider
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
@@ -211,7 +211,7 @@ private fun ButtonContainerBottomBar(
     ) {
         HorizontalDivider(
             thickness = 1.dp,
-            color = MaterialTheme.colorScheme.dividerDefault // check correct color
+            color = MaterialTheme.colorScheme.devider
         )
 
         Row(

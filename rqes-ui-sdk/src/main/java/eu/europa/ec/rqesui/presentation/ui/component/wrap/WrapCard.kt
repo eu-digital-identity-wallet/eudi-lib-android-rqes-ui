@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.backgroundDefault
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
@@ -47,7 +46,7 @@ fun WrapCard(
 ) {
     val cardShape = shape ?: RoundedCornerShape(SIZE_MEDIUM.dp)
     val cardColors = colors ?: CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.backgroundDefault
+        containerColor = MaterialTheme.colorScheme.background
     )
     val cardModifier = Modifier
         .clip(cardShape)

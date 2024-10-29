@@ -16,12 +16,10 @@
 
 package eu.europa.ec.rqesui.presentation.ui.component.preview
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import eu.europa.ec.rqesui.infrastructure.theme.ThemeManager
 
 @Composable
-fun PreviewTheme(
-    content: @Composable () -> Unit
-) {
-    MaterialTheme { content() }
+fun PreviewTheme(content: @Composable () -> Unit) {
+    ThemeManager.instance.Theme { content() }
 }

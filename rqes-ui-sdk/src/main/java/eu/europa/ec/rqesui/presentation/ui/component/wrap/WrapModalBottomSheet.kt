@@ -42,9 +42,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.dividerDefault
-import eu.europa.ec.rqesui.infrastructure.theme.textPrimaryDark
-import eu.europa.ec.rqesui.infrastructure.theme.textSecondaryDark
+import eu.europa.ec.rqesui.infrastructure.theme.values.devider
+import eu.europa.ec.rqesui.infrastructure.theme.values.textPrimaryDark
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
@@ -133,8 +132,8 @@ fun DialogBottomSheet(
     message: String,
     positiveButtonText: String? = null,
     negativeButtonText: String? = null,
-    onPositiveClick: () -> Unit? = {},
-    onNegativeClick: () -> Unit? = {}
+    onPositiveClick: () -> Unit = {},
+    onNegativeClick: () -> Unit = {},
 ) {
     GenericBaseSheetContent(
         title = title,
@@ -142,7 +141,7 @@ fun DialogBottomSheet(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.textSecondaryDark
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
             VSpacer.Large()
@@ -193,7 +192,7 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.textSecondaryDark
+                        color = MaterialTheme.colorScheme.textPrimaryDark
                     )
                 )
                 VSpacer.Large()
@@ -232,7 +231,6 @@ private fun <T : ViewEvent> OptionsList(
             if (index < optionItems.lastIndex) {
                 HorizontalDivider(
                     thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.dividerDefault // check correct color
                 )
             }
         }
@@ -287,7 +285,7 @@ private fun BottomSheetDefaultHandle() {
     ) {
         WrapIcon(
             iconData = AppIcons.HandleBar,
-            customTint = MaterialTheme.colorScheme.dividerDefault
+            customTint = MaterialTheme.colorScheme.devider
         )
     }
 }

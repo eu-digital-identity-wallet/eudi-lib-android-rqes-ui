@@ -32,8 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.textDisabledDark
-import eu.europa.ec.rqesui.infrastructure.theme.textPrimaryDark
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_100
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 
@@ -64,8 +62,6 @@ fun WrapPrimaryButton(
         colors = ButtonDefaults.textButtonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = textColor,
-            disabledContainerColor = MaterialTheme.colorScheme.secondary,
-            disabledContentColor = MaterialTheme.colorScheme.textDisabledDark,
         ),
         contentPadding = buttonsContentHorizontalPadding,
         content = content
@@ -86,9 +82,7 @@ fun WrapSecondaryButton(
         shape = buttonsShape,
         colors = ButtonDefaults.outlinedButtonColors(
             containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.textPrimaryDark,
-            disabledContainerColor = MaterialTheme.colorScheme.background,
-            disabledContentColor = MaterialTheme.colorScheme.textDisabledDark,
+            contentColor = MaterialTheme.colorScheme.primary,
         ),
         border = BorderStroke(
             width = 1.dp,

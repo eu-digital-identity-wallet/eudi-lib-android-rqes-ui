@@ -19,7 +19,7 @@ package eu.europa.ec.rqesui.presentation.ui.component.preview
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.Preview
-import eu.europa.ec.rqesui.infrastructure.theme.ThemeColors
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 
 
 /**
@@ -27,10 +27,10 @@ import eu.europa.ec.rqesui.infrastructure.theme.ThemeColors
  * */
 @Preview(
     name = "Light Mode", showBackground = true, uiMode = UI_MODE_NIGHT_NO,
-    backgroundColor = ThemeColors.theme_light_background
+    backgroundColor = ThemeColors.EudiRQESUi_theme_light_background
 )
 @Preview(
     name = "Dark Mode", showBackground = true, uiMode = UI_MODE_NIGHT_YES,
-    backgroundColor = ThemeColors.theme_dark_background
+    backgroundColor = ThemeColors.EudiRQESUi_theme_dark_background
 )
 annotation class ThemeModePreviews

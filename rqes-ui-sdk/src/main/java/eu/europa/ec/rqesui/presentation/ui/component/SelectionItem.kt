@@ -32,11 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import eu.europa.ec.rqesui.infrastructure.theme.values.primaryVariant
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
-import eu.europa.ec.rqesui.presentation.ui.component.utils.ALPHA_CARD_DEFAULT
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
@@ -46,9 +46,7 @@ fun SelectionItem(
     modifier: Modifier = Modifier,
     data: SelectionItemUi,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primary.copy(
-            alpha = ALPHA_CARD_DEFAULT
-        )
+        containerColor = MaterialTheme.colorScheme.primaryVariant
     ),
     onClick: (() -> Unit)
 ) {

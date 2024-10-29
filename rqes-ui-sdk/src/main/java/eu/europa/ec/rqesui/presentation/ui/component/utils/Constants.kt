@@ -52,9 +52,6 @@ const val ALPHA_ENABLED = 1.0f
 /** Value 0.38 */
 const val ALPHA_DISABLED = 0.38f
 
-/** Value 0.06 */
-const val ALPHA_CARD_DEFAULT = 0.06f
-
 /** Value 24 */
 const val DEFAULT_ICON_SIZE = 24
 

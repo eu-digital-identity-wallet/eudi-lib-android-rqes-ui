@@ -42,8 +42,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.europa.ec.rqesui.domain.util.safeLet
-import eu.europa.ec.rqesui.infrastructure.theme.textPrimaryDark
-import eu.europa.ec.rqesui.infrastructure.theme.textSecondaryDark
 import eu.europa.ec.rqesui.presentation.extension.clickableNoRipple
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
@@ -69,14 +67,14 @@ fun ContentTitle(
     titleWithBadge: TitleWithBadge? = null,
     onTitleWithBadgeClick: (() -> Unit)? = null,
     titleStyle: TextStyle = MaterialTheme.typography.headlineSmall.copy(
-        color = MaterialTheme.colorScheme.textPrimaryDark
+        color = MaterialTheme.colorScheme.onSurface
     ),
     subtitle: String? = null,
     clickableSubtitle: String? = null,
     onSubtitleClick: (() -> Unit)? = null,
     subTitleMaxLines: Int = Int.MAX_VALUE,
     subTitleStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.textSecondaryDark
+        color = MaterialTheme.colorScheme.onSurface
     ),
     verticalPadding: PaddingValues = PaddingValues(bottom = SPACING_MEDIUM.dp),
     subtitleTrailingContent: (@Composable RowScope.() -> Unit)? = null,
@@ -156,7 +154,7 @@ fun ContentTitle(
                             withStyle(
                                 style = SpanStyle(
                                     fontStyle = subTitleStyle.fontStyle,
-                                    color = MaterialTheme.colorScheme.textPrimaryDark
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             ) {
                                 pushStringAnnotation(
