@@ -14,14 +14,18 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.theme.value
+package eu.europa.ec.rqesui.infrastructure.theme.templates.structures
 
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 
-internal val Purple80 = Color(0xFFD0BCFF)
-internal val PurpleGrey80 = Color(0xFFCCC2DC)
-internal val Pink80 = Color(0xFFEFB8C8)
+sealed class ThemeFontStyle {
+    data object Normal : ThemeFontStyle()
+    data object Italic : ThemeFontStyle()
 
-internal val Purple40 = Color(0xFF6650a4)
-internal val PurpleGrey40 = Color(0xFF625b71)
-internal val Pink40 = Color(0xFF7D5260)
+    companion object {
+        fun ThemeFontStyle.toFontStyle(): FontStyle = when (this) {
+            Normal -> FontStyle.Normal
+            Italic -> FontStyle.Italic
+        }
+    }
+}

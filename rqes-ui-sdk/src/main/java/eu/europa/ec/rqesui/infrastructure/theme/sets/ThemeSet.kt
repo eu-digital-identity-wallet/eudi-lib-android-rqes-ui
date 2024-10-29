@@ -14,20 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.theme.value
+package eu.europa.ec.rqesui.infrastructure.theme.sets
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
-internal val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
+data class ThemeSet(
+    val isInDarkMode: Boolean,
+    val lightColors: ColorScheme,
+    val darkColors: ColorScheme,
+    val typo: Typography,
 )

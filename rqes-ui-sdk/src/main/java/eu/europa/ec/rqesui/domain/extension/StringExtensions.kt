@@ -16,7 +16,39 @@
 
 package eu.europa.ec.rqesui.domain.extension
 
-fun String.localizationFormatWithArgs(args: List<String> = emptyList()): String =
-    args.fold(this) { acc, arg ->
-        acc.replaceFirst("%@", arg)
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+
+/**
+ * Formats a string by replacing placeholders with provided arguments.
+ *
+ * This function iterates through the provided arguments and replaces each occurrence of the `argSeparator`
+ * in the original string with the corresponding argument. By default, the placeholder is `LocalizableKey.ARGUMENTS_SEPARATOR`.
+ *
+ * For example:
+ *
+ * ```kotlin
+ * val template = "Hello, @arg! Welcome to @arg."
+ * val formattedString = template.localizationFormatWithArgs(listOf("John", "Kotlin"))
+ * // formattedString will be "Hello, John! Welcome to Kotlin."
+ * ```
+ *
+ * You can also use a custom placeholder:
+ *
+ * ```kotlin
+ * val template = "Hello, {name}! Welcome to {language}."
+ * val formattedString = template.localizationFormatWithArgs(listOf("John", "Kotlin"), argSeparator = "{name}")
+ * // formattedString will be "Hello, John! Welcome to {language}." // Only the first occurrence of "{name}" is replaced.
+ * ```
+ *
+ * @param args A list of arguments to replace the placeholders with. Defaults to an empty list.
+ * @param argSeparator The placeholder string to be replaced by the arguments. Defaults to `LocalizableKey.ARGUMENTS_SEPARATOR`.
+ * @return The formatted string with placeholders replaced by arguments.
+ */
+fun String.localizationFormatWithArgs(
+    args: List<String> = emptyList(),
+    argSeparator: String = LocalizableKey.ARGUMENTS_SEPARATOR,
+): String {
+    return args.fold(this) { acc, arg ->
+        acc.replaceFirst(oldValue = argSeparator, newValue = arg)
     }
+}

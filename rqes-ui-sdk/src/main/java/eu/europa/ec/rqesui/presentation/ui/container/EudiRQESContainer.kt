@@ -29,18 +29,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import eu.europa.ec.rqesui.infrastructure.theme.EudiRQESUiTheme
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
 
-class EudiRQESContainer : ComponentActivity() {
+internal class EudiRQESContainer : ComponentActivity() {
 
     @OptIn(KoinExperimentalAPI::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            EudiRQESUiTheme {
+            EudiRQESUi.getEudiRQESUiConfig().themeManager.Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     KoinAndroidContext {
                         Content(innerPadding)

@@ -14,10 +14,23 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.architecture
+package eu.europa.ec.rqesui.infrastructure.theme.templates.structures
 
-internal interface ViewState
+import androidx.annotation.FontRes
+import androidx.compose.ui.text.font.Font
+import eu.europa.ec.rqesui.infrastructure.theme.templates.structures.ThemeFontStyle.Companion.toFontStyle
+import eu.europa.ec.rqesui.infrastructure.theme.templates.structures.ThemeFontWeight.Companion.toFontWeight
 
-internal interface ViewEvent
-
-internal interface ViewSideEffect
+data class ThemeFont(
+    @FontRes val res: Int,
+    val weight: ThemeFontWeight,
+    val style: ThemeFontStyle
+) {
+    companion object {
+        fun ThemeFont.toFont(): Font = Font(
+            resId = res,
+            weight = weight.toFontWeight(),
+            style = style.toFontStyle()
+        )
+    }
+}

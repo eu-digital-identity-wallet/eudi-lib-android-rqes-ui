@@ -17,6 +17,9 @@
 package eu.europa.ec.rqesui.infrastructure.config
 
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.infrastructure.theme.ThemeManager
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeTypography
 import java.net.URI
 
 interface EudiRQESUiConfig {
@@ -24,9 +27,53 @@ interface EudiRQESUiConfig {
     // QTSPs List
     val qtsps: List<URI>
 
-    // Transactions per locale
+    /**
+     * Provides a map of translations for different locales.
+     *
+     * The key of the outer map represents the locale (e.g., "en" for English).
+     *
+     * The value of the outer map is another map, where:
+     *  - The key is a [LocalizableKey] representing a specific string to be translated.
+     *  - The value is the translated string for that key in the given locale.
+     *
+     * Currently, only English ("en") translations are provided, using the default translations
+     * defined in the [LocalizableKey] enum entries.
+     *
+     * In order to override a translation that receives arguments
+     * please do so writing `$ARGUMENTS_SEPARATOR` in place of each of the arguments.
+     * For example:
+     *
+     * ```
+     * override val translations: Map<String, Map<LocalizableKey, String>>
+     *         get() {
+     *             return mapOf(
+     *                 "en" to mapOf(
+     *                     LocalizableKey.View to "View",
+     *                     LocalizableKey.SignedBy to "Signed by $ARGUMENTS_SEPARATOR",
+     *                 )
+     *             )
+     *         }
+     * ```
+     *
+     */
     val translations: Map<String, Map<LocalizableKey, String>>
+        get() {
+            return mapOf(
+                "en" to LocalizableKey.entries.associateWith { it.defaultTranslation() }
+            )
+        }
 
     // Logging is enabled
     val printLogs: Boolean
+        get() = false
+
+    // Theme manager
+    val themeManager: ThemeManager
+        get() {
+            return ThemeManager.Builder()
+                .withLightColors(ThemeColors.lightColors)
+                .withDarkColors(ThemeColors.darkColors)
+                .withTypography(ThemeTypography.typo)
+                .build()
+        }
 }

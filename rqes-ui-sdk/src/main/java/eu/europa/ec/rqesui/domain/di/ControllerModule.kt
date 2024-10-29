@@ -30,17 +30,17 @@ import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Single
 
 @Single
-fun providePrefenencesController(context: Context): PreferencesController =
+internal fun providePrefenencesController(context: Context): PreferencesController =
     PreferencesControllerImpl(context)
 
 @Single
-fun provideLocalizationController(): LocalizationController =
+internal fun provideLocalizationController(): LocalizationController =
     LocalizationControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
 
 @Factory
-fun provideLogController(): LogController =
+internal fun provideLogController(): LogController =
     LogControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
 
 @Factory
-fun provideKeyStorage(preferencesController: PreferencesController): KeyStorage =
+internal fun provideKeyStorage(preferencesController: PreferencesController): KeyStorage =
     KeyStorageImpl(preferencesController)

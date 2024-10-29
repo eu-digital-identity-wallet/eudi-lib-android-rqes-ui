@@ -20,7 +20,7 @@ import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
-interface LogController {
+internal interface LogController {
     fun d(tag: String, message: () -> String)
     fun d(message: () -> String)
     fun e(tag: String, message: () -> String)
@@ -33,7 +33,7 @@ interface LogController {
     fun i(message: () -> String)
 }
 
-class LogControllerImpl(
+internal class LogControllerImpl(
     private val config: EudiRQESUiConfig
 ) : LogController {
 

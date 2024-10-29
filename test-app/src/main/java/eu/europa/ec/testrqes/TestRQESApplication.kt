@@ -18,6 +18,7 @@ package eu.europa.ec.testrqes
 
 import android.app.Application
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import java.net.URI
@@ -40,14 +41,12 @@ private class DefaultConfig : EudiRQESUiConfig {
         get() = emptyList()
 
     override val translations: Map<String, Map<LocalizableKey, String>>
-        get() = mapOf(
-            "en" to mapOf(
-                LocalizableKey.Mock to "Mock",
-                LocalizableKey.MockWithValues to "Mock %@, %@"
+        get() {
+            return mapOf(
+                "en" to mapOf(
+                    LocalizableKey.View to "3-party app Translation for View",
+                    LocalizableKey.SignedBy to "3-party app Translation for SignedBy $ARGUMENTS_SEPARATOR"
+                )
             )
-        )
-
-    override val printLogs: Boolean
-        get() = true
-
+        }
 }
