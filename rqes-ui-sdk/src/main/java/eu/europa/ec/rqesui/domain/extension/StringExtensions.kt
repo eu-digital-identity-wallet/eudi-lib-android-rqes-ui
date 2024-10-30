@@ -58,3 +58,7 @@ fun String.encodeToBase64(): String = Base64.encodeToString(
     this.toByteArray(Charsets.UTF_8),
     Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE
 )
+
+fun String.decodeFromBase64(): String = Base64.decode(
+    this, Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE
+).toString(Charsets.UTF_8)

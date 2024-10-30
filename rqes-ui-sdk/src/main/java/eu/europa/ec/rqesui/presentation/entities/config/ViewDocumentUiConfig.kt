@@ -14,11 +14,16 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.config.data
+package eu.europa.ec.rqesui.presentation.entities.config
 
-import java.net.URI
+import eu.europa.ec.rqesui.presentation.serializer.UiSerializable
+import eu.europa.ec.rqesui.presentation.serializer.UiSerializableParser
 
-data class DocumentData(
-    val documentName: String,
-    val uri: URI
-)
+data class ViewDocumentUiConfig(
+    val isSigned: Boolean,
+) : UiSerializable {
+
+    companion object Parser : UiSerializableParser {
+        override val serializedKeyName = "viewDocumentConfig"
+    }
+}

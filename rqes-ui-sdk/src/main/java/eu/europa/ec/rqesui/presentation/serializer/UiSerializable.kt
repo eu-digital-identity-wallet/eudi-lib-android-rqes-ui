@@ -14,11 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.config.data
+package eu.europa.ec.rqesui.presentation.serializer
 
-import java.net.URI
+import com.google.gson.Gson
 
-data class DocumentData(
-    val documentName: String,
-    val uri: URI
-)
+internal interface UiSerializable
+
+internal interface UiSerializableParser {
+    val serializedKeyName: String
+    fun provideParser(): Gson {
+        return Gson()
+    }
+}

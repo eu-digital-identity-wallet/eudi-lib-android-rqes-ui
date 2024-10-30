@@ -14,11 +14,17 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.config.data
+package eu.europa.ec.rqesui.domain.di
 
-import java.net.URI
+import eu.europa.ec.rqesui.presentation.navigation.RouterHost
+import eu.europa.ec.rqesui.presentation.navigation.RouterHostImpl
+import eu.europa.ec.rqesui.presentation.serializer.UiSerializer
+import eu.europa.ec.rqesui.presentation.serializer.UiSerializerImpl
+import org.koin.core.annotation.Factory
+import org.koin.core.annotation.Single
 
-data class DocumentData(
-    val documentName: String,
-    val uri: URI
-)
+@Single
+internal fun provideRouterHost(): RouterHost = RouterHostImpl()
+
+@Factory
+internal fun provideUiSerializer(): UiSerializer = UiSerializerImpl()

@@ -28,6 +28,14 @@ android {
     defaultConfig {
         minSdk = Integer.parseInt(project.property("MIN_SDK_VERSION").toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val deepLinkScheme = project.property("DEEP_LINK_SCHEME").toString()
+        val deepLinkHost = project.property("DEEP_LINK_HOST").toString()
+
+        buildConfigField(type = "String", name = "DEEPLINK", value = "\"$deepLinkScheme://\"")
+
+        manifestPlaceholders["deepLinkScheme"] = deepLinkScheme
+        manifestPlaceholders["deepLinkHost"] = deepLinkHost
     }
 
     buildTypes {
@@ -54,6 +62,10 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -82,6 +94,9 @@ dependencies {
     implementation(libs.koin.annotations)
     implementation(libs.koin.compose)
     ksp(libs.koin.ksp)
+
+    //Gson
+    implementation(libs.gson)
 
     // Test Dependencies
     testImplementation(libs.junit)

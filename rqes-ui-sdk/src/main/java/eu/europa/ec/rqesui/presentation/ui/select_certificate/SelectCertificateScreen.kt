@@ -14,11 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.config.data
+package eu.europa.ec.rqesui.presentation.ui.select_certificate
 
-import java.net.URI
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 
-data class DocumentData(
-    val documentName: String,
-    val uri: URI
-)
+@Composable
+internal fun SelectCertificateScreen(
+    navController: NavController,
+    viewModel: SelectCertificateViewModel,
+) {
+
+}

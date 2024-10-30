@@ -16,43 +16,97 @@
 
 package eu.europa.ec.rqesui.presentation.ui.container
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
-import eu.europa.ec.rqesui.presentation.ui.select_qtsp.SelectQtspScreen
+import eu.europa.ec.rqesui.presentation.navigation.RouterHost
+import eu.europa.ec.rqesui.presentation.router.sdkGraph
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
-import org.koin.androidx.compose.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 internal class EudiRQESContainer : ComponentActivity() {
 
-    @OptIn(KoinExperimentalAPI::class)
+    private val routerHost: RouterHost by inject()
+
+    private var flowStarted: Boolean = false
+
+    private var pendingDeepLink: Uri? = null
+
+    internal fun cacheDeepLink(intent: Intent) {
+        pendingDeepLink = intent.data
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            EudiRQESUi.getEudiRQESUiConfig().themeManager.Theme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    KoinAndroidContext {
-                        val navController = rememberNavController()
+            Content(intent) {
+                sdkGraph(it)
+            }
+        }
+    }
 
-                        SelectQtspScreen(
-                            navController = navController,
-                            koinViewModel()
-                        )
+    @OptIn(KoinExperimentalAPI::class)
+    @Composable
+    private fun Content(
+        intent: Intent,
+        builder: NavGraphBuilder.(NavController) -> Unit
+    ) {
+        EudiRQESUi.getEudiRQESUiConfig().themeManager.Theme {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                KoinAndroidContext {
+                    routerHost.StartFlow {
+                        builder(it)
                     }
+                    flowStarted = true
+                    handleDeepLink(intent, coldBoot = true)
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (flowStarted) {
+            handleDeepLink(intent)
+        } else {
+            runPendingDeepLink(intent)
+        }
+    }
+
+    private fun runPendingDeepLink(intent: Intent) {
+        lifecycleScope.launch {
+            var count = 0
+            while (!flowStarted && count <= 10) {
+                count++
+                delay(500)
+            }
+            if (count <= 10) {
+                handleDeepLink(intent)
+            }
+        }
+    }
+
+    private fun handleDeepLink(intent: Intent, coldBoot: Boolean = false) {
+        //TODO replace (if needed) with hasDeepLink(intent?.data)?.let {
+        intent.data?.let {
+            setIntent(Intent())
         }
     }
 }
