@@ -195,8 +195,8 @@ private fun Content(
                 subtitle = state.certificatesSectionTitle
             )
 
-            OptionsList(
-                optionItems = state.certificates,
+            CertificatesList(
+                certificateItems = state.certificates,
                 selectedIndex = state.selectedCertificateIndex,
                 onEventSend = onEventSend
             )
@@ -227,26 +227,26 @@ private fun Content(
 }
 
 @Composable
-private fun OptionsList(
-    optionItems: List<QTSPCertificateUi>,
+private fun CertificatesList(
+    certificateItems: List<QTSPCertificateUi>,
     selectedIndex: Int,
     onEventSend: (Event) -> Unit,
 ) {
     LazyColumn {
-        itemsIndexed(optionItems) { index, item ->
+        itemsIndexed(certificateItems) { index, item ->
             VSpacer.ExtraSmall()
 
-            OptionListItem(
+            CertificateListItem(
                 optionName = item.certificateName,
                 isSelected = selectedIndex == index
             ) {
-                val newIndex = optionItems.indexOf(item)
+                val newIndex = certificateItems.indexOf(item)
                 onEventSend(Event.CertificateIndexSelected(index = newIndex))
             }
 
             VSpacer.ExtraSmall()
 
-            if (index < optionItems.lastIndex) {
+            if (index < certificateItems.lastIndex) {
                 HorizontalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.devider
@@ -257,7 +257,7 @@ private fun OptionsList(
 }
 
 @Composable
-private fun OptionListItem(
+private fun CertificateListItem(
     optionName: String,
     isSelected: Boolean,
     onClick: () -> Unit
