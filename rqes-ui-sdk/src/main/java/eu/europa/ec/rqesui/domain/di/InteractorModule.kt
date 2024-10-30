@@ -16,8 +16,8 @@
 
 package eu.europa.ec.rqesui.domain.di
 
-import eu.europa.ec.rqesui.domain.interactor.CertificateInteractor
-import eu.europa.ec.rqesui.domain.interactor.CertificateInteractorImpl
+import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
+import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractorImpl
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractorImpl
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
@@ -31,9 +31,9 @@ internal fun provideSelectQtspInteractor(
 ): SelectQtspInteractor = SelectQtspInteractorImpl(resourceProvider)
 
 @Factory
-internal fun provideCertificateInteractor(
+internal fun provideSelectCertificateInteractor(
     resourceProvider: ResourceProvider,
-): CertificateInteractor = CertificateInteractorImpl(resourceProvider)
+): SelectCertificateInteractor = SelectCertificateInteractorImpl(resourceProvider)
 
 @Factory
 internal fun provideSuccessInteractor(): SuccessInteractor = SuccessInteractorImpl()

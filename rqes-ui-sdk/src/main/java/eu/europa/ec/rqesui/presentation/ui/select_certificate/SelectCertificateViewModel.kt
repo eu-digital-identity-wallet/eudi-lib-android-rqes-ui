@@ -18,8 +18,8 @@ package eu.europa.ec.rqesui.presentation.ui.select_certificate
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.rqesui.domain.interactor.CertificateInteractor
-import eu.europa.ec.rqesui.domain.interactor.CertificatePartialState
+import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
+import eu.europa.ec.rqesui.domain.interactor.SelectCertificatePartialState
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -52,8 +52,6 @@ internal data class State(
 
     val certificates: List<QTSPCertificateUi> = emptyList(),
     val selectedCertificateIndex: Int = 0,
-
-    //val sheetContent: CertificateSelectionBottomSheetContent = CertificateSelectionBottomSheetContent.ConfirmCancellation,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
@@ -88,15 +86,10 @@ internal sealed class Effect : ViewSideEffect {
     data object CloseBottomSheet : Effect()
 }
 
-//sealed class CertificateSelectionBottomSheetContent {
-//
-//    data object ConfirmCancellation : CertificateSelectionBottomSheetContent()
-//}
-
 @KoinViewModel
 internal class SelectCertificateViewModel(
     private val resourceProvider: ResourceProvider,
-    private val certificateSelectionInteractor: CertificateInteractor
+    private val selectCertificateInteractor: SelectCertificateInteractor
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {
@@ -121,11 +114,11 @@ internal class SelectCertificateViewModel(
 
     private fun fetchQTSPCertificates() {
         viewModelScope.launch {
-            certificateSelectionInteractor.qtspCertificates(
+            selectCertificateInteractor.qtspCertificates(
                 qtspCertificateEndpoint = URI("https://qtsp.endpoint")
             ).collect { response ->
                 when (response) {
-                    is CertificatePartialState.Success -> {
+                    is SelectCertificatePartialState.Success -> {
                         setState {
                             copy(
                                 certificates = response.qtspCertificatesList.map {
@@ -135,7 +128,7 @@ internal class SelectCertificateViewModel(
                         }
                     }
 
-                    is CertificatePartialState.Failure -> {
+                    is SelectCertificatePartialState.Failure -> {
                         // no op
                     }
                 }
@@ -163,7 +156,7 @@ internal class SelectCertificateViewModel(
 
             is Event.SignDocument -> {
                 viewModelScope.launch {
-                    certificateSelectionInteractor.signDocument(
+                    selectCertificateInteractor.signDocument(
                         documentUri = event.documentUri
                     )
                 }

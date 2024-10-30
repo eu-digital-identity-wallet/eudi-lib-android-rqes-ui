@@ -23,31 +23,31 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.net.URI
 
-internal sealed class CertificatePartialState {
+internal sealed class SelectCertificatePartialState {
     data class Success(
         val qtspCertificatesList: List<CertificateData>
-    ) : CertificatePartialState()
+    ) : SelectCertificatePartialState()
 
-    data class Failure(val error: String) : CertificatePartialState()
+    data class Failure(val error: String) : SelectCertificatePartialState()
 }
 
-internal interface CertificateInteractor {
-    fun qtspCertificates(qtspCertificateEndpoint: URI): Flow<CertificatePartialState>
+internal interface SelectCertificateInteractor {
+    fun qtspCertificates(qtspCertificateEndpoint: URI): Flow<SelectCertificatePartialState>
     fun signDocument(documentUri: URI)
 }
 
-internal class CertificateInteractorImpl(
+internal class SelectCertificateInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val rqesCoreController: Any? = null
-) : CertificateInteractor {
+) : SelectCertificateInteractor {
 
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun qtspCertificates(qtspCertificateEndpoint: URI): Flow<CertificatePartialState> =
+    override fun qtspCertificates(qtspCertificateEndpoint: URI): Flow<SelectCertificatePartialState> =
         flow {
             emit(
-                CertificatePartialState.Success(
+                SelectCertificatePartialState.Success(
                     qtspCertificatesList =
                     listOf(
                         CertificateData(name = "Certificate 1", certificateURI = URI("uri")),
@@ -57,7 +57,7 @@ internal class CertificateInteractorImpl(
                 )
             )
         }.safeAsync {
-            CertificatePartialState.Failure(
+            SelectCertificatePartialState.Failure(
                 error = it.localizedMessage ?: genericErrorMsg
             )
         }

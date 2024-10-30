@@ -51,6 +51,7 @@ import eu.europa.ec.rqesui.presentation.entities.QTSPCertificateUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
+import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.rqesui.presentation.ui.component.bottom_bar.ButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
@@ -320,11 +321,12 @@ private fun SelectCertificateScreenPreview() {
         Content(
             state = State(
                 title = "Sign document",
-                subtitle = "Select a document to add in your EUDI Wallet",
+                subtitle = "You have chosen to sign the following document:",
                 options = listOf(
                     SelectionItemUi(
                         title = "Document name.PDF",
-                        action = "VIEW",
+                        subTitle = "Signed by: QTSP",
+                        icon = AppIcons.Verified
                     )
                 )
             ),
