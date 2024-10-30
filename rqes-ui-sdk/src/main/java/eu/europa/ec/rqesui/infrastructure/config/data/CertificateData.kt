@@ -14,13 +14,11 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.entities
+package eu.europa.ec.rqesui.infrastructure.config.data
 
-import eu.europa.ec.rqesui.presentation.ui.component.IconData
+import java.net.URI
 
-internal data class SelectionItemUi(
-    val title: String,
-    val subTitle: String? = null,
-    val icon: IconData? = null,
-    val action: String? = null
+internal data class CertificateData(
+    val name: String,
+    val certificateURI: URI
 )

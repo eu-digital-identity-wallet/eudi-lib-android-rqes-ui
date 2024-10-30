@@ -19,23 +19,17 @@ package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -43,10 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.R
 import eu.europa.ec.rqesui.domain.extension.toUri
-import eu.europa.ec.rqesui.infrastructure.theme.values.devider
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
+import eu.europa.ec.rqesui.presentation.ui.component.bottom_bar.ButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSubtitle
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
@@ -57,7 +51,6 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
-import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -86,6 +79,7 @@ internal fun SelectQtspScreen(
         contentErrorConfig = state.error,
         bottomBar = {
             ButtonContainerBottomBar(
+                buttonText = state.buttonText,
                 onPositiveClick = {
                     viewModel.setEvent(
                         Event.PrimaryButtonPressed(documentUri = "uri".toUri())
@@ -199,42 +193,6 @@ private fun Content(
         }.collect()
     }
 }
-
-@Composable
-private fun ButtonContainerBottomBar(
-    onPositiveClick: () -> Unit? = {}
-) {
-    Column(
-        modifier = Modifier
-            .navigationBarsPadding()
-            .fillMaxWidth()
-    ) {
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.devider
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    all = SPACING_LARGE.dp
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            WrapPrimaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onPositiveClick.invoke() }
-            ) {
-                Text(
-                    text = stringResource(R.string.generic_sign_button_text),
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 private fun SelectQtspSheetContent(

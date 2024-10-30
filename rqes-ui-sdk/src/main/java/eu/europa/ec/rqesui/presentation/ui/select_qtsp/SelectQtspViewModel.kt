@@ -40,6 +40,7 @@ internal data class State(
 
     val title: String = "",
     val subtitle: String = "",
+    val buttonText: String = "",
 
     val options: List<SelectionItemUi> = emptyList(),
     val sheetContent: SelectQtspBottomSheetContent = SelectQtspBottomSheetContent.ConfirmCancellation,
@@ -102,7 +103,8 @@ internal class SelectQtspViewModel(
                 title = selectQtspInteractor.getDocumentName(),
                 action = "VIEW"
             )
-        )
+        ),
+        buttonText = resourceProvider.getLocalizedString(LocalizableKey.Sign)
     )
 
     override fun handleEvents(event: Event) {

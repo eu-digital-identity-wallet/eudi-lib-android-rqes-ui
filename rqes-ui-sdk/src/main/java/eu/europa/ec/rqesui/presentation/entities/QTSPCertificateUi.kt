@@ -16,11 +16,12 @@
 
 package eu.europa.ec.rqesui.presentation.entities
 
-import eu.europa.ec.rqesui.presentation.ui.component.IconData
+import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 
-internal data class SelectionItemUi(
-    val title: String,
-    val subTitle: String? = null,
-    val icon: IconData? = null,
-    val action: String? = null
+internal data class QTSPCertificateUi(
+    val certificateName: String
 )
+
+internal fun CertificateData.toQTSPCertificateUi(): QTSPCertificateUi {
+    return QTSPCertificateUi(certificateName = this.name)
+}

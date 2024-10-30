@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.infrastructure.theme.values.primaryVariant
+import eu.europa.ec.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
@@ -41,6 +42,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIcon
 
 @Composable
 internal fun SelectionItem(
@@ -49,7 +51,7 @@ internal fun SelectionItem(
     colors: CardColors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.primaryVariant
     ),
-    onClick: (() -> Unit)
+    onClick: (() -> Unit)? = null
 ) {
     WrapCard(
         modifier = modifier,
@@ -91,11 +93,20 @@ internal fun SelectionItem(
                     }
                 }
 
-                Text(
-                    text = data.action,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelSmall
-                )
+                data.action?.let { action ->
+                    Text(
+                        text = action,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                data.icon?.let { icon ->
+                    WrapIcon(
+                        modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
+                        iconData = icon,
+                        customTint = MaterialTheme.colorScheme.success
+                    )
+                }
             }
         }
     }
