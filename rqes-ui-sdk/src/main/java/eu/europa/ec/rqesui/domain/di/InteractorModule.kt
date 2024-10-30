@@ -16,11 +16,12 @@
 
 package eu.europa.ec.rqesui.domain.di
 
-import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractor
-import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractorImpl
+import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
+import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractorImpl
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import org.koin.core.annotation.Factory
 
 @Factory
-internal fun provideSignDocumentInteractor(resourceProvider: ResourceProvider): SignDocumentInteractor =
-    SignDocumentInteractorImpl(resourceProvider)
+internal fun provideSelectQtspInteractor(
+    resourceProvider: ResourceProvider,
+): SelectQtspInteractor = SelectQtspInteractorImpl(resourceProvider)

@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.sign
+package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -67,9 +67,9 @@ import java.net.URI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SignDocumentScreen(
+internal fun SelectQtspScreen(
     navController: NavController,
-    viewModel: SignDocumentViewModel
+    viewModel: SelectQtspViewModel
 ) {
     val state = viewModel.viewState.value
     val context = LocalContext.current
@@ -88,7 +88,7 @@ internal fun SignDocumentScreen(
             ButtonContainerBottomBar(
                 onPositiveClick = {
                     viewModel.setEvent(
-                        Event.SignDocumentButtonPressed(documentUri = URI("uri"))
+                        Event.PrimaryButtonPressed(documentUri = URI("uri"))
                     )
                 }
             )
@@ -114,7 +114,7 @@ internal fun SignDocumentScreen(
                 },
                 sheetState = bottomSheetState
             ) {
-                SignDocumentSheetContent(
+                SelectQtspSheetContent(
                     sheetContent = state.sheetContent,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
@@ -237,12 +237,12 @@ private fun ButtonContainerBottomBar(
 
 
 @Composable
-private fun SignDocumentSheetContent(
-    sheetContent: SignDocumentBottomSheetContent,
+private fun SelectQtspSheetContent(
+    sheetContent: SelectQtspBottomSheetContent,
     onEventSent: (event: Event) -> Unit
 ) {
     when (sheetContent) {
-        is SignDocumentBottomSheetContent.ConfirmCancellation -> {
+        is SelectQtspBottomSheetContent.ConfirmCancellation -> {
             DialogBottomSheet(
                 title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
                 message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
@@ -261,7 +261,7 @@ private fun SignDocumentSheetContent(
             )
         }
 
-        is SignDocumentBottomSheetContent.SelectQTSP -> {
+        is SelectQtspBottomSheetContent.SelectQTSP -> {
             BottomSheetWithOptionsList(
                 title = stringResource(
                     id = R.string.sign_document_qtsp_title
@@ -279,32 +279,7 @@ private fun SignDocumentSheetContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
-private fun DashboardSignDocumentScreenPreview() {
-    PreviewTheme {
-        Content(
-            state = State(
-                title = "Sign a document",
-                subtitle = "Select a document to add in your EUDI Wallet",
-                options = listOf(
-                    SelectionItemUi(
-                        title = "Document name.PDF",
-                        action = "VIEW",
-                    )
-                )
-            ),
-            effectFlow = Channel<Effect>().receiveAsFlow(),
-            onEventSend = {},
-            onNavigationRequested = {},
-            paddingValues = PaddingValues(all = SPACING_LARGE.dp),
-            modalBottomSheetState = rememberModalBottomSheetState(),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@ThemeModePreviews
-@Composable
-private fun SignDocumentScreenPreview() {
+private fun SelectQtspScreenPreview() {
     PreviewTheme {
         Content(
             state = State(

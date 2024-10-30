@@ -16,34 +16,20 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
-import eu.europa.ec.rqesui.domain.extension.safeAsync
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import java.net.URI
 
-internal sealed class SignDocumentPartialState {
-    data class Success(
-        val signedDocumentUri: URI?
-    ) : SignDocumentPartialState()
-
-    data class SigningFailure(val error: String) : SignDocumentPartialState()
-}
-
-internal interface SignDocumentInteractor {
-
+internal interface SelectQtspInteractor {
     fun getQTSPList(): List<QTSPData>
     fun getDocumentName(): String
-    fun signPdfDocument(documentURI: URI): Flow<SignDocumentPartialState>
     fun updateQTSPUserSelection(qtspData: QTSPData)
 }
 
-internal class SignDocumentInteractorImpl(
+internal class SelectQtspInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val rqesCoreController: Any? = null,
-) : SignDocumentInteractor {
+) : SelectQtspInteractor {
 
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
@@ -61,15 +47,6 @@ internal class SignDocumentInteractorImpl(
             else -> ""
         }
     }
-
-    override fun signPdfDocument(documentURI: URI): Flow<SignDocumentPartialState> =
-        flow {
-            emit(SignDocumentPartialState.Success(signedDocumentUri = null))
-        }.safeAsync {
-            SignDocumentPartialState.SigningFailure(
-                error = it.localizedMessage ?: genericErrorMsg
-            )
-        }
 
     override fun updateQTSPUserSelection(qtspData: QTSPData) {
         // TODO set selected QTSP to RQES config

@@ -14,12 +14,10 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.sign
+package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
-import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.rqesui.domain.interactor.SignDocumentInteractor
-import eu.europa.ec.rqesui.domain.interactor.SignDocumentPartialState
+import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -29,7 +27,6 @@ import eu.europa.ec.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
-import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import java.net.URI
 
@@ -45,7 +42,7 @@ internal data class State(
     val subtitle: String = "",
 
     val options: List<SelectionItemUi> = emptyList(),
-    val sheetContent: SignDocumentBottomSheetContent = SignDocumentBottomSheetContent.ConfirmCancellation,
+    val sheetContent: SelectQtspBottomSheetContent = SelectQtspBottomSheetContent.ConfirmCancellation,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
@@ -55,8 +52,7 @@ internal sealed class Event : ViewEvent {
 
     data object DismissError : Event()
 
-    data class SignDocument(val documentUri: URI) : Event()
-    data class SignDocumentButtonPressed(val documentUri: URI) : Event()
+    data class PrimaryButtonPressed(val documentUri: URI) : Event()
     data class ViewDocument(val documentUri: URI) : Event()
 
     sealed class BottomSheet : Event() {
@@ -84,18 +80,18 @@ internal sealed class Effect : ViewSideEffect {
     data object CloseBottomSheet : Effect()
 }
 
-internal sealed class SignDocumentBottomSheetContent {
-    data object ConfirmCancellation : SignDocumentBottomSheetContent()
+internal sealed class SelectQtspBottomSheetContent {
+    data object ConfirmCancellation : SelectQtspBottomSheetContent()
 
     data class SelectQTSP(
         val options: List<ModalOptionUi<Event>>
-    ) : SignDocumentBottomSheetContent()
+    ) : SelectQtspBottomSheetContent()
 }
 
 @KoinViewModel
-internal class SignDocumentViewModel(
+internal class SelectQtspViewModel(
     private val resourceProvider: ResourceProvider,
-    private val signDocumentInteractor: SignDocumentInteractor
+    private val selectQtspInteractor: SelectQtspInteractor
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State = State(
@@ -103,7 +99,7 @@ internal class SignDocumentViewModel(
         subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
         options = listOf(
             SelectionItemUi(
-                title = signDocumentInteractor.getDocumentName(),
+                title = selectQtspInteractor.getDocumentName(),
                 action = "VIEW"
             )
         )
@@ -116,31 +112,13 @@ internal class SignDocumentViewModel(
             }
 
             is Event.Pop -> {
-                showBottomSheet(sheetContent = SignDocumentBottomSheetContent.ConfirmCancellation)
+                showBottomSheet(sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation)
             }
 
             is Event.Finish -> setEffect { Effect.Navigation.Finish }
 
             is Event.DismissError -> {
                 // TODO display error message on screen
-            }
-
-            is Event.SignDocument -> {
-                viewModelScope.launch {
-                    signDocumentInteractor.signPdfDocument(event.documentUri).collect { response ->
-                        when (response) {
-                            is SignDocumentPartialState.Success -> {
-                                setState {
-                                    copy(isLoading = false)
-                                }
-                            }
-
-                            is SignDocumentPartialState.SigningFailure -> setState {
-                                copy(isLoading = false)
-                            }
-                        }
-                    }
-                }
             }
 
             is Event.BottomSheet.UpdateBottomSheetState -> {
@@ -165,9 +143,9 @@ internal class SignDocumentViewModel(
                 // TODO view document in pdf screen
             }
 
-            is Event.SignDocumentButtonPressed -> {
+            is Event.PrimaryButtonPressed -> {
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
-                    signDocumentInteractor.getQTSPList().map { qtspData ->
+                    selectQtspInteractor.getQTSPList().map { qtspData ->
                         ModalOptionUi(
                             title = qtspData.qtspName,
                             icon = null,
@@ -176,7 +154,7 @@ internal class SignDocumentViewModel(
                     }
 
                 showBottomSheet(
-                    sheetContent = SignDocumentBottomSheetContent.SelectQTSP(
+                    sheetContent = SelectQtspBottomSheetContent.SelectQTSP(
                         options = bottomSheetOptions
                     )
                 )
@@ -184,13 +162,13 @@ internal class SignDocumentViewModel(
 
             is Event.BottomSheet.QTSPOptions.QTSPForSigningSelected -> {
                 hideBottomSheet()
-                signDocumentInteractor.updateQTSPUserSelection(qtspData = event.qtspData)
+                selectQtspInteractor.updateQTSPUserSelection(qtspData = event.qtspData)
                 // TODO redirect to Certificate Selection screen
             }
         }
     }
 
-    private fun showBottomSheet(sheetContent: SignDocumentBottomSheetContent) {
+    private fun showBottomSheet(sheetContent: SelectQtspBottomSheetContent) {
         setState {
             copy(sheetContent = sheetContent)
         }
