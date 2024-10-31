@@ -19,10 +19,10 @@ package eu.europa.ec.testrqes
 import android.app.Application
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
-import java.net.URI
 
 class TestRQESApplication : Application() {
 
@@ -32,7 +32,7 @@ class TestRQESApplication : Application() {
     }
 
     private fun initRQESSDK() {
-        EudiRQESUi.setup(this, DefaultConfig())
+        EudiRQESUi.setup(application = this, config = DefaultConfig())
     }
 }
 
@@ -40,9 +40,9 @@ private class DefaultConfig : EudiRQESUiConfig {
 
     override val qtsps: List<QTSPData>
         get() = listOf(
-            QTSPData("Entrust", URI("uri")),
-            QTSPData("Docusign", URI("uri")),
-            QTSPData("Ascertia", URI("uri"))
+            QTSPData("Entrust", "uri".toUri()),
+            QTSPData("Docusign", "uri".toUri()),
+            QTSPData("Ascertia", "uri".toUri()),
         )
 
     override val translations: Map<String, Map<LocalizableKey, String>>
@@ -50,7 +50,7 @@ private class DefaultConfig : EudiRQESUiConfig {
             return mapOf(
                 "en" to mapOf(
                     LocalizableKey.View to "3-party app Translation for View",
-                    LocalizableKey.SignedBy to "3-party app Translation for SignedBy $ARGUMENTS_SEPARATOR"
+                    LocalizableKey.SignedBy to "3-party app Translation for SignedBy $ARGUMENTS_SEPARATOR",
                 )
             )
         }

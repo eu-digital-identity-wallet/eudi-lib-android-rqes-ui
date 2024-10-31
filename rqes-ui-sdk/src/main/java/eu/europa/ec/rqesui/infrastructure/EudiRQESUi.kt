@@ -20,10 +20,15 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Parcelable
 import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi.State.Companion.fromSignDocumentStep
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
+import eu.europa.ec.rqesui.presentation.utils.Constants.STEP_KEY
+import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext.startKoin
@@ -39,17 +44,19 @@ object EudiRQESUi {
         setupKoin(application)
     }
 
-    fun initiate(
+    fun launchSdk(
         context: Context,
-        file: DocumentData
+        step: SignDocumentStep,
     ) {
-        setState(State.Initial(file))
-        resume(context)
+        val newSdkState = fromSignDocumentStep(step)
+        setState(newSdkState)
+        resume(context, step)
     }
 
-    fun resume(context: Context) {
+    fun resume(context: Context, step: SignDocumentStep) {
         (context as? Activity)?.startActivity(
             Intent(context, EudiRQESContainer::class.java)
+                .putExtra(STEP_KEY, step)
         )
     }
 
@@ -79,8 +86,30 @@ object EudiRQESUi {
 
     sealed class State {
         data object None : State()
-        data class Initial(val file: DocumentData) : State()
-        data class Certificate(val file: String) : State()
-        data class Sign(val value: String) : State()
+        data class Initial(val file: DocumentData, val qtsps: List<QTSPData>) : State()
+        data class Certificate(val tBDByCore: TBDByCore) : State()
+        data class ViewDocument(val file: DocumentData) : State()
+        data object Sign : State()
+
+        companion object {
+            fun fromSignDocumentStep(step: SignDocumentStep): State {
+                return when (step) {
+                    is SignDocumentStep.Start -> Initial(step.file, step.qtsps)
+                    is SignDocumentStep.SelectCertificate -> Certificate(step.tBDByCore)
+                    is SignDocumentStep.Completed -> Sign
+                }
+            }
+        }
+    }
+
+    //TODO delete and adjust accordingly when integration with Core is done.
+    @Parcelize
+    data class TBDByCore(val value: String) : Parcelable
+
+    @Parcelize
+    sealed class SignDocumentStep : Parcelable {
+        data class Start(val file: DocumentData, val qtsps: List<QTSPData>) : SignDocumentStep()
+        data class SelectCertificate(val tBDByCore: TBDByCore) : SignDocumentStep()
+        data object Completed : SignDocumentStep()
     }
 }

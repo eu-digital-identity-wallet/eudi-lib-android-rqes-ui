@@ -32,10 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.testrqes.ui.theme.EudiRQESUiTheme
-import java.net.URI
 
 class TestRQESActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,11 +75,18 @@ private fun ContentPreview() {
 }
 
 private fun showRQESSDK(context: Context) {
-    EudiRQESUi.initiate(
+    EudiRQESUi.launchSdk(
         context = context,
-        file = DocumentData(
-            documentName = "Document.pdf",
-            uri = URI.create("https://endpoint")
+        step = EudiRQESUi.SignDocumentStep.Start(
+            file = DocumentData(
+                documentName = "Document.pdf",
+                uri = "https://www.example.com".toUri()
+            ),
+            qtsps = listOf(
+                QTSPData(qtspName = "QTSP1 Example", uri = "https://qtsp1.com".toUri()),
+                QTSPData(qtspName = "QTSP2 Example", uri = "https://qtsp2.com".toUri()),
+                QTSPData(qtspName = "QTSP3 Example", uri = "https://qtsp3.com".toUri()),
+            )
         )
     )
 }

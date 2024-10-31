@@ -31,6 +31,7 @@ import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.presentation.navigation.RouterHost
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.router.sdkGraph
+import eu.europa.ec.rqesui.presentation.utils.Constants.STEP_KEY
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -60,7 +61,8 @@ internal class EudiRQESContainer : ComponentActivity() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 KoinAndroidContext {
-                    routerHost.StartFlow {
+                    val startingRoute = getStartingRoute(intent)
+                    routerHost.StartFlow(startDestination = startingRoute) {
                         builder(it)
                     }
                 }
@@ -69,4 +71,14 @@ internal class EudiRQESContainer : ComponentActivity() {
     }
 
     //TODO should we handle onNewIntent?
+
+    private fun getStartingRoute(intent: Intent): String {
+        val step = intent.getParcelableExtra<EudiRQESUi.SignDocumentStep>(STEP_KEY)
+        return when (step) {
+            is EudiRQESUi.SignDocumentStep.Start -> SdkScreens.SelectQtsp.screenRoute
+            is EudiRQESUi.SignDocumentStep.SelectCertificate -> SdkScreens.SelectCertificate.screenRoute
+            is EudiRQESUi.SignDocumentStep.Completed -> SdkScreens.Success.screenRoute
+            null -> throw IllegalStateException("EUDIRQESUI-SDK: Missing step")
+        }
+    }
 }

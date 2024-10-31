@@ -31,7 +31,10 @@ internal interface RouterHost {
     fun isScreenOnBackStackOrForeground(screen: Screen): Boolean
 
     @Composable
-    fun StartFlow(builder: NavGraphBuilder.(NavController) -> Unit)
+    fun StartFlow(
+        startDestination: String,
+        builder: NavGraphBuilder.(NavController) -> Unit
+    )
 }
 
 internal class RouterHostImpl : RouterHost {
@@ -43,12 +46,15 @@ internal class RouterHostImpl : RouterHost {
     override fun getNavContext(): Context = context
 
     @Composable
-    override fun StartFlow(builder: NavGraphBuilder.(NavController) -> Unit) {
+    override fun StartFlow(
+        startDestination: String,
+        builder: NavGraphBuilder.(NavController) -> Unit
+    ) {
         navController = rememberNavController()
         context = LocalContext.current
         NavHost(
             navController = navController,
-            startDestination = ModuleRoute.SdkModule.route
+            startDestination = startDestination
         ) {
             builder(navController)
         }

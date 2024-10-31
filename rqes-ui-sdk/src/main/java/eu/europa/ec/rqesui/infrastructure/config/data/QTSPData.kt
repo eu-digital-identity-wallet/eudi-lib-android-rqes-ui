@@ -16,9 +16,12 @@
 
 package eu.europa.ec.rqesui.infrastructure.config.data
 
-import java.net.URI
+import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class QTSPData(
     val qtspName: String,
-    val uri: URI
-)
+    val uri: Uri,
+) : Parcelable

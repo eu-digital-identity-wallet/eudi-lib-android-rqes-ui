@@ -16,9 +16,12 @@
 
 package eu.europa.ec.rqesui.infrastructure.config.data
 
-import java.net.URI
+import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class DocumentData(
     val documentName: String,
-    val uri: URI
-)
+    val uri: Uri,
+) : Parcelable

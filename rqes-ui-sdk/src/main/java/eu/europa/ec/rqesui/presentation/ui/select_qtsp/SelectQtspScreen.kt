@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.R
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.theme.values.devider
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
@@ -63,7 +64,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.net.URI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,7 +88,7 @@ internal fun SelectQtspScreen(
             ButtonContainerBottomBar(
                 onPositiveClick = {
                     viewModel.setEvent(
-                        Event.PrimaryButtonPressed(documentUri = URI("uri"))
+                        Event.PrimaryButtonPressed(documentUri = "uri".toUri())
                     )
                 }
             )
@@ -164,7 +164,7 @@ private fun Content(
                             data = option,
                             onClick = {
                                 onEventSend(
-                                    Event.ViewDocument(URI("uriValue"))
+                                    Event.ViewDocument(documentUri = "uriValue".toUri())
                                 )
                             }
                         )

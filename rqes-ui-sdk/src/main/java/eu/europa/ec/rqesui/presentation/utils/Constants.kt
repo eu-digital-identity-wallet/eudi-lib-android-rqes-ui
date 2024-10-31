@@ -14,16 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.select_certificate
+package eu.europa.ec.rqesui.presentation.utils
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
-
-@Composable
-internal fun SelectCertificateScreen(
-    navController: NavController,
-    viewModel: SelectCertificateViewModel,
-) {
-    Text(text = "SelectCertificateScreen")
+internal object Constants {
+    internal const val STEP_KEY = "EudiRQESUI_Step"
 }

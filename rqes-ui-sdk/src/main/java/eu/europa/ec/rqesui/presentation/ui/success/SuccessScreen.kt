@@ -16,6 +16,7 @@
 
 package eu.europa.ec.rqesui.presentation.ui.success
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 
@@ -24,5 +25,5 @@ internal fun SuccessScreen(
     navController: NavController,
     viewModel: SuccessViewModel,
 ) {
-
+    Text(text = "Success")
 }

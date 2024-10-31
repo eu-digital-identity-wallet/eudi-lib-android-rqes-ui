@@ -16,6 +16,7 @@
 
 package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
+import android.net.Uri
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
@@ -28,10 +29,9 @@ import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import org.koin.android.annotation.KoinViewModel
-import java.net.URI
 
 internal data class State(
-    val documentUri: URI? = null,
+    val documentUri: Uri? = null,
 
     val isLoading: Boolean = false,
     val error: ContentErrorConfig? = null,
@@ -52,8 +52,8 @@ internal sealed class Event : ViewEvent {
 
     data object DismissError : Event()
 
-    data class PrimaryButtonPressed(val documentUri: URI) : Event()
-    data class ViewDocument(val documentUri: URI) : Event()
+    data class PrimaryButtonPressed(val documentUri: Uri) : Event()
+    data class ViewDocument(val documentUri: Uri) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
