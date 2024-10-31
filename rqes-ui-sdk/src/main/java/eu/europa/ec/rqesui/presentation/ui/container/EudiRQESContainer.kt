@@ -17,7 +17,6 @@
 package eu.europa.ec.rqesui.presentation.ui.container
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,14 +25,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.presentation.navigation.RouterHost
+import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.router.sdkGraph
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -41,14 +38,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 internal class EudiRQESContainer : ComponentActivity() {
 
     private val routerHost: RouterHost by inject()
-
-    private var flowStarted: Boolean = false
-
-    private var pendingDeepLink: Uri? = null
-
-    internal fun cacheDeepLink(intent: Intent) {
-        pendingDeepLink = intent.data
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,39 +63,10 @@ internal class EudiRQESContainer : ComponentActivity() {
                     routerHost.StartFlow {
                         builder(it)
                     }
-                    flowStarted = true
-                    handleDeepLink(intent, coldBoot = true)
                 }
             }
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (flowStarted) {
-            handleDeepLink(intent)
-        } else {
-            runPendingDeepLink(intent)
-        }
-    }
-
-    private fun runPendingDeepLink(intent: Intent) {
-        lifecycleScope.launch {
-            var count = 0
-            while (!flowStarted && count <= 10) {
-                count++
-                delay(500)
-            }
-            if (count <= 10) {
-                handleDeepLink(intent)
-            }
-        }
-    }
-
-    private fun handleDeepLink(intent: Intent, coldBoot: Boolean = false) {
-        //TODO replace (if needed) with hasDeepLink(intent?.data)?.let {
-        intent.data?.let {
-            setIntent(Intent())
-        }
-    }
+    //TODO should we handle onNewIntent?
 }

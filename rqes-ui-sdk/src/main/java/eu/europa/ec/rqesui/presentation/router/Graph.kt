@@ -21,11 +21,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
-import androidx.navigation.navigation
-import eu.europa.ec.rqesui.BuildConfig
 import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
-import eu.europa.ec.rqesui.presentation.navigation.ModuleRoute
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.ui.select_certificate.SelectCertificateScreen
 import eu.europa.ec.rqesui.presentation.ui.select_qtsp.SelectQtspScreen
@@ -36,77 +32,52 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 internal fun NavGraphBuilder.sdkGraph(navController: NavController) {
-    navigation(
-        startDestination = SdkScreens.SelectQtsp.screenRoute,
-        route = ModuleRoute.SdkModule.route
+    composable(
+        route = SdkScreens.SelectQtsp.screenRoute,
     ) {
-        composable(
-            route = SdkScreens.SelectQtsp.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = BuildConfig.DEEPLINK + SdkScreens.SelectQtsp.screenRoute
-                }
-            ),
-        ) {
-            SelectQtspScreen(
-                navController = navController,
-                viewModel = koinViewModel()
-            )
-        }
+        SelectQtspScreen(
+            navController = navController,
+            viewModel = koinViewModel()
+        )
+    }
 
-        composable(
-            route = SdkScreens.SelectCertificate.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = BuildConfig.DEEPLINK + SdkScreens.SelectCertificate.screenRoute
-                }
-            ),
-        ) {
-            SelectCertificateScreen(
-                navController = navController,
-                viewModel = koinViewModel()
-            )
-        }
+    composable(
+        route = SdkScreens.SelectCertificate.screenRoute,
+    ) {
+        SelectCertificateScreen(
+            navController = navController,
+            viewModel = koinViewModel()
+        )
+    }
 
-        composable(
-            route = SdkScreens.Success.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = BuildConfig.DEEPLINK + SdkScreens.Success.screenRoute
-                }
-            ),
-        ) {
-            SuccessScreen(
-                navController = navController,
-                viewModel = koinViewModel()
-            )
-        }
+    composable(
+        route = SdkScreens.Success.screenRoute,
+    ) {
+        SuccessScreen(
+            navController = navController,
+            viewModel = koinViewModel()
+        )
+    }
 
-        composable(
-            route = SdkScreens.ViewDocument.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = BuildConfig.DEEPLINK + SdkScreens.ViewDocument.screenRoute
-                }
-            ),
-            arguments = listOf(
-                navArgument(ViewDocumentUiConfig.serializedKeyName) {
-                    type = NavType.StringType
+    composable(
+        route = SdkScreens.ViewDocument.screenRoute,
+        arguments = listOf(
+            navArgument(ViewDocumentUiConfig.serializedKeyName) {
+                type = NavType.StringType
+            }
+        )
+    ) {
+        ViewDocumentScreen(
+            navController = navController,
+            viewModel = getViewModel(
+                parameters = {
+                    parametersOf(
+                        it.arguments?.getString(
+                            ViewDocumentUiConfig.serializedKeyName
+                        ).orEmpty()
+                    )
                 }
             )
-        ) {
-            ViewDocumentScreen(
-                navController = navController,
-                viewModel = getViewModel(
-                    parameters = {
-                        parametersOf(
-                            it.arguments?.getString(
-                                ViewDocumentUiConfig.serializedKeyName
-                            ).orEmpty()
-                        )
-                    }
-                )
-            )
-        }
+        )
     }
 }
