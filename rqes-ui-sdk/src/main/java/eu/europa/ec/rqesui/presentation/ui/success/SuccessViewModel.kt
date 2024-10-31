@@ -16,32 +16,138 @@
 
 package eu.europa.ec.rqesui.presentation.ui.success
 
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
+import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import org.koin.android.annotation.KoinViewModel
+import java.net.URI
 
 internal data class State(
     val isLoading: Boolean = false,
+
+    val documentName: String = "",
+    val headline: String = "",
+    val subtitle: String = "",
+    val options: List<SelectionItemUi> = emptyList(),
+    val buttonText: String = "",
+
+    val isBottomSheetOpen: Boolean = false,
+    val sheetContent: SuccessBottomSheetContent = SuccessBottomSheetContent.ConfirmCancellation
 ) : ViewState
 
-internal sealed class Event : ViewEvent
+internal sealed class Event : ViewEvent {
+    data object Pop : Event()
+    data object Finish : Event()
+    data object CloseButtonPressed : Event()
 
-internal sealed class Effect : ViewSideEffect
+    data class ViewDocument(val documentUri: URI) : Event()
+
+    sealed class BottomSheet : Event() {
+
+        data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+
+        sealed class CancelSignProcess : BottomSheet() {
+            data object PrimaryButtonPressed : CancelSignProcess()
+            data object SecondaryButtonPressed : CancelSignProcess()
+        }
+    }
+}
+
+internal sealed class Effect : ViewSideEffect {
+    sealed class Navigation : Effect() {
+        data object Finish : Navigation()
+    }
+
+    data object ShowBottomSheet : Effect()
+    data object CloseBottomSheet : Effect()
+}
+
+internal sealed class SuccessBottomSheetContent {
+    data object ConfirmCancellation : SuccessBottomSheetContent()
+}
 
 @KoinViewModel
 internal class SuccessViewModel(
     private val resourceProvider: ResourceProvider,
+    private val successInteractor: SuccessInteractor
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {
-        TODO("Not yet implemented")
+        val selectedQTSP = EudiRQESUi.getEudiRQESUiConfig().qtsps.getOrNull(0)
+        val qtspName = selectedQTSP?.qtspName ?: "QTSP"
+        val subtitleWithQTSP =
+            resourceProvider.getLocalizedStringWithArgs(
+                localizableKey = LocalizableKey.SignedBy,
+                arguments = listOf(qtspName)
+            )
+
+        return State(
+            documentName = successInteractor.getDocumentName(),
+            headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
+            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
+            options = listOf(
+                SelectionItemUi(
+                    title = successInteractor.getDocumentName(),
+                    subTitle = subtitleWithQTSP,
+                    action = "VIEW"
+                )
+            ),
+            buttonText = resourceProvider.getLocalizedString(LocalizableKey.Close)
+        )
     }
 
     override fun handleEvents(event: Event) {
-        TODO("Not yet implemented")
+        when (event) {
+            is Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed -> {
+                hideBottomSheet()
+            }
+
+            is Event.CloseButtonPressed,
+            is Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed -> {
+                setEffect {
+                    Effect.Navigation.Finish
+                }
+            }
+
+            is Event.BottomSheet.UpdateBottomSheetState -> {
+                setState {
+                    copy(
+                        isBottomSheetOpen = event.isOpen
+                    )
+                }
+            }
+
+            is Event.Finish -> {
+                setEffect { Effect.Navigation.Finish }
+            }
+
+            is Event.Pop -> {
+                showBottomSheet()
+            }
+
+
+            is Event.ViewDocument -> {
+                // TODO open file in ViewDocument screen
+            }
+        }
+
     }
 
+    private fun showBottomSheet() {
+        setEffect {
+            Effect.ShowBottomSheet
+        }
+    }
+
+    private fun hideBottomSheet() {
+        setEffect {
+            Effect.CloseBottomSheet
+        }
+    }
 }

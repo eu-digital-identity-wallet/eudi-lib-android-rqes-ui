@@ -14,19 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.domain.di
+package eu.europa.ec.rqesui.domain.interactor
 
-import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
-import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractorImpl
-import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
-import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorImpl
-import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
-import org.koin.core.annotation.Factory
+internal interface SuccessInteractor {
+    fun getDocumentName(): String
+}
 
-@Factory
-internal fun provideSelectQtspInteractor(
-    resourceProvider: ResourceProvider,
-): SelectQtspInteractor = SelectQtspInteractorImpl(resourceProvider)
-
-@Factory
-internal fun provideSuccessInteractor(): SuccessInteractor = SuccessInteractorImpl()
+internal class SuccessInteractorImpl : SuccessInteractor {
+    override fun getDocumentName(): String {
+        return "Document_title.PDF"
+    }
+}

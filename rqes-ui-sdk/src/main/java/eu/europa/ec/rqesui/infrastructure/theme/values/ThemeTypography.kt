@@ -47,7 +47,12 @@ internal class ThemeTypography {
                         letterSpacing = 0f,
                         textAlign = ThemeTextAlign.Start
                     ),
-                    headlineLarge = ThemeTextStyle(),
+                    headlineLarge = ThemeTextStyle(
+                        fontFamily = listOf(RobotoRegular),
+                        fontSize = 32,
+                        letterSpacing = 0.01f,
+                        textAlign = ThemeTextAlign.Start
+                    ),
                     headlineMedium = ThemeTextStyle(
                         fontFamily = listOf(RobotoRegular),
                         fontSize = 30,

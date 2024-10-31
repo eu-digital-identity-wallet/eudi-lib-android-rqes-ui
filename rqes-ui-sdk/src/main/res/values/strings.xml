@@ -45,4 +45,5 @@
     <string name="content_description_arrow_back_icon">Go Back</string>
     <string name="content_description_close_icon">Close</string>
     <string name="content_description_handle_bar">Handle bar</string>
+    <string name="content_description_verified_icon">Verified</string>
 </resources>

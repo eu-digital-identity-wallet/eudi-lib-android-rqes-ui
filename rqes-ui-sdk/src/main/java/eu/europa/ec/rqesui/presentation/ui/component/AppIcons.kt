@@ -72,4 +72,10 @@ internal object AppIcons {
         contentDescriptionId = R.string.content_description_handle_bar,
         imageVector = null
     )
+
+    val Verified: IconData = IconData(
+        resourceId = R.drawable.ic_verified,
+        contentDescriptionId = R.string.content_description_verified_icon,
+        imageVector = null
+    )
 }

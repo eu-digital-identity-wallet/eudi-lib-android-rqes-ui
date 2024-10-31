@@ -39,6 +39,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewPr
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
+import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
 
 @Composable
@@ -80,6 +81,8 @@ internal fun SelectionItem(
                     )
 
                     data.subTitle?.let {
+                        VSpacer.ExtraSmall()
+
                         Text(
                             text = it,
                             style = MaterialTheme.typography.labelSmall,
