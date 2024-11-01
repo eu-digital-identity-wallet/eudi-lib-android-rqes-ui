@@ -17,5 +17,5 @@
 package eu.europa.ec.rqesui.presentation.utils
 
 internal object Constants {
-    internal const val STEP_KEY = "EudiRQESUI_Step"
+    internal const val SDK_STATE = "EudiRQESUISDK_State"
 }

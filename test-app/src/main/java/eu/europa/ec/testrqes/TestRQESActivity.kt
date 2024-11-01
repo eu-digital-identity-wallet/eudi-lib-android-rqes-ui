@@ -77,7 +77,7 @@ private fun ContentPreview() {
 private fun showRQESSDK(context: Context) {
     EudiRQESUi.launchSdk(
         context = context,
-        step = EudiRQESUi.SignDocumentStep.Start(
+        state = EudiRQESUi.State.Initial(
             file = DocumentData(
                 documentName = "Document.pdf",
                 uri = "https://www.example.com".toUri()

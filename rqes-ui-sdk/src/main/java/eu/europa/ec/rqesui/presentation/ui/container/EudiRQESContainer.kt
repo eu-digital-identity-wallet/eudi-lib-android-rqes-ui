@@ -27,11 +27,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.presentation.navigation.RouterHost
+import eu.europa.ec.rqesui.presentation.navigation.Screen
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.rqesui.presentation.router.sdkGraph
-import eu.europa.ec.rqesui.presentation.utils.Constants.STEP_KEY
+import eu.europa.ec.rqesui.presentation.utils.Constants.SDK_STATE
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -72,13 +75,18 @@ internal class EudiRQESContainer : ComponentActivity() {
 
     //TODO should we handle onNewIntent?
 
+    @Throws(EudiRQESUiError::class)
     private fun getStartingRoute(intent: Intent): String {
-        val step = intent.getParcelableExtra<EudiRQESUi.SignDocumentStep>(STEP_KEY)
-        return when (step) {
-            is EudiRQESUi.SignDocumentStep.Start -> SdkScreens.SelectQtsp.screenRoute
-            is EudiRQESUi.SignDocumentStep.SelectCertificate -> SdkScreens.SelectCertificate.screenRoute
-            is EudiRQESUi.SignDocumentStep.Completed -> SdkScreens.Success.screenRoute
-            null -> throw IllegalStateException("EUDIRQESUI-SDK: Missing step")
+        val state = intent.getParcelableExtra<EudiRQESUi.State>(SDK_STATE)
+        val screen: Screen = when (state) {
+            is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
+            is EudiRQESUi.State.Initial -> SdkScreens.SelectQtsp
+            is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
+            is EudiRQESUi.State.Sign -> SdkScreens.Success
         }
+        return generateComposableNavigationLink(
+            screen = screen,
+            arguments = ""
+        )
     }
 }
