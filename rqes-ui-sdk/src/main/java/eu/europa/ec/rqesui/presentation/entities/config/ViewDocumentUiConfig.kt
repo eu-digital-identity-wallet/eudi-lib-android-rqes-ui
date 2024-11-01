@@ -16,11 +16,13 @@
 
 package eu.europa.ec.rqesui.presentation.entities.config
 
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.presentation.serializer.UiSerializable
 import eu.europa.ec.rqesui.presentation.serializer.UiSerializableParser
 
 data class ViewDocumentUiConfig(
     val isSigned: Boolean,
+    val documentData: DocumentData,
 ) : UiSerializable {
 
     companion object Parser : UiSerializableParser {

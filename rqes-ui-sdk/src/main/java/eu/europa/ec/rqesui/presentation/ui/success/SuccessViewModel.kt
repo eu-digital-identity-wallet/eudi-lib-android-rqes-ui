@@ -19,14 +19,19 @@ package eu.europa.ec.rqesui.presentation.ui.success
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
+import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArguments
+import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
+import eu.europa.ec.rqesui.presentation.serializer.UiSerializer
 import org.koin.android.annotation.KoinViewModel
-import java.net.URI
 
 internal data class State(
     val isLoading: Boolean = false,
@@ -43,11 +48,12 @@ internal sealed class Event : ViewEvent {
     data object Finish : Event()
     data object BottomBarButtonPressed : Event()
 
-    data class ViewDocument(val documentUri: URI) : Event()
+    data class ViewDocument(val documentData: DocumentData) : Event()
 }
 
 internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
+        data class SwitchScreen(val screenRoute: String) : Navigation()
         data object Finish : Navigation()
     }
 }
@@ -55,7 +61,8 @@ internal sealed class Effect : ViewSideEffect {
 @KoinViewModel
 internal class SuccessViewModel(
     private val resourceProvider: ResourceProvider,
-    private val successInteractor: SuccessInteractor
+    private val successInteractor: SuccessInteractor,
+    private val uiSerializer: UiSerializer,
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {
@@ -99,8 +106,28 @@ internal class SuccessViewModel(
             }
 
             is Event.ViewDocument -> {
-                // TODO open file in ViewDocument screen
+                navigateToViewDocument(event.documentData)
             }
+        }
+    }
+
+    private fun navigateToViewDocument(documentData: DocumentData) {
+        val screenRoute = generateComposableNavigationLink(
+            screen = SdkScreens.ViewDocument,
+            arguments = generateComposableArguments(
+                arguments = mapOf(
+                    ViewDocumentUiConfig.serializedKeyName to uiSerializer.toBase64(
+                        model = ViewDocumentUiConfig(
+                            isSigned = true,
+                            documentData = documentData
+                        ),
+                        parser = ViewDocumentUiConfig.Parser
+                    )
+                )
+            )
+        )
+        setEffect {
+            Effect.Navigation.SwitchScreen(screenRoute = screenRoute)
         }
     }
 }

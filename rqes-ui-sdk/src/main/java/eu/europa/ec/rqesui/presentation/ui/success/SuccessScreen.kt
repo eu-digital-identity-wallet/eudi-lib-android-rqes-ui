@@ -32,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import eu.europa.ec.rqesui.domain.extension.toUri
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.rqesui.infrastructure.theme.values.successVariant
 import eu.europa.ec.rqesui.presentation.extension.finish
@@ -47,7 +49,6 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import java.net.URI
 
 @Composable
 internal fun SuccessScreen(
@@ -78,6 +79,7 @@ internal fun SuccessScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
+                    is Effect.Navigation.SwitchScreen -> navController.navigate(navigationEffect.screenRoute)
                     is Effect.Navigation.Finish -> context.finish()
                 }
             },
@@ -137,7 +139,10 @@ private fun Content(
                             onClick = {
                                 onEventSend(
                                     Event.ViewDocument(
-                                        documentUri = URI("uriValue")
+                                        documentData = DocumentData(
+                                            documentName = "Document.pdf",
+                                            uri = "documentUri".toUri()
+                                        )
                                     )
                                 )
                             }
