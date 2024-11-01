@@ -71,7 +71,7 @@ internal fun PrimaryButtonContainerBottomBar(
 
 @ThemeModePreviews
 @Composable
-private fun ButtonContainerBottomBarPreview() {
+private fun PrimaryButtonContainerBottomBarPreview() {
     PrimaryButtonContainerBottomBar(
         buttonText = "Sign",
         onButtonClick = {}

@@ -19,6 +19,7 @@ package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 import android.net.Uri
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -53,8 +54,8 @@ internal sealed class Event : ViewEvent {
 
     data object DismissError : Event()
 
-    data class PrimaryButtonPressed(val documentUri: Uri) : Event()
-    data class ViewDocument(val documentUri: Uri) : Event()
+    data class BottomBarButtonPressed(val documentUri: URI) : Event()
+    data class ViewDocument(val documentData: DocumentData) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
@@ -145,7 +146,7 @@ internal class SelectQtspViewModel(
                 // TODO view document in pdf screen
             }
 
-            is Event.PrimaryButtonPressed -> {
+            is Event.BottomBarButtonPressed -> {
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
                     selectQtspInteractor.getQTSPList().map { qtspData ->
                         ModalOptionUi(

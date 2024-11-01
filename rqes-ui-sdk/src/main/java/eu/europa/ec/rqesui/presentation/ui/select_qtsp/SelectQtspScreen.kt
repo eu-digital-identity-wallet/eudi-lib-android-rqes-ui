@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.R
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
@@ -78,10 +79,12 @@ internal fun SelectQtspScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         bottomBar = {
-            PrimaryButtonContainerBottomBar(
-                buttonText = state.buttonText,
-                onButtonClick = {
+            ButtonContainerBottomBar(
+                onPositiveClick = {
                     viewModel.setEvent(
+                        Event.BottomBarButtonPressed(
+                            documentUri = URI.create("document_uri")
+                        )
                         Event.PrimaryButtonPressed(documentUri = "uri".toUri())
                     )
                 }
@@ -158,7 +161,12 @@ private fun Content(
                             data = option,
                             onClick = {
                                 onEventSend(
-                                    Event.ViewDocument(documentUri = "uriValue".toUri())
+                                    Event.ViewDocument(
+                                        documentData = DocumentData(
+                                            documentName = "Document.pdf",
+                                            uri = URI.create("documentUri")
+                                        )
+                                    )
                                 )
                             }
                         )
