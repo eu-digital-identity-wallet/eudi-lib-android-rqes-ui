@@ -39,7 +39,6 @@ import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSubtitle
-import eu.europa.ec.rqesui.presentation.ui.component.content.PrimaryButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
@@ -48,6 +47,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarPrimaryButton
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -76,7 +76,7 @@ internal fun SelectQtspScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         bottomBar = {
-            PrimaryButtonContainerBottomBar(
+            WrapBottomBarPrimaryButton(
                 buttonText = state.bottomBarButtonText,
                 onButtonClick = {
                     viewModel.setEvent(

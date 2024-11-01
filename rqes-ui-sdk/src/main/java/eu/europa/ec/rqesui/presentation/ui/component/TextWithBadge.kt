@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import eu.europa.ec.rqesui.infrastructure.theme.values.success
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIcon
@@ -87,8 +88,10 @@ internal data class TextWithBadgeData(
 @ThemeModePreviews
 @Composable
 private fun TextWithBadgePreview() {
-    TextWithBadge(
-        message = "Document_title.PDF",
-        showBadge = true
-    )
+    PreviewTheme {
+        TextWithBadge(
+            message = "Document_title.PDF",
+            showBadge = true
+        )
+    }
 }

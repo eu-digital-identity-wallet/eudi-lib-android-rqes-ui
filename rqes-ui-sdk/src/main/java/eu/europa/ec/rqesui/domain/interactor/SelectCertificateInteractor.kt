@@ -21,6 +21,7 @@ import eu.europa.ec.rqesui.domain.extension.safeAsync
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -36,11 +37,13 @@ internal sealed class SelectCertificatePartialState {
 internal interface SelectCertificateInteractor {
     fun qtspCertificates(qtspCertificateEndpoint: Uri): Flow<SelectCertificatePartialState>
     fun getDocumentData(): DocumentData
+    fun getQtspData(): QTSPData
 }
 
 internal class SelectCertificateInteractorImpl(
     private val resourceProvider: ResourceProvider,
-    private val rqesCoreController: Any? = null
+    //TODO change this when integration with Core is ready.
+    private val rqesCoreController: Any? = null,
 ) : SelectCertificateInteractor {
 
     private val genericErrorMsg
@@ -68,6 +71,14 @@ internal class SelectCertificateInteractorImpl(
         return DocumentData(
             documentName = "Document name.PDF",
             uri = "".toUri()
+        )
+    }
+
+    override fun getQtspData(): QTSPData {
+        //TODO return EudiRQESUi.qtsp
+        return QTSPData(
+            qtspName = "Entrust",
+            uri = "https://www.entrust.com".toUri()
         )
     }
 }

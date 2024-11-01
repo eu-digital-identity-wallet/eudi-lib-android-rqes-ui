@@ -16,12 +16,38 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
+import eu.europa.ec.rqesui.domain.extension.toUri
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+
 internal interface SuccessInteractor {
-    fun getDocumentName(): String
+    fun getDocumentData(): DocumentData
+    fun getQtspData(): QTSPData
 }
 
-internal class SuccessInteractorImpl : SuccessInteractor {
-    override fun getDocumentName(): String {
-        return "Document_title.PDF"
+internal class SuccessInteractorImpl(
+    private val resourceProvider: ResourceProvider,
+    //TODO change this when integration with Core is ready.
+    private val rqesCoreController: Any? = null,
+) : SuccessInteractor {
+
+    private val genericErrorMsg
+        get() = resourceProvider.genericErrorMessage()
+
+    override fun getDocumentData(): DocumentData {
+        //TODO return EudiRQESUi.file
+        return DocumentData(
+            documentName = "Document name.PDF",
+            uri = "".toUri()
+        )
+    }
+
+    override fun getQtspData(): QTSPData {
+        //TODO return EudiRQESUi.qtsp
+        return QTSPData(
+            qtspName = "Entrust",
+            uri = "https://www.entrust.com".toUri()
+        )
     }
 }

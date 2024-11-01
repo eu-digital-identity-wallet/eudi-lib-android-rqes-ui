@@ -16,14 +16,11 @@
 
 package eu.europa.ec.rqesui.presentation.ui.success
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -34,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.rqesui.infrastructure.theme.values.successVariant
+import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.rqesui.presentation.ui.component.TextWithBadge
@@ -43,12 +40,16 @@ import eu.europa.ec.rqesui.presentation.ui.component.content.ContentHeadline
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentSubtitle
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
-import eu.europa.ec.rqesui.presentation.ui.component.content.SecondaryButtonContainerBottomBar
-import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 
 @Composable
 internal fun SuccessScreen(
@@ -61,10 +62,13 @@ internal fun SuccessScreen(
     ContentScreen(
         isLoading = state.isLoading,
         navigatableAction = ScreenNavigateAction.CANCELABLE,
-        onBack = { viewModel.setEvent(Event.Pop) },
+        onBack = {
+            //TODO What should happen here? Pop? Finish? Other?
+            viewModel.setEvent(Event.Pop)
+        },
         bottomBar = {
-            SecondaryButtonContainerBottomBar(
-                buttonText = state.buttonText,
+            WrapBottomBarSecondaryButton(
+                buttonText = state.bottomBarButtonText,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed
@@ -99,60 +103,39 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
-        verticalArrangement = Arrangement.Top
+            .padding(paddingValues)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.Top
-        ) {
-            ContentHeadline(
-                headline = state.headline,
-                textColor = MaterialTheme.colorScheme.success
-            )
+        ContentHeadline(
+            headline = state.headline
+        )
 
-            VSpacer.Large()
+        VSpacer.Large()
 
-            Column(verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_SMALL.dp)) {
-                ContentSubtitle(
-                    subtitle = state.subtitle
-                )
-                TextWithBadge(
-                    message = state.documentName,
-                    showBadge = true
+        ContentSubtitle(
+            subtitle = state.subtitle
+        )
+
+        TextWithBadge(
+            message = state.documentName,
+            showBadge = true
+        )
+
+        VSpacer.Large()
+
+        SelectionItem(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.successVariant
+            ),
+            data = state.selectionItem,
+            onClick = {
+                onEventSend(
+                    Event.ViewDocument(
+                        documentData = state.selectionItem.documentData
+                    )
                 )
             }
-
-            VSpacer.Large()
-
-            LazyColumn {
-                state.options.forEach { option ->
-                    item {
-                        SelectionItem(
-                            modifier = Modifier.wrapContentHeight(),
-                            data = option,
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.successVariant
-                            ),
-                            onClick = {
-                                onEventSend(
-                                    Event.ViewDocument(
-                                        documentData = DocumentData(
-                                            documentName = "Document.pdf",
-                                            uri = "documentUri".toUri()
-                                        )
-                                    )
-                                )
-                            }
-                        )
-
-                        VSpacer.Medium()
-                    }
-                }
-            }
-        }
+        )
     }
 
     LaunchedEffect(Unit) {
@@ -161,5 +144,33 @@ private fun Content(
                 is Effect.Navigation -> onNavigationRequested(effect)
             }
         }.collect()
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun SuccessScreenPreview() {
+    PreviewTheme {
+        val documentName = "Document name.PDF"
+        Content(
+            state = State(
+                headline = "Success",
+                subtitle = "You successfully signed your document",
+                documentName = documentName,
+                selectionItem = SelectionItemUi(
+                    documentData = DocumentData(
+                        documentName = documentName,
+                        uri = "".toUri()
+                    ),
+                    subtitle = "Signed by: Entrust",
+                    action = "View",
+                ),
+                bottomBarButtonText = "Close"
+            ),
+            effectFlow = Channel<Effect>().receiveAsFlow(),
+            onEventSend = {},
+            onNavigationRequested = {},
+            paddingValues = PaddingValues(all = SPACING_LARGE.dp),
+        )
     }
 }

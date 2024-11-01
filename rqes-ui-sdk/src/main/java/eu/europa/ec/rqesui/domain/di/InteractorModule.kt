@@ -36,4 +36,6 @@ internal fun provideSelectCertificateInteractor(
 ): SelectCertificateInteractor = SelectCertificateInteractorImpl(resourceProvider)
 
 @Factory
-internal fun provideSuccessInteractor(): SuccessInteractor = SuccessInteractorImpl()
+internal fun provideSuccessInteractor(
+    resourceProvider: ResourceProvider,
+): SuccessInteractor = SuccessInteractorImpl(resourceProvider)

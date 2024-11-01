@@ -50,7 +50,7 @@ private class DefaultConfig : EudiRQESUiConfig {
             return mapOf(
                 "en" to mapOf(
                     LocalizableKey.View to "View",
-                    LocalizableKey.SignedBy to "3-party app Translation for SignedBy $ARGUMENTS_SEPARATOR",
+                    LocalizableKey.SignedBy to "Signed by: $ARGUMENTS_SEPARATOR",
                 )
             )
         }

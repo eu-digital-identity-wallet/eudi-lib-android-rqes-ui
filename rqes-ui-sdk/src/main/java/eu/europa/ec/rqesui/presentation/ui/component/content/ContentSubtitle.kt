@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 
 @Composable
@@ -36,7 +37,8 @@ internal fun ContentSubtitle(
         verticalArrangement = Arrangement.Top
     ) {
         Text(
-            text = subtitle, style = MaterialTheme.typography.bodyMedium.copy(
+            text = subtitle,
+            style = MaterialTheme.typography.bodyMedium.copy(
                 color = MaterialTheme.colorScheme.onSurface
             )
         )
@@ -46,7 +48,9 @@ internal fun ContentSubtitle(
 @ThemeModePreviews
 @Composable
 private fun ContentSubtitlePreview() {
-    ContentSubtitle(
-        subtitle = "Subtitle"
-    )
+    PreviewTheme {
+        ContentSubtitle(
+            subtitle = "Subtitle"
+        )
+    }
 }

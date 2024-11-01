@@ -17,6 +17,7 @@
 package eu.europa.ec.rqesui.presentation.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -69,17 +70,27 @@ internal fun SelectionItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = data.documentData.documentName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column {
+                Text(
+                    text = data.documentData.documentName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                data.subtitle?.let { subtitle ->
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             data.action?.let { action ->
                 Text(
                     text = action,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -92,7 +103,7 @@ internal fun SelectionItem(
 
 @ThemeModePreviews
 @Composable
-private fun SelectionItemPreview(
+private fun SelectionItemWithNoSubtitlePreview(
     @PreviewParameter(TextLengthPreviewProvider::class) text: String
 ) {
     PreviewTheme {
@@ -103,6 +114,27 @@ private fun SelectionItemPreview(
                     documentName = text,
                     uri = "test".toUri()
                 ),
+                action = "VIEW",
+            ),
+            onClick = {}
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun SelectionItemWithSubtitlePreview(
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+) {
+    PreviewTheme {
+        SelectionItem(
+            modifier = Modifier.fillMaxWidth(),
+            data = SelectionItemUi(
+                documentData = DocumentData(
+                    documentName = text,
+                    uri = "test".toUri()
+                ),
+                subtitle = text,
                 action = "VIEW",
             ),
             onClick = {}

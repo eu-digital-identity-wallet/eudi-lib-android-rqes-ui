@@ -22,6 +22,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.IconData
 
 internal data class SelectionItemUi(
     val documentData: DocumentData,
+    val subtitle: String? = null,
     val action: String? = null,
     val iconData: IconData? = null,
     val iconTint: Color? = null,

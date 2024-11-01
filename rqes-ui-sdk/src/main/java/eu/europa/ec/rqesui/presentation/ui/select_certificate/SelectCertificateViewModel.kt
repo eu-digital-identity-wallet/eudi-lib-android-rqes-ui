@@ -74,10 +74,8 @@ internal sealed class Event : ViewEvent {
 
 internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
+        data class SwitchScreen(val screenRoute: String) : Navigation()
         data object Finish : Navigation()
-        data class SwitchScreen(
-            val screenRoute: String,
-        ) : Navigation()
     }
 
     data object ShowBottomSheet : Effect()
@@ -209,6 +207,10 @@ internal class SelectCertificateViewModel(
     private fun getSelectionItem(): SelectionItemUi {
         return SelectionItemUi(
             documentData = selectCertificateInteractor.getDocumentData(),
+            subtitle = resourceProvider.getLocalizedString(
+                LocalizableKey.SignedBy,
+                listOf(selectCertificateInteractor.getQtspData().qtspName)
+            ),
             iconData = AppIcons.Verified,
             iconTint = ThemeColors.success
         )
@@ -216,10 +218,10 @@ internal class SelectCertificateViewModel(
 
     private fun getConfirmCancellationTextData(): BottomSheetTextData {
         return BottomSheetTextData(
-            title = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessTitle),
-            message = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessSubtitle),
-            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessPrimaryText),
-            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessSecondaryText),
+            title = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessTitle),
+            message = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessSubtitle),
+            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessPrimaryText),
+            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessSecondaryText),
         )
     }
 

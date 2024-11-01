@@ -19,7 +19,6 @@ package eu.europa.ec.rqesui.presentation.ui.component.content
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,15 +26,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import eu.europa.ec.rqesui.infrastructure.theme.values.success
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 
 @Composable
 internal fun ContentHeadline(
     headline: String,
-    textColor: Color? = null
+    textColor: Color = MaterialTheme.colorScheme.success,
 ) {
-    val color = (textColor ?: LocalContentColor.current)
-
     Column(
         modifier = Modifier.wrapContentHeight(),
         horizontalAlignment = Alignment.Start,
@@ -43,7 +41,7 @@ internal fun ContentHeadline(
     ) {
         Text(
             text = headline,
-            style = MaterialTheme.typography.headlineLarge.copy(color = color)
+            style = MaterialTheme.typography.headlineLarge.copy(color = textColor)
         )
     }
 }
@@ -51,8 +49,9 @@ internal fun ContentHeadline(
 @ThemeModePreviews
 @Composable
 private fun ContentHeadlinePreview() {
-    ContentHeadline(
-        headline = "Success!",
-        textColor = MaterialTheme.colorScheme.success
-    )
+    PreviewTheme {
+        ContentHeadline(
+            headline = "Success!",
+        )
+    }
 }

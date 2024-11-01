@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.component.content
+package eu.europa.ec.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,10 +33,9 @@ import eu.europa.ec.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 
 @Composable
-internal fun PrimaryButtonContainerBottomBar(
+internal fun WrapBottomBarPrimaryButton(
     buttonText: String,
     onButtonClick: () -> Unit
 ) {
@@ -72,11 +71,59 @@ internal fun PrimaryButtonContainerBottomBar(
     }
 }
 
+@Composable
+internal fun WrapBottomBarSecondaryButton(
+    buttonText: String,
+    onButtonClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .navigationBarsPadding()
+            .fillMaxWidth()
+    ) {
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.divider
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    all = SPACING_LARGE.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            WrapSecondaryButton(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onButtonClick
+            ) {
+                Text(
+                    text = buttonText,
+                    style = MaterialTheme.typography.labelLarge
+                )
+            }
+        }
+    }
+}
+
 @ThemeModePreviews
 @Composable
-private fun PrimaryButtonContainerBottomBarPreview() {
+private fun WrapBottomBarPrimaryButtonPreview() {
     PreviewTheme {
-        PrimaryButtonContainerBottomBar(
+        WrapBottomBarPrimaryButton(
+            buttonText = "Sign",
+            onButtonClick = {}
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun WrapBottomBarSecondaryButtonPreview() {
+    PreviewTheme {
+        WrapBottomBarSecondaryButton(
             buttonText = "Sign",
             onButtonClick = {}
         )

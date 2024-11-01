@@ -43,6 +43,9 @@ object EudiRQESUi {
     //TODO initialize-cache this when State.Initial is called.
     internal lateinit var file: DocumentData
 
+    //TODO cache this when User selects a QTSP.
+    internal lateinit var qtsp: QTSPData
+
     fun setup(application: Application, config: EudiRQESUiConfig) {
         _eudiRQESUiConfig = config
         setupKoin(application)

@@ -18,7 +18,6 @@ package eu.europa.ec.rqesui.presentation.ui.success
 
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
-import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -36,11 +35,11 @@ import org.koin.android.annotation.KoinViewModel
 internal data class State(
     val isLoading: Boolean = false,
 
-    val documentName: String = "",
-    val headline: String = "",
-    val subtitle: String = "",
-    val options: List<SelectionItemUi> = emptyList(),
-    val buttonText: String = "",
+    val headline: String,
+    val subtitle: String,
+    val documentName: String,
+    val selectionItem: SelectionItemUi,
+    val bottomBarButtonText: String,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
@@ -60,32 +59,18 @@ internal sealed class Effect : ViewSideEffect {
 
 @KoinViewModel
 internal class SuccessViewModel(
-    private val resourceProvider: ResourceProvider,
     private val successInteractor: SuccessInteractor,
+    private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {
-        val selectedQTSP = EudiRQESUi.getEudiRQESUiConfig().qtsps.getOrNull(0)
-        val qtspName = selectedQTSP?.qtspName ?: "QTSP"
-        val subtitleWithQTSP =
-            resourceProvider.getLocalizedStringWithArgs(
-                localizableKey = LocalizableKey.SignedBy,
-                arguments = listOf(qtspName)
-            )
-
         return State(
-            documentName = successInteractor.getDocumentName(),
             headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
-            options = listOf(
-                SelectionItemUi(
-                    title = successInteractor.getDocumentName(),
-                    subTitle = subtitleWithQTSP,
-                    action = "VIEW"
-                )
-            ),
-            buttonText = resourceProvider.getLocalizedString(LocalizableKey.SaveAndClose)
+            documentName = successInteractor.getDocumentData().documentName,
+            selectionItem = getSelectionItem(),
+            bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.SaveAndClose),
         )
     }
 
@@ -109,6 +94,17 @@ internal class SuccessViewModel(
                 navigateToViewDocument(event.documentData)
             }
         }
+    }
+
+    private fun getSelectionItem(): SelectionItemUi {
+        return SelectionItemUi(
+            documentData = successInteractor.getDocumentData(),
+            subtitle = resourceProvider.getLocalizedString(
+                LocalizableKey.SignedBy,
+                listOf(successInteractor.getQtspData().qtspName)
+            ),
+            action = resourceProvider.getLocalizedString(LocalizableKey.View)
+        )
     }
 
     private fun navigateToViewDocument(documentData: DocumentData) {
