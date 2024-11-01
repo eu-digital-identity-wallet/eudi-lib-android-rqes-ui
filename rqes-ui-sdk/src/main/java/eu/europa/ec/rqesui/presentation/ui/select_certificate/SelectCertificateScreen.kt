@@ -53,10 +53,10 @@ import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
-import eu.europa.ec.rqesui.presentation.ui.component.bottom_bar.ButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitle
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSubtitle
+import eu.europa.ec.rqesui.presentation.ui.component.content.PrimaryButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
@@ -96,11 +96,11 @@ internal fun SelectCertificateScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         bottomBar = {
-            ButtonContainerBottomBar(
+            PrimaryButtonContainerBottomBar(
                 buttonText = state.buttonText,
-                onPositiveClick = {
+                onButtonClick = {
                     viewModel.setEvent(
-                        Event.SignDocument(
+                        Event.SignDocumentPressed(
                             documentUri = URI("uri")
                         )
                     )
@@ -174,7 +174,7 @@ private fun Content(
                 subtitle = state.subtitle,
             )
 
-            VSpacer.Large()
+            VSpacer.Medium()
 
             LazyColumn {
                 state.options.forEach { option ->
@@ -191,7 +191,6 @@ private fun Content(
 
             VSpacer.Large()
 
-            // TODO check for correct spacing
             ContentTitle(
                 subtitle = state.certificatesSectionTitle
             )
@@ -278,7 +277,7 @@ private fun CertificateListItem(
     ) {
         Text(
             text = optionName,
-            style = MaterialTheme.typography.labelMedium // TODO check for correct typography
+            style = MaterialTheme.typography.labelMedium
         )
 
         RadioButton(

@@ -31,10 +31,10 @@ import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.infrastructure.theme.values.devider
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapSecondaryButton
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 
 @Composable
-internal fun SecondaryButtonContainerBottomBar(
+internal fun PrimaryButtonContainerBottomBar(
     buttonText: String,
     onButtonClick: () -> Unit
 ) {
@@ -56,7 +56,7 @@ internal fun SecondaryButtonContainerBottomBar(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            WrapSecondaryButton(
+            WrapPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { onButtonClick.invoke() }
             ) {
@@ -71,9 +71,9 @@ internal fun SecondaryButtonContainerBottomBar(
 
 @ThemeModePreviews
 @Composable
-private fun SecondaryButtonContainerBottomBarPreview() {
-    SecondaryButtonContainerBottomBar(
-        buttonText = "Close",
+private fun ButtonContainerBottomBarPreview() {
+    PrimaryButtonContainerBottomBar(
+        buttonText = "Sign",
         onButtonClick = {}
     )
 }

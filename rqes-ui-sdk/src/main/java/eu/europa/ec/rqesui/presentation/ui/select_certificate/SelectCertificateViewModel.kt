@@ -61,9 +61,8 @@ internal sealed class Event : ViewEvent {
 
     data object DismissError : Event()
 
-    data class CertificateSelected(val documentUri: URI) : Event()
     data class CertificateIndexSelected(val index: Int) : Event()
-    data class SignDocument(val documentUri: URI) : Event()
+    data class SignDocumentPressed(val documentUri: URI) : Event()
 
     sealed class BottomSheet : Event() {
 
@@ -154,7 +153,7 @@ internal class SelectCertificateViewModel(
                 // TODO show error
             }
 
-            is Event.SignDocument -> {
+            is Event.SignDocumentPressed -> {
                 viewModelScope.launch {
                     selectCertificateInteractor.signDocument(
                         documentUri = event.documentUri
@@ -178,10 +177,6 @@ internal class SelectCertificateViewModel(
                 setEffect {
                     Effect.Navigation.Finish
                 }
-            }
-
-            is Event.CertificateSelected -> {
-                // TODO set selected certificate
             }
 
             is Event.CertificateIndexSelected -> {

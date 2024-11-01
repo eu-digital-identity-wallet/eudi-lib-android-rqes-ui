@@ -40,9 +40,9 @@ import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
-import eu.europa.ec.rqesui.presentation.ui.component.bottom_bar.ButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSubtitle
+import eu.europa.ec.rqesui.presentation.ui.component.content.PrimaryButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
@@ -78,9 +78,9 @@ internal fun SelectQtspScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         bottomBar = {
-            ButtonContainerBottomBar(
+            PrimaryButtonContainerBottomBar(
                 buttonText = state.buttonText,
-                onPositiveClick = {
+                onButtonClick = {
                     viewModel.setEvent(
                         Event.PrimaryButtonPressed(documentUri = "uri".toUri())
                     )
