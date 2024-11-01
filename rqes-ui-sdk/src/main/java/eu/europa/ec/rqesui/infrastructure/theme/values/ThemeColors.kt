@@ -44,7 +44,7 @@ internal class ThemeColors {
         internal const val EudiRQESUi_theme_light_textPrimaryDark: Long = black
         internal const val EudiRQESUi_theme_light_primaryVariant: Long = 0x0F2A5ED9
         internal const val EudiRQESUi_theme_light_successVariant: Long = 0xFFE4EEE7
-        internal const val EudiRQESUi_theme_light_devider: Long = 0xFFD9D9D9
+        internal const val EudiRQESUi_theme_light_divider: Long = 0xFFD9D9D9
 
         private const val EudiRQESUi_theme_dark_primary: Long = 0xFFB4C5FF
         private const val EudiRQESUi_theme_dark_secondary: Long = white
@@ -54,10 +54,10 @@ internal class ThemeColors {
         private const val EudiRQESUi_theme_dark_onSurfaceVariant: Long = 0xFFCBC4D0
         internal const val EudiRQESUi_theme_dark_success: Long = 0xFF93D875
         internal const val EudiRQESUi_theme_dark_warning: Long = 0xFFFFC288
-        internal const val EudiRQESUi_theme_dark_textPrimaryDark: Long = 0xFFC6C6C6
+        internal const val EudiRQESUi_theme_dark_textPrimaryDark: Long = white
         internal const val EudiRQESUi_theme_dark_primaryVariant: Long = 0x0FB4C5FF
         internal const val EudiRQESUi_theme_dark_successVariant: Long = 0xFF57615B
-        internal const val EudiRQESUi_theme_dark_devider: Long = 0xFFD9D9D9
+        internal const val EudiRQESUi_theme_dark_divider: Long = 0xFFD9D9D9
 
         internal const val EudiRQESUi_theme_light_onSuccess: Long = white
         internal const val EudiRQESUi_theme_dark_onSuccess: Long = 0xFF0E3900
@@ -263,11 +263,11 @@ internal class ThemeColors {
                 Color(EudiRQESUi_theme_light_successVariant)
             }
 
-        val devider: Color
+        val divider: Color
             get() = if (isInDarkMode) {
-                Color(EudiRQESUi_theme_dark_devider)
+                Color(EudiRQESUi_theme_dark_divider)
             } else {
-                Color(EudiRQESUi_theme_light_devider)
+                Color(EudiRQESUi_theme_light_divider)
             }
     }
 }
@@ -314,9 +314,9 @@ val ColorScheme.successVariant: Color
         Color(ThemeColors.EudiRQESUi_theme_light_successVariant)
     }
 
-val ColorScheme.devider: Color
+val ColorScheme.divider: Color
     @Composable get() = if (isSystemInDarkTheme()) {
-        Color(ThemeColors.EudiRQESUi_theme_dark_devider)
+        Color(ThemeColors.EudiRQESUi_theme_dark_divider)
     } else {
-        Color(ThemeColors.EudiRQESUi_theme_light_devider)
+        Color(ThemeColors.EudiRQESUi_theme_light_divider)
     }

@@ -22,6 +22,10 @@ package eu.europa.ec.rqesui.domain.entities.localization
  */
 enum class LocalizableKey {
     SignDocument,
+    CancelSignProcessTitle,
+    CancelSignProcessSubtitle,
+    CancelSignProcessSecondaryText,
+    CancelSignProcessPrimaryText,
     SelectDocumentTitle,
     SelectDocument,
     ConfirmSelectionTitle,
@@ -47,6 +51,10 @@ enum class LocalizableKey {
     fun defaultTranslation(): String {
         return when (this) {
             SignDocument -> "Sign document"
+            CancelSignProcessTitle -> "Cancel signing process?"
+            CancelSignProcessSubtitle -> "Cancel will redirect you back to the documents list without signing your document"
+            CancelSignProcessSecondaryText -> "Cancel signing"
+            CancelSignProcessPrimaryText -> "Continue signing"
             SelectDocumentTitle -> "Select a document from your device to sign electronically."
             SelectDocument -> "Select document"
             ConfirmSelectionTitle -> "Please confirm signing of the following"

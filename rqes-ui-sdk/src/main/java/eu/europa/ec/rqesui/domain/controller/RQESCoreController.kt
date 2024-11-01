@@ -16,6 +16,6 @@
 
 package eu.europa.ec.rqesui.domain.controller
 
-interface RQESCoreController
+internal interface RQESCoreController
 
 internal class RQESCoreControllerImpl : RQESCoreController

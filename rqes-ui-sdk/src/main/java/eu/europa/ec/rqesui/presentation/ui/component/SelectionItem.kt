@@ -17,12 +17,10 @@
 package eu.europa.ec.rqesui.presentation.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,87 +28,59 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.values.primaryVariant
-import eu.europa.ec.rqesui.infrastructure.theme.values.success
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
-import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
-import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIcon
+import java.net.URI
 
 @Composable
 internal fun SelectionItem(
     modifier: Modifier = Modifier,
     data: SelectionItemUi,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.primaryVariant
+        containerColor = ThemeColors.primaryVariant //TODO find a good color for DarkMode primaryVariant
     ),
-    onClick: (() -> Unit)? = null
+    shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
+    onClick: (() -> Unit)
 ) {
     WrapCard(
         modifier = modifier,
         onClick = onClick,
         throttleClicks = true,
+        shape = shape,
         colors = colors,
     ) {
-        Box(
-            modifier = Modifier.wrapContentHeight(),
-            contentAlignment = Alignment.Center
+        Row(
+            modifier = modifier.padding(
+                horizontal = SPACING_MEDIUM.dp,
+                vertical = SPACING_LARGE.dp
+            ),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(
-                    horizontal = SPACING_MEDIUM.dp,
-                    vertical = SPACING_LARGE.dp
-                ),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        text = data.title,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+            Text(
+                text = data.documentData.documentName,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-                    data.subTitle?.let {
-                        VSpacer.ExtraSmall()
-
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-
-                data.action?.let { action ->
-                    Text(
-                        text = action,
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-                data.icon?.let { icon ->
-                    WrapIcon(
-                        modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
-                        iconData = icon,
-                        customTint = MaterialTheme.colorScheme.success
-                    )
-                }
-            }
+            Text(
+                text = data.action,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
-
 }
 
 @ThemeModePreviews
@@ -122,8 +92,10 @@ private fun SelectionItemPreview(
         SelectionItem(
             modifier = Modifier.fillMaxWidth(),
             data = SelectionItemUi(
-                title = "test text",
-                subTitle = "test subtitle",
+                documentData = DocumentData(
+                    documentName = text,
+                    uri = URI("test")
+                ),
                 action = "VIEW",
             ),
             onClick = {}

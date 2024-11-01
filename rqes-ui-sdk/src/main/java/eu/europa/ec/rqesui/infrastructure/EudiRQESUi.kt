@@ -40,7 +40,8 @@ object EudiRQESUi {
     private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
     private var state: State = State.None
 
-    internal var documentData: DocumentData? = null
+    //TODO initialize-cache this when State.Initial is called.
+    internal lateinit var file: DocumentData
 
     fun setup(application: Application, config: EudiRQESUiConfig) {
         _eudiRQESUiConfig = config
@@ -57,7 +58,7 @@ object EudiRQESUi {
         resume(context, state)
 
         safeLet(documentName, documentUri) { name, uri ->
-            this.documentData = DocumentData(documentName = name, uri = uri)
+            file = DocumentData(documentName = name, uri = uri)
         }
     }
 

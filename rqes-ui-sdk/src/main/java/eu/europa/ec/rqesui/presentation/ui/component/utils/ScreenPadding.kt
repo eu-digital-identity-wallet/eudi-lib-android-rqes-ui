@@ -19,7 +19,7 @@ package eu.europa.ec.rqesui.presentation.ui.component.utils
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.unit.dp
 
-enum class TopSpacing {
+internal enum class TopSpacing {
     WithToolbar, WithoutToolbar, MediumSpacing
 }
 

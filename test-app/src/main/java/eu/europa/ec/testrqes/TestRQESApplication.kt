@@ -49,7 +49,7 @@ private class DefaultConfig : EudiRQESUiConfig {
         get() {
             return mapOf(
                 "en" to mapOf(
-                    LocalizableKey.View to "3-party app Translation for View",
+                    LocalizableKey.View to "View",
                     LocalizableKey.SignedBy to "3-party app Translation for SignedBy $ARGUMENTS_SEPARATOR",
                 )
             )

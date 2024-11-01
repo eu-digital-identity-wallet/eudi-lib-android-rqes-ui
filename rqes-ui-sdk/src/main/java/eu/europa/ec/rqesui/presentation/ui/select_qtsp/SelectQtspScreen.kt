@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -32,10 +30,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import eu.europa.ec.rqesui.R
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
@@ -49,6 +45,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
@@ -140,42 +137,24 @@ private fun Content(
             .padding(paddingValues),
         verticalArrangement = Arrangement.Top
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.Top
-        ) {
-            ContentTitleWithSubtitle(
-                title = state.title,
-                subtitle = state.subtitle,
-            )
+        ContentTitleWithSubtitle(
+            title = state.title,
+            subtitle = state.subtitle,
+        )
 
-            VSpacer.Large()
+        VSpacer.Large()
 
-            LazyColumn {
-                state.options.forEach { option ->
-                    item {
-                        SelectionItem(
-                            modifier = Modifier.wrapContentHeight(),
-                            data = option,
-                            onClick = {
-                                onEventSend(
-                                    Event.ViewDocument(
-                                        documentData = DocumentData(
-                                            documentName = "Document.pdf",
-                                            uri = URI.create("documentUri")
-                                        )
-                                    )
-                                )
-                            }
-                        )
-
-                        VSpacer.Medium()
-                    }
-                }
+        SelectionItem(
+            modifier = Modifier.fillMaxWidth(),
+            data = state.selectionItem,
+            onClick = {
+                onEventSend(
+                    Event.ViewDocument(
+                        documentData = state.selectionItem.documentData
+                    )
+                )
             }
-        }
+        )
 
     }
 
@@ -210,31 +189,19 @@ private fun SelectQtspSheetContent(
     when (sheetContent) {
         is SelectQtspBottomSheetContent.ConfirmCancellation -> {
             DialogBottomSheet(
-                title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
-                message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
-                positiveButtonText = stringResource(id = R.string.sign_document_bottom_sheet_continue_button_text),
-                negativeButtonText = stringResource(id = R.string.sign_document_bottom_sheet_cancel_button_text),
+                textData = sheetContent.bottomSheetTextData,
                 onPositiveClick = {
-                    onEventSent(
-                        Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed
-                    )
+                    onEventSent(Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed)
                 },
                 onNegativeClick = {
-                    onEventSent(
-                        Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed
-                    )
+                    onEventSent(Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed)
                 }
             )
         }
 
         is SelectQtspBottomSheetContent.SelectQTSP -> {
             BottomSheetWithOptionsList(
-                title = stringResource(
-                    id = R.string.sign_document_qtsp_title
-                ),
-                message = stringResource(
-                    id = R.string.sign_document_qtsp_subtitle
-                ),
+                textData = sheetContent.bottomSheetTextData,
                 options = sheetContent.options,
                 onEventSent = onEventSent
             )
@@ -251,12 +218,20 @@ private fun SelectQtspScreenPreview() {
             state = State(
                 title = "Sign a document",
                 subtitle = "Select a document from your device or scan QR",
-                options = listOf(
-                    SelectionItemUi(
-                        title = "Document name.PDF",
-                        action = "VIEW",
+                selectionItem = SelectionItemUi(
+                    documentData = DocumentData(
+                        documentName = "Document name.PDF",
+                        uri = URI.create("")
+                    ),
+                    action = "VIEW",
+                ),
+                sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
+                    bottomSheetTextData = BottomSheetTextData(
+                        title = "title",
+                        message = "message",
                     )
-                )
+                ),
+                buttonText = "Sign"
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

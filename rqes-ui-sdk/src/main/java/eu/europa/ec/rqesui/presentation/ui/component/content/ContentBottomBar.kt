@@ -16,6 +16,7 @@
 
 package eu.europa.ec.rqesui.presentation.ui.component.content
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +29,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.values.devider
+import eu.europa.ec.rqesui.infrastructure.theme.values.divider
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
@@ -45,7 +47,7 @@ internal fun PrimaryButtonContainerBottomBar(
     ) {
         HorizontalDivider(
             thickness = 1.dp,
-            color = MaterialTheme.colorScheme.devider
+            color = MaterialTheme.colorScheme.divider
         )
 
         Row(
@@ -54,11 +56,12 @@ internal fun PrimaryButtonContainerBottomBar(
                 .padding(
                     all = SPACING_LARGE.dp
                 ),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
             WrapPrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { onButtonClick.invoke() }
+                onClick = onButtonClick
             ) {
                 Text(
                     text = buttonText,
@@ -72,8 +75,10 @@ internal fun PrimaryButtonContainerBottomBar(
 @ThemeModePreviews
 @Composable
 private fun PrimaryButtonContainerBottomBarPreview() {
-    PrimaryButtonContainerBottomBar(
-        buttonText = "Sign",
-        onButtonClick = {}
-    )
+    PreviewTheme {
+        PrimaryButtonContainerBottomBar(
+            buttonText = "Sign",
+            onButtonClick = {}
+        )
+    }
 }

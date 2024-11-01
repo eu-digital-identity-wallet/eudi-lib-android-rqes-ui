@@ -56,7 +56,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.Z_STICKY
 import eu.europa.ec.rqesui.presentation.ui.component.utils.screenPaddings
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIconButton
 
-enum class LoadingType {
+internal enum class LoadingType {
     NORMAL, NONE
 }
 
@@ -74,7 +74,7 @@ internal data class ToolbarConfig(
     val hasShadow: Boolean = false
 )
 
-enum class ScreenNavigateAction {
+internal enum class ScreenNavigateAction {
     BACKABLE, CANCELABLE, NONE
 }
 

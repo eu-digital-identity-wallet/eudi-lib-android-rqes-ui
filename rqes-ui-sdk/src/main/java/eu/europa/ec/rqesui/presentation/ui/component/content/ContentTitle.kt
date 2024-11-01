@@ -204,7 +204,7 @@ internal fun ContentTitle(
     }
 }
 
-data class TitleWithBadge(
+internal data class TitleWithBadge(
     private val textBeforeBadge: String? = null,
     private val textAfterBadge: String? = null,
     val isTrusted: Boolean

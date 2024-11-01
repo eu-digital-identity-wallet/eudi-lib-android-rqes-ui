@@ -16,7 +16,6 @@
 
 package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
-import android.net.Uri
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
@@ -29,26 +28,25 @@ import eu.europa.ec.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import org.koin.android.annotation.KoinViewModel
+import java.net.URI
 
 internal data class State(
-    val documentUri: Uri? = null,
-
     val isLoading: Boolean = false,
     val error: ContentErrorConfig? = null,
-    val isInitialised: Boolean = false,
     val isBottomSheetOpen: Boolean = false,
 
-    val title: String = "",
-    val subtitle: String = "",
-    val buttonText: String = "",
+    val title: String,
+    val subtitle: String,
+    val buttonText: String,
 
-    val options: List<SelectionItemUi> = emptyList(),
-    val sheetContent: SelectQtspBottomSheetContent = SelectQtspBottomSheetContent.ConfirmCancellation,
+    val selectionItem: SelectionItemUi,
+
+    val sheetContent: SelectQtspBottomSheetContent,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
-    data object Init : Event()
     data object Pop : Event()
     data object Finish : Event()
 
@@ -65,11 +63,7 @@ internal sealed class Event : ViewEvent {
             data object SecondaryButtonPressed : CancelSignProcess()
         }
 
-        sealed class QTSPOptions : BottomSheet() {
-            data class QTSPForSigningSelected(
-                val qtspData: QTSPData
-            ) : QTSPOptions()
-        }
+        data class ShowQtspOptions(val qtspData: QTSPData) : BottomSheet()
     }
 }
 
@@ -83,10 +77,13 @@ internal sealed class Effect : ViewSideEffect {
 }
 
 internal sealed class SelectQtspBottomSheetContent {
-    data object ConfirmCancellation : SelectQtspBottomSheetContent()
+    data class ConfirmCancellation(
+        val bottomSheetTextData: BottomSheetTextData,
+    ) : SelectQtspBottomSheetContent()
 
     data class SelectQTSP(
-        val options: List<ModalOptionUi<Event>>
+        val bottomSheetTextData: BottomSheetTextData,
+        val options: List<ModalOptionUi<Event>>,
     ) : SelectQtspBottomSheetContent()
 }
 
@@ -99,29 +96,29 @@ internal class SelectQtspViewModel(
     override fun setInitialState(): State = State(
         title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
         subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
-        options = listOf(
-            SelectionItemUi(
-                title = selectQtspInteractor.getDocumentName(),
-                action = "VIEW"
-            )
+        selectionItem = getSelectionItem(),
+        buttonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
+        sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
+            bottomSheetTextData = getConfirmCancellationTextData()
         ),
-        buttonText = resourceProvider.getLocalizedString(LocalizableKey.Sign)
     )
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.Init -> {
-                // TODO
-            }
-
             is Event.Pop -> {
-                showBottomSheet(sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation)
+                showBottomSheet(
+                    sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
+                        bottomSheetTextData = getConfirmCancellationTextData()
+                    )
+                )
             }
 
-            is Event.Finish -> setEffect { Effect.Navigation.Finish }
+            is Event.Finish -> {
+                setEffect { Effect.Navigation.Finish }
+            }
 
             is Event.DismissError -> {
-                // TODO display error message on screen
+                setState { copy(error = null) }
             }
 
             is Event.BottomSheet.UpdateBottomSheetState -> {
@@ -152,23 +149,47 @@ internal class SelectQtspViewModel(
                         ModalOptionUi(
                             title = qtspData.qtspName,
                             icon = null,
-                            event = Event.BottomSheet.QTSPOptions.QTSPForSigningSelected(qtspData)
+                            event = Event.BottomSheet.ShowQtspOptions(qtspData)
                         )
                     }
 
                 showBottomSheet(
                     sheetContent = SelectQtspBottomSheetContent.SelectQTSP(
+                        bottomSheetTextData = getSelectQTSPTextData(),
                         options = bottomSheetOptions
                     )
                 )
             }
 
-            is Event.BottomSheet.QTSPOptions.QTSPForSigningSelected -> {
+            is Event.BottomSheet.ShowQtspOptions -> {
                 hideBottomSheet()
                 selectQtspInteractor.updateQTSPUserSelection(qtspData = event.qtspData)
-                // TODO redirect to Certificate Selection screen
+                // TODO close SDK here
             }
         }
+    }
+
+    private fun getSelectionItem(): SelectionItemUi {
+        return SelectionItemUi(
+            documentData = selectQtspInteractor.getDocumentData(),
+            action = resourceProvider.getLocalizedString(LocalizableKey.View)
+        )
+    }
+
+    private fun getConfirmCancellationTextData(): BottomSheetTextData {
+        return BottomSheetTextData(
+            title = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessTitle),
+            message = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessSubtitle),
+            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessPrimaryText),
+            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSignProcessSecondaryText),
+        )
+    }
+
+    private fun getSelectQTSPTextData(): BottomSheetTextData {
+        return BottomSheetTextData(
+            title = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceTitle),
+            message = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceSubtitle),
+        )
     }
 
     private fun showBottomSheet(sheetContent: SelectQtspBottomSheetContent) {

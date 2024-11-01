@@ -33,4 +33,4 @@ import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
     name = "Dark Mode", showBackground = true, uiMode = UI_MODE_NIGHT_YES,
     backgroundColor = ThemeColors.EudiRQESUi_theme_dark_background
 )
-annotation class ThemeModePreviews
+internal annotation class ThemeModePreviews

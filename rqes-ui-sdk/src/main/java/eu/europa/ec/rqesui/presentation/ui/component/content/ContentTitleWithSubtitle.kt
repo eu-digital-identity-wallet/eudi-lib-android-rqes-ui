@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 
@@ -61,8 +62,10 @@ internal fun ContentTitleWithSubtitle(
 @ThemeModePreviews
 @Composable
 private fun ContentTitleWithSubtitlePreview() {
-    ContentTitleWithSubtitle(
-        title = "Title",
-        subtitle = " Subtitle"
-    )
+    PreviewTheme {
+        ContentTitleWithSubtitle(
+            title = "Title",
+            subtitle = " Subtitle"
+        )
+    }
 }

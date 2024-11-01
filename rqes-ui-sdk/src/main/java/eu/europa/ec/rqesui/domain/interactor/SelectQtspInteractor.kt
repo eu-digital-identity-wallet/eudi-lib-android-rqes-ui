@@ -17,17 +17,20 @@
 package eu.europa.ec.rqesui.domain.interactor
 
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+import java.net.URI
 
 internal interface SelectQtspInteractor {
     fun getQTSPList(): List<QTSPData>
-    fun getDocumentName(): String
+    fun getDocumentData(): DocumentData
     fun updateQTSPUserSelection(qtspData: QTSPData)
 }
 
 internal class SelectQtspInteractorImpl(
     private val resourceProvider: ResourceProvider,
+    //TODO change this when integration with Core is ready.
     private val rqesCoreController: Any? = null,
 ) : SelectQtspInteractor {
 
@@ -38,14 +41,12 @@ internal class SelectQtspInteractorImpl(
         return EudiRQESUi.getEudiRQESUiConfig().qtsps
     }
 
-    override fun getDocumentName(): String {
-        return when (val sdkState = EudiRQESUi.getState()) {
-            is EudiRQESUi.State.Initial -> {
-                sdkState.file.documentName
-            }
-
-            else -> ""
-        }
+    override fun getDocumentData(): DocumentData {
+        //TODO return EudiRQESUi.file
+        return DocumentData(
+            documentName = "Document name.PDF",
+            uri = URI("")
+        )
     }
 
     override fun updateQTSPUserSelection(qtspData: QTSPData) {

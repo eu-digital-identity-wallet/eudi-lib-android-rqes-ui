@@ -16,11 +16,9 @@
 
 package eu.europa.ec.rqesui.presentation.entities
 
-import eu.europa.ec.rqesui.presentation.ui.component.IconData
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 
 internal data class SelectionItemUi(
-    val title: String,
-    val subTitle: String? = null,
-    val icon: IconData? = null,
+    val documentData: DocumentData,
     val action: String? = null
 )
