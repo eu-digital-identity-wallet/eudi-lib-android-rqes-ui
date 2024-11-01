@@ -36,40 +36,20 @@ internal data class State(
     val subtitle: String = "",
     val options: List<SelectionItemUi> = emptyList(),
     val buttonText: String = "",
-
-    val isBottomSheetOpen: Boolean = false,
-    val sheetContent: SuccessBottomSheetContent = SuccessBottomSheetContent.ConfirmCancellation
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
     data object Pop : Event()
     data object Finish : Event()
-    data object CloseButtonPressed : Event()
+    data object BottomBarButtonPressed : Event()
 
     data class ViewDocument(val documentUri: URI) : Event()
-
-    sealed class BottomSheet : Event() {
-
-        data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
-
-        sealed class CancelSignProcess : BottomSheet() {
-            data object PrimaryButtonPressed : CancelSignProcess()
-            data object SecondaryButtonPressed : CancelSignProcess()
-        }
-    }
 }
 
 internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Finish : Navigation()
     }
-
-    data object ShowBottomSheet : Effect()
-    data object CloseBottomSheet : Effect()
-}
-
-internal sealed class SuccessBottomSheetContent {
-    data object ConfirmCancellation : SuccessBottomSheetContent()
 }
 
 @KoinViewModel
@@ -104,22 +84,9 @@ internal class SuccessViewModel(
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed -> {
-                hideBottomSheet()
-            }
-
-            is Event.CloseButtonPressed,
-            is Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed -> {
+            is Event.BottomBarButtonPressed -> {
                 setEffect {
                     Effect.Navigation.Finish
-                }
-            }
-
-            is Event.BottomSheet.UpdateBottomSheetState -> {
-                setState {
-                    copy(
-                        isBottomSheetOpen = event.isOpen
-                    )
                 }
             }
 
@@ -128,26 +95,12 @@ internal class SuccessViewModel(
             }
 
             is Event.Pop -> {
-                showBottomSheet()
+                setEffect { Effect.Navigation.Finish }
             }
-
 
             is Event.ViewDocument -> {
                 // TODO open file in ViewDocument screen
             }
-        }
-
-    }
-
-    private fun showBottomSheet() {
-        setEffect {
-            Effect.ShowBottomSheet
-        }
-    }
-
-    private fun hideBottomSheet() {
-        setEffect {
-            Effect.CloseBottomSheet
         }
     }
 }
