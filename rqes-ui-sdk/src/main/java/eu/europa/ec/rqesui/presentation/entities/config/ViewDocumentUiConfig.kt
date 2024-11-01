@@ -16,9 +16,13 @@
 
 package eu.europa.ec.rqesui.presentation.entities.config
 
+import android.net.Uri
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.presentation.serializer.UiSerializable
 import eu.europa.ec.rqesui.presentation.serializer.UiSerializableParser
+import eu.europa.ec.rqesui.presentation.serializer.adapter.SerializableTypeAdapter
 
 data class ViewDocumentUiConfig(
     val isSigned: Boolean,
@@ -27,5 +31,11 @@ data class ViewDocumentUiConfig(
 
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "viewDocumentConfig"
+        override fun provideParser(): Gson {
+            return GsonBuilder().registerTypeAdapter(
+                Uri::class.java,
+                SerializableTypeAdapter<Uri>()
+            ).create()
+        }
     }
 }
