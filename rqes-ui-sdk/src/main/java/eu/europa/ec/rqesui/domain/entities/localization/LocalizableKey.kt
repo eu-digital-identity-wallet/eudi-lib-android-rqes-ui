@@ -34,6 +34,10 @@ enum class LocalizableKey {
     SelectServiceSubtitle,
     SelectCertificateTitle,
     SelectCertificateSubtitle,
+    CancelSelectCertificateProcessTitle,
+    CancelSelectCertificateProcessSubtitle,
+    CancelSelectCertificateProcessSecondaryText,
+    CancelSelectCertificateProcessPrimaryText,
     Success,
     SuccessfullySignedDocument,
     SignedBy,
@@ -63,6 +67,10 @@ enum class LocalizableKey {
             SelectServiceSubtitle -> "Remote signing enables you to digitally sign documents without the need for locally installed digital identities. Cloud-hosted signing service makes remote signing possible."
             SelectCertificateTitle -> "You have chosen to sign the following document:"
             SelectCertificateSubtitle -> "Please confirm signing with one of the following certificates:"
+            CancelSelectCertificateProcessTitle -> "Cancel data sharing?"
+            CancelSelectCertificateProcessSubtitle -> "Cancelling will redirect you back to the dashboard without sharing any information."
+            CancelSelectCertificateProcessSecondaryText -> "Cancel sharing"
+            CancelSelectCertificateProcessPrimaryText -> "Continue sharing"
             Success -> "Success!"
             SuccessfullySignedDocument -> "You successfully signed your document"
             SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"

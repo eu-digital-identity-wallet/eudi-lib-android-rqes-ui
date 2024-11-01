@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,12 +41,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import eu.europa.ec.rqesui.R
-import eu.europa.ec.rqesui.infrastructure.theme.values.devider
-import eu.europa.ec.rqesui.presentation.entities.QTSPCertificateUi
+import eu.europa.ec.rqesui.domain.extension.toUri
+import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
+import eu.europa.ec.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
@@ -62,10 +62,12 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_SMALL
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
 import kotlinx.coroutines.channels.Channel
@@ -74,7 +76,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.net.URI
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,12 +98,10 @@ internal fun SelectCertificateScreen(
         contentErrorConfig = state.error,
         bottomBar = {
             PrimaryButtonContainerBottomBar(
-                buttonText = state.buttonText,
+                buttonText = state.bottomBarButtonText,
                 onButtonClick = {
                     viewModel.setEvent(
-                        Event.SignDocumentPressed(
-                            documentUri = URI("uri")
-                        )
+                        Event.BottomBarButtonPressed
                     )
                 }
             )
@@ -115,7 +114,7 @@ internal fun SelectCertificateScreen(
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
                     is Effect.Navigation.Finish -> context.finish()
-                    is Effect.Navigation.Pop -> navController.popBackStack()
+                    is Effect.Navigation.SwitchScreen -> navController.navigate(navigationEffect.screenRoute)
                 }
             },
             paddingValues = paddingValues,
@@ -132,6 +131,7 @@ internal fun SelectCertificateScreen(
                 sheetState = bottomSheetState
             ) {
                 SelectCertificateSheetContent(
+                    sheetTextData = state.sheetTextData,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
                     }
@@ -160,47 +160,39 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
-        verticalArrangement = Arrangement.Top
+            .padding(paddingValues)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.Top
-        ) {
-            ContentTitleWithSubtitle(
-                title = state.title,
-                subtitle = state.subtitle,
-            )
+        ContentTitleWithSubtitle(
+            title = state.title,
+            subtitle = state.subtitle,
+        )
 
-            VSpacer.Medium()
+        VSpacer.Medium()
 
-            LazyColumn {
-                state.options.forEach { option ->
-                    item {
-                        SelectionItem(
-                            modifier = Modifier.wrapContentHeight(),
-                            data = option
-                        )
-
-                        VSpacer.Medium()
-                    }
-                }
+        SelectionItem(
+            modifier = Modifier.fillMaxWidth(),
+            data = state.selectionItem,
+            onClick = {
+                onEventSend(
+                    Event.ViewDocument(
+                        documentData = state.selectionItem.documentData
+                    )
+                )
             }
+        )
 
-            VSpacer.Large()
+        VSpacer.Medium()
 
-            ContentTitle(
-                subtitle = state.certificatesSectionTitle
-            )
+        ContentTitle(
+            subtitle = state.certificatesSectionTitle
+        )
 
-            CertificatesList(
-                certificateItems = state.certificates,
-                selectedIndex = state.selectedCertificateIndex,
-                onEventSend = onEventSend
-            )
-        }
+        CertificatesList(
+            certificateItems = state.certificates,
+            selectedIndex = state.selectedCertificateIndex,
+            onEventSend = onEventSend
+        )
+
     }
 
     LaunchedEffect(Unit) {
@@ -228,28 +220,26 @@ private fun Content(
 
 @Composable
 private fun CertificatesList(
-    certificateItems: List<QTSPCertificateUi>,
+    certificateItems: List<CertificateData>,
     selectedIndex: Int,
     onEventSend: (Event) -> Unit,
 ) {
-    LazyColumn {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_SMALL.dp)
+    ) {
         itemsIndexed(certificateItems) { index, item ->
-            VSpacer.ExtraSmall()
-
             CertificateListItem(
-                optionName = item.certificateName,
-                isSelected = selectedIndex == index
-            ) {
-                val newIndex = certificateItems.indexOf(item)
-                onEventSend(Event.CertificateIndexSelected(index = newIndex))
-            }
-
-            VSpacer.ExtraSmall()
+                optionName = item.name,
+                isSelected = selectedIndex == index,
+                onClick = {
+                    onEventSend(Event.CertificateIndexSelected(index = index))
+                }
+            )
 
             if (index < certificateItems.lastIndex) {
                 HorizontalDivider(
                     thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.devider
+                    color = MaterialTheme.colorScheme.divider
                 )
             }
         }
@@ -262,16 +252,17 @@ private fun CertificateListItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clip(RoundedCornerShape(SIZE_SMALL.dp))
-        .throttledClickable {
-            onClick.invoke()
-        }
-        .padding(
-            horizontal = SPACING_SMALL.dp,
-            vertical = SPACING_MEDIUM.dp
-        ),
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(SIZE_SMALL.dp))
+            .throttledClickable {
+                onClick.invoke()
+            }
+            .padding(
+                horizontal = SPACING_SMALL.dp,
+                vertical = SPACING_MEDIUM.dp
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -280,6 +271,7 @@ private fun CertificateListItem(
             style = MaterialTheme.typography.labelMedium
         )
 
+        //TODO Change this to use a reusable WrapRadioButton
         RadioButton(
             selected = isSelected,
             onClick = null,
@@ -292,22 +284,16 @@ private fun CertificateListItem(
 
 @Composable
 private fun SelectCertificateSheetContent(
-    onEventSent: (event: Event) -> Unit
+    sheetTextData: BottomSheetTextData,
+    onEventSent: (event: Event) -> Unit,
 ) {
     DialogBottomSheet(
-        title = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_title),
-        message = stringResource(id = R.string.sign_document_bottom_sheet_cancel_confirmation_subtitle),
-        positiveButtonText = stringResource(id = R.string.sign_document_bottom_sheet_continue_button_text),
-        negativeButtonText = stringResource(id = R.string.sign_document_bottom_sheet_cancel_button_text),
+        textData = sheetTextData,
         onPositiveClick = {
-            onEventSent(
-                Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed
-            )
+            onEventSent(Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed)
         },
         onNegativeClick = {
-            onEventSent(
-                Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed
-            )
+            onEventSent(Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed)
         }
     )
 }
@@ -321,12 +307,33 @@ private fun SelectCertificateScreenPreview() {
             state = State(
                 title = "Sign document",
                 subtitle = "You have chosen to sign the following document:",
-                options = listOf(
-                    SelectionItemUi(
-                        title = "Document name.PDF",
-                        subTitle = "Signed by: QTSP",
-                        icon = AppIcons.Verified
-                    )
+                selectionItem = SelectionItemUi(
+                    documentData = DocumentData(
+                        documentName = "Document name.PDF",
+                        uri = "".toUri()
+                    ),
+                    iconData = AppIcons.Verified,
+                    iconTint = ThemeColors.success
+                ),
+                certificatesSectionTitle = "Please confirm signing with one of the following certificates:",
+                certificates = listOf(
+                    CertificateData(
+                        name = "Certificate name1",
+                        certificateURI = "uri1".toUri()
+                    ),
+                    CertificateData(
+                        name = "Certificate name2",
+                        certificateURI = "uri2".toUri()
+                    ),
+                    CertificateData(
+                        name = "Certificate name3",
+                        certificateURI = "uri3".toUri()
+                    ),
+                ),
+                bottomBarButtonText = "Sign",
+                sheetTextData = BottomSheetTextData(
+                    title = "title",
+                    message = "message",
                 )
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),

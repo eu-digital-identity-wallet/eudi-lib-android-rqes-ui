@@ -18,51 +18,48 @@ package eu.europa.ec.rqesui.presentation.ui.select_certificate
 
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificatePartialState
-import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
-import eu.europa.ec.rqesui.presentation.entities.QTSPCertificateUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
-import eu.europa.ec.rqesui.presentation.entities.toQTSPCertificateUi
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
-import java.net.URI
 
 internal data class State(
-    val documentUri: URI? = null,
-
     val isLoading: Boolean = false,
     val error: ContentErrorConfig? = null,
-    val isInitialised: Boolean = false,
     val isBottomSheetOpen: Boolean = false,
 
-    val title: String = "",
-    val subtitle: String = "",
-    val certificatesSectionTitle: String = "",
-    val buttonText: String = "",
-
-    val options: List<SelectionItemUi> = emptyList(),
-
-    val certificates: List<QTSPCertificateUi> = emptyList(),
+    val title: String,
+    val subtitle: String,
+    val certificatesSectionTitle: String,
+    val bottomBarButtonText: String,
+    val selectionItem: SelectionItemUi,
+    val certificates: List<CertificateData> = emptyList(),
     val selectedCertificateIndex: Int = 0,
+
+    val sheetTextData: BottomSheetTextData,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
     data object Init : Event()
     data object Pop : Event()
-    data object Finish : Event()
-
     data object DismissError : Event()
 
     data class CertificateIndexSelected(val index: Int) : Event()
-    data class SignDocumentPressed(val documentUri: URI) : Event()
+    data object BottomBarButtonPressed : Event()
+    data class ViewDocument(val documentData: DocumentData) : Event()
 
     sealed class BottomSheet : Event() {
 
@@ -78,7 +75,9 @@ internal sealed class Event : ViewEvent {
 internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Finish : Navigation()
-        data object Pop : Navigation()
+        data class SwitchScreen(
+            val screenRoute: String,
+        ) : Navigation()
     }
 
     data object ShowBottomSheet : Effect()
@@ -87,77 +86,46 @@ internal sealed class Effect : ViewSideEffect {
 
 @KoinViewModel
 internal class SelectCertificateViewModel(
+    private val selectCertificateInteractor: SelectCertificateInteractor,
     private val resourceProvider: ResourceProvider,
-    private val selectCertificateInteractor: SelectCertificateInteractor
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {
-        val selectedQTSP = EudiRQESUi.getEudiRQESUiConfig().qtsps.getOrNull(0)
-        val subtitleWithQTSP = "Signed by: ${selectedQTSP?.qtspName}"
-        // TODO retrieval of selected qtsp
-
         return State(
             title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateTitle),
             certificatesSectionTitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
-            options = listOf(
-                SelectionItemUi(
-                    title = "Document name.PDF",
-                    subTitle = subtitleWithQTSP,
-                    icon = AppIcons.Verified
-                )
-            ),
-            buttonText = resourceProvider.getLocalizedString(LocalizableKey.Sign)
+            selectionItem = getSelectionItem(),
+            bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
+            sheetTextData = getConfirmCancellationTextData(),
         )
-    }
-
-    private fun fetchQTSPCertificates() {
-        viewModelScope.launch {
-            selectCertificateInteractor.qtspCertificates(
-                qtspCertificateEndpoint = URI("https://qtsp.endpoint")
-            ).collect { response ->
-                when (response) {
-                    is SelectCertificatePartialState.Success -> {
-                        setState {
-                            copy(
-                                certificates = response.qtspCertificatesList.map {
-                                    it.toQTSPCertificateUi()
-                                }
-                            )
-                        }
-                    }
-
-                    is SelectCertificatePartialState.Failure -> {
-                        // no op
-                    }
-                }
-            }
-        }
     }
 
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> {
-                fetchQTSPCertificates()
+                fetchQTSPCertificates(event)
             }
 
             is Event.Pop -> {
                 showBottomSheet()
             }
 
-            is Event.Finish -> setEffect {
-                Effect.Navigation.Finish
-            }
-
             is Event.DismissError -> {
-                // TODO show error
+                setState {
+                    copy(
+                        error = null
+                    )
+                }
             }
 
-            is Event.SignDocumentPressed -> {
+            is Event.BottomBarButtonPressed -> {
                 viewModelScope.launch {
-                    selectCertificateInteractor.signDocument(
-                        documentUri = event.documentUri
-                    )
+                    //TODO proceed to sign document
+                    // selectCertificateInteractor.certificateSelected==SingDocument
+                    setEffect {
+                        Effect.Navigation.Finish
+                    }
                 }
             }
 
@@ -186,7 +154,73 @@ internal class SelectCertificateViewModel(
                     )
                 }
             }
+
+            is Event.ViewDocument -> {
+                // TODO view document in pdf screen
+            }
         }
+    }
+
+    private fun fetchQTSPCertificates(event: Event) {
+        setState {
+            copy(
+                isLoading = true,
+                error = null,
+            )
+        }
+
+        viewModelScope.launch {
+            selectCertificateInteractor.qtspCertificates(
+                //TODO Change this once integration with Core is done.
+                qtspCertificateEndpoint = "https://qtsp.endpoint".toUri()
+            ).collect { response ->
+                when (response) {
+                    is SelectCertificatePartialState.Success -> {
+                        setState {
+                            copy(
+                                certificates = response.qtspCertificatesList,
+                                error = null,
+                                isLoading = false,
+                            )
+                        }
+                    }
+
+                    is SelectCertificatePartialState.Failure -> {
+                        setState {
+                            copy(
+                                certificates = emptyList(),
+                                error = ContentErrorConfig(
+                                    onRetry = { setEvent(event) },
+                                    errorSubTitle = response.error,
+                                    onCancel = {
+                                        setEvent(Event.DismissError)
+                                        setEffect { Effect.Navigation.Finish }
+                                    }
+                                ),
+                                isLoading = false,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getSelectionItem(): SelectionItemUi {
+        return SelectionItemUi(
+            documentData = selectCertificateInteractor.getDocumentData(),
+            iconData = AppIcons.Verified,
+            iconTint = ThemeColors.success
+        )
+    }
+
+    private fun getConfirmCancellationTextData(): BottomSheetTextData {
+        return BottomSheetTextData(
+            title = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessTitle),
+            message = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessSubtitle),
+            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessPrimaryText),
+            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.CancelSelectCertificateProcessSecondaryText),
+        )
     }
 
     private fun showBottomSheet() {

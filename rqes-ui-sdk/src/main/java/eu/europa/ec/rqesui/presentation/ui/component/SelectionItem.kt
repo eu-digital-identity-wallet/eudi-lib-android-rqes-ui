@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
@@ -41,7 +42,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapCard
-import java.net.URI
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIcon
 
 @Composable
 internal fun SelectionItem(
@@ -74,11 +75,17 @@ internal fun SelectionItem(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Text(
-                text = data.action,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            data.action?.let { action ->
+                Text(
+                    text = action,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            data.iconData?.let { iconData ->
+                WrapIcon(iconData = iconData, customTint = data.iconTint)
+            }
         }
     }
 }
@@ -94,7 +101,7 @@ private fun SelectionItemPreview(
             data = SelectionItemUi(
                 documentData = DocumentData(
                     documentName = text,
-                    uri = URI("test")
+                    uri = "test".toUri()
                 ),
                 action = "VIEW",
             ),

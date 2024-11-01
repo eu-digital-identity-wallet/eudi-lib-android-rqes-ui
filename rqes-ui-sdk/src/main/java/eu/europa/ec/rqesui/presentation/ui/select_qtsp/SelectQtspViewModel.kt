@@ -30,7 +30,6 @@ import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import org.koin.android.annotation.KoinViewModel
-import java.net.URI
 
 internal data class State(
     val isLoading: Boolean = false,
@@ -39,8 +38,7 @@ internal data class State(
 
     val title: String,
     val subtitle: String,
-    val buttonText: String,
-
+    val bottomBarButtonText: String,
     val selectionItem: SelectionItemUi,
 
     val sheetContent: SelectQtspBottomSheetContent,
@@ -52,7 +50,7 @@ internal sealed class Event : ViewEvent {
 
     data object DismissError : Event()
 
-    data class BottomBarButtonPressed(val documentUri: URI) : Event()
+    data object BottomBarButtonPressed : Event()
     data class ViewDocument(val documentData: DocumentData) : Event()
 
     sealed class BottomSheet : Event() {
@@ -89,15 +87,15 @@ internal sealed class SelectQtspBottomSheetContent {
 
 @KoinViewModel
 internal class SelectQtspViewModel(
-    private val resourceProvider: ResourceProvider,
-    private val selectQtspInteractor: SelectQtspInteractor
+    private val selectQtspInteractor: SelectQtspInteractor,
+    private val resourceProvider: ResourceProvider
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State = State(
         title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
         subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
         selectionItem = getSelectionItem(),
-        buttonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
+        bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
         sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
             bottomSheetTextData = getConfirmCancellationTextData()
         ),

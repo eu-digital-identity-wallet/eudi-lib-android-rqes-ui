@@ -16,11 +16,11 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
-import java.net.URI
 
 internal interface SelectQtspInteractor {
     fun getQTSPList(): List<QTSPData>
@@ -45,7 +45,7 @@ internal class SelectQtspInteractorImpl(
         //TODO return EudiRQESUi.file
         return DocumentData(
             documentName = "Document name.PDF",
-            uri = URI("")
+            uri = "".toUri()
         )
     }
 

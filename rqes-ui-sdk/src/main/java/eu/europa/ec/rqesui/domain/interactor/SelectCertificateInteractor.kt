@@ -16,12 +16,14 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
+import android.net.Uri
 import eu.europa.ec.rqesui.domain.extension.safeAsync
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.net.URI
 
 internal sealed class SelectCertificatePartialState {
     data class Success(
@@ -32,8 +34,8 @@ internal sealed class SelectCertificatePartialState {
 }
 
 internal interface SelectCertificateInteractor {
-    fun qtspCertificates(qtspCertificateEndpoint: URI): Flow<SelectCertificatePartialState>
-    fun signDocument(documentUri: URI)
+    fun qtspCertificates(qtspCertificateEndpoint: Uri): Flow<SelectCertificatePartialState>
+    fun getDocumentData(): DocumentData
 }
 
 internal class SelectCertificateInteractorImpl(
@@ -44,16 +46,15 @@ internal class SelectCertificateInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun qtspCertificates(qtspCertificateEndpoint: URI): Flow<SelectCertificatePartialState> =
+    override fun qtspCertificates(qtspCertificateEndpoint: Uri): Flow<SelectCertificatePartialState> =
         flow {
             emit(
                 SelectCertificatePartialState.Success(
-                    qtspCertificatesList =
-                    listOf(
-                        CertificateData(name = "Certificate 1", certificateURI = URI("uri")),
-                        CertificateData(name = "Certificate 2", certificateURI = URI("uri"))
+                    qtspCertificatesList = listOf(
+                        CertificateData(name = "Certificate 1", certificateURI = "uri1".toUri()),
+                        CertificateData(name = "Certificate 2", certificateURI = "uri2".toUri()),
+                        CertificateData(name = "Certificate 3", certificateURI = "uri3".toUri()),
                     )
-
                 )
             )
         }.safeAsync {
@@ -62,7 +63,11 @@ internal class SelectCertificateInteractorImpl(
             )
         }
 
-    override fun signDocument(documentUri: URI) {
-        // TODO implement sign document functionality
+    override fun getDocumentData(): DocumentData {
+        //TODO return EudiRQESUi.file
+        return DocumentData(
+            documentName = "Document name.PDF",
+            uri = "".toUri()
+        )
     }
 }

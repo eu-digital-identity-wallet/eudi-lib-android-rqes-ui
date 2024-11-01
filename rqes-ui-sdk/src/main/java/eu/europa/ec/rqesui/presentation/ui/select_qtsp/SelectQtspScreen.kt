@@ -32,8 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.domain.extension.toUri
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
@@ -76,13 +76,11 @@ internal fun SelectQtspScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         bottomBar = {
-            ButtonContainerBottomBar(
-                onPositiveClick = {
+            PrimaryButtonContainerBottomBar(
+                buttonText = state.bottomBarButtonText,
+                onButtonClick = {
                     viewModel.setEvent(
-                        Event.BottomBarButtonPressed(
-                            documentUri = URI.create("document_uri")
-                        )
-                        Event.PrimaryButtonPressed(documentUri = "uri".toUri())
+                        Event.BottomBarButtonPressed
                     )
                 }
             )
@@ -221,7 +219,7 @@ private fun SelectQtspScreenPreview() {
                 selectionItem = SelectionItemUi(
                     documentData = DocumentData(
                         documentName = "Document name.PDF",
-                        uri = URI.create("")
+                        uri = "".toUri()
                     ),
                     action = "VIEW",
                 ),
@@ -231,7 +229,7 @@ private fun SelectQtspScreenPreview() {
                         message = "message",
                     )
                 ),
-                buttonText = "Sign"
+                bottomBarButtonText = "Sign"
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

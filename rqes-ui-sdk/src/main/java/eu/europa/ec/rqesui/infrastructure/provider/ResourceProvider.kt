@@ -34,8 +34,7 @@ internal interface ResourceProvider {
     fun getQuantityString(@PluralsRes resId: Int, quantity: Int, vararg formatArgs: Any): String
     fun getString(@StringRes resId: Int, vararg formatArgs: Any): String
     fun genericErrorMessage(): String
-    fun getLocalizedString(localizableKey: LocalizableKey): String
-    fun getLocalizedStringWithArgs(localizableKey: LocalizableKey, arguments: List<String>): String
+    fun getLocalizedString(localizableKey: LocalizableKey, args: List<String> = emptyList()): String
 }
 
 internal class ResourceProviderImpl(
@@ -82,14 +81,7 @@ internal class ResourceProviderImpl(
             ""
         }
 
-    override fun getLocalizedString(localizableKey: LocalizableKey): String {
-        return localizationController.get(localizableKey)
-    }
-
-    override fun getLocalizedStringWithArgs(
-        localizableKey: LocalizableKey,
-        arguments: List<String>
-    ): String {
-        return localizationController.get(localizableKey, arguments)
+    override fun getLocalizedString(localizableKey: LocalizableKey, args: List<String>): String {
+        return localizationController.get(localizableKey, args)
     }
 }
