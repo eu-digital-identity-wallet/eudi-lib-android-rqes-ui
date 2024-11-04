@@ -63,14 +63,14 @@ internal fun SelectionItem(
         colors = colors,
     ) {
         Row(
-            modifier = modifier.padding(
+            modifier = Modifier.padding(
                 horizontal = SPACING_MEDIUM.dp,
                 vertical = SPACING_LARGE.dp
             ),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = data.documentData.documentName,
                     style = MaterialTheme.typography.bodyLarge,
