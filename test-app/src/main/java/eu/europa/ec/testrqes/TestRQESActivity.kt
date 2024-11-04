@@ -17,10 +17,14 @@
 package eu.europa.ec.testrqes
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,6 +32,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -60,8 +68,52 @@ private fun Content(padding: PaddingValues) {
             .padding(padding),
         contentAlignment = Alignment.Center
     ) {
-        Button(onClick = { showRQESSDK(context) }) {
-            Text("Show RQES SDK")
+        var documentUri by remember {
+            mutableStateOf<Uri?>(null)
+        }
+
+        val selectPdfLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            documentUri = uri
+        }
+
+        Column {
+            Button(onClick = {
+                showRQESSDK(context)
+            }) {
+                Text("Show RQES SDK")
+            }
+
+            if (documentUri == null) {
+                Button(onClick = {
+                    selectPdfLauncher.launch(
+                        arrayOf("application/pdf")
+                    )
+                }) {
+                    Text(text = "Select PDF document")
+                }
+            } else {
+                Button(
+                    onClick = {
+                        showRQESSuccessScreen(
+                            context = context,
+                            documentUri = documentUri
+                        )
+                    }
+                ) {
+                    Text("Go to Success screen")
+                }
+            }
+
+            Button(
+                onClick = {
+                    documentUri = null
+                },
+                enabled = documentUri != null
+            ) {
+                Text(text = "Clear selected PDF")
+            }
         }
     }
 }
@@ -79,7 +131,7 @@ private fun showRQESSDK(context: Context) {
         context = context,
         state = EudiRQESUi.State.Initial(
             file = DocumentData(
-                documentName = "Document.pdf",
+                documentName = "Document_name.pdf",
                 uri = "https://www.example.com".toUri()
             ),
             qtsps = listOf(
@@ -88,5 +140,22 @@ private fun showRQESSDK(context: Context) {
                 QTSPData(qtspName = "QTSP3 Example", uri = "https://qtsp3.com".toUri()),
             )
         )
+    )
+}
+
+private fun showRQESSuccessScreen(
+    context: Context,
+    documentUri: Uri?
+) {
+    EudiRQESUi.launchSdk(
+        context = context,
+        state = EudiRQESUi.State.Success(
+            file = DocumentData(
+                documentName = "Document.pdf",
+                uri = documentUri ?: "https://www.example.com".toUri()
+            ),
+        ),
+        documentName = "Document.pdf",
+        documentUri = documentUri
     )
 }

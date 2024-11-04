@@ -83,6 +83,7 @@ internal class EudiRQESContainer : ComponentActivity() {
             is EudiRQESUi.State.Initial -> SdkScreens.SelectQtsp
             is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
             is EudiRQESUi.State.Sign -> SdkScreens.Success
+            is EudiRQESUi.State.Success -> SdkScreens.Success
         }
         return generateComposableNavigationLink(
             screen = screen,

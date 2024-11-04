@@ -39,6 +39,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
@@ -48,6 +50,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.IconData
 import eu.europa.ec.rqesui.presentation.ui.component.loader.LoadingIndicator
 import eu.europa.ec.rqesui.presentation.ui.component.utils.MAX_TOOLBAR_ACTIONS
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.TopSpacing
 import eu.europa.ec.rqesui.presentation.ui.component.utils.Z_STICKY
 import eu.europa.ec.rqesui.presentation.ui.component.utils.screenPaddings
@@ -60,13 +63,15 @@ enum class LoadingType {
 internal data class ToolbarAction(
     val icon: IconData,
     val order: Int = 100,
+    val enabled: Boolean = true,
+    val customTint: Color? = null,
     val onClick: () -> Unit,
-    val enabled: Boolean = true
 )
 
 internal data class ToolbarConfig(
     val title: String = "",
-    val actions: List<ToolbarAction> = listOf()
+    val actions: List<ToolbarAction> = listOf(),
+    val hasShadow: Boolean = false
 )
 
 enum class ScreenNavigateAction {
@@ -138,6 +143,7 @@ internal fun ContentScreen(
                     onBack = contentErrorConfig?.onCancel ?: onBack,
                     keyboardController = keyboardController,
                     toolbarConfig = toolBarConfig,
+                    hasShadow = toolBarConfig?.hasShadow ?: false
                 )
             }
         },
@@ -198,12 +204,16 @@ private fun DefaultToolBar(
     onBack: (() -> Unit)?,
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
+    hasShadow: Boolean,
 ) {
     TopAppBar(
+        modifier = Modifier
+            .shadow(elevation = SPACING_SMALL.dp)
+            .takeIf { hasShadow } ?: Modifier,
         title = {
             Text(
                 text = toolbarConfig?.title.orEmpty(),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onSurface
             )
         },
         navigationIcon = {
@@ -252,7 +262,8 @@ internal fun ToolBarActions(toolBarActions: List<ToolbarAction>?) {
                     iconData = visibleToolbarAction.icon,
                     onClick = visibleToolbarAction.onClick,
                     enabled = visibleToolbarAction.enabled,
-                    customTint = MaterialTheme.colorScheme.primary
+                    customTint = visibleToolbarAction.customTint
+                        ?: MaterialTheme.colorScheme.primary
                 )
             }
     }

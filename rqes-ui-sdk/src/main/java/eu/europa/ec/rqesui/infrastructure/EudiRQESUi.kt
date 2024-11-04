@@ -20,8 +20,10 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Parcelable
 import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
+import eu.europa.ec.rqesui.domain.util.safeLet
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
@@ -38,6 +40,8 @@ object EudiRQESUi {
     private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
     private var state: State = State.None
 
+    internal var documentData: DocumentData? = null
+
     fun setup(application: Application, config: EudiRQESUiConfig) {
         _eudiRQESUiConfig = config
         setupKoin(application)
@@ -46,9 +50,15 @@ object EudiRQESUi {
     fun launchSdk(
         context: Context,
         state: State,
+        documentUri: Uri? = null,
+        documentName: String? = null,
     ) {
         setState(state)
         resume(context, state)
+
+        safeLet(documentName, documentUri) { name, uri ->
+            this.documentData = DocumentData(documentName = name, uri = uri)
+        }
     }
 
     fun resume(context: Context, state: State) {
@@ -88,6 +98,7 @@ object EudiRQESUi {
         data class Initial(val file: DocumentData, val qtsps: List<QTSPData>) : State()
         data class Certificate(val tBDByCore: TBDByCore) : State()
         data object Sign : State()
+        data class Success(val file: DocumentData) : State()
     }
 
     //TODO delete and adjust accordingly when integration with Core is done.

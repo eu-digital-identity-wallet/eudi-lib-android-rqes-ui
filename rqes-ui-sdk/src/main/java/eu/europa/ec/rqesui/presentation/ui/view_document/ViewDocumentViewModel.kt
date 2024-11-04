@@ -16,6 +16,9 @@
 
 package eu.europa.ec.rqesui.presentation.ui.view_document
 
+import android.net.Uri
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
@@ -28,12 +31,28 @@ import org.koin.core.annotation.InjectedParam
 
 internal data class State(
     val isLoading: Boolean = false,
+    val documentName: String = "",
+    val documentUri: Uri? = null,
+
     val config: ViewDocumentUiConfig,
+    val buttonText: String = ""
 ) : ViewState
 
-internal sealed class Event : ViewEvent
+internal sealed class Event : ViewEvent {
+    data object Pop : Event()
+    data object Finish : Event()
+    data object BottomBarButtonPressed : Event()
 
-internal sealed class Effect : ViewSideEffect
+    data class LoadingStateChanged(val isLoading: Boolean) : Event()
+}
+
+internal sealed class Effect : ViewSideEffect {
+    sealed class Navigation : Effect() {
+
+        data object Finish : Navigation()
+        data object Pop : Navigation()
+    }
+}
 
 @KoinViewModel
 internal class ViewDocumentViewModel(
@@ -50,12 +69,33 @@ internal class ViewDocumentViewModel(
         ) ?: throw RuntimeException("ViewDocumentUiConfig:: is Missing or invalid")
 
         return State(
+            isLoading = true,
             config = deserializedConfig,
+            buttonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
+            documentName = EudiRQESUi.documentData?.documentName ?: "",
+            documentUri = EudiRQESUi.documentData?.uri,
         )
     }
 
     override fun handleEvents(event: Event) {
-        TODO("Not yet implemented")
-    }
+        when (event) {
+            is Event.Pop -> {
+                setEffect { Effect.Navigation.Pop }
+            }
 
+            is Event.Finish -> {
+                setEffect { Effect.Navigation.Finish }
+            }
+
+            is Event.BottomBarButtonPressed -> {
+                Effect.Navigation.Finish
+            }
+
+            is Event.LoadingStateChanged -> {
+                setState {
+                    copy(isLoading = event.isLoading)
+                }
+            }
+        }
+    }
 }
