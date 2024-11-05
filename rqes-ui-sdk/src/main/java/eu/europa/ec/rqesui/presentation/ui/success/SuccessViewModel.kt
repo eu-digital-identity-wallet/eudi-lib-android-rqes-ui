@@ -85,7 +85,7 @@ internal class SuccessViewModel(
                     action = "VIEW"
                 )
             ),
-            buttonText = resourceProvider.getLocalizedString(LocalizableKey.Close)
+            buttonText = resourceProvider.getLocalizedString(LocalizableKey.SaveAndClose)
         )
     }
 

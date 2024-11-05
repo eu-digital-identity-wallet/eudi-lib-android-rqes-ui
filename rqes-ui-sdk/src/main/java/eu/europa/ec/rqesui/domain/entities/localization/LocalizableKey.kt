@@ -37,6 +37,7 @@ enum class LocalizableKey {
     Close,
     Cancel,
     Save,
+    SaveAndClose,
     Sign;
 
     companion object {
@@ -61,6 +62,7 @@ enum class LocalizableKey {
             Close -> "Close"
             Cancel -> "Cancel"
             Save -> "Save"
+            SaveAndClose -> "Save and close"
             Sign -> "Sign"
         }
     }
