@@ -22,29 +22,28 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.theme.values.success
+import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
-import eu.europa.ec.rqesui.presentation.ui.component.content.SecondaryButtonContainerBottomBar
 import eu.europa.ec.rqesui.presentation.ui.component.content.ToolbarAction
 import eu.europa.ec.rqesui.presentation.ui.component.content.ToolbarConfig
 import eu.europa.ec.rqesui.presentation.ui.component.pdf.PdfViewer
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -59,30 +58,21 @@ internal fun ViewDocumentScreen(
     val context = LocalContext.current
     val state = viewModel.viewState.value
 
-    val toolbarActions = listOf(
-        ToolbarAction(
-            icon = AppIcons.Verified,
-            customTint = MaterialTheme.colorScheme.success,
-            onClick = {}
-        )
-    ).takeIf { state.config.isSigned } ?: emptyList()
-
     ContentScreen(
         isLoading = state.isLoading,
-        toolBarConfig = ToolbarConfig(
-            title = state.documentName,
-            actions = toolbarActions,
-            hasShadow = true
+        toolBarConfig = rememberToolbarConfig(
+            isSigned = state.config.isSigned,
+            documentName = state.config.documentData.documentName
         ),
         navigatableAction = ScreenNavigateAction.BACKABLE,
         onBack = {
             viewModel.setEvent(Event.Pop)
         },
         bottomBar = {
-            SecondaryButtonContainerBottomBar(
+            WrapBottomBarSecondaryButton(
                 buttonText = state.buttonText,
                 onButtonClick = {
-                    viewModel.setEvent(Event.Finish)
+                    viewModel.setEvent(Event.BottomBarButtonPressed)
                 }
             )
         }
@@ -94,7 +84,7 @@ internal fun ViewDocumentScreen(
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
                     is Effect.Navigation.Finish -> context.finish()
-                    is Effect.Navigation.Pop -> navController.navigateUp()
+                    is Effect.Navigation.Pop -> navController.popBackStack()
                 }
             },
             paddingValues = paddingValues,
@@ -116,15 +106,11 @@ private fun Content(
             .padding(paddingValues),
         verticalArrangement = Arrangement.Top
     ) {
-        state.documentUri?.let { uri ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd
-            ) {
+        state.config.documentData.let { file ->
+            Box(modifier = Modifier.fillMaxSize()) {
                 PdfViewer(
                     modifier = Modifier.fillMaxSize(),
-                    documentUri = uri,
+                    documentUri = file.uri,
                     onLoadingListener = { isLoading ->
                         onEventSend(
                             Event.LoadingStateChanged(isLoading = isLoading)
@@ -144,6 +130,33 @@ private fun Content(
     }
 }
 
+@Composable
+private fun rememberToolbarConfig(
+    isSigned: Boolean,
+    documentName: String
+): ToolbarConfig {
+    return remember(isSigned, documentName) {
+        val toolbarActions = if (isSigned) {
+            listOf(
+                ToolbarAction(
+                    icon = AppIcons.Verified,
+                    customTint = ThemeColors.success,
+                    clickable = false,
+                    onClick = {}
+                )
+            )
+        } else {
+            emptyList()
+        }
+
+        ToolbarConfig(
+            title = documentName,
+            actions = toolbarActions,
+            hasShadow = true
+        )
+    }
+}
+
 @ThemeModePreviews
 @Composable
 private fun ViewDocumentScreenPreview() {
@@ -151,15 +164,14 @@ private fun ViewDocumentScreenPreview() {
         Content(
             state = State(
                 isLoading = false,
-                documentName = "Document.pdf",
-                documentUri = null,
                 config = ViewDocumentUiConfig(
                     isSigned = true,
                     documentData = DocumentData(
                         documentName = "Document.pdf",
                         uri = "uriPath".toUri()
                     )
-                )
+                ),
+                buttonText = "Close"
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

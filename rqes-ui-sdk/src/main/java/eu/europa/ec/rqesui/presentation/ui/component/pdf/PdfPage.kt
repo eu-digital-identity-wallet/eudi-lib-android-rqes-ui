@@ -20,9 +20,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,11 +35,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.values.devider
+import eu.europa.ec.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.rqesui.presentation.ui.component.ZoomableImage
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
-import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 
 @Composable
 internal fun PdfPage(
@@ -51,22 +50,19 @@ internal fun PdfPage(
     index: Int
 ) {
     Column(
-        modifier = Modifier
-            .wrapContentHeight()
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ZoomableImage(
-            BitmapPainter(imageBitmap),
+            painter = BitmapPainter(imageBitmap),
             backgroundColor = Color.White,
             scrollState = listState
         )
 
         Row(
-            modifier
-                .padding(horizontal = SPACING_LARGE.dp)
+            modifier = modifier
                 .background(
-                    MaterialTheme.colorScheme.devider,
+                    MaterialTheme.colorScheme.divider,
                 ),
             horizontalArrangement = Arrangement.Center
         ) {
@@ -84,11 +80,13 @@ internal fun PdfPage(
 @ThemeModePreviews
 @Composable
 private fun PDFPagePreview() {
-    PdfPage(
-        modifier = Modifier,
-        imageBitmap = ImageBitmap(100, 200),
-        listState = LazyListState(),
-        pagePaths = remember { mutableStateListOf("1", "2") },
-        index = 1
-    )
+    PreviewTheme {
+        PdfPage(
+            modifier = Modifier,
+            imageBitmap = ImageBitmap(800, 1600),
+            listState = LazyListState(),
+            pagePaths = remember { mutableStateListOf("1", "2") },
+            index = 0
+        )
+    }
 }

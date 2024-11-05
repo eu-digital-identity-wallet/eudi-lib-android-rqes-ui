@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,12 +50,15 @@ import androidx.compose.ui.zIndex
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.IconData
 import eu.europa.ec.rqesui.presentation.ui.component.loader.LoadingIndicator
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.MAX_TOOLBAR_ACTIONS
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.rqesui.presentation.ui.component.utils.TopSpacing
 import eu.europa.ec.rqesui.presentation.ui.component.utils.Z_STICKY
 import eu.europa.ec.rqesui.presentation.ui.component.utils.screenPaddings
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIcon
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapIconButton
 
 internal enum class LoadingType {
@@ -65,6 +70,7 @@ internal data class ToolbarAction(
     val order: Int = 100,
     val enabled: Boolean = true,
     val customTint: Color? = null,
+    val clickable: Boolean = true,
     val onClick: () -> Unit,
 )
 
@@ -246,7 +252,10 @@ private fun DefaultToolBar(
 }
 
 @Composable
-internal fun ToolBarActions(toolBarActions: List<ToolbarAction>?) {
+private fun ToolBarActions(
+    toolBarActions: List<ToolbarAction>?,
+    maxActionsShown: Int = MAX_TOOLBAR_ACTIONS,
+) {
     toolBarActions?.let { actions ->
 
         var dropDownMenuExpanded by remember {
@@ -256,15 +265,163 @@ internal fun ToolBarActions(toolBarActions: List<ToolbarAction>?) {
         // Show first [MAX_TOOLBAR_ACTIONS] actions.
         actions
             .sortedByDescending { it.order }
-            .take(MAX_TOOLBAR_ACTIONS)
+            .take(maxActionsShown)
             .map { visibleToolbarAction ->
-                WrapIconButton(
-                    iconData = visibleToolbarAction.icon,
-                    onClick = visibleToolbarAction.onClick,
-                    enabled = visibleToolbarAction.enabled,
-                    customTint = visibleToolbarAction.customTint
-                        ?: MaterialTheme.colorScheme.primary
-                )
+                ToolbarIcon(toolbarAction = visibleToolbarAction)
             }
+
+        // Check if there are more actions to show.
+        if (actions.size > maxActionsShown) {
+            Box {
+                val iconMore = AppIcons.VerticalMore
+                WrapIconButton(
+                    onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
+                    iconData = iconMore,
+                    enabled = true,
+                    customTint = MaterialTheme.colorScheme.primary
+                )
+                DropdownMenu(
+                    expanded = dropDownMenuExpanded,
+                    onDismissRequest = { dropDownMenuExpanded = false }
+                ) {
+                    actions
+                        .sortedByDescending { it.order }
+                        .drop(maxActionsShown)
+                        .map { dropDownMenuToolbarAction ->
+                            ToolbarIcon(toolbarAction = dropDownMenuToolbarAction)
+                        }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ToolbarIcon(toolbarAction: ToolbarAction) {
+    val customIconTint = toolbarAction.customTint
+        ?: MaterialTheme.colorScheme.primary
+
+    if (toolbarAction.clickable) {
+        WrapIconButton(
+            iconData = toolbarAction.icon,
+            onClick = toolbarAction.onClick,
+            enabled = toolbarAction.enabled,
+            customTint = customIconTint,
+        )
+    } else {
+        WrapIcon(
+            modifier = Modifier.minimumInteractiveComponentSize(),
+            iconData = toolbarAction.icon,
+            enabled = toolbarAction.enabled,
+            customTint = customIconTint,
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun ToolbarIconClickablePreview() {
+    PreviewTheme {
+        val action = ToolbarAction(
+            icon = AppIcons.Verified,
+            onClick = {},
+            enabled = true,
+            clickable = true,
+        )
+
+        ToolbarIcon(toolbarAction = action)
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun ToolbarIconNotClickablePreview() {
+    PreviewTheme {
+        val action = ToolbarAction(
+            icon = AppIcons.Verified,
+            onClick = {},
+            enabled = true,
+            clickable = false,
+        )
+
+        ToolbarIcon(toolbarAction = action)
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun ToolBarActionsWithTwoActionsPreview() {
+    PreviewTheme {
+        val toolBarActions = listOf(
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = true,
+                clickable = true,
+            ),
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = false,
+                clickable = true,
+            ),
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = true,
+                clickable = false,
+            ),
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = false,
+                clickable = false,
+            )
+        )
+        Row {
+            ToolBarActions(
+                toolBarActions = toolBarActions,
+                maxActionsShown = MAX_TOOLBAR_ACTIONS,
+            )
+        }
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun ToolBarActionsWithFourActionsPreview() {
+    PreviewTheme {
+        val toolBarActions = listOf(
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = true,
+                clickable = true,
+            ),
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = false,
+                clickable = true,
+            ),
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = true,
+                clickable = false,
+            ),
+            ToolbarAction(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = false,
+                clickable = false,
+            )
+        )
+        Row {
+            ToolBarActions(
+                toolBarActions = toolBarActions,
+                maxActionsShown = 4,
+            )
+        }
     }
 }

@@ -69,8 +69,11 @@ internal suspend fun Context.loadPdf(
                 for (pageNumber in 0 until renderer.pageCount) {
                     loadingListener(true)
 
-                    val bitmap =
-                        Bitmap.createBitmap(PDF_BITMAP_WIDTH, PDF_BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)
+                    val bitmap = Bitmap.createBitmap(
+                        PDF_BITMAP_WIDTH,
+                        PDF_BITMAP_HEIGHT,
+                        Bitmap.Config.ARGB_8888
+                    )
 
                     renderer.openPage(pageNumber).use { page ->
                         page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)

@@ -21,6 +21,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.vector.ImageVector
 import eu.europa.ec.rqesui.R
@@ -77,5 +78,11 @@ internal object AppIcons {
         resourceId = R.drawable.ic_verified,
         contentDescriptionId = R.string.content_description_verified_icon,
         imageVector = null
+    )
+
+    val VerticalMore: IconData = IconData(
+        resourceId = null,
+        contentDescriptionId = R.string.content_description_more_vert_icon,
+        imageVector = Icons.Filled.MoreVert
     )
 }

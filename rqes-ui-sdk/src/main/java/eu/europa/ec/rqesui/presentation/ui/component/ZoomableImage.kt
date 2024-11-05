@@ -24,6 +24,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateRotation
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -58,12 +59,14 @@ internal fun ZoomableImage(
     maxScale: Float = 1f,
     minScale: Float = 3f,
     contentScale: ContentScale = ContentScale.Fit,
+    isRotation: Boolean = false,
     isZoomable: Boolean = true,
     scrollState: ScrollableState? = null
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     var scale by remember { mutableFloatStateOf(1f) }
+    var rotationState by remember { mutableFloatStateOf(1f) }
     var offsetX by remember { mutableFloatStateOf(1f) }
     var offsetY by remember { mutableFloatStateOf(1f) }
 
@@ -99,6 +102,7 @@ internal fun ZoomableImage(
                                 val offset = event.calculatePan()
                                 offsetX += offset.x
                                 offsetY += offset.y
+                                rotationState += event.calculateRotation()
                                 scrollState?.run {
                                     coroutineScope.launch {
                                         setScrolling(true)
@@ -125,6 +129,9 @@ internal fun ZoomableImage(
                     if (isZoomable) {
                         scaleX = maxOf(maxScale, minOf(minScale, scale))
                         scaleY = maxOf(maxScale, minOf(minScale, scale))
+                        if (isRotation) {
+                            rotationZ = rotationState
+                        }
                         translationX = offsetX
                         translationY = offsetY
                     }

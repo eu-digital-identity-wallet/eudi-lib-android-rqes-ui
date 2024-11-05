@@ -82,7 +82,6 @@ internal class EudiRQESContainer : ComponentActivity() {
             is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
             is EudiRQESUi.State.Initial -> SdkScreens.SelectQtsp
             is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
-            is EudiRQESUi.State.Sign -> SdkScreens.Success
             is EudiRQESUi.State.Success -> SdkScreens.Success
         }
         return generateComposableNavigationLink(

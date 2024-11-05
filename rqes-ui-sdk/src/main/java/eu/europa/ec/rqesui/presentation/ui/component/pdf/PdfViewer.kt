@@ -19,7 +19,6 @@ package eu.europa.ec.rqesui.presentation.ui.component.pdf
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -37,11 +36,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.presentation.extension.clearAdd
 import eu.europa.ec.rqesui.presentation.extension.loadPdf
-import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_EXTRA_LARGE
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 
 @Composable
 internal fun PdfViewer(
     modifier: Modifier = Modifier,
+    arrangement: Arrangement.HorizontalOrVertical = Arrangement.spacedBy(SPACING_MEDIUM.dp),
     documentUri: Uri,
     onLoadingListener: (Boolean) -> Unit,
 ) {
@@ -54,8 +54,8 @@ internal fun PdfViewer(
     }
 
     Container(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier,
+        arrangement = arrangement,
         pagePaths = pagePaths
     )
 
@@ -65,7 +65,8 @@ internal fun PdfViewer(
                 inputStream = pdfStream,
                 loadingListener = { isLoading ->
                     onLoadingListener(isLoading)
-                })
+                }
+            )
             pagePaths.clearAdd(paths)
         }
     }
@@ -74,13 +75,14 @@ internal fun PdfViewer(
 @Composable
 private fun Container(
     modifier: Modifier,
+    arrangement: Arrangement.HorizontalOrVertical,
     pagePaths: SnapshotStateList<String>
 ) {
     val listState = rememberLazyListState()
 
     LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_LARGE.dp),
+        verticalArrangement = arrangement,
         state = listState
     ) {
         items(pagePaths.size) { index ->
@@ -106,4 +108,3 @@ private fun Container(
         }
     }
 }
-

@@ -51,6 +51,7 @@ object EudiRQESUi {
         setupKoin(application)
     }
 
+    //TODO review revisit
     fun launchSdk(
         context: Context,
         state: State,
@@ -101,7 +102,6 @@ object EudiRQESUi {
         data object None : State()
         data class Initial(val file: DocumentData, val qtsps: List<QTSPData>) : State()
         data class Certificate(val tBDByCore: TBDByCore) : State()
-        data object Sign : State()
         data class Success(val file: DocumentData) : State()
     }
 

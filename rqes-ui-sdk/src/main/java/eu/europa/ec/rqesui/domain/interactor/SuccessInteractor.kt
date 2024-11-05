@@ -17,6 +17,7 @@
 package eu.europa.ec.rqesui.domain.interactor
 
 import eu.europa.ec.rqesui.domain.extension.toUri
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
@@ -36,11 +37,7 @@ internal class SuccessInteractorImpl(
         get() = resourceProvider.genericErrorMessage()
 
     override fun getDocumentData(): DocumentData {
-        //TODO return EudiRQESUi.file
-        return DocumentData(
-            documentName = "Document name.PDF",
-            uri = "".toUri()
-        )
+        return EudiRQESUi.file
     }
 
     override fun getQtspData(): QTSPData {
