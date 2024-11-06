@@ -98,7 +98,7 @@ private fun Content(padding: PaddingValues) {
             documentUri?.let {
                 Button(
                     onClick = {
-                        launchSdk(
+                        startSdk(
                             context = context,
                             documentUri = it
                         )
@@ -138,11 +138,11 @@ private fun ContentPreview() {
     }
 }
 
-private fun launchSdk(
+private fun startSdk(
     context: Context,
     documentUri: Uri
 ) {
-    EudiRQESUi.launchSdk(
+    EudiRQESUi.initiate(
         context = context,
         documentUri = documentUri,
     )

@@ -61,7 +61,7 @@ internal fun SuccessScreen(
 
     ContentScreen(
         isLoading = state.isLoading,
-        navigatableAction = ScreenNavigateAction.CANCELABLE,
+        navigatableAction = ScreenNavigateAction.NONE,
         onBack = {
             //TODO What should happen here? Pop? Finish? Other?
             viewModel.setEvent(Event.Pop)

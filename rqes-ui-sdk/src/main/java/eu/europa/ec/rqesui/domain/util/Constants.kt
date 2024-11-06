@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.utils
+package eu.europa.ec.rqesui.domain.util
 
 internal object Constants {
     internal const val SDK_STATE = "EudiRQESUISDK_State"

@@ -24,12 +24,12 @@ import android.net.Uri
 import android.os.Parcelable
 import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.presentation.extension.getFileName
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
-import eu.europa.ec.rqesui.presentation.utils.Constants.SDK_STATE
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -60,7 +60,7 @@ object EudiRQESUi {
      * @param context The application [Context].
      * @param documentUri The [Uri] of the document to be loaded.
      */
-    fun launchSdk(
+    fun initiate(
         context: Context,
         documentUri: Uri,
     ) {

@@ -28,13 +28,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.presentation.navigation.RouterHost
 import eu.europa.ec.rqesui.presentation.navigation.Screen
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.rqesui.presentation.router.sdkGraph
-import eu.europa.ec.rqesui.presentation.utils.Constants.SDK_STATE
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
