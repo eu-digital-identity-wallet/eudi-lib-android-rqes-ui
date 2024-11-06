@@ -29,7 +29,7 @@ import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
-import eu.europa.ec.rqesui.presentation.serializer.UiSerializer
+import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import org.koin.android.annotation.KoinViewModel
 
 internal data class State(

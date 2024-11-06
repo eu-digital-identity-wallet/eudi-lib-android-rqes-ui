@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.serializer
+package eu.europa.ec.rqesui.domain.serializer
 
 import eu.europa.ec.rqesui.domain.extension.decodeFromBase64
 import eu.europa.ec.rqesui.domain.extension.encodeToBase64

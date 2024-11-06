@@ -18,6 +18,7 @@ package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
+import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
@@ -31,7 +32,6 @@ import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
-import eu.europa.ec.rqesui.presentation.serializer.UiSerializer
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import org.koin.android.annotation.KoinViewModel

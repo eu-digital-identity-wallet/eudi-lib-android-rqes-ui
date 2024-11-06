@@ -21,7 +21,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class DocumentData(
+internal data class DocumentData(
     val documentName: String,
     val uri: Uri,
 ) : Parcelable

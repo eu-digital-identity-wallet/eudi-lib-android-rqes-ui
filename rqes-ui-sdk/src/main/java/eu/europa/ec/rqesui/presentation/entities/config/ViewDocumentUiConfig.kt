@@ -19,10 +19,10 @@ package eu.europa.ec.rqesui.presentation.entities.config
 import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import eu.europa.ec.rqesui.domain.serializer.UiSerializable
+import eu.europa.ec.rqesui.domain.serializer.UiSerializableParser
+import eu.europa.ec.rqesui.domain.serializer.adapter.UriTypeAdapter
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.presentation.serializer.UiSerializable
-import eu.europa.ec.rqesui.presentation.serializer.UiSerializableParser
-import eu.europa.ec.rqesui.presentation.serializer.adapter.UriTypeAdapter
 
 internal data class ViewDocumentUiConfig(
     val isSigned: Boolean,

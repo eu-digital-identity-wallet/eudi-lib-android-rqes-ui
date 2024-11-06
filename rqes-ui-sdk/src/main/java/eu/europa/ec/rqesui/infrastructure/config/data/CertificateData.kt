@@ -18,7 +18,7 @@ package eu.europa.ec.rqesui.infrastructure.config.data
 
 import android.net.Uri
 
-data class CertificateData(
+internal data class CertificateData(
     val name: String,
     val certificateURI: Uri,
 )

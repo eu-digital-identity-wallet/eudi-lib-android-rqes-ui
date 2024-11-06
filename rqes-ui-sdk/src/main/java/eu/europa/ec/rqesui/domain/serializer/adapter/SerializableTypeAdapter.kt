@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.serializer.adapter
+package eu.europa.ec.rqesui.domain.serializer.adapter
 
 import com.google.gson.*
 import java.lang.reflect.Type

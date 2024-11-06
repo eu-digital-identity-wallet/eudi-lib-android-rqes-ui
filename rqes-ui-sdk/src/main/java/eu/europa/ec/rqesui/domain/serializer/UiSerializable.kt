@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.serializer
+package eu.europa.ec.rqesui.domain.serializer
 
 import com.google.gson.Gson
 

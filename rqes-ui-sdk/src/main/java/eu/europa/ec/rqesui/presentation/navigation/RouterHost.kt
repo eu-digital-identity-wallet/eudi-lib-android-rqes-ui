@@ -58,11 +58,6 @@ internal class RouterHostImpl : RouterHost {
         ) {
             builder(navController)
         }
-        navController.addOnDestinationChangedListener { _, destination, args ->
-            destination.route?.let { route ->
-                // TODO do we want logging here?
-            }
-        }
     }
 
     override fun isScreenOnBackStackOrForeground(screen: Screen): Boolean {
