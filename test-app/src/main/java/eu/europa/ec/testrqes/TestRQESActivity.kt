@@ -17,6 +17,7 @@
 package eu.europa.ec.testrqes
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -40,21 +41,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
-import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.testrqes.ui.theme.EudiRQESUiTheme
 
 class TestRQESActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             EudiRQESUiTheme {
+                checkIntent(intent)
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Content(innerPadding)
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        println("New intent: ${intent.data}")
+
+        checkIntent(intent)
+    }
+
+    private fun checkIntent(intent: Intent) {
+        if (intent.data?.host?.length == 1) {
+            EudiRQESUi.resume(
+                context = this,
+            )
         }
     }
 }
@@ -62,6 +77,7 @@ class TestRQESActivity : ComponentActivity() {
 @Composable
 private fun Content(padding: PaddingValues) {
     val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -79,30 +95,26 @@ private fun Content(padding: PaddingValues) {
         }
 
         Column {
-            Button(onClick = {
-                showRQESSDK(context)
-            }) {
-                Text("Show RQES SDK")
-            }
-
-            if (documentUri == null) {
-                Button(onClick = {
-                    selectPdfLauncher.launch(
-                        arrayOf("application/pdf")
-                    )
-                }) {
-                    Text(text = "Select PDF document")
-                }
-            } else {
+            documentUri?.let {
                 Button(
                     onClick = {
-                        showRQESSuccessScreen(
+                        launchSdk(
                             context = context,
-                            documentUri = documentUri
+                            documentUri = it
                         )
                     }
                 ) {
-                    Text("Go to Success screen")
+                    Text("Start SDK")
+                }
+            } ?: run {
+                Button(
+                    onClick = {
+                        selectPdfLauncher.launch(
+                            arrayOf("application/pdf")
+                        )
+                    }
+                ) {
+                    Text(text = "Select PDF document")
                 }
             }
 
@@ -126,36 +138,12 @@ private fun ContentPreview() {
     }
 }
 
-private fun showRQESSDK(context: Context) {
-    EudiRQESUi.launchSdk(
-        context = context,
-        state = EudiRQESUi.State.Initial(
-            file = DocumentData(
-                documentName = "Document_name.pdf",
-                uri = "https://www.example.com".toUri()
-            ),
-            qtsps = listOf(
-                QTSPData(qtspName = "QTSP1 Example", uri = "https://qtsp1.com".toUri()),
-                QTSPData(qtspName = "QTSP2 Example", uri = "https://qtsp2.com".toUri()),
-                QTSPData(qtspName = "QTSP3 Example", uri = "https://qtsp3.com".toUri()),
-            )
-        )
-    )
-}
-
-private fun showRQESSuccessScreen(
+private fun launchSdk(
     context: Context,
-    documentUri: Uri?
+    documentUri: Uri
 ) {
     EudiRQESUi.launchSdk(
         context = context,
-        state = EudiRQESUi.State.Success(
-            file = DocumentData(
-                documentName = "Document.pdf",
-                uri = documentUri ?: "https://www.example.com".toUri()
-            ),
-        ),
-        documentName = "Document.pdf",
-        documentUri = documentUri
+        documentUri = documentUri,
     )
 }

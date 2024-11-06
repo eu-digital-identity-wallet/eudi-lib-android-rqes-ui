@@ -37,7 +37,6 @@ internal data class State(
 
     val headline: String,
     val subtitle: String,
-    val documentName: String,
     val selectionItem: SelectionItemUi,
     val bottomBarButtonText: String,
 ) : ViewState
@@ -68,7 +67,6 @@ internal class SuccessViewModel(
         return State(
             headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
-            documentName = successInteractor.getDocumentData().documentName,
             selectionItem = getSelectionItem(),
             bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.SaveAndClose),
         )

@@ -116,7 +116,7 @@ private fun Content(
         )
 
         TextWithBadge(
-            message = state.documentName,
+            message = state.selectionItem.documentData.documentName,
             showBadge = true
         )
 
@@ -156,7 +156,6 @@ private fun SuccessScreenPreview() {
             state = State(
                 headline = "Success",
                 subtitle = "You successfully signed your document",
-                documentName = documentName,
                 selectionItem = SelectionItemUi(
                     documentData = DocumentData(
                         documentName = documentName,

@@ -40,9 +40,9 @@ private class DefaultConfig : EudiRQESUiConfig {
 
     override val qtsps: List<QTSPData>
         get() = listOf(
-            QTSPData("Entrust", "uri".toUri()),
-            QTSPData("Docusign", "uri".toUri()),
-            QTSPData("Ascertia", "uri".toUri()),
+            QTSPData("Entrust", "https://www.google.com/search?q=entrust".toUri()),
+            QTSPData("Docusign", "https://www.google.com/search?q=docusign".toUri()),
+            QTSPData("Ascertia", "https://www.google.com/search?q=ascertia".toUri()),
         )
 
     override val translations: Map<String, Map<LocalizableKey, String>>

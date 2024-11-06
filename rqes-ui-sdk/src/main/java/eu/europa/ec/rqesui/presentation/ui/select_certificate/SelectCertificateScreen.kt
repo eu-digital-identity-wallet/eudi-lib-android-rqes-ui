@@ -268,7 +268,7 @@ private fun CertificateListItem(
     ) {
         Text(
             text = optionName,
-            style = MaterialTheme.typography.labelMedium
+            style = MaterialTheme.typography.bodyMedium
         )
 
         //TODO Change this to use a reusable WrapRadioButton
@@ -312,21 +312,22 @@ private fun SelectCertificateScreenPreview() {
                         documentName = "Document name.PDF",
                         uri = "".toUri()
                     ),
+                    subtitle = "Signed by: Entrust",
                     iconData = AppIcons.Verified,
                     iconTint = ThemeColors.success
                 ),
                 certificatesSectionTitle = "Please confirm signing with one of the following certificates:",
                 certificates = listOf(
                     CertificateData(
-                        name = "Certificate name1",
+                        name = "Certificate 1",
                         certificateURI = "uri1".toUri()
                     ),
                     CertificateData(
-                        name = "Certificate name2",
+                        name = "Certificate 2",
                         certificateURI = "uri2".toUri()
                     ),
                     CertificateData(
-                        name = "Certificate name3",
+                        name = "Certificate 3",
                         certificateURI = "uri3".toUri()
                     ),
                 ),

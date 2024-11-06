@@ -16,7 +16,6 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
-import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
@@ -41,10 +40,6 @@ internal class SuccessInteractorImpl(
     }
 
     override fun getQtspData(): QTSPData {
-        //TODO return EudiRQESUi.qtsp
-        return QTSPData(
-            qtspName = "Entrust",
-            uri = "https://www.entrust.com".toUri()
-        )
+        return EudiRQESUi.qtsp
     }
 }

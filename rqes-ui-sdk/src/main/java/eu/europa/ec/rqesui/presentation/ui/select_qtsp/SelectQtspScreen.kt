@@ -92,6 +92,7 @@ internal fun SelectQtspScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
+                    is Effect.Navigation.SwitchScreen -> navController.navigate(navigationEffect.screenRoute)
                     is Effect.Navigation.Finish -> context.finish()
                 }
             },

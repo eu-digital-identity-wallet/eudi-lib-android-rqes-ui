@@ -23,10 +23,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
 import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
-import eu.europa.ec.rqesui.domain.util.safeLet
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
+import eu.europa.ec.rqesui.presentation.extension.getFileName
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
 import eu.europa.ec.rqesui.presentation.utils.Constants.SDK_STATE
 import kotlinx.parcelize.Parcelize
@@ -51,32 +52,80 @@ object EudiRQESUi {
         setupKoin(application)
     }
 
-    //TODO review revisit
+    /**
+     * Launches the SDK with the provided document [Uri].
+     *
+     * This function initializes the SDK with the given document [Uri].
+     *
+     * @param context The application [Context].
+     * @param documentUri The [Uri] of the document to be loaded.
+     */
     fun launchSdk(
         context: Context,
-        state: State,
-        documentUri: Uri? = null,
-        documentName: String? = null,
+        documentUri: Uri,
     ) {
-        setState(state)
-        resume(context, state)
+        val documentData = DocumentData(
+            documentName = documentUri.getFileName(context),
+            uri = documentUri
+        )
 
-        safeLet(documentName, documentUri) { name, uri ->
-            file = DocumentData(documentName = name, uri = uri)
-        }
+        this.file = documentData
+
+        resume(context)
     }
 
-    fun resume(context: Context, state: State) {
+    fun resume(
+        context: Context,
+        /*TODO how do we know which Screen to open here? Probably will need another argument/flag here*/
+    ) {
+
+        val newState: State = calculateNextState()
+
+        setState(newState)
+
         (context as? Activity)?.startActivity(
             Intent(context, EudiRQESContainer::class.java)
-                .putExtra(SDK_STATE, state)
+                .putExtra(SDK_STATE, newState)
         )
     }
 
-    @Throws
+    private fun calculateNextState(): State {
+        return when (getState()) {
+            is State.None -> {
+                State.Initial(
+                    file = this.file.uri
+                )
+            }
+
+            is State.Initial -> {
+                State.Certificate(
+                    tBDByCore = TBDByCore("some_tbd_value")
+                )
+            }
+
+            is State.Certificate -> {
+                State.Success
+            }
+
+            is State.Success -> {
+                State.Success
+            }
+        }
+    }
+
+    /**
+     * Retrieves the configuration for the EudiRQESUi.
+     *
+     * This function throws an [EudiRQESUiError] if the EudiRQESUi has not been initialized
+     * by calling [EudiRQESUi.setup] prior to invoking this function.
+     *
+     * @return The [EudiRQESUiConfig] instance containing the configuration.
+     * @throws EudiRQESUiError If the EudiRQESUi has not been initialized.
+     */
+    @Throws(EudiRQESUiError::class)
     internal fun getEudiRQESUiConfig(): EudiRQESUiConfig {
         if (!::_eudiRQESUiConfig.isInitialized) {
-            throw IllegalStateException("EudiRQESUi must be initialized first. Please call EudiRQESUi.setup()")
+            throw EudiRQESUiError("EudiRQESUi must be initialized first. Please call EudiRQESUi.setup()")
         }
         return _eudiRQESUiConfig
     }
@@ -100,9 +149,9 @@ object EudiRQESUi {
     @Parcelize
     sealed class State : Parcelable {
         data object None : State()
-        data class Initial(val file: DocumentData, val qtsps: List<QTSPData>) : State()
+        data class Initial(val file: Uri) : State()
         data class Certificate(val tBDByCore: TBDByCore) : State()
-        data class Success(val file: DocumentData) : State()
+        data object Success : State()
     }
 
     //TODO delete and adjust accordingly when integration with Core is done.

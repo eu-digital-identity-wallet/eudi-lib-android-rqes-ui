@@ -27,6 +27,11 @@ import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
+import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArguments
+import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
+import eu.europa.ec.rqesui.presentation.serializer.UiSerializer
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import org.koin.android.annotation.KoinViewModel
@@ -67,6 +72,7 @@ internal sealed class Event : ViewEvent {
 
 internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
+        data class SwitchScreen(val screenRoute: String) : Navigation()
         data object Finish : Navigation()
     }
 
@@ -88,7 +94,8 @@ internal sealed class SelectQtspBottomSheetContent {
 @KoinViewModel
 internal class SelectQtspViewModel(
     private val selectQtspInteractor: SelectQtspInteractor,
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
+    private val uiSerializer: UiSerializer,
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State = State(
@@ -138,7 +145,7 @@ internal class SelectQtspViewModel(
             }
 
             is Event.ViewDocument -> {
-                // TODO view document in pdf screen
+                navigateToViewDocument(event.documentData)
             }
 
             is Event.BottomBarButtonPressed -> {
@@ -162,7 +169,8 @@ internal class SelectQtspViewModel(
             is Event.BottomSheet.ShowQtspOptions -> {
                 hideBottomSheet()
                 selectQtspInteractor.updateQTSPUserSelection(qtspData = event.qtspData)
-                // TODO close SDK here
+                // TODO close SDK here, for now
+                setEffect { Effect.Navigation.Finish }
             }
         }
     }
@@ -172,6 +180,26 @@ internal class SelectQtspViewModel(
             documentData = selectQtspInteractor.getDocumentData(),
             action = resourceProvider.getLocalizedString(LocalizableKey.View)
         )
+    }
+
+    private fun navigateToViewDocument(documentData: DocumentData) {
+        val screenRoute = generateComposableNavigationLink(
+            screen = SdkScreens.ViewDocument,
+            arguments = generateComposableArguments(
+                arguments = mapOf(
+                    ViewDocumentUiConfig.serializedKeyName to uiSerializer.toBase64(
+                        model = ViewDocumentUiConfig(
+                            isSigned = false,
+                            documentData = documentData
+                        ),
+                        parser = ViewDocumentUiConfig.Parser
+                    )
+                )
+            )
+        )
+        setEffect {
+            Effect.Navigation.SwitchScreen(screenRoute = screenRoute)
+        }
     }
 
     private fun getConfirmCancellationTextData(): BottomSheetTextData {

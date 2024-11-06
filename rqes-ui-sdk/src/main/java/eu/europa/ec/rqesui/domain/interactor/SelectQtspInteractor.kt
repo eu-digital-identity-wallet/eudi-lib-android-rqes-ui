@@ -16,7 +16,6 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
-import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
@@ -42,14 +41,10 @@ internal class SelectQtspInteractorImpl(
     }
 
     override fun getDocumentData(): DocumentData {
-        //TODO return EudiRQESUi.file
-        return DocumentData(
-            documentName = "Document name.PDF",
-            uri = "".toUri()
-        )
+        return EudiRQESUi.file
     }
 
     override fun updateQTSPUserSelection(qtspData: QTSPData) {
-        // TODO set selected QTSP to RQES config
+        EudiRQESUi.qtsp = qtspData
     }
 }

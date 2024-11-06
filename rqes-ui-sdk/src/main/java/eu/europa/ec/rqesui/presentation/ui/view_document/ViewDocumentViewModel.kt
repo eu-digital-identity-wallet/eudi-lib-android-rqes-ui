@@ -76,8 +76,10 @@ internal class ViewDocumentViewModel(
                 setEffect { Effect.Navigation.Pop }
             }
 
+            //TODO should it have different behavior based on the Screen that opened ViewDocument Screen?
+            // (would also mean to add a new variable in ViewDocumentUiConfig)
             is Event.BottomBarButtonPressed -> {
-                setEffect { Effect.Navigation.Finish }
+                setEffect { Effect.Navigation.Pop }
             }
 
             is Event.LoadingStateChanged -> {
