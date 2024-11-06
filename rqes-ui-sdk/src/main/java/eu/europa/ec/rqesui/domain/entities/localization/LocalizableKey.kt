@@ -66,7 +66,7 @@ enum class LocalizableKey {
             Success -> "Success!"
             SuccessfullySignedDocument -> "You successfully signed your document"
             SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"
-            View -> "View"
+            View -> "VIEW"
             Close -> "Close"
             Cancel -> "Cancel"
             Save -> "Save"

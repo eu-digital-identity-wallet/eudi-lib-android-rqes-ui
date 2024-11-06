@@ -86,19 +86,19 @@ internal class ThemeTypography {
                     labelLarge = ThemeTextStyle(
                         fontFamily = listOf(RobotoMedium),
                         fontSize = 14,
-                        letterSpacing = 0.01f,
+                        letterSpacing = 0.1f,
                         textAlign = ThemeTextAlign.Start
                     ),
                     labelMedium = ThemeTextStyle(
                         fontFamily = listOf(RobotoMedium),
                         fontSize = 12,
-                        letterSpacing = 0.05f,
+                        letterSpacing = 0.5f,
                         textAlign = ThemeTextAlign.Start
                     ),
                     labelSmall = ThemeTextStyle(
                         fontFamily = listOf(RobotoMedium),
                         fontSize = 11,
-                        letterSpacing = 0.05f,
+                        letterSpacing = 0.5f,
                         textAlign = ThemeTextAlign.Start
                     ),
                     bodyLarge = ThemeTextStyle(

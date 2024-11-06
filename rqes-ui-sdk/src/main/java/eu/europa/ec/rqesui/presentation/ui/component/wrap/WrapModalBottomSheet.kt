@@ -101,7 +101,7 @@ internal fun GenericBaseSheetContent(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge.copy(
+            style = MaterialTheme.typography.headlineSmall.copy(
                 color = bottomSheetDefaultTextColor
             )
         )
@@ -149,7 +149,7 @@ internal fun DialogBottomSheet(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.textPrimaryDark
+                        color = bottomSheetDefaultTextColor
                     )
                 )
                 VSpacer.Large()
