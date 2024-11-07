@@ -65,7 +65,7 @@ internal fun SuccessScreen(
             //TODO What should happen here? Pop? Finish? Other?
             viewModel.setEvent(Event.Pop)
         },
-        bottomBar = {
+        stickyBottom = {
             WrapBottomBarSecondaryButton(
                 buttonText = state.bottomBarButtonText,
                 onButtonClick = {

@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -40,9 +39,7 @@ internal fun WrapBottomBarPrimaryButton(
     onButtonClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .navigationBarsPadding()
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         HorizontalDivider(
             thickness = 1.dp,
@@ -52,9 +49,7 @@ internal fun WrapBottomBarPrimaryButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    all = SPACING_LARGE.dp
-                ),
+                .padding(all = SPACING_LARGE.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -77,9 +72,7 @@ internal fun WrapBottomBarSecondaryButton(
     onButtonClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .navigationBarsPadding()
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         HorizontalDivider(
             thickness = 1.dp,
@@ -89,9 +82,7 @@ internal fun WrapBottomBarSecondaryButton(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    all = SPACING_LARGE.dp
-                ),
+                .padding(all = SPACING_LARGE.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {

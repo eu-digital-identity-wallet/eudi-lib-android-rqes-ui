@@ -75,7 +75,7 @@ internal fun SelectQtspScreen(
         navigatableAction = ScreenNavigateAction.CANCELABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
-        bottomBar = {
+        stickyBottom = {
             WrapBottomBarPrimaryButton(
                 buttonText = state.bottomBarButtonText,
                 onButtonClick = {

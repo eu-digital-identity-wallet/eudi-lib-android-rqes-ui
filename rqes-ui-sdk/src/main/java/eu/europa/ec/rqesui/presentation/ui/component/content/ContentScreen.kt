@@ -182,7 +182,6 @@ internal fun ContentScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(screenPaddings(padding))
                                 .zIndex(Z_STICKY),
                             contentAlignment = Alignment.Center
                         ) {
