@@ -27,7 +27,7 @@ import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
+import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.presentation.extension.getFileName
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
 import kotlinx.parcelize.Parcelize
@@ -41,11 +41,7 @@ object EudiRQESUi {
     private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
     private var state: State = State.None
 
-    //TODO initialize-cache this when State.Initial is called.
-    internal lateinit var file: DocumentData
-
-    //TODO cache this when User selects a QTSP.
-    internal lateinit var qtsp: QTSPData
+    internal lateinit var currentSelection: CurrentSelection
 
     fun setup(application: Application, config: EudiRQESUiConfig) {
         _eudiRQESUiConfig = config
@@ -69,7 +65,11 @@ object EudiRQESUi {
             uri = documentUri
         )
 
-        this.file = documentData
+        this.currentSelection = CurrentSelection(
+            file = documentData,
+            qtsp = null,
+            certificate = null
+        )
 
         resume(context)
     }
@@ -92,9 +92,11 @@ object EudiRQESUi {
     private fun calculateNextState(): State {
         return when (getState()) {
             is State.None -> {
-                State.Initial(
-                    file = this.file.uri
-                )
+                this.currentSelection.file?.let { safeFile ->
+                    State.Initial(
+                        file = safeFile.uri
+                    )
+                } ?: State.None
             }
 
             is State.Initial -> {
@@ -130,11 +132,11 @@ object EudiRQESUi {
         return _eudiRQESUiConfig
     }
 
-    internal fun setState(state: State) {
+    private fun setState(state: State) {
         this.state = state
     }
 
-    internal fun getState(): State = this.state
+    private fun getState(): State = this.state
 
     private fun setupKoin(application: Application) {
         startKoin {
@@ -157,4 +159,10 @@ object EudiRQESUi {
     //TODO delete and adjust accordingly when integration with Core is done.
     @Parcelize
     data class TBDByCore(val value: String) : Parcelable
+
+    internal data class CurrentSelection(
+        val file: DocumentData?,
+        val qtsp: QtspData?,
+        val certificate: TBDByCore?,
+    )
 }

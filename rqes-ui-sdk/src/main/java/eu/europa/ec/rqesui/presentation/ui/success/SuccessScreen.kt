@@ -38,9 +38,11 @@ import eu.europa.ec.rqesui.presentation.ui.component.TextWithBadge
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentHeadline
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentSubtitle
+import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitle
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
@@ -65,6 +67,7 @@ internal fun SuccessScreen(
             //TODO What should happen here? Pop? Finish? Other?
             viewModel.setEvent(Event.Pop)
         },
+        contentErrorConfig = state.error,
         stickyBottom = {
             WrapBottomBarSecondaryButton(
                 buttonText = state.bottomBarButtonText,
@@ -89,6 +92,10 @@ internal fun SuccessScreen(
             paddingValues = paddingValues,
         )
     }
+
+    OneTimeLaunchedEffect {
+        viewModel.setEvent(Event.Init)
+    }
 }
 
 @Composable
@@ -104,6 +111,10 @@ private fun Content(
             .fillMaxSize()
             .padding(paddingValues)
     ) {
+        ContentTitle(
+            title = state.title
+        )
+
         ContentHeadline(
             headline = state.headline
         )
@@ -114,33 +125,36 @@ private fun Content(
             subtitle = state.subtitle
         )
 
-        TextWithBadge(
-            message = state.selectionItem.documentData.documentName,
-            showBadge = true
-        )
+        state.selectionItem?.let { safeSelectionItem ->
+            TextWithBadge(
+                message = safeSelectionItem.documentData.documentName,
+                showBadge = true
+            )
 
-        VSpacer.Large()
+            VSpacer.Large()
 
-        SelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiary
-            ),
-            data = state.selectionItem,
-            onClick = {
-                onEventSend(
-                    Event.ViewDocument(
-                        documentData = state.selectionItem.documentData
+            SelectionItem(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                ),
+                data = safeSelectionItem,
+                onClick = {
+                    onEventSend(
+                        Event.ViewDocument(
+                            documentData = safeSelectionItem.documentData
+                        )
                     )
-                )
-            }
-        )
+                }
+            )
+        }
     }
 
     LaunchedEffect(Unit) {
         effectFlow.onEach { effect ->
             when (effect) {
                 is Effect.Navigation -> onNavigationRequested(effect)
+                is Effect.SelectedQtspFetched -> onEventSend(Event.CreateSelectionItem(effect.qtsp))
             }
         }.collect()
     }
@@ -153,6 +167,7 @@ private fun SuccessScreenPreview() {
         val documentName = "Document name.PDF"
         Content(
             state = State(
+                title = "Sign document",
                 headline = "Success",
                 subtitle = "You successfully signed your document",
                 selectionItem = SelectionItemUi(

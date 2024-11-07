@@ -17,12 +17,12 @@
 package eu.europa.ec.rqesui.domain.interactor
 
 import android.net.Uri
+import eu.europa.ec.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.extension.safeAsync
 import eu.europa.ec.rqesui.domain.extension.toUri
-import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
-import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -32,17 +32,20 @@ internal sealed class SelectCertificatePartialState {
         val qtspCertificatesList: List<CertificateData>
     ) : SelectCertificatePartialState()
 
-    data class Failure(val error: String) : SelectCertificatePartialState()
+    data class Failure(val error: EudiRQESUiError) : SelectCertificatePartialState()
 }
 
 internal interface SelectCertificateInteractor {
     fun qtspCertificates(qtspCertificateEndpoint: Uri): Flow<SelectCertificatePartialState>
-    fun getDocumentData(): DocumentData
-    fun getQtspData(): QTSPData
+
+    fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+
+    fun updateCertificateUserSelection(certificateData: CertificateData)
 }
 
 internal class SelectCertificateInteractorImpl(
     private val resourceProvider: ResourceProvider,
+    private val eudiRqesController: EudiRqesController,
     //TODO change this when integration with Core is ready.
     private val rqesCoreController: Any? = null,
 ) : SelectCertificateInteractor {
@@ -63,15 +66,15 @@ internal class SelectCertificateInteractorImpl(
             )
         }.safeAsync {
             SelectCertificatePartialState.Failure(
-                error = it.localizedMessage ?: genericErrorMsg
+                error = EudiRQESUiError(message = it.localizedMessage ?: genericErrorMsg)
             )
         }
 
-    override fun getDocumentData(): DocumentData {
-        return EudiRQESUi.file
+    override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
+        return eudiRqesController.getSelectedFile()
     }
 
-    override fun getQtspData(): QTSPData {
-        return EudiRQESUi.qtsp
+    override fun updateCertificateUserSelection(certificateData: CertificateData) {
+        eudiRqesController.updateCertificateUserSelection(certificateData)
     }
 }

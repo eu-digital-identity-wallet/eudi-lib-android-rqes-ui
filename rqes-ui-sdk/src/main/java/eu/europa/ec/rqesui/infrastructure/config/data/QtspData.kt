@@ -21,7 +21,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class QTSPData(
+data class QtspData(
     val qtspName: String,
     val uri: Uri,
 ) : Parcelable

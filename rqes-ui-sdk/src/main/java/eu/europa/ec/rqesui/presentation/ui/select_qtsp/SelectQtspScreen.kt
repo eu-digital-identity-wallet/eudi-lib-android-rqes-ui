@@ -42,6 +42,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSub
 import eu.europa.ec.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
@@ -116,6 +117,10 @@ internal fun SelectQtspScreen(
             }
         }
     }
+
+    OneTimeLaunchedEffect {
+        viewModel.setEvent(Event.Init)
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -143,18 +148,19 @@ private fun Content(
 
         VSpacer.Large()
 
-        SelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            data = state.selectionItem,
-            onClick = {
-                onEventSend(
-                    Event.ViewDocument(
-                        documentData = state.selectionItem.documentData
+        state.selectionItem?.let { safeSelectionItem ->
+            SelectionItem(
+                modifier = Modifier.fillMaxWidth(),
+                data = safeSelectionItem,
+                onClick = {
+                    onEventSend(
+                        Event.ViewDocument(
+                            documentData = safeSelectionItem.documentData
+                        )
                     )
-                )
-            }
-        )
-
+                }
+            )
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -230,7 +236,7 @@ private fun SelectQtspScreenPreview() {
                         message = "message",
                     )
                 ),
-                bottomBarButtonText = "Sign"
+                bottomBarButtonText = "Sign",
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

@@ -17,19 +17,18 @@
 package eu.europa.ec.rqesui.presentation.ui.select_certificate
 
 import androidx.lifecycle.viewModelScope
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificatePartialState
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
-import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
@@ -37,6 +36,7 @@ import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
     val isLoading: Boolean = false,
+    val selectionItem: SelectionItemUi? = null,
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
 
@@ -44,7 +44,6 @@ internal data class State(
     val subtitle: String,
     val certificatesSectionTitle: String,
     val bottomBarButtonText: String,
-    val selectionItem: SelectionItemUi,
     val certificates: List<CertificateData> = emptyList(),
     val selectedCertificateIndex: Int = 0,
 
@@ -56,7 +55,7 @@ internal sealed class Event : ViewEvent {
     data object Pop : Event()
     data object DismissError : Event()
 
-    data class CertificateIndexSelected(val index: Int) : Event()
+    data class CertificateSelected(val index: Int) : Event()
     data object BottomBarButtonPressed : Event()
 
     sealed class BottomSheet : Event() {
@@ -91,7 +90,6 @@ internal class SelectCertificateViewModel(
             title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateTitle),
             certificatesSectionTitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
-            selectionItem = getSelectionItem(),
             bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
             sheetTextData = getConfirmCancellationTextData(),
         )
@@ -100,6 +98,7 @@ internal class SelectCertificateViewModel(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> {
+                createSelectionItem(event)
                 fetchQTSPCertificates(event)
             }
 
@@ -108,20 +107,15 @@ internal class SelectCertificateViewModel(
             }
 
             is Event.DismissError -> {
-                setState {
-                    copy(
-                        error = null
-                    )
-                }
+                setState { copy(error = null) }
             }
 
             is Event.BottomBarButtonPressed -> {
-                viewModelScope.launch {
-                    //TODO proceed to sign document
-                    // selectCertificateInteractor.certificateSelected==SingDocument
-                    setEffect {
-                        Effect.Navigation.Finish
-                    }
+                selectCertificateInteractor.updateCertificateUserSelection(
+                    certificateData = viewState.value.certificates[viewState.value.selectedCertificateIndex]
+                )
+                setEffect {
+                    Effect.Navigation.Finish
                 }
             }
 
@@ -143,10 +137,42 @@ internal class SelectCertificateViewModel(
                 }
             }
 
-            is Event.CertificateIndexSelected -> {
+            is Event.CertificateSelected -> {
                 setState {
                     copy(
                         selectedCertificateIndex = event.index
+                    )
+                }
+            }
+        }
+    }
+
+    private fun createSelectionItem(event: Event) {
+        when (val response = selectCertificateInteractor.getSelectedFile()) {
+            is EudiRqesGetSelectedFilePartialState.Failure -> {
+                setState {
+                    copy(
+                        selectionItem = null,
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetSelectedFilePartialState.Success -> {
+                setState {
+                    copy(
+                        error = null,
+                        selectionItem = SelectionItemUi(
+                            documentData = response.file,
+                            action = resourceProvider.getLocalizedString(LocalizableKey.View)
+                        )
                     )
                 }
             }
@@ -183,7 +209,7 @@ internal class SelectCertificateViewModel(
                                 certificates = emptyList(),
                                 error = ContentErrorConfig(
                                     onRetry = { setEvent(event) },
-                                    errorSubTitle = response.error,
+                                    errorSubTitle = response.error.message,
                                     onCancel = {
                                         setEvent(Event.DismissError)
                                         setEffect { Effect.Navigation.Finish }
@@ -196,18 +222,6 @@ internal class SelectCertificateViewModel(
                 }
             }
         }
-    }
-
-    private fun getSelectionItem(): SelectionItemUi {
-        return SelectionItemUi(
-            documentData = selectCertificateInteractor.getDocumentData(),
-            subtitle = resourceProvider.getLocalizedString(
-                LocalizableKey.SignedBy,
-                listOf(selectCertificateInteractor.getQtspData().qtspName)
-            ),
-            iconData = AppIcons.Verified,
-            iconTint = ThemeColors.success
-        )
     }
 
     private fun getConfirmCancellationTextData(): BottomSheetTextData {

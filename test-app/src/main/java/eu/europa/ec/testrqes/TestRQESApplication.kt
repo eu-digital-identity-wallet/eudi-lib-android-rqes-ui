@@ -22,7 +22,7 @@ import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey.Companion
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
-import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
+import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 
 class TestRQESApplication : Application() {
 
@@ -38,11 +38,11 @@ class TestRQESApplication : Application() {
 
 private class DefaultConfig : EudiRQESUiConfig {
 
-    override val qtsps: List<QTSPData>
+    override val qtsps: List<QtspData>
         get() = listOf(
-            QTSPData("Entrust", "https://www.google.com/search?q=entrust".toUri()),
-            QTSPData("Docusign", "https://www.google.com/search?q=docusign".toUri()),
-            QTSPData("Ascertia", "https://www.google.com/search?q=ascertia".toUri()),
+            QtspData("Entrust", "https://www.google.com/search?q=entrust".toUri()),
+            QtspData("Docusign", "https://www.google.com/search?q=docusign".toUri()),
+            QtspData("Ascertia", "https://www.google.com/search?q=ascertia".toUri()),
         )
 
     override val translations: Map<String, Map<LocalizableKey, String>>

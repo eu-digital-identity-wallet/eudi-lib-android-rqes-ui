@@ -17,6 +17,8 @@
 package eu.europa.ec.rqesui.domain.di
 
 import android.content.Context
+import eu.europa.ec.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesControllerImpl
 import eu.europa.ec.rqesui.domain.controller.KeyStorage
 import eu.europa.ec.rqesui.domain.controller.KeyStorageImpl
 import eu.europa.ec.rqesui.domain.controller.LocalizationController
@@ -26,6 +28,7 @@ import eu.europa.ec.rqesui.domain.controller.LogControllerImpl
 import eu.europa.ec.rqesui.domain.controller.PreferencesController
 import eu.europa.ec.rqesui.domain.controller.PreferencesControllerImpl
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Single
 
@@ -36,6 +39,10 @@ internal fun providePreferencesController(context: Context): PreferencesControll
 @Single
 internal fun provideLocalizationController(): LocalizationController =
     LocalizationControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
+
+@Single
+internal fun provideEudiRqesController(resourceProvider: ResourceProvider): EudiRqesController =
+    EudiRqesControllerImpl(EudiRQESUi, resourceProvider)
 
 @Factory
 internal fun provideLogController(): LogController =

@@ -16,11 +16,13 @@
 
 package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetQtspsPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
 import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
+import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
@@ -38,18 +40,19 @@ import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
     val isLoading: Boolean = false,
+    val selectionItem: SelectionItemUi? = null,
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
 
     val title: String,
     val subtitle: String,
     val bottomBarButtonText: String,
-    val selectionItem: SelectionItemUi,
 
     val sheetContent: SelectQtspBottomSheetContent,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
+    data object Init : Event()
     data object Pop : Event()
     data object Finish : Event()
 
@@ -66,7 +69,7 @@ internal sealed class Event : ViewEvent {
             data object SecondaryButtonPressed : CancelSignProcess()
         }
 
-        data class ShowQtspOptions(val qtspData: QTSPData) : BottomSheet()
+        data class ShowQtspOptions(val qtspData: QtspData) : BottomSheet()
     }
 }
 
@@ -101,7 +104,6 @@ internal class SelectQtspViewModel(
     override fun setInitialState(): State = State(
         title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
         subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
-        selectionItem = getSelectionItem(),
         bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
         sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
             bottomSheetTextData = getConfirmCancellationTextData()
@@ -110,6 +112,10 @@ internal class SelectQtspViewModel(
 
     override fun handleEvents(event: Event) {
         when (event) {
+            is Event.Init -> {
+                createSelectionItem(event)
+            }
+
             is Event.Pop -> {
                 showBottomSheet(
                     sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
@@ -149,8 +155,70 @@ internal class SelectQtspViewModel(
             }
 
             is Event.BottomBarButtonPressed -> {
+                getQtsps(event)
+            }
+
+            is Event.BottomSheet.ShowQtspOptions -> {
+                selectQtspInteractor.updateQtspUserSelection(qtspData = event.qtspData)
+                hideBottomSheet()
+                // TODO close SDK here, for now
+                setEffect { Effect.Navigation.Finish }
+            }
+        }
+    }
+
+    private fun createSelectionItem(event: Event) {
+        when (val response = selectQtspInteractor.getSelectedFile()) {
+            is EudiRqesGetSelectedFilePartialState.Failure -> {
+                setState {
+                    copy(
+                        selectionItem = null,
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetSelectedFilePartialState.Success -> {
+                setState {
+                    copy(
+                        error = null,
+                        selectionItem = SelectionItemUi(
+                            documentData = response.file,
+                            action = resourceProvider.getLocalizedString(LocalizableKey.View)
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun getQtsps(event: Event) {
+        when (val response = selectQtspInteractor.getQtsps()) {
+            is EudiRqesGetQtspsPartialState.Failure -> {
+                setState {
+                    copy(
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetQtspsPartialState.Success -> {
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
-                    selectQtspInteractor.getQTSPList().map { qtspData ->
+                    response.qtsps.map { qtspData ->
                         ModalOptionUi(
                             title = qtspData.qtspName,
                             icon = null,
@@ -165,21 +233,7 @@ internal class SelectQtspViewModel(
                     )
                 )
             }
-
-            is Event.BottomSheet.ShowQtspOptions -> {
-                hideBottomSheet()
-                selectQtspInteractor.updateQTSPUserSelection(qtspData = event.qtspData)
-                // TODO close SDK here, for now
-                setEffect { Effect.Navigation.Finish }
-            }
         }
-    }
-
-    private fun getSelectionItem(): SelectionItemUi {
-        return SelectionItemUi(
-            documentData = selectQtspInteractor.getDocumentData(),
-            action = resourceProvider.getLocalizedString(LocalizableKey.View)
-        )
     }
 
     private fun navigateToViewDocument(documentData: DocumentData) {

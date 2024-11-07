@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,15 +97,32 @@ private fun Content(padding: PaddingValues) {
 
         Column {
             documentUri?.let {
-                Button(
-                    onClick = {
-                        startSdk(
-                            context = context,
-                            documentUri = it
-                        )
+                var sdkHasStarted by rememberSaveable {
+                    mutableStateOf(false)
+                }
+
+                if (sdkHasStarted) {
+                    Button(
+                        onClick = {
+                            resumeSdk(
+                                context = context,
+                            )
+                        }
+                    ) {
+                        Text("Resume SDK")
                     }
-                ) {
-                    Text("Start SDK")
+                } else {
+                    Button(
+                        onClick = {
+                            startSdk(
+                                context = context,
+                                documentUri = it
+                            )
+                            sdkHasStarted = true
+                        }
+                    ) {
+                        Text("Start SDK")
+                    }
                 }
             } ?: run {
                 Button(
@@ -145,5 +163,13 @@ private fun startSdk(
     EudiRQESUi.initiate(
         context = context,
         documentUri = documentUri,
+    )
+}
+
+private fun resumeSdk(
+    context: Context,
+) {
+    EudiRQESUi.resume(
+        context = context,
     )
 }

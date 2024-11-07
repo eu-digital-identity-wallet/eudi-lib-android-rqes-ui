@@ -168,11 +168,13 @@ private fun Content(
 
         VSpacer.Medium()
 
-        SelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            data = state.selectionItem,
-            onClick = null,
-        )
+        state.selectionItem?.let { safeSelectionItem ->
+            SelectionItem(
+                modifier = Modifier.fillMaxWidth(),
+                data = safeSelectionItem,
+                onClick = null,
+            )
+        }
 
         VSpacer.Medium()
 
@@ -225,7 +227,7 @@ private fun CertificatesList(
                 optionName = item.name,
                 isSelected = selectedIndex == index,
                 onClick = {
-                    onEventSend(Event.CertificateIndexSelected(index = index))
+                    onEventSend(Event.CertificateSelected(index = index))
                 }
             )
 

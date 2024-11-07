@@ -16,18 +16,20 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
-import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
-import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.config.data.QTSPData
+import eu.europa.ec.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 
 internal interface SuccessInteractor {
-    fun getDocumentData(): DocumentData
-    fun getQtspData(): QTSPData
+    fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+
+    fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState
 }
 
 internal class SuccessInteractorImpl(
     private val resourceProvider: ResourceProvider,
+    private val eudiRqesController: EudiRqesController,
     //TODO change this when integration with Core is ready.
     private val rqesCoreController: Any? = null,
 ) : SuccessInteractor {
@@ -35,11 +37,11 @@ internal class SuccessInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun getDocumentData(): DocumentData {
-        return EudiRQESUi.file
+    override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
+        return eudiRqesController.getSelectedFile()
     }
 
-    override fun getQtspData(): QTSPData {
-        return EudiRQESUi.qtsp
+    override fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState {
+        return eudiRqesController.getSelectedQtsp()
     }
 }

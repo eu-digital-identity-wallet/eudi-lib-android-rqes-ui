@@ -16,9 +16,13 @@
 
 package eu.europa.ec.rqesui.presentation.ui.success
 
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
+import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
@@ -29,21 +33,26 @@ import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
-import eu.europa.ec.rqesui.domain.serializer.UiSerializer
+import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
     val isLoading: Boolean = false,
+    val selectionItem: SelectionItemUi? = null,
+    val error: ContentErrorConfig? = null,
 
+    val title: String,
     val headline: String,
     val subtitle: String,
-    val selectionItem: SelectionItemUi,
     val bottomBarButtonText: String,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
+    data object Init : Event()
     data object Pop : Event()
-    data object Finish : Event()
+    data object DismissError : Event()
+    data class CreateSelectionItem(val qtsp: QtspData) : Event()
+
     data object BottomBarButtonPressed : Event()
 
     data class ViewDocument(val documentData: DocumentData) : Event()
@@ -54,6 +63,8 @@ internal sealed class Effect : ViewSideEffect {
         data class SwitchScreen(val screenRoute: String) : Navigation()
         data object Finish : Navigation()
     }
+
+    data class SelectedQtspFetched(val qtsp: QtspData) : Effect()
 }
 
 @KoinViewModel
@@ -65,27 +76,35 @@ internal class SuccessViewModel(
 
     override fun setInitialState(): State {
         return State(
+            title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
             headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
-            selectionItem = getSelectionItem(),
             bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.SaveAndClose),
         )
     }
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.BottomBarButtonPressed -> {
-                setEffect {
-                    Effect.Navigation.Finish
-                }
-            }
-
-            is Event.Finish -> {
-                setEffect { Effect.Navigation.Finish }
+            is Event.Init -> {
+                getSelectedQtsp(event)
             }
 
             is Event.Pop -> {
                 setEffect { Effect.Navigation.Finish }
+            }
+
+            is Event.DismissError -> {
+                setState { copy(error = null) }
+            }
+
+            is Event.CreateSelectionItem -> {
+                createSelectionItem(event, event.qtsp)
+            }
+
+            is Event.BottomBarButtonPressed -> {
+                setEffect {
+                    Effect.Navigation.Finish
+                }
             }
 
             is Event.ViewDocument -> {
@@ -94,15 +113,64 @@ internal class SuccessViewModel(
         }
     }
 
-    private fun getSelectionItem(): SelectionItemUi {
-        return SelectionItemUi(
-            documentData = successInteractor.getDocumentData(),
-            subtitle = resourceProvider.getLocalizedString(
-                LocalizableKey.SignedBy,
-                listOf(successInteractor.getQtspData().qtspName)
-            ),
-            action = resourceProvider.getLocalizedString(LocalizableKey.View)
-        )
+    private fun getSelectedQtsp(event: Event) {
+        when (val response = successInteractor.getSelectedQtsp()) {
+            is EudiRqesGetSelectedQtspPartialState.Failure -> {
+                setState {
+                    copy(
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetSelectedQtspPartialState.Success -> {
+                setState { copy(error = null) }
+                setEffect { Effect.SelectedQtspFetched(qtsp = response.qtsp) }
+            }
+        }
+    }
+
+    private fun createSelectionItem(event: Event, qtsp: QtspData) {
+        when (val response = successInteractor.getSelectedFile()) {
+            is EudiRqesGetSelectedFilePartialState.Failure -> {
+                setState {
+                    copy(
+                        selectionItem = null,
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetSelectedFilePartialState.Success -> {
+                setState {
+                    copy(
+                        error = null,
+                        selectionItem = SelectionItemUi(
+                            documentData = response.file,
+                            subtitle = resourceProvider.getLocalizedString(
+                                LocalizableKey.SignedBy,
+                                listOf(qtsp.qtspName)
+                            ),
+                            action = resourceProvider.getLocalizedString(LocalizableKey.View)
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private fun navigateToViewDocument(documentData: DocumentData) {
