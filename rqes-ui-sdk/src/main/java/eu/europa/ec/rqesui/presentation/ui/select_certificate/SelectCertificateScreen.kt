@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
@@ -70,6 +69,7 @@ import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarPrimaryButton
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapRadioButton
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -271,12 +271,12 @@ private fun CertificateListItem(
             style = MaterialTheme.typography.bodyMedium
         )
 
-        //TODO Change this to use a reusable WrapRadioButton
-        RadioButton(
-            selected = isSelected,
+        WrapRadioButton(
+            isSelected = isSelected,
             onClick = null,
             colors = RadioButtonDefaults.colors(
-                selectedColor = MaterialTheme.colorScheme.primary
+                selectedColor = MaterialTheme.colorScheme.primary,
+                unselectedColor = MaterialTheme.colorScheme.primary
             )
         )
     }

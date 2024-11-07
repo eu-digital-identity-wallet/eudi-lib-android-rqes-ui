@@ -19,6 +19,7 @@ package eu.europa.ec.rqesui.presentation.ui.component.pdf
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.presentation.extension.clearAdd
 import eu.europa.ec.rqesui.presentation.extension.loadPdf
+import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 
 @Composable
@@ -81,8 +83,8 @@ private fun Container(
     val listState = rememberLazyListState()
 
     LazyColumn(
-        modifier = modifier,
         verticalArrangement = arrangement,
+        contentPadding = PaddingValues(vertical = SPACING_LARGE.dp),
         state = listState
     ) {
         items(pagePaths.size) { index ->

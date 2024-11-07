@@ -43,7 +43,6 @@ import eu.europa.ec.rqesui.presentation.ui.component.pdf.PdfViewer
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -67,14 +66,6 @@ internal fun ViewDocumentScreen(
         navigatableAction = ScreenNavigateAction.BACKABLE,
         onBack = {
             viewModel.setEvent(Event.Pop)
-        },
-        bottomBar = {
-            WrapBottomBarSecondaryButton(
-                buttonText = state.buttonText,
-                onButtonClick = {
-                    viewModel.setEvent(Event.BottomBarButtonPressed)
-                }
-            )
         }
     ) { paddingValues ->
         Content(
@@ -103,13 +94,15 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
+            .padding(top = paddingValues.calculateTopPadding()),
         verticalArrangement = Arrangement.Top
     ) {
         state.config.documentData.let { file ->
             Box(modifier = Modifier.fillMaxSize()) {
                 PdfViewer(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = SPACING_LARGE.dp),
                     documentUri = file.uri,
                     onLoadingListener = { isLoading ->
                         onEventSend(
@@ -176,7 +169,7 @@ private fun ViewDocumentScreenPreview() {
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},
             onNavigationRequested = {},
-            paddingValues = PaddingValues(all = SPACING_LARGE.dp),
+            paddingValues = PaddingValues()
         )
     }
 }
