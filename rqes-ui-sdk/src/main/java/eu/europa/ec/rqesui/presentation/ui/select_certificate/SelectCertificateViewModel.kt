@@ -22,7 +22,6 @@ import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificatePartialState
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
-import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -59,7 +58,6 @@ internal sealed class Event : ViewEvent {
 
     data class CertificateIndexSelected(val index: Int) : Event()
     data object BottomBarButtonPressed : Event()
-    data class ViewDocument(val documentData: DocumentData) : Event()
 
     sealed class BottomSheet : Event() {
 
@@ -151,10 +149,6 @@ internal class SelectCertificateViewModel(
                         selectedCertificateIndex = event.index
                     )
                 }
-            }
-
-            is Event.ViewDocument -> {
-                // TODO view document in pdf screen
             }
         }
     }

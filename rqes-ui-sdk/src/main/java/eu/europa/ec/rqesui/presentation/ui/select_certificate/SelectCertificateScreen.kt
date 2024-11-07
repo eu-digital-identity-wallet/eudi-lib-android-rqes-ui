@@ -171,13 +171,7 @@ private fun Content(
         SelectionItem(
             modifier = Modifier.fillMaxWidth(),
             data = state.selectionItem,
-            onClick = {
-                onEventSend(
-                    Event.ViewDocument(
-                        documentData = state.selectionItem.documentData
-                    )
-                )
-            }
+            onClick = null,
         )
 
         VSpacer.Medium()

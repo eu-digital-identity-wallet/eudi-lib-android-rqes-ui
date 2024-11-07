@@ -52,7 +52,7 @@ internal fun SelectionItem(
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ),
     shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
-    onClick: (() -> Unit)
+    onClick: (() -> Unit)?,
 ) {
     WrapCard(
         modifier = modifier,
