@@ -21,16 +21,22 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonColors
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.runtime.Composable
+import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 
 @Composable
 internal fun WrapRadioButton(
     isSelected: Boolean,
-    colors: RadioButtonColors,
-    onClick: (() -> Unit)?
+    isEnabled: Boolean = true,
+    colors: RadioButtonColors = RadioButtonDefaults.colors(
+        selectedColor = MaterialTheme.colorScheme.primary,
+        unselectedColor = MaterialTheme.colorScheme.primary
+    ),
+    onClick: (() -> Unit)? = null,
 ) {
     RadioButton(
         selected = isSelected,
+        enabled = isEnabled,
         onClick = onClick,
         colors = colors
     )
@@ -38,13 +44,44 @@ internal fun WrapRadioButton(
 
 @ThemeModePreviews
 @Composable
-private fun WrapRadioButtonPreview() {
-    WrapRadioButton(
-        isSelected = true,
-        colors = RadioButtonDefaults.colors(
-            selectedColor = MaterialTheme.colorScheme.primary,
-            unselectedColor = MaterialTheme.colorScheme.primary
-        ),
-        onClick = {}
-    )
+private fun WrapRadioButtonSelectedEnabledPreview() {
+    PreviewTheme {
+        WrapRadioButton(
+            isSelected = true,
+            isEnabled = true,
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun WrapRadioButtonSelectedDisabledPreview() {
+    PreviewTheme {
+        WrapRadioButton(
+            isSelected = true,
+            isEnabled = false,
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun WrapRadioButtonUnselectedEnabledPreview() {
+    PreviewTheme {
+        WrapRadioButton(
+            isSelected = false,
+            isEnabled = true,
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun WrapRadioButtonUnselectedDisabledPreview() {
+    PreviewTheme {
+        WrapRadioButton(
+            isSelected = false,
+            isEnabled = false,
+        )
+    }
 }
