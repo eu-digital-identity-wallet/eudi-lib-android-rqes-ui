@@ -38,7 +38,7 @@ internal fun WrapRadioButton(
 
 @ThemeModePreviews
 @Composable
-private fun WrapPrimaryRadioButtonWithTextPreview() {
+private fun WrapRadioButtonPreview() {
     WrapRadioButton(
         isSelected = true,
         colors = RadioButtonDefaults.colors(
