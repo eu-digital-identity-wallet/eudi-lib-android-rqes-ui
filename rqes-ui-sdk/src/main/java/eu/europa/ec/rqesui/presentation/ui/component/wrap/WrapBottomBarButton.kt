@@ -33,37 +33,21 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 
+private sealed interface StickyBottomBarConfig {
+    data object Primary : StickyBottomBarConfig
+    data object Secondary : StickyBottomBarConfig
+}
+
 @Composable
 internal fun WrapBottomBarPrimaryButton(
     buttonText: String,
     onButtonClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.divider
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = SPACING_LARGE.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            WrapPrimaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onButtonClick
-            ) {
-                Text(
-                    text = buttonText,
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-        }
-    }
+    WrapStickyBottomBar(
+        config = StickyBottomBarConfig.Primary,
+        buttonText = buttonText,
+        onButtonClick = onButtonClick,
+    )
 }
 
 @Composable
@@ -71,6 +55,19 @@ internal fun WrapBottomBarSecondaryButton(
     buttonText: String,
     onButtonClick: () -> Unit
 ) {
+    WrapStickyBottomBar(
+        config = StickyBottomBarConfig.Secondary,
+        buttonText = buttonText,
+        onButtonClick = onButtonClick,
+    )
+}
+
+@Composable
+private fun WrapStickyBottomBar(
+    config: StickyBottomBarConfig,
+    buttonText: String,
+    onButtonClick: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -86,14 +83,44 @@ internal fun WrapBottomBarSecondaryButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            WrapSecondaryButton(
+            ConfigBasedButton(
+                config = config,
                 modifier = Modifier.fillMaxWidth(),
+                onButtonClick = onButtonClick,
+                content = {
+                    Text(
+                        text = buttonText,
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConfigBasedButton(
+    config: StickyBottomBarConfig,
+    modifier: Modifier,
+    onButtonClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    when (config) {
+        is StickyBottomBarConfig.Primary -> {
+            WrapPrimaryButton(
+                modifier = modifier,
                 onClick = onButtonClick
             ) {
-                Text(
-                    text = buttonText,
-                    style = MaterialTheme.typography.labelLarge
-                )
+                content()
+            }
+        }
+
+        is StickyBottomBarConfig.Secondary -> {
+            WrapSecondaryButton(
+                modifier = modifier,
+                onClick = onButtonClick
+            ) {
+                content()
             }
         }
     }
