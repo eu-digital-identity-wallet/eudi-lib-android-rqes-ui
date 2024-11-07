@@ -16,12 +16,14 @@
 
 package eu.europa.ec.rqesui.presentation.ui.view_document
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -32,6 +34,7 @@ import androidx.navigation.NavController
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
+import eu.europa.ec.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.rqesui.presentation.extension.finish
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
@@ -94,6 +97,7 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.divider)
             .padding(top = paddingValues.calculateTopPadding()),
         verticalArrangement = Arrangement.Top
     ) {

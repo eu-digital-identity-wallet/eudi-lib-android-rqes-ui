@@ -75,6 +75,7 @@ internal class ThemeColors {
         internal const val EudiRQESUi_theme_light_success: Long = 0xFF55953B
         internal const val EudiRQESUi_theme_light_warning: Long = 0xFFAB5200
         internal const val EudiRQESUi_theme_light_divider: Long = 0xFFD9D9D9
+        internal const val EudiRQESUi_theme_light_pageFooter: Long = 0xFFA9A9A9
 
         // Dark theme base colors palette.
         private const val EudiRQESUi_theme_dark_primary: Long = 0xFFFFB5A0
@@ -118,6 +119,7 @@ internal class ThemeColors {
         internal const val EudiRQESUi_theme_dark_success: Long = 0xFF55953B
         internal const val EudiRQESUi_theme_dark_warning: Long = 0xFFAB5200
         internal const val EudiRQESUi_theme_dark_divider: Long = 0xFFD9D9D9
+        internal const val EudiRQESUi_theme_dark_pageFooter: Long = 0xFFA9A9A9
 
         internal const val EudiRQESUi_theme_light_background_preview: Long = EudiRQESUi_theme_light_surface
         internal const val EudiRQESUi_theme_dark_background_preview: Long = EudiRQESUi_theme_dark_surface
@@ -242,4 +244,11 @@ internal val ColorScheme.divider: Color
         Color(ThemeColors.EudiRQESUi_theme_dark_divider)
     } else {
         Color(ThemeColors.EudiRQESUi_theme_light_divider)
+    }
+
+internal val ColorScheme.pageFooter: Color
+    @Composable get() = if (isSystemInDarkTheme()) {
+        Color(ThemeColors.EudiRQESUi_theme_dark_pageFooter)
+    } else {
+        Color(ThemeColors.EudiRQESUi_theme_light_pageFooter)
     }

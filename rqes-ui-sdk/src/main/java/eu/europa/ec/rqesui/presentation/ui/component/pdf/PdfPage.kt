@@ -32,11 +32,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.infrastructure.theme.values.divider
+import eu.europa.ec.rqesui.infrastructure.theme.values.pageFooter
 import eu.europa.ec.rqesui.presentation.ui.component.ZoomableImage
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
@@ -57,7 +56,6 @@ internal fun PdfPage(
         ZoomableImage(
             modifier = modifier,
             painter = BitmapPainter(imageBitmap),
-            backgroundColor = Color.White,
             scrollState = listState
         )
 
@@ -65,7 +63,7 @@ internal fun PdfPage(
             modifier = modifier
                 .fillMaxWidth()
                 .background(
-                    MaterialTheme.colorScheme.divider,
+                    MaterialTheme.colorScheme.pageFooter,
                 ),
             horizontalArrangement = Arrangement.Center
         ) {

@@ -19,10 +19,11 @@ package eu.europa.ec.rqesui.presentation.extension
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
-import android.provider.OpenableColumns
 import eu.europa.ec.rqesui.presentation.ui.container.EudiRQESContainer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +76,9 @@ internal suspend fun Context.loadPdf(
                         PDF_BITMAP_HEIGHT,
                         Bitmap.Config.ARGB_8888
                     )
+
+                    val pageCanvas = Canvas(bitmap)
+                    pageCanvas.drawColor(Color.WHITE)
 
                     renderer.openPage(pageNumber).use { page ->
                         page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
