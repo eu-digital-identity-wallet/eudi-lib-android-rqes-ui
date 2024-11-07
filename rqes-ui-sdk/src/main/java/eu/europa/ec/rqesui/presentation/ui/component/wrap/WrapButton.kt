@@ -85,10 +85,7 @@ internal fun WrapSecondaryButton(
         enabled = enabled,
         onClick = onClick,
         shape = buttonsShape,
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.primary,
-        ),
+        colors = ButtonDefaults.outlinedButtonColors(),
         border = BorderStroke(
             width = 1.dp,
             color = borderColor,

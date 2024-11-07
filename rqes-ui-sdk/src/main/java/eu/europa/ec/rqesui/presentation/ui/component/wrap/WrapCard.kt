@@ -46,7 +46,7 @@ internal fun WrapCard(
 ) {
     val cardShape = shape ?: RoundedCornerShape(SIZE_MEDIUM.dp)
     val cardColors = colors ?: CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.surface
     )
     val cardModifier = Modifier
         .clip(cardShape)

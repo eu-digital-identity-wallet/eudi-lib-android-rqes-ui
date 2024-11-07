@@ -61,7 +61,7 @@ internal class EudiRQESContainer : ComponentActivity() {
         EudiRQESUi.getEudiRQESUiConfig().themeManager.Theme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.surface
             ) {
                 KoinAndroidContext {
                     val startingRoute = getStartingRoute(intent)

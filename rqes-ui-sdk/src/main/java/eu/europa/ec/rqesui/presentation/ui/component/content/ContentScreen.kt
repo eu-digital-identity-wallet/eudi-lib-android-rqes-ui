@@ -247,7 +247,7 @@ private fun DefaultToolBar(
             ToolBarActions(toolBarActions = toolbarConfig?.actions)
         },
         colors = TopAppBarDefaults.topAppBarColors()
-            .copy(containerColor = MaterialTheme.colorScheme.background)
+            .copy(containerColor = MaterialTheme.colorScheme.surface)
     )
 }
 

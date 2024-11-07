@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.infrastructure.theme.values.divider
-import eu.europa.ec.rqesui.infrastructure.theme.values.textPrimaryDark
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
@@ -62,7 +61,7 @@ private val defaultBottomSheetPadding: PaddingValues = PaddingValues(
 )
 
 private val bottomSheetDefaultBackgroundColor: Color
-    @Composable get() = MaterialTheme.colorScheme.background
+    @Composable get() = MaterialTheme.colorScheme.surfaceContainerLowest
 
 private val bottomSheetDefaultTextColor: Color
     @Composable get() = MaterialTheme.colorScheme.onSurface

@@ -34,7 +34,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
@@ -50,7 +49,7 @@ internal fun SelectionItem(
     modifier: Modifier = Modifier,
     data: SelectionItemUi,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = ThemeColors.primaryVariant //TODO find a good color for DarkMode primaryVariant
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
     ),
     shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
     onClick: (() -> Unit)

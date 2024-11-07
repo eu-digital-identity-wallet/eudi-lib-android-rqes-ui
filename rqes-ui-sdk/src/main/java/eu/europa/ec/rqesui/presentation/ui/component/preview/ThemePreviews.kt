@@ -27,10 +27,10 @@ import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
  * */
 @Preview(
     name = "Light Mode", showBackground = true, uiMode = UI_MODE_NIGHT_NO,
-    backgroundColor = ThemeColors.EudiRQESUi_theme_light_background
+    backgroundColor = ThemeColors.EudiRQESUi_theme_light_background_preview
 )
 @Preview(
     name = "Dark Mode", showBackground = true, uiMode = UI_MODE_NIGHT_YES,
-    backgroundColor = ThemeColors.EudiRQESUi_theme_dark_background
+    backgroundColor = ThemeColors.EudiRQESUi_theme_dark_background_preview
 )
 internal annotation class ThemeModePreviews
