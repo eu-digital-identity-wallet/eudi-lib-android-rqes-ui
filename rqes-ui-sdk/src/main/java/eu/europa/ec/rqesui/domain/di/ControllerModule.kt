@@ -19,6 +19,8 @@ package eu.europa.ec.rqesui.domain.di
 import android.content.Context
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesControllerImpl
+import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreControllerImpl
 import eu.europa.ec.rqesui.domain.controller.KeyStorage
 import eu.europa.ec.rqesui.domain.controller.KeyStorageImpl
 import eu.europa.ec.rqesui.domain.controller.LocalizationController
@@ -43,6 +45,13 @@ internal fun provideLocalizationController(): LocalizationController =
 @Single
 internal fun provideEudiRqesController(resourceProvider: ResourceProvider): EudiRqesController =
     EudiRqesControllerImpl(EudiRQESUi, resourceProvider)
+
+@Single
+internal fun provideEudiRqesCoreController(
+    eudiRqesController: EudiRqesController,
+    resourceProvider: ResourceProvider
+): EudiRqesCoreController =
+    EudiRqesCoreControllerImpl(eudiRqesController, resourceProvider)
 
 @Factory
 internal fun provideLogController(): LogController =

@@ -17,6 +17,7 @@
 package eu.europa.ec.rqesui.domain.interactor
 
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetQtspsPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
@@ -33,8 +34,7 @@ internal interface SelectQtspInteractor {
 internal class SelectQtspInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: EudiRqesController,
-    //TODO change this when integration with Core is ready.
-    private val rqesCoreController: Any? = null,
+    private val eudiRqesCoreController: EudiRqesCoreController,
 ) : SelectQtspInteractor {
 
     private val genericErrorMsg

@@ -16,6 +16,15 @@
 
 package eu.europa.ec.rqesui.domain.controller
 
-internal interface RQESCoreController
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 
-internal class RQESCoreControllerImpl : RQESCoreController
+internal interface EudiRqesCoreController
+
+internal class EudiRqesCoreControllerImpl(
+    private val eudiRqesController: EudiRqesController,
+    private val resourceProvider: ResourceProvider,
+) : EudiRqesCoreController {
+
+    private val genericErrorMsg
+        get() = resourceProvider.genericErrorMessage()
+}

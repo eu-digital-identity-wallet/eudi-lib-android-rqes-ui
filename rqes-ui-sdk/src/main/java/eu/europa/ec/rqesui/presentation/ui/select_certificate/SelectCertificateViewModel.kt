@@ -171,7 +171,6 @@ internal class SelectCertificateViewModel(
                         error = null,
                         selectionItem = SelectionItemUi(
                             documentData = response.file,
-                            action = resourceProvider.getLocalizedString(LocalizableKey.View)
                         )
                     )
                 }

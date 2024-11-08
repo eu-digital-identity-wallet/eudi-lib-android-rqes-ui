@@ -18,6 +18,7 @@ package eu.europa.ec.rqesui.domain.interactor
 
 import android.net.Uri
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.extension.safeAsync
@@ -46,8 +47,7 @@ internal interface SelectCertificateInteractor {
 internal class SelectCertificateInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: EudiRqesController,
-    //TODO change this when integration with Core is ready.
-    private val rqesCoreController: Any? = null,
+    private val eudiRqesCoreController: EudiRqesCoreController,
 ) : SelectCertificateInteractor {
 
     private val genericErrorMsg

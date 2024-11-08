@@ -17,6 +17,7 @@
 package eu.europa.ec.rqesui.domain.interactor
 
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
@@ -30,8 +31,7 @@ internal interface SuccessInteractor {
 internal class SuccessInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: EudiRqesController,
-    //TODO change this when integration with Core is ready.
-    private val rqesCoreController: Any? = null,
+    private val eudiRqesCoreController: EudiRqesCoreController,
 ) : SuccessInteractor {
 
     private val genericErrorMsg
