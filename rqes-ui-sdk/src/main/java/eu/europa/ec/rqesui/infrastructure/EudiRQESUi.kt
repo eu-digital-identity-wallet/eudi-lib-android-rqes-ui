@@ -71,15 +71,21 @@ object EudiRQESUi {
             certificate = null
         )
 
-        resume(context)
+        resume(
+            context = context,
+            nextState = State.Initial(
+                file = documentUri
+            )
+        )
     }
 
     fun resume(
         context: Context,
+        nextState: State? = null,
         /*TODO how do we know which Screen to open here? Probably will need another argument/flag here*/
     ) {
 
-        val newState: State = calculateNextState()
+        val newState: State = nextState ?: calculateNextState()
 
         setState(newState)
 
