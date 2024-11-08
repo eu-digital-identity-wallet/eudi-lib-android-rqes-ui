@@ -136,7 +136,7 @@ internal fun ContentScreen(
     val hasToolBar = contentErrorConfig != null
             || navigatableAction != ScreenNavigateAction.NONE
             || topBar != null
-    val topSpacing = TopSpacing.MediumSpacing
+    val topSpacing = TopSpacing.WithToolbar.takeIf { hasToolBar } ?: TopSpacing.MediumSpacing
 
     Scaffold(
         topBar = {
