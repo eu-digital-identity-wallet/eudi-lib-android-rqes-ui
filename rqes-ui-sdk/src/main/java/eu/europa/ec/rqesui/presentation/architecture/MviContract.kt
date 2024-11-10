@@ -16,8 +16,8 @@
 
 package eu.europa.ec.rqesui.presentation.architecture
 
-interface ViewState
+internal interface ViewState
 
-interface ViewEvent
+internal interface ViewEvent
 
-interface ViewSideEffect
+internal interface ViewSideEffect

@@ -18,9 +18,11 @@ package eu.europa.ec.testrqes
 
 import android.app.Application
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
+import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
-import java.net.URI
+import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 
 class TestRQESApplication : Application() {
 
@@ -30,24 +32,26 @@ class TestRQESApplication : Application() {
     }
 
     private fun initRQESSDK() {
-        EudiRQESUi.setup(this, DefaultConfig())
+        EudiRQESUi.setup(application = this, config = DefaultConfig())
     }
 }
 
 private class DefaultConfig : EudiRQESUiConfig {
 
-    override val qtsps: List<URI>
-        get() = emptyList()
-
-    override val translations: Map<String, Map<LocalizableKey, String>>
-        get() = mapOf(
-            "en" to mapOf(
-                LocalizableKey.Mock to "Mock",
-                LocalizableKey.MockWithValues to "Mock %@, %@"
-            )
+    override val qtsps: List<QtspData>
+        get() = listOf(
+            QtspData("Entrust", "https://www.google.com/search?q=entrust".toUri()),
+            QtspData("Docusign", "https://www.google.com/search?q=docusign".toUri()),
+            QtspData("Ascertia", "https://www.google.com/search?q=ascertia".toUri()),
         )
 
-    override val printLogs: Boolean
-        get() = true
-
+    override val translations: Map<String, Map<LocalizableKey, String>>
+        get() {
+            return mapOf(
+                "en" to mapOf(
+                    LocalizableKey.View to "VIEW",
+                    LocalizableKey.SignedBy to "Signed by: $ARGUMENTS_SEPARATOR",
+                )
+            )
+        }
 }

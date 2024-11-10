@@ -14,6 +14,23 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.domain.interactor
+package eu.europa.ec.rqesui.domain.serializer.adapter
 
-class ExampleInteractor
+import android.net.Uri
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
+
+internal class UriTypeAdapter : TypeAdapter<Uri?>() {
+    override fun write(out: JsonWriter?, value: Uri?) {
+        if (value == null) {
+            out?.nullValue()
+        } else {
+            out?.value(value.toString())
+        }
+    }
+
+    override fun read(input: JsonReader?): Uri? {
+        return Uri.parse(input?.nextString())
+    }
+}

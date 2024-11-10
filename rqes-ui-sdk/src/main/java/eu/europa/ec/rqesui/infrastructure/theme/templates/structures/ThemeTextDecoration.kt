@@ -14,7 +14,20 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.entities
+package eu.europa.ec.rqesui.infrastructure.theme.templates.structures
 
-class ExampleUiModel {
+import androidx.compose.ui.text.style.TextDecoration
+
+sealed class ThemeTextDecoration {
+    data object None : ThemeTextDecoration()
+    data object Underline : ThemeTextDecoration()
+    data object LineThrough : ThemeTextDecoration()
+
+    companion object {
+        fun ThemeTextDecoration.toTextDecoration(): TextDecoration = when (this) {
+            None -> TextDecoration.None
+            Underline -> TextDecoration.Underline
+            LineThrough -> TextDecoration.LineThrough
+        }
+    }
 }

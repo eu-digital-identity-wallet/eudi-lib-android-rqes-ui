@@ -16,16 +16,62 @@
 
 package eu.europa.ec.rqesui.domain.entities.localization
 
-import eu.europa.ec.rqesui.domain.extension.localizationFormatWithArgs
-
+/**
+ * Represents keys for localized strings.
+ * These keys are used to retrieve localized strings.
+ */
 enum class LocalizableKey {
-    Mock,
-    MockWithValues;
+    SignDocument,
+    CancelSignProcessTitle,
+    CancelSignProcessSubtitle,
+    CancelSignProcessSecondaryText,
+    CancelSignProcessPrimaryText,
+    SelectDocumentTitle,
+    SelectDocument,
+    ConfirmSelectionTitle,
+    SelectService,
+    SelectServiceTitle,
+    SelectServiceSubtitle,
+    SelectCertificateTitle,
+    SelectCertificateSubtitle,
+    Success,
+    SuccessfullySignedDocument,
+    SignedBy,
+    View,
+    Close,
+    Cancel,
+    Save,
+    SaveAndClose,
+    Sign;
 
-    fun defaultTranslation(args: List<String>): String {
+    companion object {
+        const val ARGUMENTS_SEPARATOR = "@arg"
+    }
+
+    fun defaultTranslation(): String {
         return when (this) {
-            Mock -> "Mock"
-            MockWithValues -> "Mock %@, %@"
-        }.localizationFormatWithArgs(args)
+            SignDocument -> "Sign document"
+            CancelSignProcessTitle -> "Cancel signing process?"
+            CancelSignProcessSubtitle -> "Cancel will redirect you back to the documents list without signing your document"
+            CancelSignProcessSecondaryText -> "Cancel signing"
+            CancelSignProcessPrimaryText -> "Continue signing"
+            SelectDocumentTitle -> "Select a document from your device to sign electronically."
+            SelectDocument -> "Select document"
+            ConfirmSelectionTitle -> "Please confirm signing of the following"
+            SelectService -> "Select service"
+            SelectServiceTitle -> "Select remote signing service."
+            SelectServiceSubtitle -> "Remote signing enables you to digitally sign documents without the need for locally installed digital identities. Cloud-hosted signing service makes remote signing possible."
+            SelectCertificateTitle -> "You have chosen to sign the following document:"
+            SelectCertificateSubtitle -> "Please confirm signing with one of the following certificates:"
+            Success -> "Success!"
+            SuccessfullySignedDocument -> "You successfully signed your document"
+            SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"
+            View -> "VIEW"
+            Close -> "Close"
+            Cancel -> "Cancel"
+            Save -> "Save"
+            SaveAndClose -> "Save and close"
+            Sign -> "Sign"
+        }
     }
 }

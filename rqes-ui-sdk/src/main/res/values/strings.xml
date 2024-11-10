@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2023 European Commission
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+  ~ Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+  ~ except in compliance with the Licence.
+  ~
+  ~ You may obtain a copy of the Licence at:
+  ~ https://joinup.ec.europa.eu/software/page/eupl
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+  ~ ANY KIND, either express or implied. See the Licence for the specific language
+  ~ governing permissions and limitations under the Licence.
+  -->
+
+<resources>
+    <!-- Content Description -->
+    <string name="content_description_arrow_back_icon">Go Back</string>
+    <string name="content_description_close_icon">Close</string>
+    <string name="content_description_handle_bar">Handle bar</string>
+    <string name="content_description_verified_icon">Verified</string>
+    <string name="content_description_more_vert_icon">More Items</string>
+
+    <!-- Generic -->
+    <string name="generic_error_button_retry">TRY AGAIN</string>
+    <string name="generic_error_message">Oups! Something went wrong</string>
+    <string name="generic_error_description">If the issue persists, please contact customer support</string>
+    <string name="generic_error_document_not_found">No Document data found</string>
+    <string name="generic_error_qtsp_not_found">No selected QTSP found</string>
+
+    <!-- Sign Document Errors -->
+    <string name="sign_document_generic_error">Something went wrong while signing your document(s)</string>
+</resources>

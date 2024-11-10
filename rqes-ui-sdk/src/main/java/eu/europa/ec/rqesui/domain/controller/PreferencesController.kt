@@ -21,7 +21,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
-interface PreferencesController {
+internal interface PreferencesController {
 
     /**
      * Defines if [SharedPreferences] contains a value for given [key]. This function will only
@@ -129,7 +129,7 @@ interface PreferencesController {
  * Controller used to manipulate data stored in device [SharedPreferences]. Data are encrypted so
  * you are strongly advised to used this controller to set or get values.
  */
-class PreferencesControllerImpl(
+internal class PreferencesControllerImpl(
     private val context: Context
 ) : PreferencesController {
 
@@ -306,8 +306,8 @@ class PreferencesControllerImpl(
     }
 }
 
-interface KeyStorage
+internal interface KeyStorage
 
-class KeyStorageImpl(
+internal class KeyStorageImpl(
     private val preferencesController: PreferencesController
 ) : KeyStorage

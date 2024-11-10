@@ -16,5 +16,68 @@
 
 package eu.europa.ec.rqesui.presentation.router
 
-class Graph {
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
+import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.rqesui.presentation.ui.select_certificate.SelectCertificateScreen
+import eu.europa.ec.rqesui.presentation.ui.select_qtsp.SelectQtspScreen
+import eu.europa.ec.rqesui.presentation.ui.success.SuccessScreen
+import eu.europa.ec.rqesui.presentation.ui.view_document.ViewDocumentScreen
+import org.koin.androidx.compose.getViewModel
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
+
+internal fun NavGraphBuilder.sdkGraph(navController: NavController) {
+    composable(
+        route = SdkScreens.SelectQtsp.screenRoute,
+    ) {
+        SelectQtspScreen(
+            navController = navController,
+            viewModel = koinViewModel()
+        )
+    }
+
+    composable(
+        route = SdkScreens.SelectCertificate.screenRoute,
+    ) {
+        SelectCertificateScreen(
+            navController = navController,
+            viewModel = koinViewModel()
+        )
+    }
+
+    composable(
+        route = SdkScreens.Success.screenRoute,
+    ) {
+        SuccessScreen(
+            navController = navController,
+            viewModel = koinViewModel()
+        )
+    }
+
+    composable(
+        route = SdkScreens.ViewDocument.screenRoute,
+        arguments = listOf(
+            navArgument(ViewDocumentUiConfig.serializedKeyName) {
+                type = NavType.StringType
+            }
+        )
+    ) {
+        ViewDocumentScreen(
+            navController = navController,
+            viewModel = getViewModel(
+                parameters = {
+                    parametersOf(
+                        it.arguments?.getString(
+                            ViewDocumentUiConfig.serializedKeyName
+                        ).orEmpty()
+                    )
+                }
+            )
+        )
+    }
 }

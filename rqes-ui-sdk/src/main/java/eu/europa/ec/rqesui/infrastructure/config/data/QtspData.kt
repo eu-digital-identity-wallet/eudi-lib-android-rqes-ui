@@ -14,14 +14,14 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.infrastructure.theme.value
+package eu.europa.ec.rqesui.infrastructure.config.data
 
-import androidx.compose.ui.graphics.Color
+import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
-internal val Purple80 = Color(0xFFD0BCFF)
-internal val PurpleGrey80 = Color(0xFFCCC2DC)
-internal val Pink80 = Color(0xFFEFB8C8)
-
-internal val Purple40 = Color(0xFF6650a4)
-internal val PurpleGrey40 = Color(0xFF625b71)
-internal val Pink40 = Color(0xFF7D5260)
+@Parcelize
+data class QtspData(
+    val qtspName: String,
+    val uri: Uri,
+) : Parcelable

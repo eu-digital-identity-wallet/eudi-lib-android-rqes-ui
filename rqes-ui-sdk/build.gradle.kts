@@ -19,6 +19,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -74,12 +75,17 @@ dependencies {
     // Compose
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.ui.tooling)
 
     // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.annotations)
     implementation(libs.koin.compose)
     ksp(libs.koin.ksp)
+
+    //Gson
+    implementation(libs.gson)
 
     // Test Dependencies
     testImplementation(libs.junit)

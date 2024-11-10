@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Effect : ViewSideEffect> :
+internal abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Effect : ViewSideEffect> :
     ViewModel() {
 
     private val initialState: UiState by lazy { setInitialState() }

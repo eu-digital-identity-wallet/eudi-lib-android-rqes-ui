@@ -16,49 +16,76 @@
 
 package eu.europa.ec.rqesui.presentation.ui.container
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import eu.europa.ec.rqesui.infrastructure.theme.EudiRQESUiTheme
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.rqesui.domain.util.Constants.SDK_STATE
+import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.rqesui.presentation.navigation.RouterHost
+import eu.europa.ec.rqesui.presentation.navigation.Screen
+import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
+import eu.europa.ec.rqesui.presentation.router.sdkGraph
+import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
 
-class EudiRQESContainer : ComponentActivity() {
+internal class EudiRQESContainer : ComponentActivity() {
 
-    @OptIn(KoinExperimentalAPI::class)
+    private val routerHost: RouterHost by inject()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
-            EudiRQESUiTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    KoinAndroidContext {
-                        Content(innerPadding)
+            Content(intent) {
+                sdkGraph(it)
+            }
+        }
+    }
+
+    @OptIn(KoinExperimentalAPI::class)
+    @Composable
+    private fun Content(
+        intent: Intent,
+        builder: NavGraphBuilder.(NavController) -> Unit
+    ) {
+        EudiRQESUi.getEudiRQESUiConfig().themeManager.Theme {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                KoinAndroidContext {
+                    val startingRoute = getStartingRoute(intent)
+                    routerHost.StartFlow(startDestination = startingRoute) {
+                        builder(it)
                     }
                 }
             }
         }
     }
 
-    @Composable
-    private fun Content(padding: PaddingValues) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "EudiRQES SDK ENVIRONMENT")
+    @Suppress("DEPRECATION")
+    @Throws(EudiRQESUiError::class)
+    private fun getStartingRoute(intent: Intent): String {
+        val state = intent.getParcelableExtra<EudiRQESUi.State>(SDK_STATE)
+        val screen: Screen = when (state) {
+            is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
+            is EudiRQESUi.State.Initial -> SdkScreens.SelectQtsp
+            is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
+            is EudiRQESUi.State.Success -> SdkScreens.Success
         }
+        return generateComposableNavigationLink(
+            screen = screen,
+            arguments = ""
+        )
     }
 }

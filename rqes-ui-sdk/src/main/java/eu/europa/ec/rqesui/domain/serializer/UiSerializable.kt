@@ -14,6 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.rqesui.presentation.ui.component
+package eu.europa.ec.rqesui.domain.serializer
 
-class ExampleComponent
+import com.google.gson.Gson
+
+internal interface UiSerializable
+
+internal interface UiSerializableParser {
+    val serializedKeyName: String
+    fun provideParser(): Gson {
+        return Gson()
+    }
+}

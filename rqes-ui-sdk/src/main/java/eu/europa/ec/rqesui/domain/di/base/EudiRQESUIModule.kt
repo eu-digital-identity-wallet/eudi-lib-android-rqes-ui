@@ -21,4 +21,4 @@ import org.koin.core.annotation.Module
 
 @Module
 @ComponentScan("eu.europa.ec.rqesui")
-class EudiRQESUIModule
+internal class EudiRQESUIModule

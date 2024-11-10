@@ -16,31 +16,49 @@
 
 package eu.europa.ec.rqesui.domain.controller
 
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.rqesui.domain.extension.safeLet
+import eu.europa.ec.rqesui.domain.extension.localizationFormatWithArgs
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
 import java.util.Locale
 
-interface LocalizationController {
-    fun get(key: LocalizableKey, args: List<String>): String
+internal interface LocalizationController {
+    fun get(
+        key: LocalizableKey,
+        args: List<String> = emptyList(),
+    ): String
 }
 
-class LocalizationControllerImpl(
+internal class LocalizationControllerImpl(
     private val config: EudiRQESUiConfig
 ) : LocalizationController {
 
+    /**
+     * Retrieves the localized string for the given key and language.
+     *
+     * This function first checks if translations are available. If not, it throws an [EudiRQESUiError].
+     * It then determines the current language based on the device's locale.
+     * If a translation is found for the key and language, it is returned.
+     * Otherwise, the default translation of the key is used.
+     * The returned string is formatted with any provided arguments.
+     *
+     * @param key The [LocalizableKey] to retrieve the translation for.
+     * @param args A list of arguments to format the translation with.
+     * @return The localized string for the given key and language.
+     * @throws EudiRQESUiError If no translations are found in the config.
+     */
+    @Throws(EudiRQESUiError::class)
     override fun get(
         key: LocalizableKey,
-        args: List<String>
+        args: List<String>,
     ): String {
-        safeLet(
-            config.translations.isNotEmpty(),
-            config.translations[Locale.getDefault().isO3Language]?.get(key)
-        ) { hasValues, translation ->
-            if (hasValues) {
-                return translation.format(args)
-            }
+        if (config.translations.isEmpty()) {
+            throw EudiRQESUiError(message = "No translations found. Please provide translations in the config.")
         }
-        return key.defaultTranslation(args)
+
+        val language = Locale.getDefault().language
+        val translation = config.translations[language]?.get(key) ?: key.defaultTranslation()
+
+        return translation.localizationFormatWithArgs(args)
     }
 }

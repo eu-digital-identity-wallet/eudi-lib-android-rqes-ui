@@ -17,11 +17,15 @@
 package eu.europa.ec.testrqes
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -29,24 +33,44 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.testrqes.ui.theme.EudiRQESUiTheme
-import java.net.URI
 
 class TestRQESActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             EudiRQESUiTheme {
+                checkIntent(intent)
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Content(innerPadding)
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        println("New intent: ${intent.data}")
+
+        checkIntent(intent)
+    }
+
+    private fun checkIntent(intent: Intent) {
+        if (intent.data?.host?.length == 1) {
+            EudiRQESUi.resume(
+                context = this,
+            )
         }
     }
 }
@@ -54,14 +78,72 @@ class TestRQESActivity : ComponentActivity() {
 @Composable
 private fun Content(padding: PaddingValues) {
     val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding),
         contentAlignment = Alignment.Center
     ) {
-        Button(onClick = { showRQESSDK(context) }) {
-            Text("Show RQES SDK")
+        var documentUri by remember {
+            mutableStateOf<Uri?>(null)
+        }
+
+        val selectPdfLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument()
+        ) { uri ->
+            documentUri = uri
+        }
+
+        Column {
+            documentUri?.let {
+                var sdkHasStarted by rememberSaveable {
+                    mutableStateOf(false)
+                }
+
+                if (sdkHasStarted) {
+                    Button(
+                        onClick = {
+                            resumeSdk(
+                                context = context,
+                            )
+                        }
+                    ) {
+                        Text("Resume SDK")
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            startSdk(
+                                context = context,
+                                documentUri = it
+                            )
+                            sdkHasStarted = true
+                        }
+                    ) {
+                        Text("Start SDK")
+                    }
+                }
+            } ?: run {
+                Button(
+                    onClick = {
+                        selectPdfLauncher.launch(
+                            arrayOf("application/pdf")
+                        )
+                    }
+                ) {
+                    Text(text = "Select PDF document")
+                }
+            }
+
+            Button(
+                onClick = {
+                    documentUri = null
+                },
+                enabled = documentUri != null
+            ) {
+                Text(text = "Clear selected PDF")
+            }
         }
     }
 }
@@ -74,6 +156,20 @@ private fun ContentPreview() {
     }
 }
 
-private fun showRQESSDK(context: Context) {
-    EudiRQESUi.initiate(context, URI.create("https://www.netcompany.com"))
+private fun startSdk(
+    context: Context,
+    documentUri: Uri
+) {
+    EudiRQESUi.initiate(
+        context = context,
+        documentUri = documentUri,
+    )
+}
+
+private fun resumeSdk(
+    context: Context,
+) {
+    EudiRQESUi.resume(
+        context = context,
+    )
 }
