@@ -52,6 +52,7 @@ object EudiRQESUi {
      * Launches the SDK with the provided document [Uri].
      *
      * This function initializes the SDK with the given document [Uri].
+     * If the filename cannot be determined throws [EudiRQESUiError].
      *
      * @param context The application [Context].
      * @param documentUri The [Uri] of the document to be loaded.
@@ -80,6 +81,13 @@ object EudiRQESUi {
         )
     }
 
+    /**
+     * Resumes the SDK and auto calculates the next state internally.
+     *
+     * If the context passed is not an Activity, throws [EudiRQESUiError].
+     *
+     * @param context The application [Context].
+     */
     @Throws(EudiRQESUiError::class)
     fun resume(
         context: Context,
