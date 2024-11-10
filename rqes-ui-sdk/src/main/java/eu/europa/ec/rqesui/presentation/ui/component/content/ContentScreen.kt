@@ -29,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -129,10 +128,6 @@ internal fun ContentScreen(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val snackbarHostState = remember {
-        SnackbarHostState()
-    }
-
     val hasToolBar = contentErrorConfig != null
             || navigatableAction != ScreenNavigateAction.NONE
             || topBar != null
@@ -149,7 +144,7 @@ internal fun ContentScreen(
                     onBack = contentErrorConfig?.onCancel ?: onBack,
                     keyboardController = keyboardController,
                     toolbarConfig = toolBarConfig,
-                    hasShadow = toolBarConfig?.hasShadow ?: false
+                    hasShadow = toolBarConfig?.hasShadow == true
                 )
             }
         },

@@ -53,7 +53,8 @@ internal class ThemeColors {
         private const val EudiRQESUi_theme_light_surface: Long = 0xFFF7FAFF
         private const val EudiRQESUi_theme_light_onSurface: Long = 0xFF1D1B20
         private const val EudiRQESUi_theme_light_background: Long = EudiRQESUi_theme_light_surface
-        private const val EudiRQESUi_theme_light_onBackground: Long = EudiRQESUi_theme_light_onSurface
+        private const val EudiRQESUi_theme_light_onBackground: Long =
+            EudiRQESUi_theme_light_onSurface
         private const val EudiRQESUi_theme_light_surfaceVariant: Long = 0xFFF5DED8
         private const val EudiRQESUi_theme_light_onSurfaceVariant: Long = 0xFF49454F
         private const val EudiRQESUi_theme_light_outline: Long = 0xFF79747E
@@ -121,8 +122,10 @@ internal class ThemeColors {
         internal const val EudiRQESUi_theme_dark_divider: Long = 0xFFD9D9D9
         internal const val EudiRQESUi_theme_dark_pageFooter: Long = 0xFFA9A9A9
 
-        internal const val EudiRQESUi_theme_light_background_preview: Long = EudiRQESUi_theme_light_surface
-        internal const val EudiRQESUi_theme_dark_background_preview: Long = EudiRQESUi_theme_dark_surface
+        internal const val EudiRQESUi_theme_light_background_preview: Long =
+            EudiRQESUi_theme_light_surface
+        internal const val EudiRQESUi_theme_dark_background_preview: Long =
+            EudiRQESUi_theme_dark_surface
 
         internal val lightColors = ThemeColorsTemplate(
             primary = EudiRQESUi_theme_light_primary,

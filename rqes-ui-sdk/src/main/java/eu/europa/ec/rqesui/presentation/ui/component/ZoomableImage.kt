@@ -22,11 +22,11 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateRotation
 import androidx.compose.foundation.gestures.calculateZoom
-import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
@@ -87,34 +87,32 @@ internal fun ZoomableImage(
         )
         .pointerInput(Unit) {
             if (isZoomable) {
-                forEachGesture {
-                    awaitPointerEventScope {
-                        awaitFirstDown()
-                        do {
-                            val event = awaitPointerEvent()
-                            scale *= event.calculateZoom()
-                            if (scale > 1) {
-                                scrollState?.run {
-                                    coroutineScope.launch {
-                                        setScrolling(false)
-                                    }
+                awaitEachGesture {
+                    awaitFirstDown()
+                    do {
+                        val event = awaitPointerEvent()
+                        scale *= event.calculateZoom()
+                        if (scale > 1) {
+                            scrollState?.run {
+                                coroutineScope.launch {
+                                    setScrolling(false)
                                 }
-                                val offset = event.calculatePan()
-                                offsetX += offset.x
-                                offsetY += offset.y
-                                rotationState += event.calculateRotation()
-                                scrollState?.run {
-                                    coroutineScope.launch {
-                                        setScrolling(true)
-                                    }
-                                }
-                            } else {
-                                scale = 1f
-                                offsetX = 1f
-                                offsetY = 1f
                             }
-                        } while (event.changes.any { it.pressed })
-                    }
+                            val offset = event.calculatePan()
+                            offsetX += offset.x
+                            offsetY += offset.y
+                            rotationState += event.calculateRotation()
+                            scrollState?.run {
+                                coroutineScope.launch {
+                                    setScrolling(true)
+                                }
+                            }
+                        } else {
+                            scale = 1f
+                            offsetX = 1f
+                            offsetY = 1f
+                        }
+                    } while (event.changes.any { it.pressed })
                 }
             }
         }

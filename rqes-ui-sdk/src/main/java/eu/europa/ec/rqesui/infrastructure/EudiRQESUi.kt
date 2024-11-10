@@ -56,12 +56,13 @@ object EudiRQESUi {
      * @param context The application [Context].
      * @param documentUri The [Uri] of the document to be loaded.
      */
+    @Throws(EudiRQESUiError::class)
     fun initiate(
         context: Context,
         documentUri: Uri,
     ) {
         val documentData = DocumentData(
-            documentName = documentUri.getFileName(context),
+            documentName = documentUri.getFileName(context).getOrThrow(),
             uri = documentUri
         )
 
@@ -79,20 +80,26 @@ object EudiRQESUi {
         )
     }
 
+    @Throws(EudiRQESUiError::class)
     fun resume(
         context: Context,
         nextState: State? = null,
-        /*TODO how do we know which Screen to open here? Probably will need another argument/flag here*/
     ) {
 
         val newState: State = nextState ?: calculateNextState()
 
         setState(newState)
 
-        (context as? Activity)?.startActivity(
-            Intent(context, EudiRQESContainer::class.java)
-                .putExtra(SDK_STATE, newState)
-        )
+        if (context as? Activity != null) {
+            context.startActivity(
+                Intent(context, EudiRQESContainer::class.java).putExtra(
+                    SDK_STATE,
+                    newState
+                )
+            )
+        } else {
+            throw EudiRQESUiError("Context passed is not an Activity.")
+        }
     }
 
     private fun calculateNextState(): State {

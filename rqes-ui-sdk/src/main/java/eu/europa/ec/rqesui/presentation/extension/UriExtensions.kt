@@ -19,6 +19,7 @@ package eu.europa.ec.rqesui.presentation.extension
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 
 /**
  * Retrieves the file name from a given [Uri].
@@ -32,20 +33,16 @@ import android.provider.OpenableColumns
  * @param fallbackName The name to return if the file name cannot be determined or an error occurs. Defaults to "Empty File Name".
  * @return The file name extracted from the [Uri], or the `fallbackName` if an error occurs or the name cannot be determined.
  */
-internal fun Uri.getFileName(
-    context: Context,
-    fallbackName: String = "Empty File Name"
-): String {
-    return try {
-        val fileName = context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            cursor.moveToFirst()
-            cursor.getString(nameIndex)
-        }
-        //TODO what should be returned if fileName is null?
-        //return fileName.orEmpty()
-        fileName ?: fallbackName
-    } catch (e: Exception) {
-        fallbackName
+@Throws(EudiRQESUiError::class)
+internal fun Uri.getFileName(context: Context): Result<String> {
+    val fileName = context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        cursor.moveToFirst()
+        cursor.getString(nameIndex)
+    }
+    return if (fileName.isNullOrEmpty()) {
+        Result.failure(EudiRQESUiError("Unable to determine file name"))
+    } else {
+        Result.success(fileName)
     }
 }

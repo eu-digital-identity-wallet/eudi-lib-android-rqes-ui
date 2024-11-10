@@ -17,13 +17,13 @@
 package eu.europa.ec.rqesui.presentation.ui.view_document
 
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.rqesui.presentation.entities.config.ViewDocumentUiConfig
-import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
 

@@ -63,10 +63,6 @@ internal fun SuccessScreen(
     ContentScreen(
         isLoading = state.isLoading,
         navigatableAction = ScreenNavigateAction.NONE,
-        onBack = {
-            //TODO What should happen here? Pop? Finish? Other?
-            viewModel.setEvent(Event.Pop)
-        },
         contentErrorConfig = state.error,
         stickyBottom = {
             WrapBottomBarSecondaryButton(

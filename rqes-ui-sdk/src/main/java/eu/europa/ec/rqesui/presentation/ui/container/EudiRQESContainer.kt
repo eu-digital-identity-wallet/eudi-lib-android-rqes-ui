@@ -73,8 +73,6 @@ internal class EudiRQESContainer : ComponentActivity() {
         }
     }
 
-    //TODO should we handle onNewIntent?
-
     @Suppress("DEPRECATION")
     @Throws(EudiRQESUiError::class)
     private fun getStartingRoute(intent: Intent): String {

@@ -16,10 +16,10 @@
 
 package eu.europa.ec.rqesui.domain.di
 
-import eu.europa.ec.rqesui.presentation.navigation.RouterHost
-import eu.europa.ec.rqesui.presentation.navigation.RouterHostImpl
 import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.domain.serializer.UiSerializerImpl
+import eu.europa.ec.rqesui.presentation.navigation.RouterHost
+import eu.europa.ec.rqesui.presentation.navigation.RouterHostImpl
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Single
 
