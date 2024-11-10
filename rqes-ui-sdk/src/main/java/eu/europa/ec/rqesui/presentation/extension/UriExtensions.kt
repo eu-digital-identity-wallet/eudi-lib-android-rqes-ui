@@ -26,12 +26,10 @@ import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
  *
  * This function attempts to extract the file name from the provided [Uri] using the content resolver.
  * If successful, it returns the file name.
- * If the file name cannot be determined from the [Uri], it returns the provided `fallbackName`.
- * If an exception occurs during the process, it also returns the `fallbackName`.
+ * If the file name cannot be determined from the [Uri], it will throw [EudiRQESUiError].
  *
  * @param context The [Context] used to access the content resolver.
- * @param fallbackName The name to return if the file name cannot be determined or an error occurs. Defaults to "Empty File Name".
- * @return The file name extracted from the [Uri], or the `fallbackName` if an error occurs or the name cannot be determined.
+ * @return The file name extracted from the [Uri], if an error occurs or the name cannot be determined throws [EudiRQESUiError].
  */
 @Throws(EudiRQESUiError::class)
 internal fun Uri.getFileName(context: Context): Result<String> {
