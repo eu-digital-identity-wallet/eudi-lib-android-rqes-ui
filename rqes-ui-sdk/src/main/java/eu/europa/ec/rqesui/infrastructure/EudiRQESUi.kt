@@ -86,7 +86,7 @@ object EudiRQESUi {
      *
      * If the context passed is not an Activity, throws [EudiRQESUiError].
      *
-     * @param context The application [Context].
+     * @param context An Activity [Context].
      */
     @Throws(EudiRQESUiError::class)
     fun resume(
