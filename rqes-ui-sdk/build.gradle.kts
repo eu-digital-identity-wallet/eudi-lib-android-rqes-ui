@@ -59,6 +59,8 @@ android {
 }
 
 dependencies {
+    // RQES-Core
+    implementation(libs.eudi.lib.android.rqes.core)
 
     // AndroidX
     implementation(libs.androidx.core.ktx)

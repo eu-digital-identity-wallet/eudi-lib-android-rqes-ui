@@ -1,4 +1,5 @@
 [versions]
+eudiRqesCore = "0.0.1-SNAPSHOT"
 agp = "8.7.2"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
@@ -20,6 +21,7 @@ ksp = "2.0.21-1.0.26"
 gson = "2.11.0"
 
 [libraries]
+eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
