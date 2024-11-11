@@ -71,7 +71,7 @@ object EudiRQESUi {
             file = documentData,
             qtsp = null,
             certificate = null,
-            authorizationCode = null
+            authorizationCode = null,
         )
 
         setState(
@@ -95,7 +95,7 @@ object EudiRQESUi {
         context: Context,
         authorizationCode: String
     ) {
-        currentSelection.copy(
+        currentSelection = currentSelection.copy(
             authorizationCode = authorizationCode
         )
         setState(calculateNextState())
@@ -191,6 +191,6 @@ object EudiRQESUi {
         val file: DocumentData?,
         val qtsp: QtspData?,
         val certificate: TBDByCore?,
-        val authorizationCode: String?
+        val authorizationCode: String?,
     )
 }
