@@ -67,18 +67,20 @@ object EudiRQESUi {
             uri = documentUri
         )
 
-        this.currentSelection = CurrentSelection(
+        currentSelection = CurrentSelection(
             file = documentData,
             qtsp = null,
-            certificate = null
+            certificate = null,
+            authorizationCode = null
         )
 
-        resume(
-            context = context,
-            nextState = State.Initial(
+        setState(
+            State.Initial(
                 file = documentUri
             )
         )
+
+        launchSDK(context)
     }
 
     /**
@@ -91,18 +93,22 @@ object EudiRQESUi {
     @Throws(EudiRQESUiError::class)
     fun resume(
         context: Context,
-        nextState: State? = null,
+        authorizationCode: String
     ) {
+        currentSelection.copy(
+            authorizationCode = authorizationCode
+        )
+        setState(calculateNextState())
+        launchSDK(context)
+    }
 
-        val newState: State = nextState ?: calculateNextState()
-
-        setState(newState)
-
+    @Throws(EudiRQESUiError::class)
+    private fun launchSDK(context: Context) {
         if (context as? Activity != null) {
             context.startActivity(
                 Intent(context, EudiRQESContainer::class.java).putExtra(
                     SDK_STATE,
-                    newState
+                    getState()
                 )
             )
         } else {
@@ -113,7 +119,7 @@ object EudiRQESUi {
     private fun calculateNextState(): State {
         return when (getState()) {
             is State.None -> {
-                this.currentSelection.file?.let { safeFile ->
+                currentSelection.file?.let { safeFile ->
                     State.Initial(
                         file = safeFile.uri
                     )
@@ -170,7 +176,7 @@ object EudiRQESUi {
     }
 
     @Parcelize
-    sealed class State : Parcelable {
+    internal sealed class State : Parcelable {
         data object None : State()
         data class Initial(val file: Uri) : State()
         data class Certificate(val tBDByCore: TBDByCore) : State()
@@ -179,11 +185,12 @@ object EudiRQESUi {
 
     //TODO delete and adjust accordingly when integration with Core is done.
     @Parcelize
-    data class TBDByCore(val value: String) : Parcelable
+    internal data class TBDByCore(val value: String) : Parcelable
 
     internal data class CurrentSelection(
         val file: DocumentData?,
         val qtsp: QtspData?,
         val certificate: TBDByCore?,
+        val authorizationCode: String?
     )
 }
