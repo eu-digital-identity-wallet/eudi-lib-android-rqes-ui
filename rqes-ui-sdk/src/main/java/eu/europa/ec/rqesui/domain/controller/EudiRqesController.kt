@@ -16,8 +16,8 @@
 
 package eu.europa.ec.rqesui.domain.controller
 
-import eu.europa.ec.rqesui.R
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
@@ -78,7 +78,7 @@ internal class EudiRqesControllerImpl(
                 EudiRqesGetSelectedQtspPartialState.Success(qtsp = safeSelectedQtsp)
             } ?: EudiRqesGetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
-                    message = resourceProvider.getString(R.string.generic_error_qtsp_not_found)
+                    message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound)
                 )
             )
         }.getOrElse {
@@ -97,7 +97,7 @@ internal class EudiRqesControllerImpl(
                 EudiRqesGetSelectedFilePartialState.Success(file = safeSelectedFile)
             } ?: EudiRqesGetSelectedFilePartialState.Failure(
                 error = EudiRQESUiError(
-                    message = resourceProvider.getString(R.string.generic_error_document_not_found)
+                    message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound)
                 )
             )
         }.getOrElse {

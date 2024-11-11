@@ -91,3 +91,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.koin.test)
 }
+
+// Compile time check
+ksp {
+    arg("KOIN_CONFIG_CHECK", "true")
+}

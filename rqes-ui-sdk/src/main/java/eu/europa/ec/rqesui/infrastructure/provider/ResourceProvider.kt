@@ -21,12 +21,10 @@ import android.content.Context
 import androidx.annotation.PluralsRes
 import androidx.annotation.RawRes
 import androidx.annotation.StringRes
-import eu.europa.ec.rqesui.R
 import eu.europa.ec.rqesui.domain.controller.LocalizationController
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 
 internal interface ResourceProvider {
-
     fun provideContext(): Context
     fun provideContentResolver(): ContentResolver
     fun getString(@StringRes resId: Int): String
@@ -46,8 +44,7 @@ internal class ResourceProviderImpl(
 
     override fun provideContentResolver(): ContentResolver = context.contentResolver
 
-    override fun genericErrorMessage() =
-        context.getString(R.string.generic_error_description)
+    override fun genericErrorMessage() = getLocalizedString(LocalizableKey.GenericErrorDescription)
 
     override fun getString(@StringRes resId: Int): String =
         try {

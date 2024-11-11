@@ -42,7 +42,12 @@ enum class LocalizableKey {
     Cancel,
     Save,
     SaveAndClose,
-    Sign;
+    Sign,
+    GenericErrorButtonRetry,
+    GenericErrorMessage,
+    GenericErrorDescription,
+    GenericErrorDocumentNotFound,
+    GenericErrorQtspNotFound;
 
     companion object {
         const val ARGUMENTS_SEPARATOR = "@arg"
@@ -72,6 +77,11 @@ enum class LocalizableKey {
             Save -> "Save"
             SaveAndClose -> "Save and close"
             Sign -> "Sign"
+            GenericErrorButtonRetry -> "TRY AGAIN"
+            GenericErrorMessage -> "Oups! Something went wrong"
+            GenericErrorDescription -> "If the issue persists, please contact customer support"
+            GenericErrorDocumentNotFound -> "No Document data found"
+            GenericErrorQtspNotFound -> "No selected QTSP found"
         }
     }
 }
