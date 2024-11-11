@@ -25,28 +25,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.rqesui.R
+import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SIZE_MEDIUM
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
+import org.koin.compose.koinInject
 
 @Composable
-internal fun ContentError(config: ContentErrorConfig, paddingValues: PaddingValues) {
+internal fun ContentError(
+    config: ContentErrorConfig,
+    paddingValues: PaddingValues,
+    resourceProvider: ResourceProvider = koinInject(),
+) {
     Column(
         Modifier
             .fillMaxSize()
             .padding(paddingValues),
     ) {
         ContentTitle(
-            title = config.errorTitle ?: stringResource(
-                id = R.string.generic_error_message
-            ),
-            subtitle = config.errorSubTitle ?: stringResource(
-                id = R.string.sign_document_generic_error
-            ),
+            title = config.errorTitle
+                ?: resourceProvider.getLocalizedString(LocalizableKey.GenericErrorMessage),
+            subtitle = config.errorSubTitle
+                ?: resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDescription),
             subTitleMaxLines = 10
         )
 
@@ -60,7 +63,7 @@ internal fun ContentError(config: ContentErrorConfig, paddingValues: PaddingValu
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = stringResource(id = R.string.generic_error_button_retry)
+                    text = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorButtonRetry)
                 )
             }
         }
