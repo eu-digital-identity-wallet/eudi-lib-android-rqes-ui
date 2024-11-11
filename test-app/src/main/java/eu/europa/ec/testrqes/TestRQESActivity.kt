@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.testrqes.ui.theme.EudiRQESUiTheme
 
@@ -70,6 +69,7 @@ class TestRQESActivity : ComponentActivity() {
         if (intent.data?.host?.length == 1) {
             EudiRQESUi.resume(
                 context = this,
+                authorizationCode = "", //TODO("Add authorization code")
             )
         }
     }
@@ -148,14 +148,6 @@ private fun Content(padding: PaddingValues) {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun ContentPreview() {
-    EudiRQESUiTheme {
-        Content(PaddingValues())
-    }
-}
-
 private fun startSdk(
     context: Context,
     documentUri: Uri
@@ -171,5 +163,6 @@ private fun resumeSdk(
 ) {
     EudiRQESUi.resume(
         context = context,
+        authorizationCode = "", //TODO("Add authorization code")
     )
 }
