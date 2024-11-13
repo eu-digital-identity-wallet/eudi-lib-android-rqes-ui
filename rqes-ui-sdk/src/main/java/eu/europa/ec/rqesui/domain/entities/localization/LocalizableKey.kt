@@ -47,7 +47,8 @@ enum class LocalizableKey {
     GenericErrorMessage,
     GenericErrorDescription,
     GenericErrorDocumentNotFound,
-    GenericErrorQtspNotFound;
+    GenericErrorQtspNotFound,
+    Certificate;
 
     companion object {
         const val ARGUMENTS_SEPARATOR = "@arg"
@@ -82,6 +83,7 @@ enum class LocalizableKey {
             GenericErrorDescription -> "If the issue persists, please contact customer support"
             GenericErrorDocumentNotFound -> "No Document data found"
             GenericErrorQtspNotFound -> "No selected QTSP found"
+            Certificate -> "Certificate $ARGUMENTS_SEPARATOR"
         }
     }
 }

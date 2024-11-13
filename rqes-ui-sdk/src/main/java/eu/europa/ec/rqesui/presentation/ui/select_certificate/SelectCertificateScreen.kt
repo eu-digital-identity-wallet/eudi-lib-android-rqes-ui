@@ -41,6 +41,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import eu.europa.ec.eudi.rqes.AuthorizationMode
+import eu.europa.ec.eudi.rqes.CredentialAuthorization
+import eu.europa.ec.eudi.rqes.CredentialCertificate
+import eu.europa.ec.eudi.rqes.CredentialCertificateStatus
+import eu.europa.ec.eudi.rqes.CredentialID
+import eu.europa.ec.eudi.rqes.CredentialInfo
+import eu.europa.ec.eudi.rqes.CredentialKey
+import eu.europa.ec.eudi.rqes.CredentialKeyStatus
+import eu.europa.ec.eudi.rqes.SCAL
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
@@ -208,6 +217,10 @@ private fun Content(
                 is Effect.ShowBottomSheet -> {
                     onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
                 }
+
+                is Effect.OnServiceAuthorized -> {
+                    onEventSend(Event.FetchCertificates(authorizedService = effect.authorizedService))
+                }
             }
         }.collect()
     }
@@ -263,7 +276,8 @@ private fun CertificateListItem(
     ) {
         Text(
             text = optionName,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
 
         WrapRadioButton(
@@ -293,6 +307,32 @@ private fun SelectCertificateSheetContent(
 @Composable
 private fun SelectCertificateScreenPreview() {
     PreviewTheme {
+        val dummyCredentialInfo = CredentialInfo(
+            credentialID = CredentialID("1234567890"),
+            description = null,
+            signatureQualifier = null,
+            key = CredentialKey(
+                status = CredentialKeyStatus.Enabled,
+                supportedAlgorithms = listOf(),
+                length = 6808,
+                curve = null
+            ),
+            certificate = CredentialCertificate(
+                status = CredentialCertificateStatus.Valid,
+                certificates = listOf(),
+                issuerDN = null,
+                serialNumber = null,
+                subjectDN = null,
+                validFrom = null,
+                validTo = null
+            ),
+            authorization = CredentialAuthorization.OAuth2Code(
+                authorizationMode = AuthorizationMode.OAuth2Code
+            ),
+            scal = SCAL.One,
+            multisign = 8779,
+            lang = null
+        )
         Content(
             state = State(
                 title = "Sign document",
@@ -310,15 +350,15 @@ private fun SelectCertificateScreenPreview() {
                 certificates = listOf(
                     CertificateData(
                         name = "Certificate 1",
-                        certificateURI = "uri1".toUri()
+                        certificate = dummyCredentialInfo,
                     ),
                     CertificateData(
                         name = "Certificate 2",
-                        certificateURI = "uri2".toUri()
+                        certificate = dummyCredentialInfo,
                     ),
                     CertificateData(
                         name = "Certificate 3",
-                        certificateURI = "uri3".toUri()
+                        certificate = dummyCredentialInfo,
                     ),
                 ),
                 bottomBarButtonText = "Sign",

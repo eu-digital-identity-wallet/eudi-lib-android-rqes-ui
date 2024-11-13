@@ -40,6 +40,7 @@ private class DefaultConfig : EudiRQESUiConfig {
 
     override val qtsps: List<QtspData>
         get() = listOf(
+            QtspData("Wallet-Centric", "https://walletcentric.signer.eudiw.dev/csc/v2".toUri()),
             QtspData("Entrust", "https://www.google.com/search?q=entrust".toUri()),
             QtspData("Docusign", "https://www.google.com/search?q=docusign".toUri()),
             QtspData("Ascertia", "https://www.google.com/search?q=ascertia".toUri()),

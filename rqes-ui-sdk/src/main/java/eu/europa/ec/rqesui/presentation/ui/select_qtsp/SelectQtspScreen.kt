@@ -36,6 +36,7 @@ import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
+import eu.europa.ec.rqesui.presentation.extension.openUrl
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentTitleWithSubtitle
@@ -133,6 +134,7 @@ private fun Content(
     paddingValues: PaddingValues,
     modalBottomSheetState: SheetState,
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -180,6 +182,14 @@ private fun Content(
 
                 is Effect.ShowBottomSheet -> {
                     onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                }
+
+                is Effect.OpenUrl -> {
+                    context.openUrl(uri = effect.uri)
+                }
+
+                is Effect.OnSelectedQtspUpdated -> {
+                    onEventSend(Event.FetchServiceAuthorizationUrl(service = effect.service))
                 }
             }
         }.collect()

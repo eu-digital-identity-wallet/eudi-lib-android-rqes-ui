@@ -16,8 +16,13 @@
 
 package eu.europa.ec.rqesui.presentation.ui.select_qtsp
 
+import android.net.Uri
+import androidx.lifecycle.viewModelScope
+import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetQtspsPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetServiceAuthorizationUrlPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesSetSelectedQtspPartialState
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectQtspInteractor
 import eu.europa.ec.rqesui.domain.serializer.UiSerializer
@@ -36,6 +41,7 @@ import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArgu
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
@@ -55,11 +61,11 @@ internal sealed class Event : ViewEvent {
     data object Init : Event()
     data object Pop : Event()
     data object Finish : Event()
-
     data object DismissError : Event()
-
     data object BottomBarButtonPressed : Event()
+
     data class ViewDocument(val documentData: DocumentData) : Event()
+    data class FetchServiceAuthorizationUrl(val service: RQESService) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
@@ -69,7 +75,7 @@ internal sealed class Event : ViewEvent {
             data object SecondaryButtonPressed : CancelSignProcess()
         }
 
-        data class ShowQtspOptions(val qtspData: QtspData) : BottomSheet()
+        data class QtspSelected(val qtspData: QtspData) : BottomSheet()
     }
 }
 
@@ -81,6 +87,9 @@ internal sealed class Effect : ViewSideEffect {
 
     data object ShowBottomSheet : Effect()
     data object CloseBottomSheet : Effect()
+
+    data class OpenUrl(val uri: Uri) : Effect()
+    data class OnSelectedQtspUpdated(val service: RQESService) : Effect()
 }
 
 internal sealed class SelectQtspBottomSheetContent {
@@ -158,11 +167,35 @@ internal class SelectQtspViewModel(
                 getQtsps(event)
             }
 
-            is Event.BottomSheet.ShowQtspOptions -> {
-                selectQtspInteractor.updateQtspUserSelection(qtspData = event.qtspData)
+            is Event.BottomSheet.QtspSelected -> {
+                val response = selectQtspInteractor.updateQtspUserSelection(event.qtspData)
                 hideBottomSheet()
-                // TODO close SDK here, for now
-                setEffect { Effect.Navigation.Finish }
+                when (response) {
+                    is EudiRqesSetSelectedQtspPartialState.Failure -> {
+                        setState {
+                            copy(
+                                error = ContentErrorConfig(
+                                    onRetry = { setEvent(event) },
+                                    errorSubTitle = response.error.message,
+                                    onCancel = {
+                                        setEvent(Event.DismissError)
+                                        //TODO we dont need it here, right? setEffect { Effect.Navigation.Finish }
+                                    }
+                                )
+                            )
+                        }
+                    }
+
+                    is EudiRqesSetSelectedQtspPartialState.Success -> {
+                        setEffect {
+                            Effect.OnSelectedQtspUpdated(service = response.service)
+                        }
+                    }
+                }
+            }
+
+            is Event.FetchServiceAuthorizationUrl -> {
+                fetchServiceAuthorizationUrl(event, event.service)
             }
         }
     }
@@ -188,7 +221,6 @@ internal class SelectQtspViewModel(
             is EudiRqesGetSelectedFilePartialState.Success -> {
                 setState {
                     copy(
-                        error = null,
                         selectionItem = SelectionItemUi(
                             documentData = response.file,
                             action = resourceProvider.getLocalizedString(LocalizableKey.View)
@@ -222,7 +254,7 @@ internal class SelectQtspViewModel(
                         ModalOptionUi(
                             title = qtspData.qtspName,
                             icon = null,
-                            event = Event.BottomSheet.ShowQtspOptions(qtspData)
+                            event = Event.BottomSheet.QtspSelected(qtspData)
                         )
                     }
 
@@ -232,6 +264,44 @@ internal class SelectQtspViewModel(
                         options = bottomSheetOptions
                     )
                 )
+            }
+        }
+    }
+
+    private fun fetchServiceAuthorizationUrl(event: Event, service: RQESService) {
+        setState {
+            copy(isLoading = true)
+        }
+
+        viewModelScope.launch {
+            val response = selectQtspInteractor.getAuthorizationServiceUrl(
+                rqesService = service
+            )
+
+            when (response) {
+                is EudiRqesGetServiceAuthorizationUrlPartialState.Failure -> {
+                    setState {
+                        copy(
+                            error = ContentErrorConfig(
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    //TODO we dont need it here, right? setEffect { Effect.Navigation.Finish }
+                                }
+                            ),
+                            isLoading = false,
+                        )
+                    }
+                }
+
+                is EudiRqesGetServiceAuthorizationUrlPartialState.Success -> {
+                    setState {
+                        copy(isLoading = false)
+                    }
+                    setEffect { Effect.OpenUrl(uri = response.authorizationUrl) }
+                    setEffect { Effect.Navigation.Finish }
+                }
             }
         }
     }

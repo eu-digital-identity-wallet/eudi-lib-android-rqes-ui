@@ -66,10 +66,11 @@ class TestRQESActivity : ComponentActivity() {
     }
 
     private fun checkIntent(intent: Intent) {
-        if (intent.data?.host?.length == 1) {
+        val code = intent.data?.getQueryParameter("code")
+        if (code != null) {
             EudiRQESUi.resume(
                 context = this,
-                authorizationCode = "", //TODO("Add authorization code")
+                authorizationCode = code, //TODO("Add authorization code")
             )
         }
     }

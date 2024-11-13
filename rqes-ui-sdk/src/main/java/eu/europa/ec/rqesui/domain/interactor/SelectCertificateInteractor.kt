@@ -16,32 +16,24 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
-import android.net.Uri
+import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
+import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
-import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
-import eu.europa.ec.rqesui.domain.extension.safeAsync
-import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-
-internal sealed class SelectCertificatePartialState {
-    data class Success(
-        val qtspCertificatesList: List<CertificateData>
-    ) : SelectCertificatePartialState()
-
-    data class Failure(val error: EudiRQESUiError) : SelectCertificatePartialState()
-}
 
 internal interface SelectCertificateInteractor {
-    fun qtspCertificates(qtspCertificateEndpoint: Uri): Flow<SelectCertificatePartialState>
+    fun getCertificates(authorizedService: Authorized): Flow<EudiRqesGetCertificatesPartialState>
 
     fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
 
     fun updateCertificateUserSelection(certificateData: CertificateData)
+
+    suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
 }
 
 internal class SelectCertificateInteractorImpl(
@@ -53,22 +45,9 @@ internal class SelectCertificateInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun qtspCertificates(qtspCertificateEndpoint: Uri): Flow<SelectCertificatePartialState> =
-        flow {
-            emit(
-                SelectCertificatePartialState.Success(
-                    qtspCertificatesList = listOf(
-                        CertificateData(name = "Certificate 1", certificateURI = "uri1".toUri()),
-                        CertificateData(name = "Certificate 2", certificateURI = "uri2".toUri()),
-                        CertificateData(name = "Certificate 3", certificateURI = "uri3".toUri()),
-                    )
-                )
-            )
-        }.safeAsync {
-            SelectCertificatePartialState.Failure(
-                error = EudiRQESUiError(message = it.localizedMessage ?: genericErrorMsg)
-            )
-        }
+    override fun getCertificates(authorizedService: Authorized): Flow<EudiRqesGetCertificatesPartialState> {
+        return eudiRqesController.getAvailableCertificates(authorizedService)
+    }
 
     override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
         return eudiRqesController.getSelectedFile()
@@ -76,5 +55,9 @@ internal class SelectCertificateInteractorImpl(
 
     override fun updateCertificateUserSelection(certificateData: CertificateData) {
         eudiRqesController.updateCertificateUserSelection(certificateData)
+    }
+
+    override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
+        return eudiRqesController.authorizeService()
     }
 }

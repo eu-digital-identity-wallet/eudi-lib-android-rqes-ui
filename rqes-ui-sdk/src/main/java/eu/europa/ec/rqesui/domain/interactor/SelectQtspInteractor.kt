@@ -16,10 +16,13 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
+import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetQtspsPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetServiceAuthorizationUrlPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesSetSelectedQtspPartialState
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 
@@ -28,7 +31,9 @@ internal interface SelectQtspInteractor {
 
     fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
 
-    fun updateQtspUserSelection(qtspData: QtspData)
+    fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
+
+    suspend fun getAuthorizationServiceUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
 }
 
 internal class SelectQtspInteractorImpl(
@@ -48,7 +53,11 @@ internal class SelectQtspInteractorImpl(
         return eudiRqesController.getSelectedFile()
     }
 
-    override fun updateQtspUserSelection(qtspData: QtspData) {
-        eudiRqesController.updateQtspUserSelection(qtspData)
+    override fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {
+        return eudiRqesController.updateQtspUserSelection(qtspData)
+    }
+
+    override suspend fun getAuthorizationServiceUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
+        return eudiRqesController.getAuthorizationServiceUrl(rqesService)
     }
 }

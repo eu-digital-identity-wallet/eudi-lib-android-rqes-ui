@@ -22,10 +22,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
+import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
+import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.presentation.extension.getFileName
@@ -43,19 +45,22 @@ object EudiRQESUi {
 
     internal lateinit var currentSelection: CurrentSelection
 
+    internal var rqesService: RQESService? = null
+
     fun setup(application: Application, config: EudiRQESUiConfig) {
         _eudiRQESUiConfig = config
         setupKoin(application)
     }
 
     /**
-     * Launches the SDK with the provided document [Uri].
+     * Starts the SDK with the provided document [Uri].
      *
      * This function initializes the SDK with the given document [Uri].
      * If the filename cannot be determined throws [EudiRQESUiError].
      *
      * @param context The application [Context].
      * @param documentUri The [Uri] of the document to be loaded.
+     * @throws EudiRQESUiError If the filename cannot be extracted from the [Uri].
      */
     @Throws(EudiRQESUiError::class)
     fun initiate(
@@ -190,7 +195,7 @@ object EudiRQESUi {
     internal data class CurrentSelection(
         val file: DocumentData?,
         val qtsp: QtspData?,
-        val certificate: TBDByCore?,
+        val certificate: CertificateData?,
         val authorizationCode: String?,
     )
 }

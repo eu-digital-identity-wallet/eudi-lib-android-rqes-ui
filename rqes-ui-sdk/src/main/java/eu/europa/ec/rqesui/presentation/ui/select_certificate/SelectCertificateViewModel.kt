@@ -17,11 +17,12 @@
 package eu.europa.ec.rqesui.presentation.ui.select_certificate
 
 import androidx.lifecycle.viewModelScope
+import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
+import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
-import eu.europa.ec.rqesui.domain.interactor.SelectCertificatePartialState
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.rqesui.presentation.architecture.MviViewModel
@@ -52,6 +53,7 @@ internal data class State(
 
 internal sealed class Event : ViewEvent {
     data object Init : Event()
+    data class FetchCertificates(val authorizedService: Authorized) : Event()
     data object Pop : Event()
     data object DismissError : Event()
 
@@ -77,6 +79,8 @@ internal sealed class Effect : ViewSideEffect {
 
     data object ShowBottomSheet : Effect()
     data object CloseBottomSheet : Effect()
+
+    data class OnServiceAuthorized(val authorizedService: Authorized) : Effect()
 }
 
 @KoinViewModel
@@ -99,7 +103,11 @@ internal class SelectCertificateViewModel(
         when (event) {
             is Event.Init -> {
                 createSelectionItem(event)
-                fetchQTSPCertificates(event)
+                authorizeService(event)
+            }
+
+            is Event.FetchCertificates -> {
+                fetchCertificates(event, event.authorizedService)
             }
 
             is Event.Pop -> {
@@ -168,7 +176,6 @@ internal class SelectCertificateViewModel(
             is EudiRqesGetSelectedFilePartialState.Success -> {
                 setState {
                     copy(
-                        error = null,
                         selectionItem = SelectionItemUi(
                             documentData = response.file,
                         )
@@ -178,31 +185,44 @@ internal class SelectCertificateViewModel(
         }
     }
 
-    private fun fetchQTSPCertificates(event: Event) {
+    private fun authorizeService(event: Event) {
+        viewModelScope.launch {
+            when (val response = selectCertificateInteractor.authorizeService()) {
+                is EudiRqesAuthorizeServicePartialState.Failure -> {
+                    setState {
+                        copy(
+                            error = ContentErrorConfig(
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    //TODO we dont need it here, right? setEffect { Effect.Navigation.Finish }
+                                }
+                            )
+                        )
+                    }
+                }
+
+                is EudiRqesAuthorizeServicePartialState.Success -> {
+                    setEffect {
+                        Effect.OnServiceAuthorized(authorizedService = response.authorizedService)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fetchCertificates(event: Event, authorizedService: Authorized) {
         setState {
-            copy(
-                isLoading = true,
-                error = null,
-            )
+            copy(isLoading = true)
         }
 
         viewModelScope.launch {
-            selectCertificateInteractor.qtspCertificates(
-                //TODO Change this once integration with Core is done.
-                qtspCertificateEndpoint = "https://qtsp.endpoint".toUri()
+            selectCertificateInteractor.getCertificates(
+                authorizedService = authorizedService
             ).collect { response ->
                 when (response) {
-                    is SelectCertificatePartialState.Success -> {
-                        setState {
-                            copy(
-                                certificates = response.qtspCertificatesList,
-                                error = null,
-                                isLoading = false,
-                            )
-                        }
-                    }
-
-                    is SelectCertificatePartialState.Failure -> {
+                    is EudiRqesGetCertificatesPartialState.Failure -> {
                         setState {
                             copy(
                                 certificates = emptyList(),
@@ -214,6 +234,16 @@ internal class SelectCertificateViewModel(
                                         setEffect { Effect.Navigation.Finish }
                                     }
                                 ),
+                                isLoading = false,
+                            )
+                        }
+                    }
+
+                    is EudiRqesGetCertificatesPartialState.Success -> {
+                        setState {
+                            copy(
+                                certificates = response.certificates,
+                                error = null,
                                 isLoading = false,
                             )
                         }
