@@ -46,7 +46,7 @@
 
                 <data
                     android:host="*"
-                    android:scheme="eudi-rqesui" />
+                    android:scheme="rqes" />
             </intent-filter>
         </activity>
     </application>

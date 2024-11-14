@@ -19,12 +19,16 @@ package eu.europa.ec.rqesui.domain.controller
 import android.net.Uri
 import eu.europa.ec.eudi.rqes.AuthorizationCode
 import eu.europa.ec.eudi.rqes.CSCClientConfig
+import eu.europa.ec.eudi.rqes.KtorHttpClientFactory
 import eu.europa.ec.eudi.rqes.OAuth2Client
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
+import eu.europa.ec.eudi.rqes.core.SignedDocuments
+import eu.europa.ec.eudi.rqes.core.UnsignedDocument
+import eu.europa.ec.eudi.rqes.core.UnsignedDocuments
+import eu.europa.ec.rqesui.domain.controller.PDFHelper.createAndSavePdf
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.rqesui.domain.extension.safeAsync
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.domain.util.safeLet
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
@@ -33,10 +37,15 @@ import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.infrastructure.config.data.toCertificatesData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import java.io.File
 import java.net.URI
 import java.net.URL
 
@@ -53,9 +62,20 @@ internal interface EudiRqesController {
 
     suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
 
-    fun getAvailableCertificates(authorizedService: Authorized): Flow<EudiRqesGetCertificatesPartialState>
+    suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState
 
-    fun updateCertificateUserSelection(certificateData: CertificateData)
+    fun updateCertificateUserSelection(certificate: CertificateData)
+
+    suspend fun getCredentialAuthorizationUrl(
+        authorizedService: Authorized,
+        certificateData: CertificateData,
+    ): EudiRqesGetCredentialAuthorizationUrlPartialState
+
+    suspend fun authorizeCredential(authorizedService: Authorized): EudiRqesAuthorizeCredentialPartialState
+
+    suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState
+
+    suspend fun saveSignedDocuments(signedDocuments: SignedDocuments): EudiRqesSaveSignedDocumentsPartialState
 }
 
 internal class EudiRqesControllerImpl(
@@ -184,35 +204,171 @@ internal class EudiRqesControllerImpl(
         }
     }
 
-    override fun getAvailableCertificates(authorizedService: Authorized): Flow<EudiRqesGetCertificatesPartialState> =
-        flow {
-            val certificates = authorizedService.listCredentials()
-                .getOrThrow()
-                .toCertificatesData(
-                    createDefaultName = { certificateIndex: Int ->
-                        resourceProvider.getLocalizedString(
-                            localizableKey = LocalizableKey.Certificate,
-                            args = listOf((certificateIndex + 1).toString())
-                        )
-                    }
+    override suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val certificates = authorizedService.listCredentials()
+                    .getOrThrow()
+                    .toCertificatesData(
+                        createDefaultName = { certificateIndex: Int ->
+                            resourceProvider.getLocalizedString(
+                                localizableKey = LocalizableKey.Certificate,
+                                args = listOf((certificateIndex + 1).toString())
+                            )
+                        }
+                    )
+                EudiRqesGetCertificatesPartialState.Success(certificates = certificates)
+            }.getOrElse {
+                EudiRqesGetCertificatesPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
                 )
-            emit(EudiRqesGetCertificatesPartialState.Success(certificates = certificates))
-        }.safeAsync {
-            EudiRqesGetCertificatesPartialState.Failure(
-                error = EudiRQESUiError(
-                    message = it.localizedMessage ?: genericErrorMsg
-                )
-            )
+            }
         }
+    }
 
-    override fun updateCertificateUserSelection(certificateData: CertificateData) {
+    override fun updateCertificateUserSelection(certificate: CertificateData) {
         eudiRQESUi.currentSelection = eudiRQESUi.currentSelection.copy(
-            certificate = certificateData
+            certificate = certificate
         )
+    }
+
+    override suspend fun getCredentialAuthorizationUrl(
+        authorizedService: Authorized,
+        certificateData: CertificateData
+    ): EudiRqesGetCredentialAuthorizationUrlPartialState {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val fileToBeSigned = createAndSavePdf(resourceProvider)
+                safeLet(
+                    fileToBeSigned,
+                    eudiRQESUi.currentSelection.file
+                ) { safeFileToBeSigned, safeSelectedFile ->
+                    // Prepare the documents to sign
+                    val unsignedDocuments = UnsignedDocuments(
+                        UnsignedDocument(
+                            label = safeSelectedFile.documentName,
+                            file = safeFileToBeSigned,
+                        )
+                    )
+
+                    val authorizationUrl = authorizedService
+                        .getCredentialAuthorizationUrl(
+                            credential = certificateData.certificate,
+                            documents = unsignedDocuments,
+                        ).getOrThrow()
+                        .value.toString().toUri()
+
+                    EudiRqesGetCredentialAuthorizationUrlPartialState.Success(authorizationUrl = authorizationUrl)
+                } ?: EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = resourceProvider.getLocalizedString(
+                            LocalizableKey.GenericErrorDocumentNotFound
+                        )
+                    )
+                )
+            }.getOrElse {
+                EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun authorizeCredential(authorizedService: Authorized): EudiRqesAuthorizeCredentialPartialState {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                eudiRQESUi.currentSelection.authorizationCode?.let { safeAuthorizationCode ->
+                    val authorizedCredential: RQESService.CredentialAuthorized =
+                        authorizedService.authorizeCredential(
+                            authorizationCode = AuthorizationCode(safeAuthorizationCode)
+                        ).getOrThrow()
+
+                    EudiRqesAuthorizeCredentialPartialState.Success(authorizedCredential = authorizedCredential)
+                } ?: EudiRqesAuthorizeCredentialPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = genericErrorMsg
+                    )
+                )
+            }.getOrElse {
+                EudiRqesAuthorizeCredentialPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val signedDocuments = authorizedCredential.signDocuments().getOrThrow()
+                EudiRqesSignDocumentsPartialState.Success(signedDocuments = signedDocuments)
+            }.getOrElse {
+                EudiRqesSignDocumentsPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun saveSignedDocuments(signedDocuments: SignedDocuments): EudiRqesSaveSignedDocumentsPartialState {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val resultList = mutableListOf<File>()
+                // Manipulate the signed documents. For example, save them to disk
+                signedDocuments.forEachIndexed { index, inputStream ->
+                    // Save the signed document
+                    inputStream.use { signedDocument ->
+                        val file = File("signed-document-$index.pdf")
+
+                        file.outputStream()
+                            .use { signedDocument.copyTo(it) }
+
+                        resultList.add(file)
+                    }
+                }
+
+                EudiRqesSaveSignedDocumentsPartialState.Success(savedDocuments = resultList)
+            }.getOrElse {
+                EudiRqesSaveSignedDocumentsPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
+                )
+            }
+        }
     }
 
     private fun createRqesService(qtspData: QtspData): EudiRqesCreateServicePartialState {
         return runCatching {
+            //TODO remove later
+            val appJsonSupport = Json {
+                ignoreUnknownKeys = true
+                prettyPrint = true
+                encodeDefaults = true
+            }
+
+            val appDefaultHttpClientFactory: KtorHttpClientFactory = {
+                HttpClient {
+                    install(ContentNegotiation) {
+                        json(
+                            json = appJsonSupport,
+                        )
+                    }
+                    install(Logging) {
+                        level = LogLevel.ALL
+                    }
+                }
+            }
+
+
             val service = RQESService(
                 serviceEndpointUrl = qtspData.uri.toString(),
                 config = CSCClientConfig(
@@ -220,10 +376,11 @@ internal class EudiRqesControllerImpl(
                         clientId = "wallet-client-tester", //TODO remove them later?
                         clientSecret = "somesecrettester2"//TODO remove them later?
                     ),
-                    //authFlowRedirectionURI = URI("eudi-rqesui://oauthdebugger.com/debug"), //TODO this is also not correct
-                    authFlowRedirectionURI = URI("https://oauthdebugger.com/debug"),
-                    scaBaseURL = URL(qtspData.uri.toString()),
+                    //authFlowRedirectionURI = URI("https://oauthdebugger.com/debug"),
+                    authFlowRedirectionURI = URI("rQES://oauth/callback"),
+                    scaBaseURL = URL("https://walletcentric.signer.eudiw.dev"),
                 ),
+                httpClientFactory = appDefaultHttpClientFactory,
             )
 
             eudiRQESUi.rqesService = service
@@ -282,4 +439,32 @@ internal sealed class EudiRqesGetCertificatesPartialState {
     ) : EudiRqesGetCertificatesPartialState()
 
     data class Failure(val error: EudiRQESUiError) : EudiRqesGetCertificatesPartialState()
+}
+
+internal sealed class EudiRqesGetCredentialAuthorizationUrlPartialState {
+    data class Success(
+        val authorizationUrl: Uri,
+    ) : EudiRqesGetCredentialAuthorizationUrlPartialState()
+
+    data class Failure(
+        val error: EudiRQESUiError
+    ) : EudiRqesGetCredentialAuthorizationUrlPartialState()
+}
+
+internal sealed class EudiRqesAuthorizeCredentialPartialState {
+    data class Success(
+        val authorizedCredential: RQESService.CredentialAuthorized,
+    ) : EudiRqesAuthorizeCredentialPartialState()
+
+    data class Failure(val error: EudiRQESUiError) : EudiRqesAuthorizeCredentialPartialState()
+}
+
+internal sealed class EudiRqesSignDocumentsPartialState {
+    data class Success(val signedDocuments: SignedDocuments) : EudiRqesSignDocumentsPartialState()
+    data class Failure(val error: EudiRQESUiError) : EudiRqesSignDocumentsPartialState()
+}
+
+internal sealed class EudiRqesSaveSignedDocumentsPartialState {
+    data class Success(val savedDocuments: List<File>) : EudiRqesSaveSignedDocumentsPartialState()
+    data class Failure(val error: EudiRQESUiError) : EudiRqesSaveSignedDocumentsPartialState()
 }

@@ -21,19 +21,24 @@ import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeServicePartialStat
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
-import kotlinx.coroutines.flow.Flow
 
 internal interface SelectCertificateInteractor {
-    fun getCertificates(authorizedService: Authorized): Flow<EudiRqesGetCertificatesPartialState>
+    suspend fun getCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState
 
     fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
 
-    fun updateCertificateUserSelection(certificateData: CertificateData)
+    fun updateCertificateUserSelection(certificate: CertificateData)
 
     suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
+
+    suspend fun getCredentialAuthorizationUrl(
+        authorizedService: Authorized,
+        certificateData: CertificateData,
+    ): EudiRqesGetCredentialAuthorizationUrlPartialState
 }
 
 internal class SelectCertificateInteractorImpl(
@@ -45,7 +50,7 @@ internal class SelectCertificateInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun getCertificates(authorizedService: Authorized): Flow<EudiRqesGetCertificatesPartialState> {
+    override suspend fun getCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState {
         return eudiRqesController.getAvailableCertificates(authorizedService)
     }
 
@@ -53,11 +58,18 @@ internal class SelectCertificateInteractorImpl(
         return eudiRqesController.getSelectedFile()
     }
 
-    override fun updateCertificateUserSelection(certificateData: CertificateData) {
-        eudiRqesController.updateCertificateUserSelection(certificateData)
+    override fun updateCertificateUserSelection(certificate: CertificateData) {
+        eudiRqesController.updateCertificateUserSelection(certificate)
     }
 
     override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
         return eudiRqesController.authorizeService()
+    }
+
+    override suspend fun getCredentialAuthorizationUrl(
+        authorizedService: Authorized,
+        certificateData: CertificateData,
+    ): EudiRqesGetCredentialAuthorizationUrlPartialState {
+        return eudiRqesController.getCredentialAuthorizationUrl(authorizedService, certificateData)
     }
 }

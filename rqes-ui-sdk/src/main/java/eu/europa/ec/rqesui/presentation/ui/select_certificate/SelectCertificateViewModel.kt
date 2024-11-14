@@ -16,10 +16,12 @@
 
 package eu.europa.ec.rqesui.presentation.ui.select_certificate
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
 import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SelectCertificateInteractor
@@ -40,6 +42,7 @@ internal data class State(
     val selectionItem: SelectionItemUi? = null,
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
+    val isBottomBarButtonEnabled: Boolean = false,
 
     val title: String,
     val subtitle: String,
@@ -49,11 +52,17 @@ internal data class State(
     val selectedCertificateIndex: Int = 0,
 
     val sheetTextData: BottomSheetTextData,
+    val authorizedService: Authorized? = null, //TODO is this approach ok?
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
     data object Init : Event()
     data class FetchCertificates(val authorizedService: Authorized) : Event()
+    data class AuthorizeCertificate(
+        val authorizedService: Authorized,
+        val certificate: CertificateData,
+    ) : Event()
+
     data object Pop : Event()
     data object DismissError : Event()
 
@@ -81,6 +90,12 @@ internal sealed class Effect : ViewSideEffect {
     data object CloseBottomSheet : Effect()
 
     data class OnServiceAuthorized(val authorizedService: Authorized) : Effect()
+
+    data class OpenUrl(val uri: Uri) : Effect()
+    data class OnSelectedCertificateUpdated(
+        val authorizedService: Authorized,
+        val certificate: CertificateData,
+    ) : Effect()
 }
 
 @KoinViewModel
@@ -110,6 +125,18 @@ internal class SelectCertificateViewModel(
                 fetchCertificates(event, event.authorizedService)
             }
 
+            is Event.CertificateSelected -> {
+                setState {
+                    copy(
+                        selectedCertificateIndex = event.index
+                    )
+                }
+            }
+
+            is Event.AuthorizeCertificate -> {
+                fetchCredentialAuthorizationUrl(event, event.authorizedService, event.certificate)
+            }
+
             is Event.Pop -> {
                 showBottomSheet()
             }
@@ -119,11 +146,22 @@ internal class SelectCertificateViewModel(
             }
 
             is Event.BottomBarButtonPressed -> {
-                selectCertificateInteractor.updateCertificateUserSelection(
-                    certificateData = viewState.value.certificates[viewState.value.selectedCertificateIndex]
-                )
-                setEffect {
-                    Effect.Navigation.Finish
+                with(viewState.value) {
+                    if (certificates.isNotEmpty() && selectedCertificateIndex >= 0) {
+                        selectCertificateInteractor.updateCertificateUserSelection(
+                            certificate = certificates[selectedCertificateIndex]
+                        )
+
+                        authorizedService?.let { safeAuthorizedService ->
+                            setEffect {
+                                Effect.OnSelectedCertificateUpdated(
+                                    authorizedService = safeAuthorizedService,
+                                    certificate = certificates[selectedCertificateIndex],
+                                )
+                            }
+                        }
+
+                    }
                 }
             }
 
@@ -142,14 +180,6 @@ internal class SelectCertificateViewModel(
             is Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed -> {
                 setEffect {
                     Effect.Navigation.Finish
-                }
-            }
-
-            is Event.CertificateSelected -> {
-                setState {
-                    copy(
-                        selectedCertificateIndex = event.index
-                    )
                 }
             }
         }
@@ -204,6 +234,7 @@ internal class SelectCertificateViewModel(
                 }
 
                 is EudiRqesAuthorizeServicePartialState.Success -> {
+                    setState { copy(authorizedService = response.authorizedService) }
                     setEffect {
                         Effect.OnServiceAuthorized(authorizedService = response.authorizedService)
                     }
@@ -218,36 +249,83 @@ internal class SelectCertificateViewModel(
         }
 
         viewModelScope.launch {
-            selectCertificateInteractor.getCertificates(
+            val response = selectCertificateInteractor.getCertificates(
                 authorizedService = authorizedService
-            ).collect { response ->
-                when (response) {
-                    is EudiRqesGetCertificatesPartialState.Failure -> {
-                        setState {
-                            copy(
-                                certificates = emptyList(),
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(event) },
-                                    errorSubTitle = response.error.message,
-                                    onCancel = {
-                                        setEvent(Event.DismissError)
-                                        setEffect { Effect.Navigation.Finish }
-                                    }
-                                ),
-                                isLoading = false,
-                            )
-                        }
-                    }
+            )
 
-                    is EudiRqesGetCertificatesPartialState.Success -> {
-                        setState {
-                            copy(
-                                certificates = response.certificates,
-                                error = null,
-                                isLoading = false,
-                            )
-                        }
+            when (response) {
+                is EudiRqesGetCertificatesPartialState.Failure -> {
+                    setState {
+                        copy(
+                            certificates = emptyList(),
+                            isBottomBarButtonEnabled = false,
+                            error = ContentErrorConfig(
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    setEffect { Effect.Navigation.Finish }
+                                }
+                            ),
+                            isLoading = false,
+                        )
                     }
+                }
+
+                is EudiRqesGetCertificatesPartialState.Success -> {
+                    setState {
+                        copy(
+                            certificates = response.certificates,
+                            isBottomBarButtonEnabled = true,
+                            error = null,
+                            isLoading = false,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun fetchCredentialAuthorizationUrl(
+        event: Event,
+        authorizedService: Authorized,
+        certificate: CertificateData,
+    ) {
+        setState {
+            copy(isLoading = true)
+        }
+
+        viewModelScope.launch {
+            val response = selectCertificateInteractor.getCredentialAuthorizationUrl(
+                authorizedService = authorizedService,
+                certificateData = certificate,
+            )
+
+            when (response) {
+                is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure -> {
+                    setState {
+                        copy(
+                            error = ContentErrorConfig(
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                }
+                            ),
+                            isLoading = false,
+                        )
+                    }
+                }
+
+                is EudiRqesGetCredentialAuthorizationUrlPartialState.Success -> {
+                    setState {
+                        copy(
+                            error = null,
+                            isLoading = false,
+                        )
+                    }
+                    setEffect { Effect.OpenUrl(uri = response.authorizationUrl) }
+                    setEffect { Effect.Navigation.Finish }
                 }
             }
         }

@@ -41,11 +41,13 @@ private sealed interface StickyBottomBarConfig {
 @Composable
 internal fun WrapBottomBarPrimaryButton(
     buttonText: String,
-    onButtonClick: () -> Unit
+    enabled: Boolean = true,
+    onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Primary,
         buttonText = buttonText,
+        enabled = enabled,
         onButtonClick = onButtonClick,
     )
 }
@@ -53,11 +55,13 @@ internal fun WrapBottomBarPrimaryButton(
 @Composable
 internal fun WrapBottomBarSecondaryButton(
     buttonText: String,
-    onButtonClick: () -> Unit
+    enabled: Boolean = true,
+    onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Secondary,
         buttonText = buttonText,
+        enabled = enabled,
         onButtonClick = onButtonClick,
     )
 }
@@ -66,6 +70,7 @@ internal fun WrapBottomBarSecondaryButton(
 private fun WrapStickyBottomBar(
     config: StickyBottomBarConfig,
     buttonText: String,
+    enabled: Boolean,
     onButtonClick: () -> Unit,
 ) {
     Column(
@@ -86,6 +91,7 @@ private fun WrapStickyBottomBar(
             ConfigBasedButton(
                 config = config,
                 modifier = Modifier.fillMaxWidth(),
+                enabled = enabled,
                 onButtonClick = onButtonClick,
                 content = {
                     Text(
@@ -102,6 +108,7 @@ private fun WrapStickyBottomBar(
 private fun ConfigBasedButton(
     config: StickyBottomBarConfig,
     modifier: Modifier,
+    enabled: Boolean,
     onButtonClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -109,7 +116,8 @@ private fun ConfigBasedButton(
         is StickyBottomBarConfig.Primary -> {
             WrapPrimaryButton(
                 modifier = modifier,
-                onClick = onButtonClick
+                enabled = enabled,
+                onClick = onButtonClick,
             ) {
                 content()
             }
@@ -118,7 +126,8 @@ private fun ConfigBasedButton(
         is StickyBottomBarConfig.Secondary -> {
             WrapSecondaryButton(
                 modifier = modifier,
-                onClick = onButtonClick
+                enabled = enabled,
+                onClick = onButtonClick,
             ) {
                 content()
             }
@@ -132,7 +141,7 @@ private fun WrapBottomBarPrimaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarPrimaryButton(
             buttonText = "Sign",
-            onButtonClick = {}
+            onButtonClick = {},
         )
     }
 }
@@ -143,7 +152,7 @@ private fun WrapBottomBarSecondaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarSecondaryButton(
             buttonText = "Sign",
-            onButtonClick = {}
+            onButtonClick = {},
         )
     }
 }

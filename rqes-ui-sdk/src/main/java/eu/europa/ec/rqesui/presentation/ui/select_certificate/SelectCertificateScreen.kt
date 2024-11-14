@@ -57,6 +57,7 @@ import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
+import eu.europa.ec.rqesui.presentation.extension.openUrl
 import eu.europa.ec.rqesui.presentation.extension.throttledClickable
 import eu.europa.ec.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
@@ -107,6 +108,7 @@ internal fun SelectCertificateScreen(
         stickyBottom = {
             WrapBottomBarPrimaryButton(
                 buttonText = state.bottomBarButtonText,
+                enabled = state.isBottomBarButtonEnabled,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed
@@ -163,6 +165,7 @@ private fun Content(
     paddingValues: PaddingValues,
     modalBottomSheetState: SheetState,
 ) {
+    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     Column(
@@ -220,6 +223,19 @@ private fun Content(
 
                 is Effect.OnServiceAuthorized -> {
                     onEventSend(Event.FetchCertificates(authorizedService = effect.authorizedService))
+                }
+
+                is Effect.OnSelectedCertificateUpdated -> {
+                    onEventSend(
+                        Event.AuthorizeCertificate(
+                            authorizedService = effect.authorizedService,
+                            certificate = effect.certificate,
+                        )
+                    )
+                }
+
+                is Effect.OpenUrl -> {
+                    context.openUrl(effect.uri)
                 }
             }
         }.collect()
