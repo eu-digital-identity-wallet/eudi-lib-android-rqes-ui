@@ -46,6 +46,7 @@ object EudiRQESUi {
     internal lateinit var currentSelection: CurrentSelection
 
     internal var rqesService: RQESService? = null
+    internal var authorizedService: RQESService.Authorized? = null
 
     fun setup(application: Application, config: EudiRQESUiConfig) {
         _eudiRQESUiConfig = config
@@ -78,6 +79,9 @@ object EudiRQESUi {
             certificate = null,
             authorizationCode = null,
         )
+
+        rqesService = null
+        authorizedService = null
 
         setState(
             State.Initial(
@@ -132,9 +136,7 @@ object EudiRQESUi {
             }
 
             is State.Initial -> {
-                State.Certificate(
-                    tBDByCore = TBDByCore("some_tbd_value")
-                )
+                State.Certificate
             }
 
             is State.Certificate -> {
@@ -184,13 +186,9 @@ object EudiRQESUi {
     internal sealed class State : Parcelable {
         data object None : State()
         data class Initial(val file: Uri) : State()
-        data class Certificate(val tBDByCore: TBDByCore) : State()
+        data object Certificate : State()
         data object Success : State()
     }
-
-    //TODO delete and adjust accordingly when integration with Core is done.
-    @Parcelize
-    internal data class TBDByCore(val value: String) : Parcelable
 
     internal data class CurrentSelection(
         val file: DocumentData?,

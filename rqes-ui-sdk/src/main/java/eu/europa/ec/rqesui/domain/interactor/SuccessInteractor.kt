@@ -16,16 +16,30 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
+import eu.europa.ec.eudi.rqes.core.RQESService
+import eu.europa.ec.eudi.rqes.core.SignedDocuments
+import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPartialState
+import eu.europa.ec.rqesui.domain.controller.EudiRqesSignDocumentsPartialState
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 
 internal interface SuccessInteractor {
     fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
 
     fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState
+
+    suspend fun authorizeCredential(): EudiRqesAuthorizeCredentialPartialState
+
+    suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState
+
+    suspend fun saveSignedDocuments(
+        unsignedDocumentName: String,
+        signedDocuments: SignedDocuments,
+    ): EudiRqesSaveSignedDocumentsPartialState
 }
 
 internal class SuccessInteractorImpl(
@@ -43,5 +57,20 @@ internal class SuccessInteractorImpl(
 
     override fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState {
         return eudiRqesController.getSelectedQtsp()
+    }
+
+    override suspend fun authorizeCredential(): EudiRqesAuthorizeCredentialPartialState {
+        return eudiRqesController.authorizeCredential()
+    }
+
+    override suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState {
+        return eudiRqesController.signDocuments(authorizedCredential)
+    }
+
+    override suspend fun saveSignedDocuments(
+        unsignedDocumentName: String,
+        signedDocuments: SignedDocuments,
+    ): EudiRqesSaveSignedDocumentsPartialState {
+        return eudiRqesController.saveSignedDocuments(unsignedDocumentName, signedDocuments)
     }
 }

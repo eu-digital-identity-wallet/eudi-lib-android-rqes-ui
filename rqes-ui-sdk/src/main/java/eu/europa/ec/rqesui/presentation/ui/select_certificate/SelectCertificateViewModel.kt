@@ -52,11 +52,11 @@ internal data class State(
     val selectedCertificateIndex: Int = 0,
 
     val sheetTextData: BottomSheetTextData,
-    val authorizedService: Authorized? = null, //TODO is this approach ok?
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
     data object Init : Event()
+    data class UpdateAuthorizedService(val authorizedService: Authorized) : Event()
     data class FetchCertificates(val authorizedService: Authorized) : Event()
     data class AuthorizeCertificate(
         val authorizedService: Authorized,
@@ -121,6 +121,10 @@ internal class SelectCertificateViewModel(
                 authorizeService(event)
             }
 
+            is Event.UpdateAuthorizedService -> {
+                selectCertificateInteractor.setAuthorizedService(event.authorizedService)
+            }
+
             is Event.FetchCertificates -> {
                 fetchCertificates(event, event.authorizedService)
             }
@@ -152,14 +156,15 @@ internal class SelectCertificateViewModel(
                             certificate = certificates[selectedCertificateIndex]
                         )
 
-                        authorizedService?.let { safeAuthorizedService ->
-                            setEffect {
-                                Effect.OnSelectedCertificateUpdated(
-                                    authorizedService = safeAuthorizedService,
-                                    certificate = certificates[selectedCertificateIndex],
-                                )
+                        selectCertificateInteractor.getAuthorizedService()
+                            ?.let { safeAuthorizedService ->
+                                setEffect {
+                                    Effect.OnSelectedCertificateUpdated(
+                                        authorizedService = safeAuthorizedService,
+                                        certificate = certificates[selectedCertificateIndex],
+                                    )
+                                }
                             }
-                        }
 
                     }
                 }
@@ -234,7 +239,6 @@ internal class SelectCertificateViewModel(
                 }
 
                 is EudiRqesAuthorizeServicePartialState.Success -> {
-                    setState { copy(authorizedService = response.authorizedService) }
                     setEffect {
                         Effect.OnServiceAuthorized(authorizedService = response.authorizedService)
                     }
@@ -260,7 +264,10 @@ internal class SelectCertificateViewModel(
                             certificates = emptyList(),
                             isBottomBarButtonEnabled = false,
                             error = ContentErrorConfig(
-                                onRetry = { setEvent(event) },
+                                onRetry = {
+                                    setEvent(Event.DismissError)
+                                    setEvent(event)
+                                },
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)

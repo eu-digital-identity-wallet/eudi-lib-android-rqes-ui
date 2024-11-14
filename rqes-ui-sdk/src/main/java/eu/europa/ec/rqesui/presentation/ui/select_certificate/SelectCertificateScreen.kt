@@ -194,6 +194,8 @@ private fun Content(
             subtitle = state.certificatesSectionTitle
         )
 
+        VSpacer.Small()
+
         CertificatesList(
             certificateItems = state.certificates,
             selectedIndex = state.selectedCertificateIndex,
@@ -222,6 +224,7 @@ private fun Content(
                 }
 
                 is Effect.OnServiceAuthorized -> {
+                    onEventSend(Event.UpdateAuthorizedService(authorizedService = effect.authorizedService))
                     onEventSend(Event.FetchCertificates(authorizedService = effect.authorizedService))
                 }
 

@@ -67,6 +67,7 @@ internal fun SuccessScreen(
         stickyBottom = {
             WrapBottomBarSecondaryButton(
                 buttonText = state.bottomBarButtonText,
+                enabled = state.isBottomBarButtonEnabled,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed
@@ -102,6 +103,8 @@ private fun Content(
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
+    val context = LocalContext.current
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -150,7 +153,18 @@ private fun Content(
         effectFlow.onEach { effect ->
             when (effect) {
                 is Effect.Navigation -> onNavigationRequested(effect)
-                is Effect.SelectedQtspFetched -> onEventSend(Event.CreateSelectionItem(effect.qtsp))
+                is Effect.OnSelectedFileAndQtspGot -> onEventSend(Event.AuthorizeCredential)
+                is Effect.OnCredentialAuthorized -> onEventSend(Event.SignDocuments(effect.authorizedCredential))
+                is Effect.OnDocumentsSigned -> onEventSend(Event.SaveSignedDocuments(effect.signedDocuments))
+                is Effect.OnDocumentsSaved -> {
+                    onEventSend(
+                        Event.CreateUiItems(
+                            effect.signedDocumentsUris,
+                            context,
+                        )
+                    )
+                }
+
             }
         }.collect()
     }

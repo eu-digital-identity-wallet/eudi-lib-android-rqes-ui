@@ -48,6 +48,7 @@ enum class LocalizableKey {
     GenericErrorDescription,
     GenericErrorDocumentNotFound,
     GenericErrorQtspNotFound,
+    GenericErrorCertificatesNotFound,
     Certificate;
 
     companion object {
@@ -83,6 +84,7 @@ enum class LocalizableKey {
             GenericErrorDescription -> "If the issue persists, please contact customer support"
             GenericErrorDocumentNotFound -> "No Document data found"
             GenericErrorQtspNotFound -> "No selected QTSP found"
+            GenericErrorCertificatesNotFound -> "No certificates found"
             Certificate -> "Certificate $ARGUMENTS_SEPARATOR"
         }
     }

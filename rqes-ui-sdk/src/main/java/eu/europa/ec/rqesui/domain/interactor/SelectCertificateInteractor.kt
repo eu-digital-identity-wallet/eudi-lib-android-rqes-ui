@@ -35,6 +35,10 @@ internal interface SelectCertificateInteractor {
 
     suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
 
+    fun setAuthorizedService(authorizedService: Authorized)
+
+    fun getAuthorizedService(): Authorized?
+
     suspend fun getCredentialAuthorizationUrl(
         authorizedService: Authorized,
         certificateData: CertificateData,
@@ -64,6 +68,14 @@ internal class SelectCertificateInteractorImpl(
 
     override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
         return eudiRqesController.authorizeService()
+    }
+
+    override fun setAuthorizedService(authorizedService: Authorized) {
+        eudiRqesController.setAuthorizedService(authorizedService)
+    }
+
+    override fun getAuthorizedService(): Authorized? {
+        return eudiRqesController.getAuthorizedService()
     }
 
     override suspend fun getCredentialAuthorizationUrl(
