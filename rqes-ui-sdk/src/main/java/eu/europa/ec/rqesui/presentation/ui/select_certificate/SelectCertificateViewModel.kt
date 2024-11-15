@@ -231,7 +231,6 @@ internal class SelectCertificateViewModel(
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
-                                    //TODO we dont need it here, right? setEffect { Effect.Navigation.Finish }
                                 }
                             )
                         )

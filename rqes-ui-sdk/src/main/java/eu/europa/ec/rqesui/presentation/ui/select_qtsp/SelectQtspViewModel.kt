@@ -179,7 +179,6 @@ internal class SelectQtspViewModel(
                                     errorSubTitle = response.error.message,
                                     onCancel = {
                                         setEvent(Event.DismissError)
-                                        //TODO we dont need it here, right? setEffect { Effect.Navigation.Finish }
                                     }
                                 )
                             )
@@ -287,7 +286,6 @@ internal class SelectQtspViewModel(
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
-                                    //TODO we dont need it here, right? setEffect { Effect.Navigation.Finish }
                                 }
                             ),
                             isLoading = false,
