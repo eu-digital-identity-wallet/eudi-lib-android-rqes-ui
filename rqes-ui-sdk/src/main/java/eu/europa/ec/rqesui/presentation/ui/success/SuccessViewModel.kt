@@ -296,6 +296,7 @@ internal class SuccessViewModel(
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
+                                    setEffect { Effect.Navigation.Finish }
                                 }
                             ),
                             isLoading = false,

@@ -175,7 +175,10 @@ internal class SelectQtspViewModel(
                         setState {
                             copy(
                                 error = ContentErrorConfig(
-                                    onRetry = { setEvent(event) },
+                                    onRetry = {
+                                        setEvent(Event.DismissError)
+                                        setEvent(event)
+                                    },
                                     errorSubTitle = response.error.message,
                                     onCancel = {
                                         setEvent(Event.DismissError)
@@ -282,7 +285,10 @@ internal class SelectQtspViewModel(
                     setState {
                         copy(
                             error = ContentErrorConfig(
-                                onRetry = { setEvent(event) },
+                                onRetry = {
+                                    setEvent(Event.DismissError)
+                                    setEvent(event)
+                                },
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)

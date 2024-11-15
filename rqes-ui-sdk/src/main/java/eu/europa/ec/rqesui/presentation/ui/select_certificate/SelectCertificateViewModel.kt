@@ -197,7 +197,10 @@ internal class SelectCertificateViewModel(
                     copy(
                         selectionItem = null,
                         error = ContentErrorConfig(
-                            onRetry = { setEvent(event) },
+                            onRetry = {
+                                setEvent(Event.DismissError)
+                                setEvent(event)
+                            },
                             errorSubTitle = response.error.message,
                             onCancel = {
                                 setEvent(Event.DismissError)
@@ -221,23 +224,30 @@ internal class SelectCertificateViewModel(
     }
 
     private fun authorizeService(event: Event) {
+        setState { copy(isLoading = true) }
         viewModelScope.launch {
             when (val response = selectCertificateInteractor.authorizeService()) {
                 is EudiRqesAuthorizeServicePartialState.Failure -> {
                     setState {
                         copy(
                             error = ContentErrorConfig(
-                                onRetry = { setEvent(event) },
+                                onRetry = {
+                                    setEvent(Event.DismissError)
+                                    setEvent(event)
+                                },
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
+                                    setEffect { Effect.Navigation.Finish }
                                 }
-                            )
+                            ),
+                            isLoading = false,
                         )
                     }
                 }
 
                 is EudiRqesAuthorizeServicePartialState.Success -> {
+                    setState { copy(isLoading = false) }
                     setEffect {
                         Effect.OnServiceAuthorized(authorizedService = response.authorizedService)
                     }
@@ -312,7 +322,10 @@ internal class SelectCertificateViewModel(
                     setState {
                         copy(
                             error = ContentErrorConfig(
-                                onRetry = { setEvent(event) },
+                                onRetry = {
+                                    setEvent(Event.DismissError)
+                                    setEvent(event)
+                                },
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
