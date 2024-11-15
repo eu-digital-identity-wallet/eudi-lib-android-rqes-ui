@@ -70,7 +70,7 @@ class TestRQESActivity : ComponentActivity() {
         if (code != null) {
             EudiRQESUi.resume(
                 context = this,
-                authorizationCode = code, //TODO("Add authorization code")
+                authorizationCode = code,
             )
         }
     }

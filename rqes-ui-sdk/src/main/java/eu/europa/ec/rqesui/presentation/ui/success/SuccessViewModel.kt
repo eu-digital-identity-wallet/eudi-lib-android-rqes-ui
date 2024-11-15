@@ -213,6 +213,7 @@ internal class SuccessViewModel(
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
+                                    setEffect { Effect.Navigation.Finish }
                                 }
                             ),
                             isLoading = false,
@@ -251,7 +252,7 @@ internal class SuccessViewModel(
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
-                                    //todo should close as well prob
+                                    setEffect { Effect.Navigation.Finish }
                                 }
                             ),
                             isLoading = false,
