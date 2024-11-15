@@ -19,7 +19,6 @@ package eu.europa.ec.rqesui.domain.controller
 import android.net.Uri
 import eu.europa.ec.eudi.rqes.AuthorizationCode
 import eu.europa.ec.eudi.rqes.CSCClientConfig
-import eu.europa.ec.eudi.rqes.KtorHttpClientFactory
 import eu.europa.ec.eudi.rqes.OAuth2Client
 import eu.europa.ec.eudi.rqes.SigningAlgorithmOID
 import eu.europa.ec.eudi.rqes.core.RQESService
@@ -39,14 +38,8 @@ import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.infrastructure.config.data.toCertificatesData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.net.URI
 import java.net.URL
 
@@ -385,27 +378,6 @@ internal class EudiRqesControllerImpl(
 
     private fun createRqesService(qtspData: QtspData): EudiRqesCreateServicePartialState {
         return runCatching {
-            //TODO remove later
-            val appJsonSupport = Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-                encodeDefaults = true
-            }
-
-            val appDefaultHttpClientFactory: KtorHttpClientFactory = {
-                HttpClient {
-                    install(ContentNegotiation) {
-                        json(
-                            json = appJsonSupport,
-                        )
-                    }
-                    install(Logging) {
-                        level = LogLevel.ALL
-                    }
-                }
-            }
-
-
             val service = RQESService(
                 serviceEndpointUrl = qtspData.endpoint.toString(),
                 config = CSCClientConfig(
@@ -416,7 +388,6 @@ internal class EudiRqesControllerImpl(
                     authFlowRedirectionURI = URI("rQES://oauth/callback"),
                     scaBaseURL = URL(qtspData.scaUrl),
                 ),
-                httpClientFactory = appDefaultHttpClientFactory,
                 signingAlgorithm = SigningAlgorithmOID.RSA,
             )
 
