@@ -22,6 +22,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class QtspData(
-    val qtspName: String,
-    val uri: Uri,
+    val name: String,
+    val endpoint: Uri,
+    val scaUrl:String,
 ) : Parcelable

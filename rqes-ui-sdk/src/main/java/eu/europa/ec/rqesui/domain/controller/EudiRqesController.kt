@@ -407,15 +407,14 @@ internal class EudiRqesControllerImpl(
 
 
             val service = RQESService(
-                serviceEndpointUrl = qtspData.uri.toString(),
+                serviceEndpointUrl = qtspData.endpoint.toString(),
                 config = CSCClientConfig(
                     client = OAuth2Client.Confidential.ClientSecretBasic(
                         clientId = "wallet-client-tester", //TODO remove them later?
                         clientSecret = "somesecrettester2"//TODO remove them later?
                     ),
-                    //authFlowRedirectionURI = URI("https://oauthdebugger.com/debug"),
                     authFlowRedirectionURI = URI("rQES://oauth/callback"),
-                    scaBaseURL = URL("https://walletcentric.signer.eudiw.dev"),
+                    scaBaseURL = URL(qtspData.scaUrl),
                 ),
                 httpClientFactory = appDefaultHttpClientFactory,
                 signingAlgorithm = SigningAlgorithmOID.RSA,

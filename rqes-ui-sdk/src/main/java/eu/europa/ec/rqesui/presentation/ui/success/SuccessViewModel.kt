@@ -330,7 +330,7 @@ internal class SuccessViewModel(
                     ),
                     subtitle = resourceProvider.getLocalizedString(
                         LocalizableKey.SignedBy,
-                        listOf(safeSelectedQtsp.qtspName)
+                        listOf(safeSelectedQtsp.name)
                     ),
                     action = resourceProvider.getLocalizedString(LocalizableKey.View),
                 )

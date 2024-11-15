@@ -252,7 +252,7 @@ internal class SelectQtspViewModel(
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
                     response.qtsps.map { qtspData ->
                         ModalOptionUi(
-                            title = qtspData.qtspName,
+                            title = qtspData.name,
                             icon = null,
                             event = Event.BottomSheet.QtspSelected(qtspData)
                         )

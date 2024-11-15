@@ -40,10 +40,26 @@ private class DefaultConfig : EudiRQESUiConfig {
 
     override val qtsps: List<QtspData>
         get() = listOf(
-            QtspData("Wallet-Centric", "https://walletcentric.signer.eudiw.dev/csc/v2".toUri()),
-            QtspData("Entrust", "https://www.google.com/search?q=entrust".toUri()),
-            QtspData("Docusign", "https://www.google.com/search?q=docusign".toUri()),
-            QtspData("Ascertia", "https://www.google.com/search?q=ascertia".toUri()),
+            QtspData(
+                name = "Wallet-Centric",
+                endpoint = "https://walletcentric.signer.eudiw.dev/csc/v2".toUri(),
+                scaUrl = "https://walletcentric.signer.eudiw.dev"
+            ),
+            QtspData(
+                name = "Entrust",
+                endpoint = "https://www.google.com/search?q=entrust".toUri(),
+                scaUrl = "https://www.google.com/search?q=entrust"
+            ),
+            QtspData(
+                name = "Docusign",
+                endpoint = "https://www.google.com/search?q=docusign".toUri(),
+                scaUrl = "https://www.google.com/search?q=docusign"
+            ),
+            QtspData(
+                name = "Ascertia",
+                endpoint = "https://www.google.com/search?q=ascertia".toUri(),
+                scaUrl = "https://www.google.com/search?q=ascertia"
+            ),
         )
 
     override val translations: Map<String, Map<LocalizableKey, String>>
