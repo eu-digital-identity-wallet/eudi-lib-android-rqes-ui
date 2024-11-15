@@ -19,7 +19,6 @@ package eu.europa.ec.rqesui.domain.interactor
 import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
 import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
-import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
@@ -48,7 +47,6 @@ internal interface SelectCertificateInteractor {
 internal class SelectCertificateInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: EudiRqesController,
-    private val eudiRqesCoreController: EudiRqesCoreController,
 ) : SelectCertificateInteractor {
 
     private val genericErrorMsg

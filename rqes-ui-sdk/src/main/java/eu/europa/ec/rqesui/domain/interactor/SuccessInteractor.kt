@@ -20,7 +20,6 @@ import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
-import eu.europa.ec.rqesui.domain.controller.EudiRqesCoreController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPartialState
@@ -45,7 +44,6 @@ internal interface SuccessInteractor {
 internal class SuccessInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: EudiRqesController,
-    private val eudiRqesCoreController: EudiRqesCoreController,
 ) : SuccessInteractor {
 
     private val genericErrorMsg
