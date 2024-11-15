@@ -40,6 +40,8 @@ import org.koin.ksp.generated.module
 
 object EudiRQESUi {
 
+    private const val SDK_NOT_INITIALIZED_MESSAGE =
+        "Before calling resume, SDK must be initialized firstly. Call EudiRQESUi.launchSDK()"
     private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
     private var state: State = State.None
 
@@ -93,17 +95,35 @@ object EudiRQESUi {
     }
 
     /**
-     * Resumes the SDK and auto calculates the next state internally.
+     * Resumes the SDK flow and automatically calculates the next state.
      *
-     * If the context passed is not an Activity, throws [EudiRQESUiError].
+     * This function should be called after the user has successfully authenticated
+     * with their identity provider and you have received an authorization code.
+     * The SDK will then use this code to proceed with the request process.
      *
-     * @param context An Activity [Context].
+     * **Important:**
+     * -  This function must be called with an Activity context. Passing a non-Activity context
+     *    will result in an [EudiRQESUiError] being thrown.
+     * - Ensure that the SDK has been previously initialized using one of the `start()` methods
+     *   before calling this function.
+     *
+     * @param context The Activity [Context] used to launch the SDK.
+     * @param authorizationCode The authorization code obtained after successful authentication
+     *                           with the user's identity provider.
+     *
+     * @throws [EudiRQESUiError] if the SDK has not been initialized or if a non-Activity context
+     * is provided.
      */
     @Throws(EudiRQESUiError::class)
     fun resume(
         context: Context,
         authorizationCode: String
     ) {
+        if (!::currentSelection.isInitialized) {
+            throw EudiRQESUiError(
+                message = SDK_NOT_INITIALIZED_MESSAGE
+            )
+        }
         currentSelection = currentSelection.copy(
             authorizationCode = authorizationCode
         )
@@ -111,6 +131,16 @@ object EudiRQESUi {
         launchSDK(context)
     }
 
+    /**
+     * Launches the EudiRQES SDK.
+     *
+     * This function starts the EudiRQESContainer activity, which hosts the SDK's UI.
+     * It passes the current state of the SDK to the activity using an intent extra.
+     *
+     * @param context The context used to launch the activity. Must be an Activity.
+     *
+     * @throws EudiRQESUiError If the provided context is not an Activity.
+     */
     @Throws(EudiRQESUiError::class)
     private fun launchSDK(context: Context) {
         if (context as? Activity != null) {
@@ -121,32 +151,42 @@ object EudiRQESUi {
                 )
             )
         } else {
-            throw EudiRQESUiError("Context passed is not an Activity.")
+            throw EudiRQESUiError(message = "Context passed is not an Activity.")
         }
     }
 
+    /**
+     * Calculates the next state in the flow based on the current state.
+     *
+     * This function uses the current state and the selected file to determine the next state.
+     * If a file is selected, it transitions through the states: None -> Initial -> Certificate -> Success.
+     * If no file is selected, it throws an [EudiRQESUiError] indicating that the SDK is not initialized.
+     *
+     * @return The next state in the flow.
+     * @throws EudiRQESUiError If the SDK is not initialized (no file selected).
+     */
     private fun calculateNextState(): State {
-        return when (getState()) {
-            is State.None -> {
-                currentSelection.file?.let { safeFile ->
+        currentSelection.file?.let { safeFile ->
+            return when (getState()) {
+                is State.None -> {
                     State.Initial(
                         file = safeFile.uri
                     )
-                } ?: State.None
-            }
+                }
 
-            is State.Initial -> {
-                State.Certificate
-            }
+                is State.Initial -> {
+                    State.Certificate
+                }
 
-            is State.Certificate -> {
-                State.Success
-            }
+                is State.Certificate -> {
+                    State.Success
+                }
 
-            is State.Success -> {
-                State.Success
+                is State.Success -> {
+                    State.Success
+                }
             }
-        }
+        } ?: throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
     }
 
     /**
@@ -161,7 +201,7 @@ object EudiRQESUi {
     @Throws(EudiRQESUiError::class)
     internal fun getEudiRQESUiConfig(): EudiRQESUiConfig {
         if (!::_eudiRQESUiConfig.isInitialized) {
-            throw EudiRQESUiError("EudiRQESUi must be initialized first. Please call EudiRQESUi.setup()")
+            throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
         }
         return _eudiRQESUiConfig
     }
