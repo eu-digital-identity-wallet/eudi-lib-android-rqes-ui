@@ -16,29 +16,24 @@
 
 package eu.europa.ec.rqesui.domain.interactor
 
-import eu.europa.ec.eudi.rqes.core.RQESService
-import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPartialState
 import eu.europa.ec.rqesui.domain.controller.EudiRqesSignDocumentsPartialState
+import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
+import eu.europa.ec.rqesui.presentation.extension.getFileName
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 internal interface SuccessInteractor {
-    fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+    fun getSelectedFileAndQtsp(): SuccessInteractorGetSelectedFileAndQtspPartialState
 
-    fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState
-
-    suspend fun authorizeCredential(): EudiRqesAuthorizeCredentialPartialState
-
-    suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState
-
-    suspend fun saveSignedDocuments(
-        originalDocumentName: String,
-        signedDocuments: SignedDocuments,
-    ): EudiRqesSaveSignedDocumentsPartialState
+    suspend fun doAll(originalDocumentName: String): SuccessInteractorDoAllPartialState
 }
 
 internal class SuccessInteractorImpl(
@@ -49,26 +44,122 @@ internal class SuccessInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
-        return eudiRqesController.getSelectedFile()
+    override fun getSelectedFileAndQtsp(): SuccessInteractorGetSelectedFileAndQtspPartialState {
+        return runCatching {
+            when (val getSelectedFileResponse = eudiRqesController.getSelectedFile()) {
+                is EudiRqesGetSelectedFilePartialState.Failure -> {
+                    return@runCatching SuccessInteractorGetSelectedFileAndQtspPartialState.Failure(
+                        error = getSelectedFileResponse.error
+                    )
+                }
+
+                is EudiRqesGetSelectedFilePartialState.Success -> {
+                    when (val getSelectedQtspResponse = eudiRqesController.getSelectedQtsp()) {
+                        is EudiRqesGetSelectedQtspPartialState.Failure -> {
+                            return@runCatching SuccessInteractorGetSelectedFileAndQtspPartialState.Failure(
+                                error = getSelectedQtspResponse.error
+                            )
+                        }
+
+                        is EudiRqesGetSelectedQtspPartialState.Success -> {
+                            return@runCatching SuccessInteractorGetSelectedFileAndQtspPartialState.Success(
+                                selectedFile = getSelectedFileResponse.file,
+                                selectedQtsp = getSelectedQtspResponse.qtsp,
+                            )
+                        }
+                    }
+                }
+            }
+        }.getOrElse {
+            SuccessInteractorGetSelectedFileAndQtspPartialState.Failure(
+                error = EudiRQESUiError(
+                    message = it.localizedMessage ?: genericErrorMsg
+                )
+            )
+        }
     }
 
-    override fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState {
-        return eudiRqesController.getSelectedQtsp()
-    }
+    override suspend fun doAll(originalDocumentName: String): SuccessInteractorDoAllPartialState {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                when (val authorizeCredentialResponse = eudiRqesController.authorizeCredential()) {
+                    is EudiRqesAuthorizeCredentialPartialState.Failure -> {
+                        return@runCatching SuccessInteractorDoAllPartialState.Failure(
+                            error = authorizeCredentialResponse.error
+                        )
+                    }
 
-    override suspend fun authorizeCredential(): EudiRqesAuthorizeCredentialPartialState {
-        return eudiRqesController.authorizeCredential()
-    }
+                    is EudiRqesAuthorizeCredentialPartialState.Success -> {
+                        val signDocumentsResponse = eudiRqesController.signDocuments(
+                            authorizedCredential = authorizeCredentialResponse.authorizedCredential
+                        )
 
-    override suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState {
-        return eudiRqesController.signDocuments(authorizedCredential)
-    }
+                        when (signDocumentsResponse) {
+                            is EudiRqesSignDocumentsPartialState.Failure -> {
+                                return@runCatching SuccessInteractorDoAllPartialState.Failure(
+                                    error = signDocumentsResponse.error
+                                )
+                            }
 
-    override suspend fun saveSignedDocuments(
-        originalDocumentName: String,
-        signedDocuments: SignedDocuments,
-    ): EudiRqesSaveSignedDocumentsPartialState {
-        return eudiRqesController.saveSignedDocuments(originalDocumentName, signedDocuments)
+                            is EudiRqesSignDocumentsPartialState.Success -> {
+                                val saveSignedDocumentsResponse =
+                                    eudiRqesController.saveSignedDocuments(
+                                        originalDocumentName = originalDocumentName,
+                                        signedDocuments = signDocumentsResponse.signedDocuments,
+                                    )
+
+                                when (saveSignedDocumentsResponse) {
+                                    is EudiRqesSaveSignedDocumentsPartialState.Failure -> {
+                                        return@runCatching SuccessInteractorDoAllPartialState.Failure(
+                                            error = saveSignedDocumentsResponse.error
+                                        )
+                                    }
+
+                                    is EudiRqesSaveSignedDocumentsPartialState.Success -> {
+                                        val savedDocumentUri = saveSignedDocumentsResponse
+                                            .savedDocumentsUri
+                                            .first()
+                                        val savedDocumentName = savedDocumentUri.getFileName(
+                                            context = resourceProvider.provideContext()
+                                        ).getOrThrow()
+
+                                        val savedDocument = DocumentData(
+                                            uri = savedDocumentUri,
+                                            documentName = savedDocumentName,
+                                        )
+
+                                        return@runCatching SuccessInteractorDoAllPartialState.Success(
+                                            savedDocument = savedDocument
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }.getOrElse {
+                SuccessInteractorDoAllPartialState.Failure(
+                    error = EudiRQESUiError(
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
+                )
+            }
+        }
     }
+}
+
+internal sealed class SuccessInteractorGetSelectedFileAndQtspPartialState {
+    data class Success(
+        val selectedFile: DocumentData,
+        val selectedQtsp: QtspData,
+    ) : SuccessInteractorGetSelectedFileAndQtspPartialState()
+
+    data class Failure(
+        val error: EudiRQESUiError
+    ) : SuccessInteractorGetSelectedFileAndQtspPartialState()
+}
+
+internal sealed class SuccessInteractorDoAllPartialState {
+    data class Success(val savedDocument: DocumentData) : SuccessInteractorDoAllPartialState()
+    data class Failure(val error: EudiRQESUiError) : SuccessInteractorDoAllPartialState()
 }

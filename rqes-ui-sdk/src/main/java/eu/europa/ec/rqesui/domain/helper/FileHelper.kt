@@ -27,13 +27,13 @@ import java.util.Base64
 internal object FileHelper {
 
     /**
-     * Converts a content URI to a File object.
+     * Converts a content Uri to a File object.
      *
-     * This function takes a content URI, creates a temporary file in the app's cache directory,
-     * and copies the content from the URI to the temporary file.
+     * This function takes a content Uri, creates a temporary file in the app's cache directory,
+     * and copies the content from the Uri to the temporary file.
      *
      * @param context The application context.
-     * @param uri The content URI to convert.
+     * @param uri The content [Uri] to convert.
      * @param fileName The desired name for the temporary file.
      * @return A [Result] object containing the temporary [File] if successful, or a [Throwable] if an error occurred.
      */

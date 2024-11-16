@@ -103,8 +103,6 @@ private fun Content(
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
-    val context = LocalContext.current
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -114,15 +112,20 @@ private fun Content(
             title = state.title
         )
 
-        ContentHeadline(
-            headline = state.headline
-        )
+        state.headline?.let { safeHeadline ->
+            ContentHeadline(
+                headline = safeHeadline
+            )
+        }
 
-        VSpacer.Large()
 
-        ContentSubtitle(
-            subtitle = state.subtitle
-        )
+        state.subtitle?.let { safeSubtitle ->
+            VSpacer.Large()
+
+            ContentSubtitle(
+                subtitle = safeSubtitle
+            )
+        }
 
         state.selectionItem?.let { safeSelectionItem ->
             TextWithBadge(
@@ -153,18 +156,14 @@ private fun Content(
         effectFlow.onEach { effect ->
             when (effect) {
                 is Effect.Navigation -> onNavigationRequested(effect)
-                is Effect.OnSelectedFileAndQtspGot -> onEventSend(Event.AuthorizeCredential)
-                is Effect.OnCredentialAuthorized -> onEventSend(Event.SignDocuments(effect.authorizedCredential))
-                is Effect.OnDocumentsSigned -> onEventSend(Event.SaveSignedDocuments(effect.signedDocuments))
-                is Effect.OnDocumentsSaved -> {
+                is Effect.OnSelectedFileAndQtspGot -> {
                     onEventSend(
-                        Event.CreateUiItems(
-                            effect.signedDocumentsUris,
-                            context,
+                        Event.DoAll(
+                            originalDocumentName = effect.selectedFile.documentName,
+                            qtspName = effect.selectedQtsp.name,
                         )
                     )
                 }
-
             }
         }.collect()
     }
