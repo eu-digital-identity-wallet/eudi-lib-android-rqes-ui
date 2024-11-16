@@ -74,7 +74,7 @@ internal interface EudiRqesController {
     suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState
 
     suspend fun saveSignedDocuments(
-        unsignedDocumentName: String,
+        originalDocumentName: String,
         signedDocuments: SignedDocuments,
     ): EudiRqesSaveSignedDocumentsPartialState
 }
@@ -342,7 +342,7 @@ internal class EudiRqesControllerImpl(
     }
 
     override suspend fun saveSignedDocuments(
-        unsignedDocumentName: String,
+        originalDocumentName: String,
         signedDocuments: SignedDocuments,
     ): EudiRqesSaveSignedDocumentsPartialState {
         return withContext(Dispatchers.IO) {
@@ -353,7 +353,7 @@ internal class EudiRqesControllerImpl(
                     val uri = saveBase64DecodedPdfToShareableUri(
                         context = resourceProvider.provideContext(),
                         inputStream = inputStream,
-                        fileName = "signed_${index}_${unsignedDocumentName}"
+                        fileName = "signed_${index}_${originalDocumentName}"
                     ).getOrThrow()
 
                     uris.add(uri)

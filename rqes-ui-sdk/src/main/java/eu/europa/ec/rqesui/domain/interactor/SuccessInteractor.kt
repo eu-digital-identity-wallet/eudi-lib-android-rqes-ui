@@ -36,7 +36,7 @@ internal interface SuccessInteractor {
     suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState
 
     suspend fun saveSignedDocuments(
-        unsignedDocumentName: String,
+        originalDocumentName: String,
         signedDocuments: SignedDocuments,
     ): EudiRqesSaveSignedDocumentsPartialState
 }
@@ -66,9 +66,9 @@ internal class SuccessInteractorImpl(
     }
 
     override suspend fun saveSignedDocuments(
-        unsignedDocumentName: String,
+        originalDocumentName: String,
         signedDocuments: SignedDocuments,
     ): EudiRqesSaveSignedDocumentsPartialState {
-        return eudiRqesController.saveSignedDocuments(unsignedDocumentName, signedDocuments)
+        return eudiRqesController.saveSignedDocuments(originalDocumentName, signedDocuments)
     }
 }

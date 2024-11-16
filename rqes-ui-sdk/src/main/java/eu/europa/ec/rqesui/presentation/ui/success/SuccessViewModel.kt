@@ -274,13 +274,13 @@ internal class SuccessViewModel(
     ) {
         setState { copy(isLoading = true) }
 
-        val unsignedDocumentName = viewState.value
+        val originalDocumentName = viewState.value
             .selectedUnsignedFile?.documentName
             .orEmpty()
 
         viewModelScope.launch {
             val response = successInteractor.saveSignedDocuments(
-                unsignedDocumentName = unsignedDocumentName,
+                originalDocumentName = originalDocumentName,
                 signedDocuments = signedDocuments,
             )
 
@@ -321,14 +321,14 @@ internal class SuccessViewModel(
             safeLet(
                 signedDocumentsUris.firstOrNull(),
                 selectedQtsp
-            ) { safeSignedDocumentUris, safeSelectedQtsp ->
-                val documentName = safeSignedDocumentUris.getFileName(context)
+            ) { safeSignedDocumentUri, safeSelectedQtsp ->
+                val documentName = safeSignedDocumentUri.getFileName(context)
                     .getOrNull().orEmpty()
 
                 val selectionItem = SelectionItemUi(
                     documentData = DocumentData(
                         documentName = documentName,
-                        uri = safeSignedDocumentUris
+                        uri = safeSignedDocumentUri
                     ),
                     subtitle = resourceProvider.getLocalizedString(
                         LocalizableKey.SignedBy,
