@@ -37,7 +37,7 @@ internal object FileHelper {
      * @param fileName The desired name for the temporary file.
      * @return A [Result] object containing the temporary [File] if successful, or a [Throwable] if an error occurred.
      */
-    fun uriToFile(context: Context, uri: Uri, fileName: String): Result<File> {
+    internal fun uriToFile(context: Context, uri: Uri, fileName: String): Result<File> {
         return runCatching {
             // Define a temporary file in the app's cache directory
             val tempFile = File(context.cacheDir, fileName)
@@ -76,7 +76,7 @@ internal object FileHelper {
      * @throws SecurityException If the FileProvider is not configured correctly or if the app does not
      *         have the necessary permissions to access the file.
      */
-    fun saveBase64DecodedPdfToShareableUri(
+    internal fun saveBase64DecodedPdfToShareableUri(
         context: Context,
         inputStream: InputStream,
         fileName: String,

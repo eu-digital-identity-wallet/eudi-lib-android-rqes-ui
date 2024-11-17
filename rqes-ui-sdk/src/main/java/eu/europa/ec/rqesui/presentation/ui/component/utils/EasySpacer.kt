@@ -26,43 +26,43 @@ import androidx.compose.ui.unit.dp
 internal object VSpacer {
 
     @Composable
-    fun Custom(space: Int) = Spacer(modifier = Modifier.height(space.dp))
+    internal fun Custom(space: Int) = Spacer(modifier = Modifier.height(space.dp))
 
     @Composable
-    fun ExtraSmall() = Spacer(modifier = Modifier.height(SPACING_EXTRA_SMALL.dp))
+    internal fun ExtraSmall() = Spacer(modifier = Modifier.height(SPACING_EXTRA_SMALL.dp))
 
     @Composable
-    fun Small() = Spacer(modifier = Modifier.height(SPACING_SMALL.dp))
+    internal fun Small() = Spacer(modifier = Modifier.height(SPACING_SMALL.dp))
 
     @Composable
-    fun Medium() = Spacer(modifier = Modifier.height(SPACING_MEDIUM.dp))
+    internal fun Medium() = Spacer(modifier = Modifier.height(SPACING_MEDIUM.dp))
 
     @Composable
-    fun Large() = Spacer(modifier = Modifier.height(SPACING_LARGE.dp))
+    internal fun Large() = Spacer(modifier = Modifier.height(SPACING_LARGE.dp))
 
     @Composable
-    fun ExtraLarge() = Spacer(modifier = Modifier.height(SPACING_EXTRA_LARGE.dp))
+    internal fun ExtraLarge() = Spacer(modifier = Modifier.height(SPACING_EXTRA_LARGE.dp))
 
 }
 
 internal object HSpacer {
 
     @Composable
-    fun Custom(space: Int) = Spacer(modifier = Modifier.width(space.dp))
+    internal fun Custom(space: Int) = Spacer(modifier = Modifier.width(space.dp))
 
     @Composable
-    fun ExtraSmall() = Spacer(modifier = Modifier.width(SPACING_EXTRA_SMALL.dp))
+    internal fun ExtraSmall() = Spacer(modifier = Modifier.width(SPACING_EXTRA_SMALL.dp))
 
     @Composable
-    fun Small() = Spacer(modifier = Modifier.width(SPACING_SMALL.dp))
+    internal fun Small() = Spacer(modifier = Modifier.width(SPACING_SMALL.dp))
 
     @Composable
-    fun Medium() = Spacer(modifier = Modifier.width(SPACING_MEDIUM.dp))
+    internal fun Medium() = Spacer(modifier = Modifier.width(SPACING_MEDIUM.dp))
 
     @Composable
-    fun Large() = Spacer(modifier = Modifier.width(SPACING_LARGE.dp))
+    internal fun Large() = Spacer(modifier = Modifier.width(SPACING_LARGE.dp))
 
     @Composable
-    fun ExtraLarge() = Spacer(modifier = Modifier.width(SPACING_EXTRA_LARGE.dp))
+    internal fun ExtraLarge() = Spacer(modifier = Modifier.width(SPACING_EXTRA_LARGE.dp))
 
 }
