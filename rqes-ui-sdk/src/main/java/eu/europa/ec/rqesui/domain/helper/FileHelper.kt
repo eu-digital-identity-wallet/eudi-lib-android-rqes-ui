@@ -57,7 +57,7 @@ internal object FileHelper {
      * and returns a shareable Uri using FileProvider.
      *
      * This function takes an InputStream containing Base64 encoded PDF data, decodes it,
-     * and saves it to a file within the app's cache directory under a "pdfs" subdirectory.
+     * and saves it to a file within the app's cache directory under a "signed_pdfs" subdirectory.
      * It then generates a content Uri using FileProvider, making the saved PDF accessible
      * to other apps for sharing purposes.
      *
@@ -83,7 +83,7 @@ internal object FileHelper {
     ): Result<Uri> {
         return runCatching {
             // Define the directory and file for saving the decoded PDF
-            val sharedPdfDir = File(context.cacheDir, "pdfs").apply { mkdirs() }
+            val sharedPdfDir = File(context.cacheDir, "signed_pdfs").apply { mkdirs() }
             val pdfFile = File(sharedPdfDir, fileName)
 
             // Decode the Base64 InputStream and write it to the file
