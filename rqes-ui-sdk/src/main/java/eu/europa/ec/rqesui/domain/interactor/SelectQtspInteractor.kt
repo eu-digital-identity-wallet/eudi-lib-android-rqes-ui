@@ -32,7 +32,7 @@ internal interface SelectQtspInteractor {
 
     fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
 
-    suspend fun getAuthorizationServiceUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
+    suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
 }
 
 internal class SelectQtspInteractorImpl(
@@ -52,10 +52,10 @@ internal class SelectQtspInteractorImpl(
     }
 
     override fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {
-        return eudiRqesController.updateQtspUserSelection(qtspData)
+        return eudiRqesController.setSelectedQtsp(qtspData)
     }
 
-    override suspend fun getAuthorizationServiceUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
-        return eudiRqesController.getAuthorizationServiceUrl(rqesService)
+    override suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
+        return eudiRqesController.getServiceAuthorizationUrl(rqesService)
     }
 }

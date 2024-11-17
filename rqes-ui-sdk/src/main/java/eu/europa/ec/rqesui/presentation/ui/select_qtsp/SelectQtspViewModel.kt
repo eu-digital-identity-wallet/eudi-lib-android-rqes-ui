@@ -276,7 +276,7 @@ internal class SelectQtspViewModel(
         }
 
         viewModelScope.launch {
-            val response = selectQtspInteractor.getAuthorizationServiceUrl(
+            val response = selectQtspInteractor.getServiceAuthorizationUrl(
                 rqesService = service
             )
 

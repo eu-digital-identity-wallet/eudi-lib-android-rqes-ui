@@ -223,18 +223,8 @@ private fun Content(
                     onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
                 }
 
-                is Effect.OnServiceAuthorized -> {
-                    onEventSend(Event.UpdateAuthorizedService(authorizedService = effect.authorizedService))
-                    onEventSend(Event.FetchCertificates(authorizedService = effect.authorizedService))
-                }
-
-                is Effect.OnSelectedCertificateUpdated -> {
-                    onEventSend(
-                        Event.AuthorizeCertificate(
-                            authorizedService = effect.authorizedService,
-                            certificate = effect.certificate,
-                        )
-                    )
+                is Effect.OnSelectionItemCreated -> {
+                    onEventSend(Event.AuthorizeServiceAndFetchCertificates)
                 }
 
                 is Effect.OpenUrl -> {

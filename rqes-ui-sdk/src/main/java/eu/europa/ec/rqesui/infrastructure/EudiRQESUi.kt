@@ -78,7 +78,6 @@ object EudiRQESUi {
         currentSelection = CurrentSelection(
             file = documentData,
             qtsp = null,
-            certificate = null,
             authorizationCode = null,
         )
 
@@ -233,7 +232,6 @@ object EudiRQESUi {
     internal data class CurrentSelection(
         val file: DocumentData?,
         val qtsp: QtspData?,
-        val certificate: CertificateData?,
         val authorizationCode: String?,
     )
 }

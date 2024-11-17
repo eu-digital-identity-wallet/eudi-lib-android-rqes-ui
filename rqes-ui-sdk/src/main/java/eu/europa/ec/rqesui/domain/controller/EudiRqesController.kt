@@ -48,11 +48,11 @@ internal interface EudiRqesController {
 
     fun getQtsps(): EudiRqesGetQtspsPartialState
 
-    fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
-
-    suspend fun getAuthorizationServiceUrl(reqRQESService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
+    fun setSelectedQtsp(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
 
     fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState
+
+    suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
 
     suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
 
@@ -61,8 +61,6 @@ internal interface EudiRqesController {
     fun getAuthorizedService(): Authorized?
 
     suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState
-
-    fun updateCertificateUserSelection(certificate: CertificateData)
 
     suspend fun getCredentialAuthorizationUrl(
         authorizedService: Authorized,
@@ -118,26 +116,7 @@ internal class EudiRqesControllerImpl(
         }
     }
 
-    override fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState {
-        return runCatching {
-            val selectedQtsp = eudiRQESUi.currentSelection.qtsp
-            selectedQtsp?.let { safeSelectedQtsp ->
-                EudiRqesGetSelectedQtspPartialState.Success(qtsp = safeSelectedQtsp)
-            } ?: EudiRqesGetSelectedQtspPartialState.Failure(
-                error = EudiRQESUiError(
-                    message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound)
-                )
-            )
-        }.getOrElse {
-            EudiRqesGetSelectedQtspPartialState.Failure(
-                error = EudiRQESUiError(
-                    message = it.localizedMessage ?: genericErrorMsg
-                )
-            )
-        }
-    }
-
-    override fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {
+    override fun setSelectedQtsp(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {
         return runCatching {
             eudiRQESUi.currentSelection = eudiRQESUi.currentSelection.copy(
                 qtsp = qtspData
@@ -161,10 +140,29 @@ internal class EudiRqesControllerImpl(
         }
     }
 
-    override suspend fun getAuthorizationServiceUrl(reqRQESService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
+    override fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState {
+        return runCatching {
+            val selectedQtsp = eudiRQESUi.currentSelection.qtsp
+            selectedQtsp?.let { safeSelectedQtsp ->
+                EudiRqesGetSelectedQtspPartialState.Success(qtsp = safeSelectedQtsp)
+            } ?: EudiRqesGetSelectedQtspPartialState.Failure(
+                error = EudiRQESUiError(
+                    message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound)
+                )
+            )
+        }.getOrElse {
+            EudiRqesGetSelectedQtspPartialState.Failure(
+                error = EudiRQESUiError(
+                    message = it.localizedMessage ?: genericErrorMsg
+                )
+            )
+        }
+    }
+
+    override suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
         return withContext(Dispatchers.IO) {
             runCatching {
-                val authorizationUrl = reqRQESService.getServiceAuthorizationUrl()
+                val authorizationUrl = rqesService.getServiceAuthorizationUrl()
                     .getOrThrow()
                     .value.toString().toUri()
                 EudiRqesGetServiceAuthorizationUrlPartialState.Success(authorizationUrl = authorizationUrl)
@@ -243,12 +241,6 @@ internal class EudiRqesControllerImpl(
                 )
             }
         }
-    }
-
-    override fun updateCertificateUserSelection(certificate: CertificateData) {
-        eudiRQESUi.currentSelection = eudiRQESUi.currentSelection.copy(
-            certificate = certificate
-        )
     }
 
     override suspend fun getCredentialAuthorizationUrl(
@@ -419,16 +411,16 @@ internal sealed class EudiRqesSetSelectedQtspPartialState {
     data class Failure(val error: EudiRQESUiError) : EudiRqesSetSelectedQtspPartialState()
 }
 
+internal sealed class EudiRqesGetSelectedQtspPartialState {
+    data class Success(val qtsp: QtspData) : EudiRqesGetSelectedQtspPartialState()
+    data class Failure(val error: EudiRQESUiError) : EudiRqesGetSelectedQtspPartialState()
+}
+
 internal sealed class EudiRqesGetServiceAuthorizationUrlPartialState {
     data class Success(val authorizationUrl: Uri) : EudiRqesGetServiceAuthorizationUrlPartialState()
     data class Failure(
         val error: EudiRQESUiError
     ) : EudiRqesGetServiceAuthorizationUrlPartialState()
-}
-
-internal sealed class EudiRqesGetSelectedQtspPartialState {
-    data class Success(val qtsp: QtspData) : EudiRqesGetSelectedQtspPartialState()
-    data class Failure(val error: EudiRQESUiError) : EudiRqesGetSelectedQtspPartialState()
 }
 
 internal sealed class EudiRqesAuthorizeServicePartialState {
