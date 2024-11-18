@@ -52,6 +52,10 @@ internal interface EudiRqesController {
 
     suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
 
+    fun setService(rqesService: RQESService)
+
+    fun getService(): RQESService?
+
     suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
 
     fun setAuthorizedService(authorizedService: Authorized)
@@ -174,11 +178,19 @@ internal class EudiRqesControllerImpl(
         }
     }
 
+    override fun setService(rqesService: RQESService) {
+        eudiRQESUi.rqesService = rqesService
+    }
+
+    override fun getService(): RQESService? {
+        return eudiRQESUi.rqesService
+    }
+
     override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
         return withContext(Dispatchers.IO) {
             runCatching {
                 safeLet(
-                    eudiRQESUi.rqesService,
+                    getService(),
                     eudiRQESUi.currentSelection.authorizationCode
                 ) { safeService, safeAuthorizationCode ->
                     val authorizedService = safeService.authorizeService(
@@ -385,7 +397,7 @@ internal class EudiRqesControllerImpl(
                 )
             }
 
-            eudiRQESUi.rqesService = service
+            setService(rqesService = service)
 
             EudiRqesCreateServicePartialState.Success(service = service)
         }.getOrElse {
