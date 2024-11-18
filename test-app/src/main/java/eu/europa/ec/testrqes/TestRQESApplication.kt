@@ -17,12 +17,16 @@
 package eu.europa.ec.testrqes
 
 import android.app.Application
+import eu.europa.ec.eudi.rqes.HashAlgorithmOID
+import eu.europa.ec.eudi.rqes.SigningAlgorithmOID
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
 import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
+import eu.europa.ec.rqesui.infrastructure.config.RqesServiceConfig
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
+import java.net.URI
 
 class TestRQESApplication : Application() {
 
@@ -38,28 +42,22 @@ class TestRQESApplication : Application() {
 
 private class DefaultConfig : EudiRQESUiConfig {
 
+    override val rqesServiceConfig: RqesServiceConfig
+        get() = RqesServiceConfig(
+            clientId = "wallet-client-tester",
+            clientSecret = "somesecrettester2",
+            authFlowRedirectionURI = URI.create("rQES://oauth/callback"),
+            signingAlgorithm = SigningAlgorithmOID.RSA,
+            hashAlgorithm = HashAlgorithmOID.SHA_256,
+        )
+
     override val qtsps: List<QtspData>
         get() = listOf(
             QtspData(
                 name = "Wallet-Centric",
                 endpoint = "https://walletcentric.signer.eudiw.dev/csc/v2".toUri(),
-                scaUrl = "https://walletcentric.signer.eudiw.dev"
-            ),
-            QtspData(
-                name = "Entrust",
-                endpoint = "https://www.google.com/search?q=entrust".toUri(),
-                scaUrl = "https://www.google.com/search?q=entrust"
-            ),
-            QtspData(
-                name = "Docusign",
-                endpoint = "https://www.google.com/search?q=docusign".toUri(),
-                scaUrl = "https://www.google.com/search?q=docusign"
-            ),
-            QtspData(
-                name = "Ascertia",
-                endpoint = "https://www.google.com/search?q=ascertia".toUri(),
-                scaUrl = "https://www.google.com/search?q=ascertia"
-            ),
+                scaUrl = "https://walletcentric.signer.eudiw.dev",
+            )
         )
 
     override val translations: Map<String, Map<LocalizableKey, String>>

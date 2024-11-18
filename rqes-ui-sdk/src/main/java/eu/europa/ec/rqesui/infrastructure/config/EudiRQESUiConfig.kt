@@ -24,6 +24,8 @@ import eu.europa.ec.rqesui.infrastructure.theme.values.ThemeTypography
 
 interface EudiRQESUiConfig {
 
+    val rqesServiceConfig: RqesServiceConfig
+
     // QTSPs List
     val qtsps: List<QtspData>
 

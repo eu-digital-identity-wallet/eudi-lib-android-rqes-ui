@@ -20,7 +20,6 @@ import android.net.Uri
 import eu.europa.ec.eudi.rqes.AuthorizationCode
 import eu.europa.ec.eudi.rqes.CSCClientConfig
 import eu.europa.ec.eudi.rqes.OAuth2Client
-import eu.europa.ec.eudi.rqes.SigningAlgorithmOID
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
@@ -40,7 +39,6 @@ import eu.europa.ec.rqesui.infrastructure.config.data.toCertificatesData
 import eu.europa.ec.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.net.URI
 import java.net.URL
 
 internal interface EudiRqesController {
@@ -294,7 +292,7 @@ internal class EudiRqesControllerImpl(
         return withContext(Dispatchers.IO) {
             runCatching {
                 safeLet(
-                    eudiRQESUi.authorizedService,
+                    getAuthorizedService(),
                     eudiRQESUi.currentSelection.authorizationCode
                 ) { safeAuthorizedService, safeAuthorizationCode ->
                     val authorizedCredential: RQESService.CredentialAuthorized =
@@ -370,18 +368,22 @@ internal class EudiRqesControllerImpl(
 
     private fun createRqesService(qtspData: QtspData): EudiRqesCreateServicePartialState {
         return runCatching {
-            val service = RQESService(
-                serviceEndpointUrl = qtspData.endpoint.toString(),
-                config = CSCClientConfig(
-                    client = OAuth2Client.Confidential.ClientSecretBasic(
-                        clientId = "wallet-client-tester", //TODO remove them later?
-                        clientSecret = "somesecrettester2"//TODO remove them later?
+            val rqesServiceConfig = eudiRQESUi.getEudiRQESUiConfig().rqesServiceConfig
+            val service: RQESService = with(rqesServiceConfig) {
+                RQESService(
+                    serviceEndpointUrl = qtspData.endpoint.toString(),
+                    config = CSCClientConfig(
+                        client = OAuth2Client.Confidential.ClientSecretBasic(
+                            clientId = clientId,
+                            clientSecret = clientSecret
+                        ),
+                        authFlowRedirectionURI = authFlowRedirectionURI,
+                        scaBaseURL = URL(qtspData.scaUrl),
                     ),
-                    authFlowRedirectionURI = URI("rQES://oauth/callback"),
-                    scaBaseURL = URL(qtspData.scaUrl),
-                ),
-                signingAlgorithm = SigningAlgorithmOID.RSA,
-            )
+                    signingAlgorithm = signingAlgorithm,
+                    hashAlgorithm = hashAlgorithm,
+                )
+            }
 
             eudiRQESUi.rqesService = service
 
