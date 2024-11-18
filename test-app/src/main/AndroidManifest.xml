@@ -29,7 +29,7 @@
         android:theme="@style/Theme.TestAppEudiRQESUi"
         tools:targetApi="31">
         <activity
-            android:name=".TestRQESActivity"
+            android:name=".ui.TestRQESActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:theme="@style/Theme.TestAppEudiRQESUi">
