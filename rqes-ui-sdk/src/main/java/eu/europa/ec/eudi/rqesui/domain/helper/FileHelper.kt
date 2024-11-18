@@ -103,7 +103,7 @@ internal object FileHelper {
             // Return a shareable Uri using FileProvider
             return@runCatching FileProvider.getUriForFile(
                 context,
-                "${context.packageName}.provider",
+                "${context.packageName}.rqes.library.provider",
                 pdfFile
             )
         }
