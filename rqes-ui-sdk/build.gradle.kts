@@ -92,7 +92,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling)
 
     // Koin
-    implementation(libs.koin.android)
+    api(libs.koin.android)
     implementation(libs.koin.annotations)
     implementation(libs.koin.compose)
     ksp(libs.koin.ksp)
@@ -110,8 +110,8 @@ ksp {
     arg("KOIN_CONFIG_CHECK", "true")
 }
 
+@Suppress("UnstableApiUsage")
 mavenPublishing {
-    @Suppress("UnstableApiUsage")
     configure(
         AndroidMultiVariantLibrary(
             sourcesJar = true,
