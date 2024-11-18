@@ -14,5 +14,7 @@
   ~ governing permissions and limitations under the Licence.
   -->
 <paths>
-    <cache-path name="pdfs" path="signed_pdfs/" />
+    <cache-path
+        name="pdfs"
+        path="signed_pdfs/" />
 </paths>
