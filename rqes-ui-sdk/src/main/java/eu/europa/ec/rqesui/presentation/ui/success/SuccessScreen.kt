@@ -214,7 +214,7 @@ private fun Content(
 
                 is Effect.OnSelectedFileAndQtspGot -> {
                     onEventSend(
-                        Event.DoAll(
+                        Event.SignAndSaveDocument(
                             originalDocumentName = effect.selectedFile.documentName,
                             qtspName = effect.selectedQtsp.name,
                         )

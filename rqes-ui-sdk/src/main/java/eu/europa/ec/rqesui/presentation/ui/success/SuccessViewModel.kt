@@ -21,7 +21,7 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
-import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorDoAllPartialState
+import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorSignAndSaveDocumentPartialState
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorGetSelectedFileAndQtspPartialState
 import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
@@ -58,7 +58,7 @@ internal data class State(
 
 internal sealed class Event : ViewEvent {
     data object Init : Event()
-    data class DoAll(
+    data class SignAndSaveDocument(
         val originalDocumentName: String,
         val qtspName: String,
     ) : Event()
@@ -130,8 +130,8 @@ internal class SuccessViewModel(
                 getSelectedFileAndQtsp(event)
             }
 
-            is Event.DoAll -> {
-                doAll(event, event.originalDocumentName, event.qtspName)
+            is Event.SignAndSaveDocument -> {
+                signAndSaveDocument(event, event.originalDocumentName, event.qtspName)
             }
 
             is Event.Pop -> {
@@ -221,12 +221,12 @@ internal class SuccessViewModel(
         }
     }
 
-    private fun doAll(event: Event, originalDocumentName: String, qtspName: String) {
+    private fun signAndSaveDocument(event: Event, originalDocumentName: String, qtspName: String) {
         setState { copy(isLoading = true) }
 
         viewModelScope.launch {
-            when (val response = successInteractor.doAll(originalDocumentName)) {
-                is SuccessInteractorDoAllPartialState.Failure -> {
+            when (val response = successInteractor.signAndSaveDocument(originalDocumentName)) {
+                is SuccessInteractorSignAndSaveDocumentPartialState.Failure -> {
                     setState {
                         copy(
                             error = ContentErrorConfig(
@@ -249,7 +249,7 @@ internal class SuccessViewModel(
                     }
                 }
 
-                is SuccessInteractorDoAllPartialState.Success -> {
+                is SuccessInteractorSignAndSaveDocumentPartialState.Success -> {
                     val selectionItem = SelectionItemUi(
                         documentData = response.savedDocument,
                         subtitle = resourceProvider.getLocalizedString(

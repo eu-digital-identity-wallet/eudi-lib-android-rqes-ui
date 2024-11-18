@@ -33,7 +33,7 @@ import kotlinx.coroutines.withContext
 internal interface SuccessInteractor {
     fun getSelectedFileAndQtsp(): SuccessInteractorGetSelectedFileAndQtspPartialState
 
-    suspend fun doAll(originalDocumentName: String): SuccessInteractorDoAllPartialState
+    suspend fun signAndSaveDocument(originalDocumentName: String): SuccessInteractorSignAndSaveDocumentPartialState
 }
 
 internal class SuccessInteractorImpl(
@@ -79,12 +79,12 @@ internal class SuccessInteractorImpl(
         }
     }
 
-    override suspend fun doAll(originalDocumentName: String): SuccessInteractorDoAllPartialState {
+    override suspend fun signAndSaveDocument(originalDocumentName: String): SuccessInteractorSignAndSaveDocumentPartialState {
         return withContext(Dispatchers.IO) {
             runCatching {
                 when (val authorizeCredentialResponse = eudiRqesController.authorizeCredential()) {
                     is EudiRqesAuthorizeCredentialPartialState.Failure -> {
-                        return@runCatching SuccessInteractorDoAllPartialState.Failure(
+                        return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                             error = authorizeCredentialResponse.error
                         )
                     }
@@ -96,7 +96,7 @@ internal class SuccessInteractorImpl(
 
                         when (signDocumentsResponse) {
                             is EudiRqesSignDocumentsPartialState.Failure -> {
-                                return@runCatching SuccessInteractorDoAllPartialState.Failure(
+                                return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                                     error = signDocumentsResponse.error
                                 )
                             }
@@ -110,7 +110,7 @@ internal class SuccessInteractorImpl(
 
                                 when (saveSignedDocumentsResponse) {
                                     is EudiRqesSaveSignedDocumentsPartialState.Failure -> {
-                                        return@runCatching SuccessInteractorDoAllPartialState.Failure(
+                                        return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                                             error = saveSignedDocumentsResponse.error
                                         )
                                     }
@@ -128,7 +128,7 @@ internal class SuccessInteractorImpl(
                                             documentName = savedDocumentName,
                                         )
 
-                                        return@runCatching SuccessInteractorDoAllPartialState.Success(
+                                        return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Success(
                                             savedDocument = savedDocument
                                         )
                                     }
@@ -138,7 +138,7 @@ internal class SuccessInteractorImpl(
                     }
                 }
             }.getOrElse {
-                SuccessInteractorDoAllPartialState.Failure(
+                SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                     error = EudiRQESUiError(
                         message = it.localizedMessage ?: genericErrorMsg
                     )
@@ -159,7 +159,12 @@ internal sealed class SuccessInteractorGetSelectedFileAndQtspPartialState {
     ) : SuccessInteractorGetSelectedFileAndQtspPartialState()
 }
 
-internal sealed class SuccessInteractorDoAllPartialState {
-    data class Success(val savedDocument: DocumentData) : SuccessInteractorDoAllPartialState()
-    data class Failure(val error: EudiRQESUiError) : SuccessInteractorDoAllPartialState()
+internal sealed class SuccessInteractorSignAndSaveDocumentPartialState {
+    data class Success(
+        val savedDocument: DocumentData,
+    ) : SuccessInteractorSignAndSaveDocumentPartialState()
+
+    data class Failure(
+        val error: EudiRQESUiError
+    ) : SuccessInteractorSignAndSaveDocumentPartialState()
 }
