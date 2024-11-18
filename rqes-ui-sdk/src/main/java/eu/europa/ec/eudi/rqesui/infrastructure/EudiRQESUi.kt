@@ -34,6 +34,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.container.EudiRQESContainer
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.ksp.generated.module
 
@@ -49,9 +50,13 @@ object EudiRQESUi {
     internal var rqesService: RQESService? = null
     internal var authorizedService: RQESService.Authorized? = null
 
-    fun setup(application: Application, config: EudiRQESUiConfig) {
+    fun setup(
+        application: Application,
+        config: EudiRQESUiConfig,
+        koinApplication: KoinApplication? = null
+    ) {
         _eudiRQESUiConfig = config
-        setupKoin(application)
+        setupKoin(application, koinApplication)
     }
 
     /**
@@ -210,8 +215,8 @@ object EudiRQESUi {
 
     private fun getState(): State = this.state
 
-    private fun setupKoin(application: Application) {
-        startKoin {
+    private fun setupKoin(application: Application, koinApplication: KoinApplication?) {
+        koinApplication?.modules(EudiRQESUIModule().module) ?: startKoin {
             androidContext(application)
             if (getEudiRQESUiConfig().printLogs) {
                 androidLogger()
