@@ -27,7 +27,6 @@ import eu.europa.ec.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.rqesui.infrastructure.config.EudiRQESUiConfig
-import eu.europa.ec.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.rqesui.presentation.extension.getFileName
