@@ -19,6 +19,7 @@ koin = "3.5.0"
 koinAnnotations = "1.4.0"
 ksp = "2.0.21-1.0.26"
 gson = "2.11.0"
+mavenPublish = "0.27.0"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
@@ -55,3 +56,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 android-library = { id = "com.android.library", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }

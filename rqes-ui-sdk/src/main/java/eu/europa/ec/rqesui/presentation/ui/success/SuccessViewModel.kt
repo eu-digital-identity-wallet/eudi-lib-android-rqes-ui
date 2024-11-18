@@ -21,8 +21,8 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
-import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorSignAndSaveDocumentPartialState
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorGetSelectedFileAndQtspPartialState
+import eu.europa.ec.rqesui.domain.interactor.SuccessInteractorSignAndSaveDocumentPartialState
 import eu.europa.ec.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.infrastructure.config.data.QtspData

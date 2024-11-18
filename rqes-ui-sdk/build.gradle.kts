@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
+
 /*
  * Copyright (c) 2023 European Commission
  *
@@ -20,14 +22,23 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.maven.publish)
 }
 
+val NAMESPACE: String by project
+val GROUP: String by project
+val SDK_VERSION: String by project
+val MIN_SDK_VERSION: String by project
+
+val POM_SCM_URL: String by project
+
 android {
-    namespace = "eu.europa.ec.rqesui"
-    compileSdk = Integer.parseInt(project.property("SDK_VERSION").toString())
+    namespace = NAMESPACE
+    group = GROUP
+    compileSdk = Integer.parseInt(SDK_VERSION)
 
     defaultConfig {
-        minSdk = Integer.parseInt(project.property("MIN_SDK_VERSION").toString())
+        minSdk = Integer.parseInt(MIN_SDK_VERSION)
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -97,4 +108,21 @@ dependencies {
 // Compile time check
 ksp {
     arg("KOIN_CONFIG_CHECK", "true")
+}
+
+mavenPublishing {
+    @Suppress("UnstableApiUsage")
+    configure(
+        AndroidMultiVariantLibrary(
+            sourcesJar = true,
+            publishJavadocJar = true,
+            setOf("release")
+        )
+    )
+    pom {
+        ciManagement {
+            system = "github"
+            url = "${POM_SCM_URL}/actions"
+        }
+    }
 }

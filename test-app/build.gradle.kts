@@ -20,18 +20,22 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val SDK_VERSION: String by project
+val TARGET_SDK_VERSION: String by project
+val MIN_SDK_VERSION: String by project
+
 android {
-    namespace = "eu.europa.ec.testrqes"
-    compileSdk = Integer.parseInt(project.property("SDK_VERSION").toString())
+    namespace = "eu.europa.ec.eudi.testrqes"
+    compileSdk = Integer.parseInt(SDK_VERSION)
 
     defaultConfig {
 
-        minSdk = Integer.parseInt(project.property("MIN_SDK_VERSION").toString())
-        targetSdk = Integer.parseInt(project.property("TARGET_SDK_VERSION").toString())
+        minSdk = Integer.parseInt(MIN_SDK_VERSION)
+        targetSdk = Integer.parseInt(TARGET_SDK_VERSION)
 
         versionCode = 1
         versionName = "0.0.1"
-        applicationId = "eu.europa.ec.testrqes"
+        applicationId = "eu.europa.ec.eudi.testrqes"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
