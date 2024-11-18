@@ -16,13 +16,24 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application>
         <activity
             android:name=".presentation.ui.container.EudiRQESContainer"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.EudiRQESUi">
-        </activity>
+            android:theme="@style/Theme.EudiRQESUi" />
+
+        <provider
+            android:name=".domain.provider.LibraryFileProvider"
+            android:authorities="${applicationId}.rqes.library.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rqes_provider_paths" />
+        </provider>
     </application>
 
 </manifest>
