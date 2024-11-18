@@ -52,10 +52,6 @@ internal interface EudiRqesController {
 
     suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
 
-    fun setService(rqesService: RQESService)
-
-    fun getService(): RQESService?
-
     suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState
 
     fun setAuthorizedService(authorizedService: Authorized)
@@ -89,7 +85,7 @@ internal class EudiRqesControllerImpl(
 
     override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
         return runCatching {
-            val selectedFile = eudiRQESUi.currentSelection.file
+            val selectedFile = eudiRQESUi.getCurrentSelection().file
             selectedFile?.let { safeSelectedFile ->
                 EudiRqesGetSelectedFilePartialState.Success(file = safeSelectedFile)
             } ?: EudiRqesGetSelectedFilePartialState.Failure(
@@ -120,8 +116,11 @@ internal class EudiRqesControllerImpl(
 
     override fun setSelectedQtsp(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {
         return runCatching {
-            eudiRQESUi.currentSelection = eudiRQESUi.currentSelection.copy(
-                qtsp = qtspData
+
+            eudiRQESUi.setCurrentSelection(
+                eudiRQESUi.getCurrentSelection().copy(
+                    qtsp = qtspData
+                )
             )
 
             when (val result = createRqesService(qtspData)) {
@@ -144,7 +143,7 @@ internal class EudiRqesControllerImpl(
 
     override fun getSelectedQtsp(): EudiRqesGetSelectedQtspPartialState {
         return runCatching {
-            val selectedQtsp = eudiRQESUi.currentSelection.qtsp
+            val selectedQtsp = eudiRQESUi.getCurrentSelection().qtsp
             selectedQtsp?.let { safeSelectedQtsp ->
                 EudiRqesGetSelectedQtspPartialState.Success(qtsp = safeSelectedQtsp)
             } ?: EudiRqesGetSelectedQtspPartialState.Failure(
@@ -178,20 +177,12 @@ internal class EudiRqesControllerImpl(
         }
     }
 
-    override fun setService(rqesService: RQESService) {
-        eudiRQESUi.rqesService = rqesService
-    }
-
-    override fun getService(): RQESService? {
-        return eudiRQESUi.rqesService
-    }
-
     override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
         return withContext(Dispatchers.IO) {
             runCatching {
                 safeLet(
-                    getService(),
-                    eudiRQESUi.currentSelection.authorizationCode
+                    eudiRQESUi.getRqesService(),
+                    eudiRQESUi.getCurrentSelection().authorizationCode
                 ) { safeService, safeAuthorizationCode ->
                     val authorizedService = safeService.authorizeService(
                         authorizationCode = AuthorizationCode(safeAuthorizationCode)
@@ -214,11 +205,11 @@ internal class EudiRqesControllerImpl(
     }
 
     override fun setAuthorizedService(authorizedService: Authorized) {
-        eudiRQESUi.authorizedService = authorizedService
+        eudiRQESUi.setAuthorizedService(authorizedService)
     }
 
     override fun getAuthorizedService(): Authorized? {
-        return eudiRQESUi.authorizedService
+        return eudiRQESUi.getAuthorizedService()
     }
 
     override suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState {
@@ -259,7 +250,7 @@ internal class EudiRqesControllerImpl(
     ): EudiRqesGetCredentialAuthorizationUrlPartialState {
         return withContext(Dispatchers.IO) {
             runCatching {
-                eudiRQESUi.currentSelection.file?.let { safeSelectedFile ->
+                eudiRQESUi.getCurrentSelection().file?.let { safeSelectedFile ->
 
                     val fileToBeSigned = uriToFile(
                         context = resourceProvider.provideContext(),
@@ -305,7 +296,7 @@ internal class EudiRqesControllerImpl(
             runCatching {
                 safeLet(
                     getAuthorizedService(),
-                    eudiRQESUi.currentSelection.authorizationCode
+                    eudiRQESUi.getCurrentSelection().authorizationCode
                 ) { safeAuthorizedService, safeAuthorizationCode ->
                     val authorizedCredential: RQESService.CredentialAuthorized =
                         safeAuthorizedService.authorizeCredential(
@@ -397,8 +388,7 @@ internal class EudiRqesControllerImpl(
                 )
             }
 
-            setService(rqesService = service)
-
+            eudiRQESUi.setRqesService(service)
             EudiRqesCreateServicePartialState.Success(service = service)
         }.getOrElse {
             EudiRqesCreateServicePartialState.Failure(

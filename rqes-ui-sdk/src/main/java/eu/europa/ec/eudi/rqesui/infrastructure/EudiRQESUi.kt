@@ -42,13 +42,13 @@ object EudiRQESUi {
 
     private const val SDK_NOT_INITIALIZED_MESSAGE =
         "Before calling resume, SDK must be initialized firstly. Call EudiRQESUi.launchSDK()"
+
     private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
+    private lateinit var currentSelection: CurrentSelection
+
     private var state: State = State.None
-
-    internal lateinit var currentSelection: CurrentSelection
-
-    internal var rqesService: RQESService? = null
-    internal var authorizedService: RQESService.Authorized? = null
+    private var rqesService: RQESService? = null
+    private var authorizedService: RQESService.Authorized? = null
 
     fun setup(
         application: Application,
@@ -135,6 +135,47 @@ object EudiRQESUi {
     }
 
     /**
+     * Retrieves the configuration for the EudiRQESUi.
+     *
+     * This function throws an [EudiRQESUiError] if the EudiRQESUi has not been initialized
+     * by calling [EudiRQESUi.setup] prior to invoking this function.
+     *
+     * @return The [EudiRQESUiConfig] instance containing the configuration.
+     * @throws EudiRQESUiError If the EudiRQESUi has not been initialized.
+     */
+    @Throws(EudiRQESUiError::class)
+    internal fun getEudiRQESUiConfig(): EudiRQESUiConfig {
+        if (!::_eudiRQESUiConfig.isInitialized) {
+            throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
+        }
+        return _eudiRQESUiConfig
+    }
+
+    internal fun setRqesService(rqesService: RQESService) {
+        this.rqesService = rqesService
+    }
+
+    internal fun getRqesService(): RQESService? {
+        return rqesService
+    }
+
+    internal fun setAuthorizedService(authorizedService: RQESService.Authorized) {
+        this.authorizedService = authorizedService
+    }
+
+    internal fun getAuthorizedService(): RQESService.Authorized? {
+        return authorizedService
+    }
+
+    internal fun setCurrentSelection(currentSelection: CurrentSelection) {
+        this.currentSelection = currentSelection
+    }
+
+    internal fun getCurrentSelection(): CurrentSelection {
+        return currentSelection
+    }
+
+    /**
      * Launches the EudiRQES SDK.
      *
      * This function starts the EudiRQESContainer activity, which hosts the SDK's UI.
@@ -190,23 +231,6 @@ object EudiRQESUi {
                 }
             }
         } ?: throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
-    }
-
-    /**
-     * Retrieves the configuration for the EudiRQESUi.
-     *
-     * This function throws an [EudiRQESUiError] if the EudiRQESUi has not been initialized
-     * by calling [EudiRQESUi.setup] prior to invoking this function.
-     *
-     * @return The [EudiRQESUiConfig] instance containing the configuration.
-     * @throws EudiRQESUiError If the EudiRQESUi has not been initialized.
-     */
-    @Throws(EudiRQESUiError::class)
-    internal fun getEudiRQESUiConfig(): EudiRQESUiConfig {
-        if (!::_eudiRQESUiConfig.isInitialized) {
-            throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
-        }
-        return _eudiRQESUiConfig
     }
 
     private fun setState(state: State) {
