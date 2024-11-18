@@ -41,8 +41,10 @@ enum class LocalizableKey {
     Close,
     Cancel,
     Save,
-    SaveAndClose,
+    Share,
     Sign,
+    SharingDocument,
+    CloseSharingMessage,
     GenericErrorButtonRetry,
     GenericErrorMessage,
     GenericErrorDescription,
@@ -77,8 +79,10 @@ enum class LocalizableKey {
             Close -> "Close"
             Cancel -> "Cancel"
             Save -> "Save"
-            SaveAndClose -> "Save and close"
+            Share -> "Share"
             Sign -> "Sign"
+            SharingDocument -> "Sharing document?"
+            CloseSharingMessage -> "Closing will redirect you back to the dashboard without saving or sharing the document."
             GenericErrorButtonRetry -> "TRY AGAIN"
             GenericErrorMessage -> "Oups! Something went wrong"
             GenericErrorDescription -> "If the issue persists, please contact customer support"

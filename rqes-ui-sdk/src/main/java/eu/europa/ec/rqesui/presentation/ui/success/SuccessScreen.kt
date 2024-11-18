@@ -16,15 +16,20 @@
 
 package eu.europa.ec.rqesui.presentation.ui.success
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -33,6 +38,7 @@ import eu.europa.ec.rqesui.domain.extension.toUri
 import eu.europa.ec.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.rqesui.presentation.extension.finish
+import eu.europa.ec.rqesui.presentation.extension.openIntentChooser
 import eu.europa.ec.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.rqesui.presentation.ui.component.TextWithBadge
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentHeadline
@@ -45,13 +51,18 @@ import eu.europa.ec.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.rqesui.presentation.ui.component.utils.VSpacer
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SuccessScreen(
     navController: NavController,
@@ -59,6 +70,11 @@ internal fun SuccessScreen(
 ) {
     val state = viewModel.viewState.value
     val context = LocalContext.current
+
+    val isBottomSheetOpen = state.isBottomSheetOpen
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false
+    )
 
     ContentScreen(
         isLoading = state.isLoading,
@@ -87,7 +103,27 @@ internal fun SuccessScreen(
                 }
             },
             paddingValues = paddingValues,
+            modalBottomSheetState = bottomSheetState,
         )
+
+        if (isBottomSheetOpen) {
+            state.selectionItem?.let { safeSelectionItem ->
+                WrapModalBottomSheet(
+                    onDismissRequest = {
+                        viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                    },
+                    sheetState = bottomSheetState
+                ) {
+                    SuccessSheetContent(
+                        sheetContent = state.sheetContent,
+                        documentUri = safeSelectionItem.documentData.uri,
+                        onEventSent = { event ->
+                            viewModel.setEvent(event)
+                        }
+                    )
+                }
+            }
+        }
     }
 
     OneTimeLaunchedEffect {
@@ -95,6 +131,7 @@ internal fun SuccessScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Content(
     state: State,
@@ -102,7 +139,11 @@ private fun Content(
     onEventSend: (Event) -> Unit,
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
+    modalBottomSheetState: SheetState,
 ) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -156,6 +197,21 @@ private fun Content(
         effectFlow.onEach { effect ->
             when (effect) {
                 is Effect.Navigation -> onNavigationRequested(effect)
+
+                is Effect.CloseBottomSheet -> {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!modalBottomSheetState.isVisible) {
+                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                        }
+                    }
+                }
+
+                is Effect.ShowBottomSheet -> {
+                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                }
+
                 is Effect.OnSelectedFileAndQtspGot -> {
                     onEventSend(
                         Event.DoAll(
@@ -164,11 +220,44 @@ private fun Content(
                         )
                     )
                 }
+
+                is Effect.SharePdf -> {
+                    context.openIntentChooser(
+                        intent = effect.intent,
+                        title = effect.chooserTitle,
+                    )
+                }
             }
         }.collect()
     }
 }
 
+@Composable
+private fun SuccessSheetContent(
+    sheetContent: SuccessBottomSheetContent,
+    documentUri: Uri,
+    onEventSent: (event: Event) -> Unit
+) {
+    when (sheetContent) {
+        is SuccessBottomSheetContent.ShareDocument -> {
+            DialogBottomSheet(
+                textData = sheetContent.bottomSheetTextData,
+                onPositiveClick = {
+                    onEventSent(
+                        Event.BottomSheet.ShareDocument.PrimaryButtonPressed(
+                            documentUri = documentUri,
+                        )
+                    )
+                },
+                onNegativeClick = {
+                    onEventSent(Event.BottomSheet.ShareDocument.SecondaryButtonPressed)
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
 private fun SuccessScreenPreview() {
@@ -187,12 +276,21 @@ private fun SuccessScreenPreview() {
                     subtitle = "Signed by: Entrust",
                     action = "View",
                 ),
-                bottomBarButtonText = "Close"
+                bottomBarButtonText = "Close",
+                sheetContent = SuccessBottomSheetContent.ShareDocument(
+                    bottomSheetTextData = BottomSheetTextData(
+                        title = "Sharing document?",
+                        message = "Closing will redirect you back to the dashboard without saving or sharing the document.",
+                        positiveButtonText = "Share",
+                        negativeButtonText = "Close",
+                    )
+                )
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},
             onNavigationRequested = {},
             paddingValues = PaddingValues(all = SPACING_LARGE.dp),
+            modalBottomSheetState = rememberModalBottomSheetState(),
         )
     }
 }

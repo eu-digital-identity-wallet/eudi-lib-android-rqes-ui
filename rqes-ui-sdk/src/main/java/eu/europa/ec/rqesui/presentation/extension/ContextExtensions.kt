@@ -48,6 +48,25 @@ internal fun Context.openUrl(uri: Uri) {
     }
 }
 
+/**
+ * Opens an intent chooser with the provided intent and title.
+ *
+ * This function attempts to start an activity using the provided intent, wrapped in an intent chooser.
+ * It handles any exceptions that may occur during the process and silently ignores them.
+ *
+ * @param intent The intent to be launched.
+ * @param title The title to be displayed in the intent chooser dialog.
+ */
+internal fun Context.openIntentChooser(
+    intent: Intent,
+    title: String,
+) {
+    try {
+        startActivity(Intent.createChooser(intent, title))
+    } catch (_: Exception) {
+    }
+}
+
 internal suspend fun Context.loadPdf(
     inputStream: InputStream,
     loadingListener: (isLoading: Boolean) -> Unit = { },

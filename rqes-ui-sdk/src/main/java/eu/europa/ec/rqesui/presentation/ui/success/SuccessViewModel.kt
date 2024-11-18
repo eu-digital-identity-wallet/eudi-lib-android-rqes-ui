@@ -16,6 +16,8 @@
 
 package eu.europa.ec.rqesui.presentation.ui.success
 
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.rqesui.domain.interactor.SuccessInteractor
@@ -35,6 +37,7 @@ import eu.europa.ec.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.rqesui.presentation.ui.component.content.ContentErrorConfig
+import eu.europa.ec.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -42,12 +45,15 @@ internal data class State(
     val isLoading: Boolean = false,
     val selectionItem: SelectionItemUi? = null,
     val error: ContentErrorConfig? = null,
+    val isBottomSheetOpen: Boolean = false,
     val isBottomBarButtonEnabled: Boolean = false,
 
     val title: String,
     val headline: String? = null,
     val subtitle: String? = null,
     val bottomBarButtonText: String,
+
+    val sheetContent: SuccessBottomSheetContent,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
@@ -63,6 +69,18 @@ internal sealed class Event : ViewEvent {
     data object BottomBarButtonPressed : Event()
 
     data class ViewDocument(val documentData: DocumentData) : Event()
+
+    sealed class BottomSheet : Event() {
+        data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+
+        sealed class ShareDocument : BottomSheet() {
+            data class PrimaryButtonPressed(
+                val documentUri: Uri,
+            ) : ShareDocument()
+
+            data object SecondaryButtonPressed : ShareDocument()
+        }
+    }
 }
 
 internal sealed class Effect : ViewSideEffect {
@@ -71,10 +89,24 @@ internal sealed class Effect : ViewSideEffect {
         data object Finish : Navigation()
     }
 
+    data object ShowBottomSheet : Effect()
+    data object CloseBottomSheet : Effect()
+
     data class OnSelectedFileAndQtspGot(
         val selectedFile: DocumentData,
         val selectedQtsp: QtspData,
     ) : Effect()
+
+    data class SharePdf(
+        val intent: Intent,
+        val chooserTitle: String,
+    ) : Effect()
+}
+
+internal sealed class SuccessBottomSheetContent {
+    data class ShareDocument(
+        val bottomSheetTextData: BottomSheetTextData,
+    ) : SuccessBottomSheetContent()
 }
 
 @KoinViewModel
@@ -87,7 +119,8 @@ internal class SuccessViewModel(
     override fun setInitialState(): State {
         return State(
             title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
-            bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.SaveAndClose),
+            bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
+            sheetContent = SuccessBottomSheetContent.ShareDocument(bottomSheetTextData = getShareDocumentTextData()),
         )
     }
 
@@ -110,13 +143,44 @@ internal class SuccessViewModel(
             }
 
             is Event.BottomBarButtonPressed -> {
-                setEffect {
-                    Effect.Navigation.Finish
-                }
+                showBottomSheet(
+                    sheetContent = SuccessBottomSheetContent.ShareDocument(
+                        bottomSheetTextData = getShareDocumentTextData()
+                    )
+                )
             }
 
             is Event.ViewDocument -> {
                 navigateToViewDocument(event.documentData)
+            }
+
+            is Event.BottomSheet.UpdateBottomSheetState -> {
+                setState {
+                    copy(
+                        isBottomSheetOpen = event.isOpen
+                    )
+                }
+            }
+
+            is Event.BottomSheet.ShareDocument.PrimaryButtonPressed -> {
+                hideBottomSheet()
+
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, event.documentUri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+                setEffect {
+                    Effect.SharePdf(
+                        intent = shareIntent,
+                        chooserTitle = resourceProvider.getLocalizedString(LocalizableKey.Share),
+                    )
+                }
+            }
+
+            is Event.BottomSheet.ShareDocument.SecondaryButtonPressed -> {
+                hideBottomSheet()
+                setEffect { Effect.Navigation.Finish }
             }
         }
     }
@@ -226,6 +290,30 @@ internal class SuccessViewModel(
         )
         setEffect {
             Effect.Navigation.SwitchScreen(screenRoute = screenRoute)
+        }
+    }
+
+    private fun getShareDocumentTextData(): BottomSheetTextData {
+        return BottomSheetTextData(
+            title = resourceProvider.getLocalizedString(LocalizableKey.SharingDocument),
+            message = resourceProvider.getLocalizedString(LocalizableKey.CloseSharingMessage),
+            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.Share),
+            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
+        )
+    }
+
+    private fun showBottomSheet(sheetContent: SuccessBottomSheetContent) {
+        setState {
+            copy(sheetContent = sheetContent)
+        }
+        setEffect {
+            Effect.ShowBottomSheet
+        }
+    }
+
+    private fun hideBottomSheet() {
+        setEffect {
+            Effect.CloseBottomSheet
         }
     }
 }

@@ -99,7 +99,7 @@ internal fun SelectQtspScreen(
                 }
             },
             paddingValues = paddingValues,
-            modalBottomSheetState = bottomSheetState
+            modalBottomSheetState = bottomSheetState,
         )
 
         if (isBottomSheetOpen) {
