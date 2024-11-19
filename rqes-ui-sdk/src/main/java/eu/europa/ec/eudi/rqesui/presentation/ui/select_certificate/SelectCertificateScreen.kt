@@ -101,7 +101,7 @@ internal fun SelectCertificateScreen(
 
     ContentScreen(
         isLoading = state.isLoading,
-        navigatableAction = ScreenNavigateAction.BACKABLE,
+        navigatableAction = ScreenNavigateAction.CANCELABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         stickyBottom = {
