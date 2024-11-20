@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kotlin.kover)
 }
 
 val NAMESPACE: String by project
@@ -103,6 +104,9 @@ dependencies {
     // Test Dependencies
     testImplementation(libs.junit)
     testImplementation(libs.koin.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 // Compile time check
