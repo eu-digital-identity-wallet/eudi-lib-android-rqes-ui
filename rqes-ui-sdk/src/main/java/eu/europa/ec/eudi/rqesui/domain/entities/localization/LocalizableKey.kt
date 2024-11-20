@@ -69,7 +69,7 @@ enum class LocalizableKey {
             ConfirmSelectionTitle -> "Please confirm signing of the following"
             SelectService -> "Select service"
             SelectServiceTitle -> "Select remote signing service."
-            SelectServiceSubtitle -> "Remote signing enables you to digitally sign documents without the need for locally installed digital identities. Cloud-hosted signing service makes remote signing possible."
+            SelectServiceSubtitle -> "Remote Signing Service enables secure online document signing."
             SelectCertificateTitle -> "You have chosen to sign the following document:"
             SelectCertificateSubtitle -> "Please confirm signing with one of the following certificates:"
             Success -> "Success!"
