@@ -104,10 +104,11 @@ internal fun SelectCertificateScreen(
         navigatableAction = ScreenNavigateAction.CANCELABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
-        stickyBottom = {
+        stickyBottom = { paddingValues ->
             WrapBottomBarPrimaryButton(
                 buttonText = state.bottomBarButtonText,
                 enabled = state.isBottomBarButtonEnabled,
+                padding = paddingValues,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed

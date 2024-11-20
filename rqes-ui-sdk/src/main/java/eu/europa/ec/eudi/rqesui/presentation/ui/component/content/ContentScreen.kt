@@ -91,7 +91,7 @@ internal fun ContentScreen(
     onBack: (() -> Unit)? = null,
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
-    stickyBottom: @Composable (() -> Unit)? = null,
+    stickyBottom: @Composable ((PaddingValues) -> Unit)? = null,
     fab: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.End,
     contentErrorConfig: ContentErrorConfig? = null,
@@ -120,7 +120,7 @@ internal fun ContentScreen(
     onBack: (() -> Unit)? = null,
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
-    stickyBottom: @Composable (() -> Unit)? = null,
+    stickyBottom: @Composable ((PaddingValues) -> Unit)? = null,
     fab: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.End,
     contentErrorConfig: ContentErrorConfig? = null,
@@ -180,7 +180,7 @@ internal fun ContentScreen(
                                 .zIndex(Z_STICKY),
                             contentAlignment = Alignment.Center
                         ) {
-                            stickyBottomContent()
+                            stickyBottomContent(screenPaddings(padding))
                         }
                     }
                 }
