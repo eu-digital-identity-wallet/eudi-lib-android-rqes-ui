@@ -59,7 +59,6 @@ import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
 import eu.europa.ec.eudi.rqesui.presentation.extension.throttledClickable
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
@@ -353,7 +352,6 @@ private fun SelectCertificateScreenPreview() {
                         uri = "".toUri()
                     ),
                     subtitle = "Signed by: Entrust",
-                    iconData = AppIcons.Verified,
                     iconTint = ThemeColors.success
                 ),
                 certificatesSectionTitle = "Please confirm signing with one of the following certificates:",
