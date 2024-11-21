@@ -18,7 +18,10 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -27,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
@@ -42,12 +46,14 @@ private sealed interface StickyBottomBarConfig {
 internal fun WrapBottomBarPrimaryButton(
     buttonText: String,
     enabled: Boolean = true,
+    padding: PaddingValues,
     onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Primary,
         buttonText = buttonText,
         enabled = enabled,
+        padding = padding,
         onButtonClick = onButtonClick,
     )
 }
@@ -56,12 +62,14 @@ internal fun WrapBottomBarPrimaryButton(
 internal fun WrapBottomBarSecondaryButton(
     buttonText: String,
     enabled: Boolean = true,
+    padding: PaddingValues,
     onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Secondary,
         buttonText = buttonText,
         enabled = enabled,
+        padding = padding,
         onButtonClick = onButtonClick,
     )
 }
@@ -71,10 +79,13 @@ private fun WrapStickyBottomBar(
     config: StickyBottomBarConfig,
     buttonText: String,
     enabled: Boolean,
+    padding: PaddingValues,
     onButtonClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         HorizontalDivider(
             thickness = 1.dp,
@@ -84,7 +95,12 @@ private fun WrapStickyBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = SPACING_LARGE.dp),
+                .padding(
+                    top = padding.calculateBottomPadding(),
+                    bottom = padding.calculateBottomPadding(),
+                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = padding.calculateEndPadding(LayoutDirection.Ltr)
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -141,6 +157,7 @@ private fun WrapBottomBarPrimaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarPrimaryButton(
             buttonText = "Sign",
+            padding = PaddingValues(SPACING_LARGE.dp),
             onButtonClick = {},
         )
     }
@@ -152,6 +169,7 @@ private fun WrapBottomBarSecondaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarSecondaryButton(
             buttonText = "Sign",
+            padding = PaddingValues(SPACING_LARGE.dp),
             onButtonClick = {},
         )
     }

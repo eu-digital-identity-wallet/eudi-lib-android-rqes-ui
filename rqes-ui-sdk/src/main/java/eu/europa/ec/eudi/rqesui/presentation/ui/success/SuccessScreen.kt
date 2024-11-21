@@ -81,10 +81,11 @@ internal fun SuccessScreen(
         isLoading = state.isLoading,
         navigatableAction = ScreenNavigateAction.NONE,
         contentErrorConfig = state.error,
-        stickyBottom = {
+        stickyBottom = { paddingValues ->
             WrapBottomBarSecondaryButton(
                 buttonText = state.bottomBarButtonText,
                 enabled = state.isBottomBarButtonEnabled,
+                padding = paddingValues,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed

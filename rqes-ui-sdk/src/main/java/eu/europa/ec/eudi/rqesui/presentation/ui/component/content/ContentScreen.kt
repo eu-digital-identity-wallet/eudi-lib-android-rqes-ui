@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
@@ -91,7 +92,7 @@ internal fun ContentScreen(
     onBack: (() -> Unit)? = null,
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
-    stickyBottom: @Composable (() -> Unit)? = null,
+    stickyBottom: @Composable ((PaddingValues) -> Unit)? = null,
     fab: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.End,
     contentErrorConfig: ContentErrorConfig? = null,
@@ -120,7 +121,7 @@ internal fun ContentScreen(
     onBack: (() -> Unit)? = null,
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
-    stickyBottom: @Composable (() -> Unit)? = null,
+    stickyBottom: @Composable ((PaddingValues) -> Unit)? = null,
     fab: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.End,
     contentErrorConfig: ContentErrorConfig? = null,
@@ -180,7 +181,7 @@ internal fun ContentScreen(
                                 .zIndex(Z_STICKY),
                             contentAlignment = Alignment.Center
                         ) {
-                            stickyBottomContent()
+                            stickyBottomContent(screenPaddings(padding))
                         }
                     }
                 }
@@ -213,7 +214,9 @@ private fun DefaultToolBar(
         title = {
             Text(
                 text = toolbarConfig?.title.orEmpty(),
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
         },
         navigationIcon = {

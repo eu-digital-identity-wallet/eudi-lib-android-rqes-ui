@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
@@ -42,7 +43,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 
 @Composable
 internal fun SelectionItem(
@@ -70,31 +70,33 @@ internal fun SelectionItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
+
                 Text(
                     text = data.documentData.documentName,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 data.subtitle?.let { subtitle ->
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
             data.action?.let { action ->
                 Text(
+                    modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
                     text = action,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
-            }
-
-            data.iconData?.let { iconData ->
-                WrapIcon(iconData = iconData, customTint = data.iconTint)
             }
         }
     }
