@@ -16,21 +16,20 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.ui.component
 
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
@@ -40,57 +39,34 @@ internal fun TextWithBadge(
     message: String,
     showBadge: Boolean
 ) {
-    val inlineContentMap = mapOf(
-        "badgeIconId" to InlineTextContent(
-            Placeholder(20.sp, 20.sp, PlaceholderVerticalAlign.TextCenter)
-        ) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (showBadge) {
             WrapIcon(
+                modifier = Modifier
+                    .size(25.dp)
+                    .padding(end = SPACING_EXTRA_SMALL.dp),
                 iconData = AppIcons.Verified,
-                customTint = MaterialTheme.colorScheme.success
+                customTint = MaterialTheme.colorScheme.success,
             )
         }
-    )
-
-    val textWithBadgeData = TextWithBadgeData(
-        textAfterBadge = message,
-        showBadge = showBadge
-    )
-
-    Text(
-        modifier = Modifier
-            .offset(x = -SPACING_EXTRA_SMALL.dp)
-            .takeIf { showBadge } ?: Modifier,
-        text = textWithBadgeData.annotatedString,
-        style = MaterialTheme.typography.bodyMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Bold
-        ),
-        inlineContent = inlineContentMap
-    )
-}
-
-internal data class TextWithBadgeData(
-    private val textAfterBadge: String? = null,
-    private val showBadge: Boolean
-) {
-    val annotatedString = buildAnnotatedString {
-        if (showBadge) {
-            append(" ")
-            appendInlineContent(id = "badgeIconId")
-            append(" ")
-        }
-        if (!textAfterBadge.isNullOrEmpty()) {
-            append(textAfterBadge)
-        }
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold
+            )
+        )
     }
 }
 
 @ThemeModePreviews
 @Composable
-private fun TextWithBadgePreview() {
+private fun TextWithBadgePreview(
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+) {
     PreviewTheme {
         TextWithBadge(
-            message = "Document_title.PDF",
+            message = text,
             showBadge = true
         )
     }
