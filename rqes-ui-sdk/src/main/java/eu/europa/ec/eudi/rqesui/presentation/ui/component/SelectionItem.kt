@@ -42,7 +42,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 
 @Composable
 internal fun SelectionItem(
@@ -87,14 +86,11 @@ internal fun SelectionItem(
 
             data.action?.let { action ->
                 Text(
+                    modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
                     text = action,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
-            }
-
-            data.iconData?.let { iconData ->
-                WrapIcon(iconData = iconData, customTint = data.iconTint)
             }
         }
     }
