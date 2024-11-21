@@ -163,7 +163,6 @@ class TestSelectCertificateInteractor {
                 .authorizeService()
         }
 
-    //region authorizeServiceAndFetchCertificates
     // Case 3: Testing when an exception is thrown during the service authorization process
     // Case 3 Expected Result:
     // 1. The interactor should return a failure result when the service authorization throws an exception.
@@ -209,7 +208,7 @@ class TestSelectCertificateInteractor {
             mockGetCredentialAuthorizationUrlCall(response = successResponse)
 
             // Act
-            val result = interactor.getCredentialAuthorizationUrl(certificateData)
+            val result = interactor.getCredentialAuthorizationUrl(certificate = certificateData)
 
             // Assert
             assertEquals(successResponse, result)
@@ -237,7 +236,7 @@ class TestSelectCertificateInteractor {
             )
 
             // Act
-            val result = interactor.getCredentialAuthorizationUrl(certificateData)
+            val result = interactor.getCredentialAuthorizationUrl(certificate = certificateData)
 
             // Assert
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
@@ -266,7 +265,7 @@ class TestSelectCertificateInteractor {
             ).thenThrow(mockedExceptionWithMessage)
 
             // Act
-            val result = interactor.getCredentialAuthorizationUrl(certificateData)
+            val result = interactor.getCredentialAuthorizationUrl(certificate = certificateData)
 
             // Assert
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
