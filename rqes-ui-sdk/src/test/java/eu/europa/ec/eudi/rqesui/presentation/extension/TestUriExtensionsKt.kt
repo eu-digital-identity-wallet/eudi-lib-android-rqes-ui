@@ -21,22 +21,16 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
-import eu.europa.ec.eudi.rqesui.base.TestApplication
 import eu.europa.ec.eudi.rqesui.mockedDocumentName
 import junit.framework.TestCase.assertEquals
 import org.junit.After
 import org.junit.Before
-import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import kotlin.test.Test
 
-@RunWith(RobolectricTestRunner::class)
-@Config(application = TestApplication::class)
 class TestUriExtensionsKt {
 
     @Mock
