@@ -33,11 +33,14 @@ import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
-import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
+import eu.europa.ec.eudi.rqesui.mockedDocumentName
+import eu.europa.ec.eudi.rqesui.mockedExceptionWithMessage
+import eu.europa.ec.eudi.rqesui.mockedExceptionWithNoMessage
+import eu.europa.ec.eudi.rqesui.mockedGenericErrorMessage
+import eu.europa.ec.eudi.rqesui.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.presentation.extension.getFileName
-import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
-import eu.europa.ec.eudi.rqesui.util.runTest
+import eu.europa.ec.eudi.rqesui.test_rule.CoroutineTestRule
+import eu.europa.ec.eudi.rqesui.test_rule.runTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After
@@ -93,6 +96,8 @@ class TestSuccessInteractor {
     fun setUp() {
         closeable = MockitoAnnotations.openMocks(this)
         interactor = SuccessInteractorImpl(resourceProvider, eudiRqesController)
+        whenever(resourceProvider.genericErrorMessage())
+            .thenReturn(mockedGenericErrorMessage)
     }
 
     @After
@@ -168,6 +173,49 @@ class TestSuccessInteractor {
             error,
             (result as SuccessInteractorGetSelectedFileAndQtspPartialState.Failure).error
         )
+    }
+
+    // Case 4:
+    // This test case ensures that the `getOrElse` fallback logic is executed when an exception
+    // is thrown during the `getSelectedFile` call
+    // Expected Result:
+    // 1. The exception is caught and processed within the `getOrElse` block.
+    // 2. The result should be a `Failure` with the exception's message included in the error.
+    @Test
+    fun `Given Case 4, When getSelectedFileAndQtsp is called, Then Case 4 expected result is returned`() {
+        // Arrange
+        whenever(eudiRqesController.getSelectedFile())
+            .thenThrow(mockedExceptionWithMessage)
+
+        // Act
+        val result = interactor.getSelectedFileAndQtsp()
+
+        // Assert
+        assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Failure)
+        val failure = result as SuccessInteractorGetSelectedFileAndQtspPartialState.Failure
+        assertEquals(mockedExceptionWithMessage.message, failure.error.message)
+    }
+
+    // Case 5:
+    // This test case ensures that the `getOrElse` fallback logic is executed when an exception
+    // without a message is thrown during the `getSelectedFile` call. It verifies that the
+    // returned `Failure` state contains the generic error message as the error.
+    // Expected Result:
+    // 1. The exception is caught and processed within the `getOrElse` block.
+    // 2. The result should be a `Failure` with the mocked generic error message.
+    @Test
+    fun `Given Case 5, When getSelectedFileAndQtsp is called, Then Case 5 expected result is returned`() {
+        // Arrange
+        whenever(eudiRqesController.getSelectedFile())
+            .thenThrow(mockedExceptionWithNoMessage)
+
+        // Act
+        val result = interactor.getSelectedFileAndQtsp()
+
+        // Assert
+        assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Failure)
+        val failure = result as SuccessInteractorGetSelectedFileAndQtspPartialState.Failure
+        assertEquals(mockedGenericErrorMessage, failure.error.message)
     }
     //endregion
 
