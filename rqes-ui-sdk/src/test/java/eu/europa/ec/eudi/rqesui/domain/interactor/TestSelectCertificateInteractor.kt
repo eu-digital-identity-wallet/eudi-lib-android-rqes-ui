@@ -25,10 +25,11 @@ import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationUrl
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
+import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
-import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -70,6 +71,8 @@ class TestSelectCertificateInteractor {
     fun setUp() {
         closeable = MockitoAnnotations.openMocks(this)
         interactor = SelectCertificateInteractorImpl(resourceProvider, eudiController)
+        whenever(resourceProvider.genericErrorMessage())
+            .thenReturn(mockedGenericErrorMessage)
     }
 
     @After
@@ -183,6 +186,39 @@ class TestSelectCertificateInteractor {
                 (result as SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure).error.message
             )
         }
+
+    // Case 4: Testing when fetching certificates fails
+    // Case 4 Expected Result:
+    // 1. The interactor should return a failure result when fetching certificates fails.
+    // 2. The returned result should be of type `SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure`.
+    // 3. The failure should contain the error from `EudiRqesGetCertificatesPartialState.Failure`.
+    @Test
+    fun `Given Case 4, When authorizeServiceAndFetchCertificates is called, Then Case 4 expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            val mockError = EudiRQESUiError(message = mockedPlainFailureMessage)
+            mockAuthorizeServiceCall(
+                response = EudiRqesAuthorizeServicePartialState.Success(
+                    authorizedService = rqesServiceAuthorized
+                )
+            )
+            mockGetAvailableCertificatesCall(
+                response = EudiRqesGetCertificatesPartialState.Failure(
+                    error = mockError
+                )
+            )
+
+            // Act
+            val result = interactor.authorizeServiceAndFetchCertificates()
+
+            // Assert
+            assertEquals(
+                SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
+                    error = mockError
+                ),
+                result
+            )
+        }
     //endregion
 
     //region getCredentialAuthorizationUrl
@@ -247,7 +283,7 @@ class TestSelectCertificateInteractor {
     // Case 3 Expected Result:
     // 1. The interactor should call getCredentialAuthorizationUrl and handle the exception thrown.
     // 2. The returned result should be of type `EudiRqesGetCredentialAuthorizationUrlPartialState.Failure`.
-    // 3. The error message in the returned result should match the message of the thrown exception (`mockedExceptionWithMessage`).
+    // 3. The error message in the returned result should match the message of the thrown exception.
     @Test
     fun `Given Case 3, When getCredentialAuthorizationUrl is called, Then Case 3 expected result is returned`() =
         coroutineRule.runTest {
@@ -268,6 +304,62 @@ class TestSelectCertificateInteractor {
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedExceptionWithMessage.message,
+                (result as EudiRqesGetCredentialAuthorizationUrlPartialState.Failure).error.message
+            )
+        }
+
+    // Case 4:
+    // Testing when the `getCredentialAuthorizationUrl` method is called, and the `getAuthorizedService`
+    // returns `null`. This simulates a case where no authorized service is available, triggering a fallback
+    // to a generic error message.
+    // Case 4 Expected Result:
+    // 1. The interactor should return a failure response of type `EudiRqesGetCredentialAuthorizationUrlPartialState.Failure`.
+    // 2. The error message in the failure response should match the `mockedGenericErrorMessage`.
+    @Test
+    fun `Given Case 4, When getCredentialAuthorizationUrl is called, Then Case 4 expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiController.getAuthorizedService())
+                .thenReturn(null)
+
+            // Act
+            val result = interactor.getCredentialAuthorizationUrl(certificate = certificateData)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as EudiRqesGetCredentialAuthorizationUrlPartialState.Failure).error.message
+            )
+        }
+
+    // Case 5 Description:
+    // Testing when the `getCredentialAuthorizationUrl` method is called and the `getAuthorizedService`
+    // returns a valid service but the `getCredentialAuthorizationUrl` method itself returns `null`.
+    // This simulates a case where the service does not provide a valid authorization URL.
+    // Case 5:Expected Result:
+    // 1. The interactor should return a failure response of type `EudiRqesGetCredentialAuthorizationUrlPartialState.Failure`.
+    // 2. The error message in the failure response should match the `mockedGenericErrorMessage`.
+    @Test
+    fun `Given Case 5, When getCredentialAuthorizationUrl is called, Then Case 5 expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiController.getAuthorizedService())
+                .thenReturn(rqesServiceAuthorized)
+            whenever(
+                eudiController.getCredentialAuthorizationUrl(
+                    authorizedService = rqesServiceAuthorized,
+                    certificateData = certificateData
+                )
+            ).thenReturn(null)
+
+            // Act
+            val result = interactor.getCredentialAuthorizationUrl(certificate = certificateData)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
                 (result as EudiRqesGetCredentialAuthorizationUrlPartialState.Failure).error.message
             )
         }

@@ -33,7 +33,6 @@ import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.presentation.extension.getFileName
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
@@ -98,6 +97,7 @@ class TestSuccessInteractor {
         interactor = SuccessInteractorImpl(resourceProvider, eudiRqesController)
         whenever(resourceProvider.genericErrorMessage())
             .thenReturn(mockedGenericErrorMessage)
+        whenever(resourceProvider.provideContext()).thenReturn(context)
     }
 
     @After
@@ -220,14 +220,52 @@ class TestSuccessInteractor {
     //endregion
 
     //region signAndSaveDocument
-    // Case 1: Testing when `signAndSaveDocument` fails during the credential authorization step.
+    // Case 1 Description:
+    // This test verifies the `signAndSaveDocument` function under a success scenario.
+    // The method is expected to successfully execute the following steps:
+    // 1. Authorize a credential.
+    // 2. Sign the document(s) using the authorized credential.
+    // 3. Save the signed document(s) to the provided location.
     // Case 1 Expected Result:
-    // 1. The interactor should attempt to authorize the credential via `authorizeCredential`.
-    // 2. The authorization should fail and return an error (`EudiRQESUiError`).
-    // 3. The returned result from `signAndSaveDocument` should be of type `Failure` from `SuccessInteractorSignAndSaveDocumentPartialState`.
-    // 4. The `error` in the returned result should match the mocked error (`mockedPlainFailureMessage`).
+    // The function should return a `SuccessInteractorSignAndSaveDocumentPartialState.Success` state
+    // with the correct saved document data, and all operations should complete successfully.
     @Test
     fun `Given Case 1, When signAndSaveDocument is called, Then Case 1 expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            val documentsUri = listOf(documentFileUri)
+            mockAuthorizeCredentialCall(
+                response = EudiRqesAuthorizeCredentialPartialState.Success(
+                    authorizedCredential = credentialAuthorized
+                )
+            )
+            mockSignDocumentsCall(
+                response = EudiRqesSignDocumentsPartialState.Success(
+                    signedDocuments = signedDocuments
+                )
+            )
+            mockSaveSignedDocumentsCall(
+                documentName = mockedDocumentName,
+                signedDocuments = signedDocuments,
+                event = EudiRqesSaveSignedDocumentsPartialState.Success(savedDocumentsUri = documentsUri)
+            )
+            mockGetFileNameFromUri()
+
+            // Act
+            val result = interactor.signAndSaveDocument(mockedDocumentName)
+
+            // Assert
+            assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Success)
+        }
+
+    // Case 2: Testing when `signAndSaveDocument` fails during the credential authorization step.
+    // Case 2 Expected Result:
+    // 1. The interactor should attempt to authorize the credential via `authorizeCredential`.
+    // 2. The authorization should fail and return an error.
+    // 3. The returned result from `signAndSaveDocument` should be of type `Failure` from `SuccessInteractorSignAndSaveDocumentPartialState`.
+    // 4. The `error` in the returned result should match the mocked error.
+    @Test
+    fun `Given Case 2, When signAndSaveDocument is called, Then Case 2 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             val error = EudiRQESUiError(message = mockedPlainFailureMessage)
@@ -248,15 +286,15 @@ class TestSuccessInteractor {
             )
         }
 
-    // Case 2: Testing when `signAndSaveDocument` succeeds in credential authorization but fails during document signing.
-    // Case 2 Expected Result:
+    // Case 3: Testing when `signAndSaveDocument` succeeds in credential authorization but fails during document signing.
+    // Case 3 Expected Result:
     // 1. The interactor should first authorize the credential successfully via `authorizeCredential`.
     // 2. After authorization, the document signing should be attempted, but it fails.
-    // 3. The failure should return an error (`EudiRQESUiError`).
+    // 3. The failure should return an error.
     // 4. The returned result from `signAndSaveDocument` should be of type `Failure` of `SuccessInteractorSignAndSaveDocumentPartialState`.
-    // 5. The `error` in the returned result should match the mocked error.
+    // 5. The error in the returned result should match the mocked error.
     @Test
-    fun `Given Case 2, When signAndSaveDocument is called, Then Case 2 expected result is returned`() =
+    fun `Given Case 3, When signAndSaveDocument is called, Then Case 3 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             val error = EudiRQESUiError(message = mockedPlainFailureMessage)
@@ -278,9 +316,9 @@ class TestSuccessInteractor {
             )
         }
 
-    // Case 3: Testing when `signAndSaveDocument` successfully goes ahead with an authorized credential,
-    // signs the document, but fails to save the signed document.
-    // Case 3 Expected Result:
+    // Case 4: Testing when `signAndSaveDocument` successfully goes ahead with an authorized credential,
+    // signs the document but fails to save the signed document.
+    // Case 4 Expected Result:
     // 1. The interactor should first successfully continue with an authorized credential.
     // 2. After successful authorization, the document should be signed successfully.
     // 3. After signing, the interactor attempts to save the signed document, but this fails.
@@ -288,7 +326,7 @@ class TestSuccessInteractor {
     // 5. The result from `signAndSaveDocument` should be of type `Failure` of `SuccessInteractorSignAndSaveDocumentPartialState`.
     // 6. The `error` in the returned result should match the mocked error.
     @Test
-    fun `Given Case 3, When signAndSaveDocument is called, Then Case 3 expected result is returned`() =
+    fun `Given Case 4, When signAndSaveDocument is called, Then Case 4 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             val error = EudiRQESUiError(message = mockedPlainFailureMessage)
@@ -319,43 +357,27 @@ class TestSuccessInteractor {
             )
         }
 
-    // Case 4: Testing when `signAndSaveDocument` successfully goes ahead with an authorized credential,
-    // signs the document and successfully saves the signed document.
-    // Case 4 Expected Result:
-    // 1. The interactor should successfully authorize the credential.
-    // 2. After successful authorization, the document should be signed successfully.
-    // 3. After signing, the interactor should attempt to save the signed document.
-    // 4. The save operation should succeed, returning the Uri of the saved document.
-    // 5. The `signAndSaveDocument` function should return a successful result.
-    // 6. The file name from the saved document's URI should be retrieved and should match the original document name.
+    // Case 5:
+    // This test verifies the `signAndSaveDocument` function under a failure scenario.
+    // The method is expected to handle an exception thrown by the `authorizeCredential` call gracefully.
+    // Case 5 Expected Result:
+    // The function should return a `SuccessInteractorSignAndSaveDocumentPartialState.Failure` state
+    // with an error message matching the mocked exception's message.
     @Test
-    fun `Given Case 4, When signAndSaveDocument is called, Then Case 4 expected result is returned`() =
+    fun `Given Case 5, When signAndSaveDocument is called, Then Case 5 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val documentsUri = listOf(documentFileUri)
-            mockAuthorizeCredentialCall(
-                response = EudiRqesAuthorizeCredentialPartialState.Success(
-                    authorizedCredential = credentialAuthorized
-                )
-            )
-            mockSignDocumentsCall(
-                response = EudiRqesSignDocumentsPartialState.Success(
-                    signedDocuments = signedDocuments
-                )
-            )
-            mockSaveSignedDocumentsCall(
-                documentName = mockedDocumentName,
-                signedDocuments = signedDocuments,
-                event = EudiRqesSaveSignedDocumentsPartialState.Success(savedDocumentsUri = documentsUri)
+            whenever(eudiRqesController.authorizeCredential()).thenThrow(
+                mockedExceptionWithMessage
             )
 
             // Act
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
             // Assert
-            val fileNameResult = mockGetFileNameFromUri()
-            assertEquals(mockedDocumentName, fileNameResult)
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
+            val failureState = result as SuccessInteractorSignAndSaveDocumentPartialState.Failure
+            assertTrue(failureState.error.message == mockedExceptionWithMessage.message)
         }
     //endregion
 
@@ -392,14 +414,14 @@ class TestSuccessInteractor {
         ).thenReturn(event)
     }
 
-    private fun mockGetFileNameFromUri(): String {
+    private fun mockGetFileNameFromUri() {
         whenever(context.contentResolver).thenReturn(contentResolver)
-        whenever(contentResolver.query(documentFileUri, null, null, null, null))
-            .thenReturn(cursor)
+        whenever(
+            contentResolver.query(documentFileUri, null, null, null, null)
+        ).thenReturn(cursor)
         whenever(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)).thenReturn(0)
         whenever(cursor.moveToFirst()).thenReturn(true)
         whenever(cursor.getString(0)).thenReturn(mockedDocumentName)
-        return documentFileUri.getFileName(context).getOrThrow()
     }
     //endregion
 }
