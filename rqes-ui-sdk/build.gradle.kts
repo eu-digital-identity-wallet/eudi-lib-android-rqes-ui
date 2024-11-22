@@ -131,3 +131,27 @@ mavenPublishing {
         }
     }
 }
+
+koverReport {
+    filters {
+        excludes {
+            packages(
+                "*.ksp.*",
+                "*.di",
+                "*.router",
+                "*.serializer",
+                "*.config",
+                "*.config.*",
+                "*.infrastructure.*",
+                "*.infrastructure",
+                "*.ui.component.*",
+                "*.ui.component",
+                "*.ui.container",
+                "*.ui.container.*",
+            )
+            classes(
+                "*Screen*",
+            )
+        }
+    }
+}

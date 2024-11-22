@@ -25,11 +25,11 @@ import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.mockedAuthorizationUrl
-import eu.europa.ec.eudi.rqesui.mockedExceptionWithMessage
-import eu.europa.ec.eudi.rqesui.mockedPlainFailureMessage
-import eu.europa.ec.eudi.rqesui.test_rule.CoroutineTestRule
-import eu.europa.ec.eudi.rqesui.test_rule.runTest
+import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationUrl
+import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
+import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
+import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
+import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After

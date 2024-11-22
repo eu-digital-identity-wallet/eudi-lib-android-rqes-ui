@@ -33,11 +33,11 @@ import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.mockedDocumentName
-import eu.europa.ec.eudi.rqesui.mockedPlainFailureMessage
+import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
+import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.presentation.extension.getFileName
-import eu.europa.ec.eudi.rqesui.test_rule.CoroutineTestRule
-import eu.europa.ec.eudi.rqesui.test_rule.runTest
+import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
+import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.After

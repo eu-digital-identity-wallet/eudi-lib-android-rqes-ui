@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui
+package eu.europa.ec.eudi.rqesui.util
 
 const val mockedPlainFailureMessage = "Failure message"
 const val mockedAuthorizationUrl = "https://endpoint.com/mockedAuthorizationUrl"
