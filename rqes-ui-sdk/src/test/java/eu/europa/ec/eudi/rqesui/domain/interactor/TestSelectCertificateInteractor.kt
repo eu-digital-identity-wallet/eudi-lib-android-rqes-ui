@@ -17,7 +17,6 @@
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
 import eu.europa.ec.eudi.rqes.core.RQESService
-import eu.europa.ec.eudi.rqesui.base.TestApplication
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
@@ -44,10 +43,8 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestApplication::class)
 class TestSelectCertificateInteractor {
 
     @get:Rule

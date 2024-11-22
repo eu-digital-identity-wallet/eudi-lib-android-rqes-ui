@@ -19,6 +19,5 @@ package eu.europa.ec.eudi.rqesui
 const val mockedPlainFailureMessage = "Failure message"
 const val mockedAuthorizationUrl = "https://endpoint.com/mockedAuthorizationUrl"
 const val mockedDocumentName = "Document.pdf"
-const val mockedGenericErrorMessage = "An error occurred"
 
 val mockedExceptionWithMessage = RuntimeException("Exception to test interactor.")

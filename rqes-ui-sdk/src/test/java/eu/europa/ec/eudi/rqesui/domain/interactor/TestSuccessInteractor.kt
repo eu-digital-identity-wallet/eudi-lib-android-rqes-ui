@@ -23,7 +23,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
-import eu.europa.ec.eudi.rqesui.base.TestApplication
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
@@ -35,7 +34,6 @@ import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.mockedDocumentName
-import eu.europa.ec.eudi.rqesui.mockedGenericErrorMessage
 import eu.europa.ec.eudi.rqesui.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.presentation.extension.getFileName
 import eu.europa.ec.eudi.rqesui.test_rule.CoroutineTestRule
@@ -50,11 +48,9 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 import kotlin.test.Test
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = TestApplication::class)
 class TestSuccessInteractor {
 
     @get:Rule
@@ -97,7 +93,6 @@ class TestSuccessInteractor {
     fun setUp() {
         closeable = MockitoAnnotations.openMocks(this)
         interactor = SuccessInteractorImpl(resourceProvider, eudiRqesController)
-        whenever(resourceProvider.genericErrorMessage()).thenReturn(mockedGenericErrorMessage)
     }
 
     @After
@@ -235,8 +230,8 @@ class TestSuccessInteractor {
             )
         }
 
-    // Case 3: Testing when `signAndSaveDocument` successfully goes ahead with an authorized credential, signs the document,
-    //         but fails to save the signed document.
+    // Case 3: Testing when `signAndSaveDocument` successfully goes ahead with an authorized credential,
+    // signs the document, but fails to save the signed document.
     // Case 3 Expected Result:
     // 1. The interactor should first successfully continue with an authorized credential.
     // 2. After successful authorization, the document should be signed successfully.
@@ -277,7 +272,7 @@ class TestSuccessInteractor {
         }
 
     // Case 4: Testing when `signAndSaveDocument` successfully goes ahead with an authorized credential,
-    // signs the document, and successfully saves the signed document.
+    // signs the document and successfully saves the signed document.
     // Case 4 Expected Result:
     // 1. The interactor should successfully authorize the credential.
     // 2. After successful authorization, the document should be signed successfully.
