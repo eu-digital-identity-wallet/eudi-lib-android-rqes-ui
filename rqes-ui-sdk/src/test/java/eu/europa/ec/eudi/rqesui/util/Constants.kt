@@ -14,13 +14,12 @@
  * governing permissions and limitations under the Licence.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.kotlin.compose) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.maven.publish) apply false
-    alias(libs.plugins.kotlin.kover) apply false
-}
+package eu.europa.ec.eudi.rqesui.util
+
+const val mockedPlainFailureMessage = "Failure message"
+const val mockedGenericErrorMessage = "resourceProvider's genericErrorMessage"
+const val mockedAuthorizationUrl = "https://endpoint.com/mockedAuthorizationUrl"
+const val mockedDocumentName = "Document.pdf"
+
+val mockedExceptionWithMessage = RuntimeException("Exception to test interactor.")
+val mockedExceptionWithNoMessage = RuntimeException()

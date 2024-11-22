@@ -2,6 +2,7 @@
 eudiRqesCore = "0.0.3-SNAPSHOT"
 agp = "8.7.2"
 kotlin = "2.0.21"
+kotlinxCoroutines = "1.8.1"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -20,6 +21,10 @@ koinAnnotations = "1.4.0"
 ksp = "2.0.21-1.0.26"
 gson = "2.11.0"
 mavenPublish = "0.27.0"
+mockito = "5.12.0"
+mockitoKotlin = "5.3.1"
+kover = "0.7.5"
+robolectric = "4.11.1"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
@@ -48,6 +53,10 @@ koin-test = { group = "io.insert-koin", name = "koin-android-test", version.ref 
 koin-annotations = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koinAnnotations" }
 koin-ksp = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koinAnnotations" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -57,3 +66,4 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+kotlin-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

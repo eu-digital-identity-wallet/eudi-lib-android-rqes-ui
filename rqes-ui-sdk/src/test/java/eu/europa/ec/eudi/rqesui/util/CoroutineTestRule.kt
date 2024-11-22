@@ -14,19 +14,19 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui
+package eu.europa.ec.eudi.rqesui.util
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
+import org.junit.rules.TestWatcher
 
-/**
- * Example local unit test, which will execute on the development machine (host).
- *
- * See [testing documentation](http://d.android.com/tools/testing).
- */
-class ExampleUnitTest {
-    @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-    }
-}
+class CoroutineTestRule(
+    private val testDispatcher: TestDispatcher = StandardTestDispatcher(),
+    val testScope: TestScope = TestScope(testDispatcher)
+) : TestWatcher()
+
+fun CoroutineTestRule.runTest(block: suspend CoroutineScope.() -> Unit): Unit =
+    testScope.runTest { block() }
