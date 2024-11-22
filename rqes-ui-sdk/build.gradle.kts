@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kotlin.kover)
 }
 
 val NAMESPACE: String by project
@@ -103,6 +104,10 @@ dependencies {
     // Test Dependencies
     testImplementation(libs.junit)
     testImplementation(libs.koin.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
 }
 
 // Compile time check
@@ -123,6 +128,30 @@ mavenPublishing {
         ciManagement {
             system = "github"
             url = "${POM_SCM_URL}/actions"
+        }
+    }
+}
+
+koverReport {
+    filters {
+        excludes {
+            packages(
+                "*.ksp.*",
+                "*.di",
+                "*.router",
+                "*.serializer",
+                "*.config",
+                "*.config.*",
+                "*.infrastructure.*",
+                "*.infrastructure",
+                "*.ui.component.*",
+                "*.ui.component",
+                "*.ui.container",
+                "*.ui.container.*",
+            )
+            classes(
+                "*Screen*",
+            )
         }
     }
 }
