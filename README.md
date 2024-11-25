@@ -48,7 +48,104 @@ dependencies {
 
 ## How to use
 
-TBD
+### Configuration
+
+Implement the `EudiRQESUiConfig` interface and supply all the necessary options for the SDK.
+
+```kotlin
+class RQESConfigImpl : EudiRQESUiConfig {
+
+    // Optional. Default English translations will be used if not set.
+    override val translations: Map<String, Map<LocalizableKey, String>> get()
+
+    // Optional. Default theme will be used if not set.
+    override val themeManager: ThemeManager get()
+
+    override val rqesServiceConfig: RqesServiceConfig get()
+
+    override val qtsps: List<QtspData> get()
+
+    // Optional. Default is false.
+    override val printLogs: Boolean get()
+}
+```
+
+Example:
+
+```kotlin
+class RQESConfigImpl : EudiRQESUiConfig {
+
+    override val rqesServiceConfig: RqesServiceConfig
+        get() = RqesServiceConfig(
+            clientId = "your_clientid",
+            clientSecret = "your_secret",
+            authFlowRedirectionURI = URI.create("your_registered_deeplink"),
+            hashAlgorithm = HashAlgorithmOID.SHA_256,
+        )
+
+    override val qtsps: List<QtspData>
+        get() = listOf(
+            QtspData(
+                name = "your_name",
+                endpoint = "your_endpoint".toUri(),
+                scaUrl = "your_sca",
+            )
+        )
+
+    override val printLogs: Boolean get() = BuildConfig.DEBUG
+}
+```
+
+### Setup
+
+Register the `authFlowRedirectionURI` in your application's manifest to ensure the RQES Service can trigger your application.
+It is the application's responsibility to retrieve the `code` query parameter from the deep link and pass it to the SDK to continue the flow.
+
+```
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+
+    <data
+        android:host="oauth"
+        android:path="/callback"
+        android:scheme="rqes://" />
+
+</intent-filter>
+```
+
+Initialize the SDK in your Application class by providing your application context, configuration, and, if you are using Koin for dependency injection, the KoinApplication.
+
+```kotlin
+EudiRQESUi.setup(
+    application = application_context,
+    config = rqes_config,
+    koinApplication = koinapplication_if_applicable
+)
+```
+
+### Initialization
+
+Start the signing process by providing your activity context and the URI of the selected file.
+
+```kotlin
+EudiRQESUi.initiate(
+    context = activity_context,
+    documentUri = file_uri
+)
+```
+
+Resume the signing process once the `authFlowRedirectionURI` triggers your application following the PID presentation process. 
+Provide your activity context and the extracted code from the `authFlowRedirectionURI` deep link.
+
+```kotlin
+EudiRQESUi.resume(
+    context = activity_context,
+    authorizationCode = code
+)
+```
 
 ## How to contribute
 
