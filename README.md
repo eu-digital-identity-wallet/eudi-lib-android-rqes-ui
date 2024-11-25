@@ -25,7 +25,7 @@ The `EudiRQESUi` object defines methods for setting up and using the SDK. The SD
 
 To use snapshot versions add the following to your project's settings.gradle file:
 
-```kotlin
+```Gradle
 dependencyResolutionManagement {
     repositories {
         // .. other repositories
@@ -40,7 +40,7 @@ dependencyResolutionManagement {
 Add the following dependency to your app's build.gradle file to include the library in your project. 
 If you want to use a snapshot version, please add the `-snapshot` suffix to the library version.
 
-```kotlin
+```Gradle
 dependencies {
     implementation("eu.europa.ec.eudi:eudi-lib-android-rqes-ui:$version")
 }
@@ -101,7 +101,7 @@ class RQESConfigImpl : EudiRQESUiConfig {
 Register the `authFlowRedirectionURI` in your application's manifest to ensure the RQES Service can trigger your application.
 It is the application's responsibility to retrieve the `code` query parameter from the deep link and pass it to the SDK to continue the flow.
 
-```
+```Xml
 <intent-filter>
     <action android:name="android.intent.action.VIEW" />
 
