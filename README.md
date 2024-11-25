@@ -8,7 +8,7 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 ## Table of contents
 
 * [Overview](#overview)
-* [Dependencies](#dependencies)
+* [Installation](#installation)
 * [How to use](#how-to-use)
 * [License](#license)
 
@@ -21,7 +21,7 @@ The `EudiRQESUi` object defines methods for setting up and using the SDK. The SD
 
 - Android 9 (API level 28) or higher
 
-### Dependencies
+## Installation
 
 To use snapshot versions add the following to your project's settings.gradle file:
 
@@ -37,12 +37,12 @@ dependencyResolutionManagement {
 }
 ```
 
-To include the library in your project, add the following dependencies to your app's build.gradle
-file.
+Add the following dependency to your app's build to include the library in your project.gradle file.
+If you want to use a snapshot version, please add the `-snapshot` suffix to the library version.
 
 ```kotlin
 dependencies {
-    implementation("eu.europa.ec.eudi:eudi-lib-android-rqes-ui:0.0.5-SNAPSHOT")
+    implementation("eu.europa.ec.eudi:eudi-lib-android-rqes-ui:$version")
 }
 ```
 
