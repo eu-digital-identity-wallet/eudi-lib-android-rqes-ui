@@ -37,7 +37,7 @@ dependencyResolutionManagement {
 }
 ```
 
-Add the following dependency to your app's build to include the library in your project.gradle file.
+Add the following dependency to your app's build.gradle file to include the library in your project. 
 If you want to use a snapshot version, please add the `-snapshot` suffix to the library version.
 
 ```kotlin
