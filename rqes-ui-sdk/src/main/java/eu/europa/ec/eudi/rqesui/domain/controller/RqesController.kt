@@ -41,7 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
 
-internal interface EudiRqesController {
+internal interface RqesController {
     fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
 
     fun getQtsps(): EudiRqesGetQtspsPartialState
@@ -75,10 +75,10 @@ internal interface EudiRqesController {
     ): EudiRqesSaveSignedDocumentsPartialState
 }
 
-internal class EudiRqesControllerImpl(
+internal class RqesControllerImpl(
     private val eudiRQESUi: EudiRQESUi,
     private val resourceProvider: ResourceProvider,
-) : EudiRqesController {
+) : RqesController {
 
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
@@ -383,7 +383,6 @@ internal class EudiRqesControllerImpl(
                         authFlowRedirectionURI = authFlowRedirectionURI,
                         scaBaseURL = URL(qtspData.scaUrl),
                     ),
-                    signingAlgorithm = signingAlgorithm,
                     hashAlgorithm = hashAlgorithm,
                 )
             }

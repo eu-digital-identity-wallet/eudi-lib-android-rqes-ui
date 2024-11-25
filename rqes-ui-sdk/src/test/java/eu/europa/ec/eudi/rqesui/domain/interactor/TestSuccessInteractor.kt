@@ -24,11 +24,11 @@ import android.provider.OpenableColumns
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSignDocumentsPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
@@ -64,7 +64,7 @@ class TestSuccessInteractor {
     private lateinit var resourceProvider: ResourceProvider
 
     @Mock
-    private lateinit var eudiRqesController: EudiRqesController
+    private lateinit var eudiRqesController: RqesController
 
     @Mock
     private lateinit var credentialAuthorized: RQESService.CredentialAuthorized

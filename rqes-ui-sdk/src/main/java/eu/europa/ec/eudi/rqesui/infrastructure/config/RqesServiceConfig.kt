@@ -17,7 +17,6 @@
 package eu.europa.ec.eudi.rqesui.infrastructure.config
 
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
-import eu.europa.ec.eudi.rqes.SigningAlgorithmOID
 import java.net.URI
 
 /**
@@ -29,13 +28,11 @@ import java.net.URI
  * @property clientId The client ID used to identify the application with the RQES service.
  * @property clientSecret The client secret used for authentication with the RQES service.
  * @property authFlowRedirectionURI The [URI] to which the user is redirected after authenticating with the RQES service.
- * @property signingAlgorithm The signing algorithm used for generating digital signatures. Defaults to RSA.
  * @property hashAlgorithm The hash algorithm used for generating message digests. Defaults to SHA-256.
  */
 data class RqesServiceConfig(
     val clientId: String,
     val clientSecret: String,
     val authFlowRedirectionURI: URI,
-    val signingAlgorithm: SigningAlgorithmOID = SigningAlgorithmOID.RSA,
     val hashAlgorithm: HashAlgorithmOID = HashAlgorithmOID.SHA_256,
 )

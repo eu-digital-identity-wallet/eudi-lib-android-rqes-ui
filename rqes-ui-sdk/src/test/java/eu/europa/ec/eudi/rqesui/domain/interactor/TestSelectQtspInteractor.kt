@@ -17,7 +17,7 @@
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
 import eu.europa.ec.eudi.rqes.core.RQESService
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -31,7 +31,7 @@ import org.mockito.kotlin.verify
 class TestSelectQtspInteractor {
 
     @Mock
-    private lateinit var eudiController: EudiRqesController
+    private lateinit var eudiController: RqesController
 
     @Mock
     private lateinit var qtspData: QtspData
