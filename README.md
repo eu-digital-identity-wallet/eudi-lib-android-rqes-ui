@@ -57,12 +57,6 @@ involved, follow the guidelines found in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-### Third-party component licenses
-
-See [licenses.md](licenses.md) for details.
-
-### License details
-
 Copyright (c) 2024 European Commission
 
 Licensed under the Apache License, Version 2.0 (the "License");
