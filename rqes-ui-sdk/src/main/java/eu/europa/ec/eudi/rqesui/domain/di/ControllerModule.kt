@@ -17,8 +17,6 @@
 package eu.europa.ec.eudi.rqesui.domain.di
 
 import android.content.Context
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesControllerImpl
 import eu.europa.ec.eudi.rqesui.domain.controller.KeyStorage
 import eu.europa.ec.eudi.rqesui.domain.controller.KeyStorageImpl
 import eu.europa.ec.eudi.rqesui.domain.controller.LocalizationController
@@ -27,6 +25,8 @@ import eu.europa.ec.eudi.rqesui.domain.controller.LogController
 import eu.europa.ec.eudi.rqesui.domain.controller.LogControllerImpl
 import eu.europa.ec.eudi.rqesui.domain.controller.PreferencesController
 import eu.europa.ec.eudi.rqesui.domain.controller.PreferencesControllerImpl
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesControllerImpl
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import org.koin.core.annotation.Factory
@@ -41,8 +41,8 @@ internal fun provideLocalizationController(): LocalizationController =
     LocalizationControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
 
 @Single
-internal fun provideEudiRqesController(resourceProvider: ResourceProvider): EudiRqesController =
-    EudiRqesControllerImpl(EudiRQESUi, resourceProvider)
+internal fun provideRqesController(resourceProvider: ResourceProvider): RqesController =
+    RqesControllerImpl(EudiRQESUi, resourceProvider)
 
 @Factory
 internal fun provideLogController(): LogController =

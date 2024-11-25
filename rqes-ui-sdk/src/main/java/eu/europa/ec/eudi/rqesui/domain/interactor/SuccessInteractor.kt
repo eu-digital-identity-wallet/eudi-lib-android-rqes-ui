@@ -17,11 +17,11 @@
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSignDocumentsPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
@@ -38,7 +38,7 @@ internal interface SuccessInteractor {
 
 internal class SuccessInteractorImpl(
     private val resourceProvider: ResourceProvider,
-    private val eudiRqesController: EudiRqesController,
+    private val eudiRqesController: RqesController,
 ) : SuccessInteractor {
 
     private val genericErrorMsg

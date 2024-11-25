@@ -17,11 +17,11 @@
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
 import eu.europa.ec.eudi.rqes.core.RQESService
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetQtspsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetServiceAuthorizationUrlPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 
 internal interface SelectQtspInteractor {
@@ -35,7 +35,7 @@ internal interface SelectQtspInteractor {
 }
 
 internal class SelectQtspInteractorImpl(
-    private val eudiRqesController: EudiRqesController,
+    private val eudiRqesController: RqesController,
 ) : SelectQtspInteractor {
 
     override fun getQtsps(): EudiRqesGetQtspsPartialState {

@@ -16,7 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.domain.di
 
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.interactor.SelectCertificateInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.SelectCertificateInteractorImpl
 import eu.europa.ec.eudi.rqesui.domain.interactor.SelectQtspInteractor
@@ -28,7 +28,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 internal fun provideSelectQtspInteractor(
-    eudiRqesController: EudiRqesController,
+    eudiRqesController: RqesController,
 ): SelectQtspInteractor = SelectQtspInteractorImpl(
     eudiRqesController,
 )
@@ -36,7 +36,7 @@ internal fun provideSelectQtspInteractor(
 @Factory
 internal fun provideSelectCertificateInteractor(
     resourceProvider: ResourceProvider,
-    eudiRqesController: EudiRqesController,
+    eudiRqesController: RqesController,
 ): SelectCertificateInteractor = SelectCertificateInteractorImpl(
     resourceProvider,
     eudiRqesController,
@@ -45,7 +45,7 @@ internal fun provideSelectCertificateInteractor(
 @Factory
 internal fun provideSuccessInteractor(
     resourceProvider: ResourceProvider,
-    eudiRqesController: EudiRqesController,
+    eudiRqesController: RqesController,
 ): SuccessInteractor = SuccessInteractorImpl(
     resourceProvider,
     eudiRqesController,

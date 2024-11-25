@@ -18,7 +18,6 @@ package eu.europa.ec.eudi.testrqes
 
 import android.app.Application
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
-import eu.europa.ec.eudi.rqes.SigningAlgorithmOID
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
@@ -47,7 +46,6 @@ private class DefaultConfig : EudiRQESUiConfig {
             clientId = "wallet-client-tester",
             clientSecret = "somesecrettester2",
             authFlowRedirectionURI = URI.create("rQES://oauth/callback"),
-            signingAlgorithm = SigningAlgorithmOID.RSA,
             hashAlgorithm = HashAlgorithmOID.SHA_256,
         )
 

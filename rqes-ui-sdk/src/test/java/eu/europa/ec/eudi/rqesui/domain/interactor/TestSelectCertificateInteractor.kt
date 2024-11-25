@@ -18,9 +18,9 @@ package eu.europa.ec.eudi.rqesui.domain.interactor
 
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
-import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
@@ -52,7 +52,7 @@ class TestSelectCertificateInteractor {
     val coroutineRule = CoroutineTestRule()
 
     @Mock
-    private lateinit var eudiController: EudiRqesController
+    private lateinit var eudiController: RqesController
 
     @Mock
     private lateinit var resourceProvider: ResourceProvider
