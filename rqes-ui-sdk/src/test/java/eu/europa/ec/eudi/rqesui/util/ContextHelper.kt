@@ -16,13 +16,9 @@
 
 package eu.europa.ec.eudi.rqesui.util
 
-const val mockedPlainFailureMessage = "Failure message"
-const val mockedGenericErrorMessage = "resourceProvider's genericErrorMessage"
-const val mockedAuthorizationUrl = "https://endpoint.com/mockedAuthorizationUrl"
-const val mockedDocumentName = "Document.pdf"
-const val mockedLocalizedText = "Localized text"
-const val mockedPreferencesKey = "preferences_key"
-const val mockedPreferenceStringValue = "preference value"
+import android.content.Context
+import org.robolectric.RuntimeEnvironment
 
-val mockedExceptionWithMessage = RuntimeException("Exception to test interactor.")
-val mockedExceptionWithNoMessage = RuntimeException()
+fun getMockedContext(): Context {
+    return RuntimeEnvironment.getApplication().applicationContext
+}
