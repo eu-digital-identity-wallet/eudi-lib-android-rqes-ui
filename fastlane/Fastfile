@@ -1,0 +1,64 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:android)
+
+platform :android do
+
+desc "Runs all the tests"
+lane :test do
+  gradle(task: "clean")
+  gradle(task: "rqes-ui-sdk:koverHtmlReportDebug")
+end
+
+desc "Deploy tags"
+lane :deploy do |values|
+  tag = values[:tag]
+
+  unless tag
+    UI.user_error!('Tag version is missing')
+  end
+
+  puts "Tag to be uploaded: #{tag}"
+
+  add_git_tag(
+    tag: tag,
+  )
+
+  if ENV['PROD_REMOTE_REPO']
+    upload_tag(
+      remoteUrl: ENV['PROD_REMOTE_REPO'],
+      tag: tag,
+    )
+  end
+
+  if ENV['DEV_REMOTE_REPO']
+    upload_tag(
+      remoteUrl: ENV['DEV_REMOTE_REPO'],
+      tag: tag,
+    )
+  end
+
+end
+
+desc "Upload tags"
+lane :upload_tag do |values|
+  remoteUrl = values[:remoteUrl]
+  tag = values[:tag]
+  sh("git remote set-url origin #{remoteUrl}")
+  push_git_tags(tag: tag)
+end
+
+end
