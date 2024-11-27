@@ -16,17 +16,31 @@
 
 package eu.europa.ec.eudi.rqesui.domain.controller
 
+import eu.europa.ec.eudi.rqes.AuthorizationCode
+import eu.europa.ec.eudi.rqes.HashAlgorithmOID
+import eu.europa.ec.eudi.rqes.core.RQESService
+import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
+import eu.europa.ec.eudi.rqesui.infrastructure.config.RqesServiceConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
+import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationCode
+import eu.europa.ec.eudi.rqesui.util.mockedClientId
+import eu.europa.ec.eudi.rqesui.util.mockedClientSecret
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
+import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
+import eu.europa.ec.eudi.rqesui.util.mockedQtspName
+import eu.europa.ec.eudi.rqesui.util.mockedScaUrl
+import eu.europa.ec.eudi.rqesui.util.mockedUri
+import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
@@ -61,7 +75,22 @@ class TestRqesController {
     private lateinit var documentData: DocumentData
 
     @Mock
+    private lateinit var qtspData: QtspData
+
+    @Mock
     private lateinit var qtspDataList: List<QtspData>
+
+    @Mock
+    private lateinit var rqesServiceConfig: RqesServiceConfig
+
+    @Mock
+    private lateinit var rqesServiceAuthorized: RQESService.Authorized
+
+    @Mock
+    private lateinit var credentialAuthorized: RQESService.CredentialAuthorized
+
+    @Mock
+    private lateinit var signedDocuments: SignedDocuments
 
     private lateinit var rqesController: RqesController
 
@@ -187,6 +216,184 @@ class TestRqesController {
             expectedError.message,
             (result as EudiRqesGetQtspsPartialState.Failure).error.message,
         )
+    }
+    //endregion
+
+    //region setSelectedQtsp
+    // Case 1
+    // 1. Mock the RQES service configuration to simulate a successful setup of the service.
+    // 2. Mock the `qtspData` to represent the selected QTSP.
+    // 3. Ensure `eudiRQESUi.getCurrentSelection()` returns the current selection.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesSetSelectedQtspPartialState.Success`.
+    // 2. The success state should include a non-null service object, representing the created RQES service.
+    @Test
+    fun `Given Case 1, When setSelectedQtsp is called, Then the expected result is returned`() {
+        // Arrange
+        mockRQESServiceConfig(eudiRQESUi = eudiRQESUi)
+        mockQTSPData(qtspData = qtspData)
+
+        // Act
+        val result = rqesController.setSelectedQtsp(qtspData)
+
+        // Assert
+        assertTrue(result is EudiRqesSetSelectedQtspPartialState.Success)
+        assertNotNull((result as EudiRqesSetSelectedQtspPartialState.Success).service)
+    }
+    //endregion
+
+    //region getSelectedQtsp
+    // 1. Mock `eudiRQESUi.getCurrentSelection()` to return `currentSelection`
+    // 2. Mock `currentSelection.qtsp` to return `qtspData`, representing the selected QTSP.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesGetSelectedQtspPartialState.Success`.
+    // 2. The success state should include the `qtsp` value matching the mocked `qtspData`.
+    @Test
+    fun `Given Case 1, When getSelectedQtsp is called, Then the expected result is returned`() {
+        // Arrange
+        whenever(eudiRQESUi.getCurrentSelection())
+            .thenReturn(currentSelection)
+        whenever(currentSelection.qtsp)
+            .thenReturn(qtspData)
+
+        // Act
+        val result = rqesController.getSelectedQtsp()
+
+        // Assert
+        assertTrue(result is EudiRqesGetSelectedQtspPartialState.Success)
+        assertEquals(qtspData, (result as EudiRqesGetSelectedQtspPartialState.Success).qtsp)
+    }
+    //endregion
+
+    //region signDocuments
+    // Case 1
+    // 1. Mock `credentialAuthorized.signDocuments()` to return a successful result.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesSignDocumentsPartialState.Success`.
+    // 2. The success state should indicate that the signing operation was completed successfully.
+    @Test
+    fun `Given Case 1, When signDocuments is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(credentialAuthorized.signDocuments())
+                .thenReturn(Result.success(signedDocuments))
+
+            // Act
+            val result = rqesController.signDocuments(credentialAuthorized)
+
+            // Assert
+            assertTrue(result is EudiRqesSignDocumentsPartialState.Success)
+        }
+    //endregion
+
+    //region authorizeCredential
+    // Case 1
+    // 1. Mock `eudiRQESUi.getCurrentSelection()`
+    // 2. Mock `currentSelection.authorizationCode` to return a mocked authorization code.
+    // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
+    // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to return a successful result
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesAuthorizeCredentialPartialState.Success`.
+    // 2. The success state should include the `credentialAuthorized` as the authorized credential.
+    @Test
+    fun `Given Case 1, When authorizeCredential is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            mockRQESCurrentSelection()
+            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
+            mockAuthorizeCredentialResultSuccess()
+
+            // Act
+            val result = rqesController.authorizeCredential()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Success)
+            assertEquals(
+                credentialAuthorized,
+                (result as EudiRqesAuthorizeCredentialPartialState.Success).authorizedCredential,
+            )
+        }
+
+    // Case 2
+    // 1. Mock eudiRQESUi.getCurrentSelection() to return a valid currentSelection.
+    // 2. Mock eudiRQESUi.getAuthorizedService() to return null.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesAuthorizeCredentialPartialState.Failure`.
+    // 2. The failure state should be triggered.
+    @Test
+    fun `Given Case 2, When authorizeCredential is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            mockRQESCurrentSelection()
+            whenever(eudiRQESUi.getAuthorizedService())
+                .thenReturn(null)
+
+            // Act
+            val result = rqesController.authorizeCredential()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
+        }
+
+    // Case 3
+    // 1. Mock `eudiRQESUi.getCurrentSelection()` to return a valid `currentSelection`.
+    // 2. Mock `currentSelection.authorizationCode` to return a mocked authorization code.
+    // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
+    // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to throw a `RuntimeException` with message.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesAuthorizeCredentialPartialState.Failure`.
+    // 2. The failure state should include the error message "Authorization failed".
+    @Test
+    fun `Given Case 3, When authorizeCredential is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            val authorizationFailedMessage = "Authorization failed"
+            mockRQESCurrentSelection()
+            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
+            whenever(
+                rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode)),
+            ).thenThrow(RuntimeException(authorizationFailedMessage))
+
+            // Act
+            val result = rqesController.authorizeCredential()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
+            assertEquals(
+                authorizationFailedMessage,
+                (result as EudiRqesAuthorizeCredentialPartialState.Failure).error.message,
+            )
+        }
+    //endregion
+
+    // region mock data
+    private fun mockQTSPData(qtspData: QtspData) {
+        with(qtspData) {
+            whenever(this.name).thenReturn(mockedQtspName)
+            whenever(this.endpoint).thenReturn(mockedQtspEndpoint)
+            whenever(this.scaUrl).thenReturn(mockedScaUrl)
+        }
+    }
+
+    private fun mockRQESServiceConfig(eudiRQESUi: EudiRQESUi) {
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
+        whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
+        whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(rqesServiceConfig)
+        whenever(rqesServiceConfig.clientId).thenReturn(mockedClientId)
+        whenever(rqesServiceConfig.clientSecret).thenReturn(mockedClientSecret)
+        whenever(rqesServiceConfig.authFlowRedirectionURI).thenReturn(mockedUri)
+        whenever(rqesServiceConfig.hashAlgorithm).thenReturn(HashAlgorithmOID.SHA_256)
+    }
+
+    private suspend fun mockAuthorizeCredentialResultSuccess() {
+        whenever(rqesServiceAuthorized.authorizeCredential(AuthorizationCode(code = mockedAuthorizationCode)))
+            .thenReturn(Result.success(credentialAuthorized))
+    }
+
+    private fun mockRQESCurrentSelection() {
+        whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
     }
     //endregion
 }

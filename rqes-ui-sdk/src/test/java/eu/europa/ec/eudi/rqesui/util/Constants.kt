@@ -16,6 +16,9 @@
 
 package eu.europa.ec.eudi.rqesui.util
 
+import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import java.net.URI
+
 const val mockedPlainFailureMessage = "Failure message"
 const val mockedGenericErrorMessage = "resourceProvider's genericErrorMessage"
 const val mockedAuthorizationUrl = "https://endpoint.com/mockedAuthorizationUrl"
@@ -23,6 +26,13 @@ const val mockedDocumentName = "Document.pdf"
 const val mockedLocalizedText = "Localized text"
 const val mockedPreferencesKey = "preferences_key"
 const val mockedPreferenceStringValue = "preference value"
+const val mockedQtspName = "mocked QTSP name"
+const val mockedScaUrl = "https://mocked.qtsp.sca.com"
+const val mockedClientId = "mocked_client_id"
+const val mockedClientSecret = "mocked_client_secret"
+const val mockedAuthorizationCode = "mockedAuthorizationCode"
 
 val mockedExceptionWithMessage = RuntimeException("Exception to test interactor.")
 val mockedExceptionWithNoMessage = RuntimeException()
+val mockedUri = URI.create("https://mocked.uri.com")
+val mockedQtspEndpoint = "https://qtsp.endpoint.com".toUri()
