@@ -17,6 +17,7 @@
 package eu.europa.ec.eudi.rqesui.domain.controller
 
 import eu.europa.ec.eudi.rqesui.util.getMockedContext
+import eu.europa.ec.eudi.rqesui.util.mockedDefaultPreferenceValue
 import eu.europa.ec.eudi.rqesui.util.mockedPreferenceStringValue
 import eu.europa.ec.eudi.rqesui.util.mockedPreferencesKey
 import junit.framework.TestCase.assertFalse
@@ -50,7 +51,7 @@ class TestPreferencesController {
     // region getBool
     // Case 1: Test setting and getting a boolean value
     // Expected Result:
-    // 1. The boolean value should be set correctly, and the correct value should be retrieved.
+    // 1. The boolean value should be set correctly and the correct value should be retrieved.
     @Test
     fun `Given Case 1, When setBool and getBool are called, Then the correct boolean value is returned`() {
         // Arrange
@@ -87,19 +88,18 @@ class TestPreferencesController {
     @Test
     fun `Given Case 2, When getString with default value is called, Then the default value is returned`() {
         // Act
-        val defaultPreferenceValue = "defaultValue"
-        val result = preferencesController.getString("non_existent_key", defaultPreferenceValue)
+        val result = preferencesController.getString(mockedPreferencesKey, mockedDefaultPreferenceValue)
 
         // Assert
-        assertEquals(defaultPreferenceValue, result)
+        assertEquals(mockedDefaultPreferenceValue, result)
     }
 
     //region contains
     // Case 1: Test clearing a specific key
     // Expected Result:
-    // 1. The specified key should be cleared, and subsequent attempts to access it should return false.
+    // 1. The specified key should be cleared and `contains` should return false for that key.
     @Test
-    fun `Given Case 1, When contains is called, Then preference key are cleared`() {
+    fun `Given Case 1, When contains is called, Then false should be returned`() {
         // Arrange
         preferencesController.setString(mockedPreferencesKey, mockedPreferenceStringValue)
         preferencesController.clear(mockedPreferencesKey)
