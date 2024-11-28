@@ -21,6 +21,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedDefaultPreferenceValue
 import eu.europa.ec.eudi.rqesui.util.mockedPreferenceStringValue
 import eu.europa.ec.eudi.rqesui.util.mockedPreferencesKey
 import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.runner.RunWith
@@ -95,20 +96,19 @@ class TestPreferencesController {
     }
 
     //region contains
-    // Case 1: Test clearing a specific key
+    // Case 1: Test specific key being contained
     // Expected Result:
-    // 1. The specified key should be cleared and `contains` should return false for that key.
+    // 1. After calling setString for a given key and value, `contains` should return true.
     @Test
     fun `Given Case 1, When contains is called, Then false should be returned`() {
         // Arrange
         preferencesController.setString(mockedPreferencesKey, mockedPreferenceStringValue)
-        preferencesController.clear(mockedPreferencesKey)
 
         // Act
         val result = preferencesController.contains(mockedPreferencesKey)
 
         // Assert
-        assertFalse(result)
+        assertTrue(result)
     }
     //endregion
 
