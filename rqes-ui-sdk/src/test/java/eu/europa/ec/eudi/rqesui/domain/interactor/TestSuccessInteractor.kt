@@ -50,9 +50,11 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import kotlin.test.Test
 
 @RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE)
 class TestSuccessInteractor {
 
     @get:Rule

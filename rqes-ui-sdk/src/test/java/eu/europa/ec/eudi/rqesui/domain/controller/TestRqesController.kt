@@ -17,18 +17,26 @@
 package eu.europa.ec.eudi.rqesui.domain.controller
 
 import eu.europa.ec.eudi.rqes.AuthorizationCode
+import eu.europa.ec.eudi.rqes.CredentialInfo
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
+import eu.europa.ec.eudi.rqes.HttpsUrl
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.RqesServiceConfig
+import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationCode
+import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationHttpsUrl
+import eu.europa.ec.eudi.rqesui.util.mockedCertificateName
+import eu.europa.ec.eudi.rqesui.util.mockedCertificatesNotFoundMessage
 import eu.europa.ec.eudi.rqesui.util.mockedClientId
 import eu.europa.ec.eudi.rqesui.util.mockedClientSecret
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
@@ -48,9 +56,12 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.net.URI
 import kotlin.test.Test
 
 @RunWith(RobolectricTestRunner::class)
@@ -81,6 +92,9 @@ class TestRqesController {
     private lateinit var qtspDataList: List<QtspData>
 
     @Mock
+    private lateinit var rqesService: RQESService
+
+    @Mock
     private lateinit var rqesServiceConfig: RqesServiceConfig
 
     @Mock
@@ -91,6 +105,9 @@ class TestRqesController {
 
     @Mock
     private lateinit var signedDocuments: SignedDocuments
+
+    @Mock
+    private lateinit var credentialInfo: CredentialInfo
 
     private lateinit var rqesController: RqesController
 
@@ -368,11 +385,246 @@ class TestRqesController {
         }
     //endregion
 
+    //region getServiceAuthorizationUrl
+    // Case 1
+    // 1. Mock `rqesService.getServiceAuthorizationUrl()` to return a `Result.success` with
+    // an authorization URL.
+    // 2. Ensure the mocked URL matches the expected format and can be converted to a URI.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesGetServiceAuthorizationUrlPartialState.Success`.
+    // 2. The `authorizationUrl` in the success state should match the expected mocked URL converted to a URI.
+    @Test
+    fun `Given Case 1, When getServiceAuthorizationUrl is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            val authorizationResult = HttpsUrl(mockedAuthorizationHttpsUrl).getOrThrow()
+            whenever(rqesService.getServiceAuthorizationUrl()).thenReturn(
+                Result.success(authorizationResult),
+            )
+
+            // Act
+            val result = rqesController.getServiceAuthorizationUrl(rqesService)
+
+            // Assert
+            assertTrue(result is EudiRqesGetServiceAuthorizationUrlPartialState.Success)
+            assertEquals(
+                authorizationResult.value.toString().toUri(),
+                (result as EudiRqesGetServiceAuthorizationUrlPartialState.Success).authorizationUrl,
+            )
+        }
+
+    // Case 2
+    // 1. Mock rqesService getServiceAuthorizationUrl() to throw an exception with error message.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesGetServiceAuthorizationUrlPartialState.Failure`.
+    // 2. The `error.message` in the failure state should match the exception message.
+    @Test
+    fun `Given Case 2, When getServiceAuthorizationUrl is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(rqesService.getServiceAuthorizationUrl())
+                .thenThrow(mockedExceptionWithMessage)
+
+            // Act
+            val result = rqesController.getServiceAuthorizationUrl(rqesService)
+
+            // Assert
+            assertTrue(result is EudiRqesGetServiceAuthorizationUrlPartialState.Failure)
+            assertEquals(
+                mockedExceptionWithMessage.message,
+                (result as EudiRqesGetServiceAuthorizationUrlPartialState.Failure).error.message,
+            )
+        }
+    //endregion
+
+    //region setAuthorizedService
+    // Case 1
+    // Expected Result:
+    // 1. The setAuthorizedService on eudiRQESUi should be called exactly once with a rqesServiceAuthorized argument.
+    @Test
+    fun `Given Case 1, When setAuthorizedService is called, Then the expected result is returned`() {
+        // Act
+        rqesController.setAuthorizedService(rqesServiceAuthorized)
+
+        // Assert
+        verify(eudiRQESUi, times(1))
+            .setAuthorizedService(rqesServiceAuthorized)
+    }
+    //endregion
+
+    //region authorizeService
+    // Case 1
+    // 1. Mock RQES current selection.
+    // 2. Mock `eudiRQESUi.getRqesService()` to return `rqesService`.
+    // 3. Mock `currentSelection.authorizationCode` to return `mockedAuthorizationCode`.
+    // 4. Mock `rqesService.authorizeService` to return a successful result with `rqesServiceAuthorized`.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Success`.
+    // 2. The `authorizedService` property in the success state should match `rqesServiceAuthorized`.
+    @Test
+    fun `Given Case 1, When authorizeService is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            mockRQESCurrentSelection()
+            whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
+            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+            ).thenReturn(Result.success(rqesServiceAuthorized))
+
+            // Act
+            val result = rqesController.authorizeService()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeServicePartialState.Success)
+            assertEquals(
+                rqesServiceAuthorized,
+                (result as EudiRqesAuthorizeServicePartialState.Success).authorizedService,
+            )
+        }
+
+    // Case 2
+    // 1. Mock `eudiRQESUi.getRqesService()` to return `null`, indicating no available service.
+    // 2. Mock the RQES current selection.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Failure`.
+    // 2. The `error.message` property in the failure state should match `mockedGenericErrorMessage`.
+    @Test
+    fun `Given Case 2, When authorizeService is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiRQESUi.getRqesService()).thenReturn(null)
+            mockRQESCurrentSelection()
+
+            // Act
+            val result = rqesController.authorizeService()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as EudiRqesAuthorizeServicePartialState.Failure).error.message,
+            )
+        }
+
+    // Case 3
+    // 1. Mock `eudiRQESUi.getRqesService()`.
+    // 2. Mock `currentSelection.authorizationCode` to return `mockedAuthorizationCode`.
+    // 3. Mock `rqesService.authorizeService()` to throw an exception.
+    // 4. Mock the current selection.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Failure`.
+    // 2. The `error.message` property in the failure state should match `mockedExceptionWithMessage.message`.
+    @Test
+    fun `Given Case 3, When authorizeService is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
+            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+            ).thenThrow(mockedExceptionWithMessage)
+            mockRQESCurrentSelection()
+
+            // Act
+            val result = rqesController.authorizeService()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
+            assertEquals(
+                mockedExceptionWithMessage.message,
+                (result as EudiRqesAuthorizeServicePartialState.Failure).error.message,
+            )
+        }
+    //endregion
+
+    //region getAvailableCertificates
+    // Case 1
+    // 1. Create a mocked certificate data object, `mockedCertificateData`, containing a name and `credentialInfo`.
+    // 2. Prepare a mocked list of CertificateData.
+    // 3. Extract the list of credentials from the certificates list.
+    // 4. Stub `rqesServiceAuthorized.listCredentials()` to return a successful result.
+    // 5. Stub `resourceProvider.getLocalizedString()` to return a localized certificate name for each certificate, based on its index in the list.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesGetCertificatesPartialState.Success`.
+    // 2. The `certificates` property in the success state should match `mockedCertificatesList`.
+    @Test
+    fun `Given Case 1, When getAvailableCertificates is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            val mockedCertificateData =
+                CertificateData(name = mockedCertificateName, certificate = credentialInfo)
+            val mockedCertificatesList = listOf(mockedCertificateData)
+            val mockCredentialInfoList = mockedCertificatesList.map { it.certificate }
+            mockCertificatesDefaultNames(certificatesDataList = mockedCertificatesList)
+            whenever(rqesServiceAuthorized.listCredentials())
+                .thenReturn(Result.success(mockCredentialInfoList))
+
+            // Act
+            val result = rqesController.getAvailableCertificates(rqesServiceAuthorized)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCertificatesPartialState.Success)
+            assertEquals(
+                mockedCertificatesList,
+                (result as EudiRqesGetCertificatesPartialState.Success).certificates,
+            )
+        }
+
+    // Case 2
+    // 1. Mock `rqesServiceAuthorized.listCredentials()` to return a successful result with an empty list.
+    // 2. Simulating a "no certificates found" scenario.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesGetCertificatesPartialState.Failure`.
+    // 2. The `error.message` property in the failure state should match `mockedCertificatesNotFoundMessage`.
+    @Test
+    fun `Given Case 2, When getAvailableCertificates is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(rqesServiceAuthorized.listCredentials())
+                .thenReturn(Result.success(emptyList()))
+            mockNoCertificatesFoundMessage()
+
+            // Act
+            val result = rqesController.getAvailableCertificates(rqesServiceAuthorized)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCertificatesPartialState.Failure)
+            assertEquals(
+                mockedCertificatesNotFoundMessage,
+                (result as EudiRqesGetCertificatesPartialState.Failure).error.message,
+            )
+        }
+
+    // Case 3
+    // 1. Mock `rqesServiceAuthorized.listCredentials()` to throw an exception.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesGetCertificatesPartialState.Failure`.
+    // 2. The error message property in the failure state should match message of the mocked exception.
+    @Test
+    fun `Given Case 3, When getAvailableCertificates is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(rqesServiceAuthorized.listCredentials())
+                .thenThrow(mockedExceptionWithMessage)
+
+            // Act
+            val result = rqesController.getAvailableCertificates(rqesServiceAuthorized)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCertificatesPartialState.Failure)
+            assertEquals(
+                mockedExceptionWithMessage.message,
+                (result as EudiRqesGetCertificatesPartialState.Failure).error.message,
+            )
+        }
+    //endregion
+
     // region mock data
     private fun mockQTSPData(qtspData: QtspData) {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
-            whenever(this.endpoint).thenReturn(mockedQtspEndpoint)
+            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUri())
             whenever(this.scaUrl).thenReturn(mockedScaUrl)
         }
     }
@@ -383,7 +635,9 @@ class TestRqesController {
         whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(rqesServiceConfig)
         whenever(rqesServiceConfig.clientId).thenReturn(mockedClientId)
         whenever(rqesServiceConfig.clientSecret).thenReturn(mockedClientSecret)
-        whenever(rqesServiceConfig.authFlowRedirectionURI).thenReturn(mockedUri)
+        whenever(rqesServiceConfig.authFlowRedirectionURI).thenReturn(
+            URI.create(mockedUri),
+        )
         whenever(rqesServiceConfig.hashAlgorithm).thenReturn(HashAlgorithmOID.SHA_256)
     }
 
@@ -394,6 +648,22 @@ class TestRqesController {
 
     private fun mockRQESCurrentSelection() {
         whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
+    }
+
+    private fun mockNoCertificatesFoundMessage() {
+        whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorCertificatesNotFound))
+            .thenReturn(mockedCertificatesNotFoundMessage)
+    }
+
+    private fun mockCertificatesDefaultNames(certificatesDataList: List<CertificateData>) {
+        certificatesDataList.forEachIndexed { index, _ ->
+            whenever(
+                resourceProvider.getLocalizedString(
+                    LocalizableKey.Certificate,
+                    listOf((index + 1).toString()),
+                ),
+            ).thenReturn("Certificate ${index + 1}")
+        }
     }
     //endregion
 }
