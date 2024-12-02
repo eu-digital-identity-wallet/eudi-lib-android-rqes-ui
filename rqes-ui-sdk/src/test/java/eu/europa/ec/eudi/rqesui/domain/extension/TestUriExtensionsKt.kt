@@ -21,8 +21,10 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
+import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.mockito.Mock
@@ -60,6 +62,7 @@ class TestUriExtensionsKt {
     //region getFileName
     @Test
     fun `When getFileName is called, Then assert the expected file name is returned`() {
+        // Arrange
         whenever(context.contentResolver).thenReturn(contentResolver)
         whenever(
             contentResolver.query(
@@ -71,9 +74,35 @@ class TestUriExtensionsKt {
         whenever(cursor.moveToFirst()).thenReturn(true)
         whenever(cursor.getString(0)).thenReturn(mockedDocumentName)
 
+        // Act
         val fileNameResult = fileUri.getFileName(context).getOrThrow()
 
+        // Assert
         assertEquals(mockedDocumentName, fileNameResult)
+        verify(cursor).close()
+    }
+
+    @Test
+    fun `When getFileName is called and file name is null, Then assert failure result is returned`() {
+        // Arrange
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(
+            contentResolver.query(
+                fileUri, null, null, null, null
+            )
+        ).thenReturn(cursor)
+
+        whenever(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)).thenReturn(0)
+        whenever(cursor.moveToFirst()).thenReturn(true)
+        whenever(cursor.getString(0)).thenReturn(null)
+
+        // Act
+        val fileNameResult = fileUri.getFileName(context)
+
+        // Assert
+        assertTrue(fileNameResult.isFailure)
+        val exception = fileNameResult.exceptionOrNull()
+        assertTrue(exception is EudiRQESUiError)
         verify(cursor).close()
     }
     //endregion

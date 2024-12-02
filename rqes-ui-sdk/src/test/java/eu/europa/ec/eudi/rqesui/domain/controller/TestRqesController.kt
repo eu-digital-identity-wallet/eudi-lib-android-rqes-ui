@@ -39,11 +39,13 @@ import eu.europa.ec.eudi.rqesui.util.mockedCertificateName
 import eu.europa.ec.eudi.rqesui.util.mockedCertificatesNotFoundMessage
 import eu.europa.ec.eudi.rqesui.util.mockedClientId
 import eu.europa.ec.eudi.rqesui.util.mockedClientSecret
+import eu.europa.ec.eudi.rqesui.util.mockedDocumentNotFoundMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
+import eu.europa.ec.eudi.rqesui.util.mockedQtspNotFound
 import eu.europa.ec.eudi.rqesui.util.mockedScaUrl
 import eu.europa.ec.eudi.rqesui.util.mockedUri
 import eu.europa.ec.eudi.rqesui.util.runTest
@@ -189,6 +191,34 @@ class TestRqesController {
         val failureState = result as EudiRqesGetSelectedFilePartialState.Failure
         assertEquals(mockedExceptionWithMessage.message, failureState.error.message)
     }
+
+    // Case 4:
+    // 1. This test case simulates a scenario where no file is selected (the `file` property is null).
+    // 2. The localized error message for `GenericErrorDocumentNotFound` is mocked
+    // Expected Result:
+    // 1. The function returns an instance of `EudiRqesGetSelectedFilePartialState.Failure`.
+    // 2. The failure state contains the expected error message from the resource provider.
+    @Test
+    fun `Given Case 4, When getSelectedFile is called, Then the expected result is returned`() {
+        // Arrange
+        whenever(eudiRQESUi.getCurrentSelection())
+            .thenReturn(currentSelection)
+        whenever(currentSelection.file)
+            .thenReturn(null)
+        whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound))
+            .thenReturn(mockedDocumentNotFoundMessage)
+
+        // Act
+        val result = rqesController.getSelectedFile()
+
+        // Assert
+        assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
+        val failureState = result as EudiRqesGetSelectedFilePartialState.Failure
+        assertEquals(
+            resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound),
+            failureState.error.message
+        )
+    }
     //endregion
 
     //region getQtsps
@@ -257,9 +287,51 @@ class TestRqesController {
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Success)
         assertNotNull((result as EudiRqesSetSelectedQtspPartialState.Success).service)
     }
+
+    // Case 2
+    // 1. A failure scenario is simulated where the RQES service configuration is null.
+    // 2. The `qtspData` are mocked to represent the QTSP being selected.
+    // 3. The `eudiRQESUi.getCurrentSelection()` function provides the current selection.
+    // Expected Result:
+    // 1. The function returns an instance of `EudiRqesSetSelectedQtspPartialState.Failure`.
+    // 2. The failure state indicates an unsuccessful service setup due to a missing RQES service configuration.
+    @Test
+    fun `Given Case 2, When setSelectedQtsp is called, Then the expected result is returned`() {
+        // Arrange
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
+        whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
+        whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(null)
+        mockQTSPData(qtspData = qtspData)
+
+        // Act
+        val result = rqesController.setSelectedQtsp(qtspData)
+
+        // Assert
+        assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
+    }
+
+    // Case 3
+    // 1. The `getCurrentSelection` method in `eudiRQESUi` throws an exception with specific message.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesSetSelectedQtspPartialState.Failure`.
+    // 2. The failure state should confirm that the exception is caught and the failure is handled appropriately.
+    @Test
+    fun `Given Case 3, When setSelectedQtsp is called, Then the expected result is returned`() {
+        // Arrange
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
+        whenever(eudiRQESUi.getCurrentSelection()).thenThrow(mockedExceptionWithMessage)
+        mockQTSPData(qtspData = qtspData)
+
+        // Act
+        val result = rqesController.setSelectedQtsp(qtspData)
+
+        // Assert
+        assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
+    }
     //endregion
 
     //region getSelectedQtsp
+    // Case 1
     // 1. Mock `eudiRQESUi.getCurrentSelection()` to return `currentSelection`
     // 2. Mock `currentSelection.qtsp` to return `qtspData`, representing the selected QTSP.
     // Expected Result:
@@ -279,6 +351,56 @@ class TestRqesController {
         // Assert
         assertTrue(result is EudiRqesGetSelectedQtspPartialState.Success)
         assertEquals(qtspData, (result as EudiRqesGetSelectedQtspPartialState.Success).qtsp)
+    }
+
+    // Case 2
+    // 1. The `qtsp` field of the current selection is mocked to have a null value.
+    // 2. The localized string for the generic QTSP not found error message is mocked.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesGetSelectedQtspPartialState.Failure`.
+    // 2. The failure state should include an error message indicating that the QTSP could not be found.
+    @Test
+    fun `Given Case 2, When getSelectedQtsp is called, Then the expected result is returned`() {
+        // Arrange
+        whenever(eudiRQESUi.getCurrentSelection())
+            .thenReturn(currentSelection)
+        whenever(currentSelection.qtsp)
+            .thenReturn(null)
+        whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound))
+            .thenReturn(mockedQtspNotFound)
+
+        // Act
+        val result = rqesController.getSelectedQtsp()
+
+        // Assert
+        assertTrue(result is EudiRqesGetSelectedQtspPartialState.Failure)
+        assertEquals(
+            resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound),
+            (result as EudiRqesGetSelectedQtspPartialState.Failure).error.message
+        )
+    }
+
+    // Case 3
+    // 1. When the `eudiRQESUi.getCurrentSelection()` function is called, an exception with specific
+    // message is thrown.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesGetSelectedQtspPartialState.Failure`.
+    // 2. The failure state should include the error message from the exception.
+    @Test
+    fun `Given Case 3, When getSelectedQtsp is called, Then the expected result is returned`() {
+        // Arrange
+        whenever(eudiRQESUi.getCurrentSelection())
+            .thenThrow(mockedExceptionWithMessage)
+
+        // Act
+        val result = rqesController.getSelectedQtsp()
+
+        // Assert
+        assertTrue(result is EudiRqesGetSelectedQtspPartialState.Failure)
+        assertEquals(
+            mockedExceptionWithMessage.message,
+            (result as EudiRqesGetSelectedQtspPartialState.Failure).error.message
+        )
     }
     //endregion
 
@@ -300,6 +422,29 @@ class TestRqesController {
 
             // Assert
             assertTrue(result is EudiRqesSignDocumentsPartialState.Success)
+        }
+
+    // Case 2
+    // 1. The `signDocuments` function throws an exception with a specific message.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesSignDocumentsPartialState.Failure`.
+    // 2. The failure state should include the error message from the thrown exception.
+    @Test
+    fun `Given Case 2, When signDocuments throws an exception, Then the expected result is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(credentialAuthorized.signDocuments())
+                .thenThrow(mockedExceptionWithMessage)
+
+            // Act
+            val result = rqesController.signDocuments(credentialAuthorized)
+
+            // Assert
+            assertTrue(result is EudiRqesSignDocumentsPartialState.Failure)
+            assertEquals(
+                mockedExceptionWithMessage.message,
+                (result as EudiRqesSignDocumentsPartialState.Failure).error.message
+            )
         }
     //endregion
 
