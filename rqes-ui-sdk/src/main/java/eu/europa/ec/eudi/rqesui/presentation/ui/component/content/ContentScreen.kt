@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,6 +59,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.TopSpacing
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.Z_STICKY
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.screenPaddings
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.stickyBottomPaddings
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIconButton
 
@@ -181,7 +183,12 @@ internal fun ContentScreen(
                                 .zIndex(Z_STICKY),
                             contentAlignment = Alignment.Center
                         ) {
-                            stickyBottomContent(screenPaddings(padding))
+                            stickyBottomContent(
+                                stickyBottomPaddings(
+                                    contentScreenPaddings = screenPaddings(padding),
+                                    layoutDirection = LocalLayoutDirection.current
+                                )
+                            )
                         }
                     }
                 }

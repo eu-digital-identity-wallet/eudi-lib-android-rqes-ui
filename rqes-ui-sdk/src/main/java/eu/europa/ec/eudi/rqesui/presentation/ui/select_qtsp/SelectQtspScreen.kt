@@ -79,8 +79,10 @@ internal fun SelectQtspScreen(
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
             WrapBottomBarPrimaryButton(
+                stickyBottomContentModifier = Modifier
+                    .fillMaxWidth()
+                    .padding(paddingValues),
                 buttonText = state.bottomBarButtonText,
-                padding = paddingValues,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed

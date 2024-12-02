@@ -105,9 +105,11 @@ internal fun SelectCertificateScreen(
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
             WrapBottomBarPrimaryButton(
+                stickyBottomContentModifier = Modifier
+                    .fillMaxWidth()
+                    .padding(paddingValues),
                 buttonText = state.bottomBarButtonText,
                 enabled = state.isBottomBarButtonEnabled,
-                padding = paddingValues,
                 onButtonClick = {
                     viewModel.setEvent(
                         Event.BottomBarButtonPressed
