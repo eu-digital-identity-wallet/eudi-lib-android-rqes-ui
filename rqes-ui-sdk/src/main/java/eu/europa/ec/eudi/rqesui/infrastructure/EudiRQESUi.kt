@@ -25,11 +25,11 @@ import android.os.Parcelable
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
-import eu.europa.ec.eudi.rqesui.presentation.extension.getFileName
 import eu.europa.ec.eudi.rqesui.presentation.ui.container.EudiRQESContainer
 import kotlinx.parcelize.Parcelize
 import org.koin.android.ext.koin.androidContext
