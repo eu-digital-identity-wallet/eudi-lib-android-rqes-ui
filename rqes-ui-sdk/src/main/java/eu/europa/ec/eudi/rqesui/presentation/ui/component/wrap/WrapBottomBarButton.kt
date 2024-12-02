@@ -18,10 +18,7 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
@@ -30,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
@@ -44,32 +40,32 @@ private sealed interface StickyBottomBarConfig {
 
 @Composable
 internal fun WrapBottomBarPrimaryButton(
+    stickyBottomContentModifier: Modifier = Modifier,
     buttonText: String,
     enabled: Boolean = true,
-    padding: PaddingValues,
     onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Primary,
+        stickyBottomContentModifier = stickyBottomContentModifier,
         buttonText = buttonText,
         enabled = enabled,
-        padding = padding,
         onButtonClick = onButtonClick,
     )
 }
 
 @Composable
 internal fun WrapBottomBarSecondaryButton(
+    stickyBottomContentModifier: Modifier = Modifier,
     buttonText: String,
     enabled: Boolean = true,
-    padding: PaddingValues,
     onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Secondary,
+        stickyBottomContentModifier = stickyBottomContentModifier,
         buttonText = buttonText,
         enabled = enabled,
-        padding = padding,
         onButtonClick = onButtonClick,
     )
 }
@@ -77,9 +73,9 @@ internal fun WrapBottomBarSecondaryButton(
 @Composable
 private fun WrapStickyBottomBar(
     config: StickyBottomBarConfig,
+    stickyBottomContentModifier: Modifier = Modifier,
     buttonText: String,
     enabled: Boolean,
-    padding: PaddingValues,
     onButtonClick: () -> Unit,
 ) {
     Column(
@@ -93,14 +89,7 @@ private fun WrapStickyBottomBar(
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    top = padding.calculateBottomPadding(),
-                    bottom = padding.calculateBottomPadding(),
-                    start = padding.calculateStartPadding(LayoutDirection.Ltr),
-                    end = padding.calculateEndPadding(LayoutDirection.Ltr)
-                ),
+            modifier = stickyBottomContentModifier,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -156,8 +145,10 @@ private fun ConfigBasedButton(
 private fun WrapBottomBarPrimaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarPrimaryButton(
+            stickyBottomContentModifier = Modifier
+                .fillMaxWidth()
+                .padding(SPACING_LARGE.dp),
             buttonText = "Sign",
-            padding = PaddingValues(SPACING_LARGE.dp),
             onButtonClick = {},
         )
     }
@@ -168,8 +159,10 @@ private fun WrapBottomBarPrimaryButtonPreview() {
 private fun WrapBottomBarSecondaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarSecondaryButton(
+            stickyBottomContentModifier = Modifier
+                .fillMaxWidth()
+                .padding(SPACING_LARGE.dp),
             buttonText = "Sign",
-            padding = PaddingValues(SPACING_LARGE.dp),
             onButtonClick = {},
         )
     }
