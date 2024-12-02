@@ -149,6 +149,13 @@ koverReport {
                 "*.infrastructure",
                 "*.presentation.*",
                 "*.presentation",
+                "*.util.*",
+                "*.util",
+                "*.helper.*",
+                "*.helper",
+            )
+            classes(
+                "*LogController*"
             )
         }
     }
