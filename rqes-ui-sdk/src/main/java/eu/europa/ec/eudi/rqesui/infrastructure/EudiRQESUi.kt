@@ -44,7 +44,7 @@ object EudiRQESUi {
         "Before calling resume, SDK must be initialized firstly. Call EudiRQESUi.launchSDK()"
 
     private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
-    private lateinit var currentSelection: CurrentSelection
+    private lateinit var sessionData: SessionData
 
     private var state: State = State.None
     private var rqesService: RQESService? = null
@@ -79,7 +79,7 @@ object EudiRQESUi {
             uri = documentUri
         )
 
-        currentSelection = CurrentSelection(
+        sessionData = SessionData(
             file = documentData,
             qtsp = null,
             authorizationCode = null,
@@ -122,12 +122,12 @@ object EudiRQESUi {
         context: Context,
         authorizationCode: String
     ) {
-        if (!::currentSelection.isInitialized) {
+        if (!::sessionData.isInitialized) {
             throw EudiRQESUiError(
                 message = SDK_NOT_INITIALIZED_MESSAGE
             )
         }
-        currentSelection = currentSelection.copy(
+        sessionData = sessionData.copy(
             authorizationCode = authorizationCode
         )
         setState(calculateNextState())
@@ -167,12 +167,12 @@ object EudiRQESUi {
         return authorizedService
     }
 
-    internal fun setCurrentSelection(currentSelection: CurrentSelection) {
-        this.currentSelection = currentSelection
+    internal fun setSessionData(sessionData: SessionData) {
+        this.sessionData = sessionData
     }
 
-    internal fun getCurrentSelection(): CurrentSelection {
-        return currentSelection
+    internal fun getSessionData(): SessionData {
+        return sessionData
     }
 
     /**
@@ -210,7 +210,7 @@ object EudiRQESUi {
      * @throws EudiRQESUiError If the SDK is not initialized (no file selected).
      */
     private fun calculateNextState(): State {
-        currentSelection.file?.let { safeFile ->
+        sessionData.file?.let { safeFile ->
             return when (getState()) {
                 is State.None -> {
                     State.Initial(
@@ -257,7 +257,7 @@ object EudiRQESUi {
         data object Success : State()
     }
 
-    internal data class CurrentSelection(
+    internal data class SessionData(
         val file: DocumentData?,
         val qtsp: QtspData?,
         val authorizationCode: String?,
