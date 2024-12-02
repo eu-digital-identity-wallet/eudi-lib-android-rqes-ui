@@ -79,7 +79,7 @@ class TestRqesController {
     private lateinit var eudiRQESUiConfig: EudiRQESUiConfig
 
     @Mock
-    private lateinit var currentSelection: EudiRQESUi.CurrentSelection
+    private lateinit var sessionData: EudiRQESUi.SessionData
 
     @Mock
     private lateinit var resourceProvider: ResourceProvider
@@ -136,13 +136,13 @@ class TestRqesController {
     // Case 1
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesGetSelectedFilePartialState.Success`.
-    // 2. The `file` property in the returned state should match the `currentSelection.file` value
+    // 2. The `file` property in the returned state should match the `sessionData.file` value
     @Test
     fun `Given Case 1, When getSelectedFile is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
-            .thenReturn(currentSelection)
-        whenever(currentSelection.file)
+        whenever(eudiRQESUi.getSessionData())
+            .thenReturn(sessionData)
+        whenever(sessionData.file)
             .thenReturn(documentData)
 
         // Act
@@ -151,17 +151,17 @@ class TestRqesController {
         // Assert
         assertTrue(result is EudiRqesGetSelectedFilePartialState.Success)
         val state = result as EudiRqesGetSelectedFilePartialState.Success
-        assertEquals(currentSelection.file, state.file)
+        assertEquals(sessionData.file, state.file)
     }
 
     // Case 2
-    // 1. Set eudiRQESUi.getCurrentSelection() function ti return null, indicating no file being selected.
+    // 1. Set eudiRQESUi.getSessionData() function ti return null, indicating no file being selected.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesGetSelectedFilePartialState.Failure`.
     @Test
     fun `Given Case 2, When getSelectedFile is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
+        whenever(eudiRQESUi.getSessionData())
             .thenReturn(null)
 
         // Act
@@ -172,7 +172,7 @@ class TestRqesController {
     }
 
     // Case 3
-    // 1. Simulate the `eudiRQESUi.getCurrentSelection()` function throwing an exception.
+    // 1. Simulate the `eudiRQESUi.getSessionData()` function throwing an exception.
     // 2. Ensure the exception includes a specific error message that can be used for validation.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesGetSelectedFilePartialState.Failure`.
@@ -180,7 +180,7 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When getSelectedFile is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
+        whenever(eudiRQESUi.getSessionData())
             .thenThrow(mockedExceptionWithMessage)
 
         // Act
@@ -201,9 +201,9 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When getSelectedFile is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
-            .thenReturn(currentSelection)
-        whenever(currentSelection.file)
+        whenever(eudiRQESUi.getSessionData())
+            .thenReturn(sessionData)
+        whenever(sessionData.file)
             .thenReturn(null)
         whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound))
             .thenReturn(mockedDocumentNotFoundMessage)
@@ -270,7 +270,7 @@ class TestRqesController {
     // Case 1
     // 1. Mock the RQES service configuration to simulate a successful setup of the service.
     // 2. Mock the `qtspData` to represent the selected QTSP.
-    // 3. Ensure `eudiRQESUi.getCurrentSelection()` returns the current selection.
+    // 3. Ensure `eudiRQESUi.getSessionData()` returns the current selection.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesSetSelectedQtspPartialState.Success`.
     // 2. The success state should include a non-null service object, representing the created RQES service.
@@ -291,7 +291,7 @@ class TestRqesController {
     // Case 2
     // 1. A failure scenario is simulated where the RQES service configuration is null.
     // 2. The `qtspData` are mocked to represent the QTSP being selected.
-    // 3. The `eudiRQESUi.getCurrentSelection()` function provides the current selection.
+    // 3. The `eudiRQESUi.getSessionData()` function provides the current selection.
     // Expected Result:
     // 1. The function returns an instance of `EudiRqesSetSelectedQtspPartialState.Failure`.
     // 2. The failure state indicates an unsuccessful service setup due to a missing RQES service configuration.
@@ -299,7 +299,7 @@ class TestRqesController {
     fun `Given Case 2, When setSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
-        whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
+        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(null)
         mockQTSPData(qtspData = qtspData)
 
@@ -311,7 +311,7 @@ class TestRqesController {
     }
 
     // Case 3
-    // 1. The `getCurrentSelection` method in `eudiRQESUi` throws an exception with specific message.
+    // 1. The `getSessionData` method in `eudiRQESUi` throws an exception with specific message.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesSetSelectedQtspPartialState.Failure`.
     // 2. The failure state should confirm that the exception is caught and the failure is handled appropriately.
@@ -319,7 +319,7 @@ class TestRqesController {
     fun `Given Case 3, When setSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
-        whenever(eudiRQESUi.getCurrentSelection()).thenThrow(mockedExceptionWithMessage)
+        whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithMessage)
         mockQTSPData(qtspData = qtspData)
 
         // Act
@@ -332,17 +332,17 @@ class TestRqesController {
 
     //region getSelectedQtsp
     // Case 1
-    // 1. Mock `eudiRQESUi.getCurrentSelection()` to return `currentSelection`
-    // 2. Mock `currentSelection.qtsp` to return `qtspData`, representing the selected QTSP.
+    // 1. Mock `eudiRQESUi.getSessionData()` to return `sessionData`
+    // 2. Mock `sessionData.qtsp` to return `qtspData`, representing the selected QTSP.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesGetSelectedQtspPartialState.Success`.
     // 2. The success state should include the `qtsp` value matching the mocked `qtspData`.
     @Test
     fun `Given Case 1, When getSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
-            .thenReturn(currentSelection)
-        whenever(currentSelection.qtsp)
+        whenever(eudiRQESUi.getSessionData())
+            .thenReturn(sessionData)
+        whenever(sessionData.qtsp)
             .thenReturn(qtspData)
 
         // Act
@@ -362,9 +362,9 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When getSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
-            .thenReturn(currentSelection)
-        whenever(currentSelection.qtsp)
+        whenever(eudiRQESUi.getSessionData())
+            .thenReturn(sessionData)
+        whenever(sessionData.qtsp)
             .thenReturn(null)
         whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound))
             .thenReturn(mockedQtspNotFound)
@@ -381,7 +381,7 @@ class TestRqesController {
     }
 
     // Case 3
-    // 1. When the `eudiRQESUi.getCurrentSelection()` function is called, an exception with specific
+    // 1. When the `eudiRQESUi.getSessionData()` function is called, an exception with specific
     // message is thrown.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesGetSelectedQtspPartialState.Failure`.
@@ -389,7 +389,7 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When getSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
-        whenever(eudiRQESUi.getCurrentSelection())
+        whenever(eudiRQESUi.getSessionData())
             .thenThrow(mockedExceptionWithMessage)
 
         // Act
@@ -450,8 +450,8 @@ class TestRqesController {
 
     //region authorizeCredential
     // Case 1
-    // 1. Mock `eudiRQESUi.getCurrentSelection()`
-    // 2. Mock `currentSelection.authorizationCode` to return a mocked authorization code.
+    // 1. Mock `eudiRQESUi.getSessionData()`
+    // 2. Mock `sessionData.authorizationCode` to return a mocked authorization code.
     // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
     // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to return a successful result
     // Expected Result:
@@ -461,8 +461,8 @@ class TestRqesController {
     fun `Given Case 1, When authorizeCredential is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            mockRQESCurrentSelection()
-            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            mockSessionData()
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             mockAuthorizeCredentialResultSuccess()
 
@@ -478,7 +478,7 @@ class TestRqesController {
         }
 
     // Case 2
-    // 1. Mock eudiRQESUi.getCurrentSelection() to return a valid currentSelection.
+    // 1. Mock eudiRQESUi.getSessionData() to return a valid sessionData.
     // 2. Mock eudiRQESUi.getAuthorizedService() to return null.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesAuthorizeCredentialPartialState.Failure`.
@@ -487,7 +487,7 @@ class TestRqesController {
     fun `Given Case 2, When authorizeCredential is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            mockRQESCurrentSelection()
+            mockSessionData()
             whenever(eudiRQESUi.getAuthorizedService())
                 .thenReturn(null)
 
@@ -499,8 +499,8 @@ class TestRqesController {
         }
 
     // Case 3
-    // 1. Mock `eudiRQESUi.getCurrentSelection()` to return a valid `currentSelection`.
-    // 2. Mock `currentSelection.authorizationCode` to return a mocked authorization code.
+    // 1. Mock `eudiRQESUi.getSessionData()` to return a valid `sessionData`.
+    // 2. Mock `sessionData.authorizationCode` to return a mocked authorization code.
     // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
     // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to throw a `RuntimeException` with message.
     // Expected Result:
@@ -511,8 +511,8 @@ class TestRqesController {
         coroutineRule.runTest {
             // Arrange
             val authorizationFailedMessage = "Authorization failed"
-            mockRQESCurrentSelection()
-            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            mockSessionData()
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             whenever(
                 rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode)),
@@ -601,7 +601,7 @@ class TestRqesController {
     // Case 1
     // 1. Mock RQES current selection.
     // 2. Mock `eudiRQESUi.getRqesService()` to return `rqesService`.
-    // 3. Mock `currentSelection.authorizationCode` to return `mockedAuthorizationCode`.
+    // 3. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
     // 4. Mock `rqesService.authorizeService` to return a successful result with `rqesServiceAuthorized`.
     // Expected Result:
     // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Success`.
@@ -610,9 +610,9 @@ class TestRqesController {
     fun `Given Case 1, When authorizeService is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            mockRQESCurrentSelection()
+            mockSessionData()
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
-            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(
                 rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
             ).thenReturn(Result.success(rqesServiceAuthorized))
@@ -639,7 +639,7 @@ class TestRqesController {
         coroutineRule.runTest {
             // Arrange
             whenever(eudiRQESUi.getRqesService()).thenReturn(null)
-            mockRQESCurrentSelection()
+            mockSessionData()
 
             // Act
             val result = rqesController.authorizeService()
@@ -654,7 +654,7 @@ class TestRqesController {
 
     // Case 3
     // 1. Mock `eudiRQESUi.getRqesService()`.
-    // 2. Mock `currentSelection.authorizationCode` to return `mockedAuthorizationCode`.
+    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
     // 3. Mock `rqesService.authorizeService()` to throw an exception.
     // 4. Mock the current selection.
     // Expected Result:
@@ -665,11 +665,11 @@ class TestRqesController {
         coroutineRule.runTest {
             // Arrange
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
-            whenever(currentSelection.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(
                 rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
             ).thenThrow(mockedExceptionWithMessage)
-            mockRQESCurrentSelection()
+            mockSessionData()
 
             // Act
             val result = rqesController.authorizeService()
@@ -776,7 +776,7 @@ class TestRqesController {
 
     private fun mockRQESServiceConfig(eudiRQESUi: EudiRQESUi) {
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
-        whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
+        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(rqesServiceConfig)
         whenever(rqesServiceConfig.clientId).thenReturn(mockedClientId)
         whenever(rqesServiceConfig.clientSecret).thenReturn(mockedClientSecret)
@@ -791,8 +791,8 @@ class TestRqesController {
             .thenReturn(Result.success(credentialAuthorized))
     }
 
-    private fun mockRQESCurrentSelection() {
-        whenever(eudiRQESUi.getCurrentSelection()).thenReturn(currentSelection)
+    private fun mockSessionData() {
+        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
     }
 
     private fun mockNoCertificatesFoundMessage() {
