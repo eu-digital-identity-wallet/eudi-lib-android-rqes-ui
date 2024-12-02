@@ -89,7 +89,8 @@ class TestPreferencesController {
     @Test
     fun `Given Case 2, When getString with default value is called, Then the default value is returned`() {
         // Act
-        val result = preferencesController.getString(mockedPreferencesKey, mockedDefaultPreferenceValue)
+        val result =
+            preferencesController.getString(mockedPreferencesKey, mockedDefaultPreferenceValue)
 
         // Assert
         assertEquals(mockedDefaultPreferenceValue, result)
