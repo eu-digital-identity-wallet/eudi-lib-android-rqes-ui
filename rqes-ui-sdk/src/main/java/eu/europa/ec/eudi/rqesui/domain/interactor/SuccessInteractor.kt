@@ -23,10 +23,10 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPar
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSignDocumentsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.presentation.extension.getFileName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

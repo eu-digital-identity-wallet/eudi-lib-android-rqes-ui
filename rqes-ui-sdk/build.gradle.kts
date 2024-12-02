@@ -138,19 +138,17 @@ koverReport {
             packages(
                 "*.ksp.*",
                 "*.di",
-                "*.router",
                 "*.serializer",
                 "*.config",
                 "*.config.*",
+                "*.provider.*",
+                "*.provider",
+                "*.localization.*",
+                "*.localization",
                 "*.infrastructure.*",
                 "*.infrastructure",
-                "*.ui.component.*",
-                "*.ui.component",
-                "*.ui.container",
-                "*.ui.container.*",
-            )
-            classes(
-                "*Screen*",
+                "*.presentation.*",
+                "*.presentation",
             )
         }
     }

@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.extension
+package eu.europa.ec.eudi.rqesui.domain.extension
 
 import android.content.Context
 import android.net.Uri

@@ -21,6 +21,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
+import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import junit.framework.TestCase.assertEquals
 import org.junit.After
