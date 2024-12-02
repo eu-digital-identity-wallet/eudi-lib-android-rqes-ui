@@ -14,14 +14,13 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.extension
+package eu.europa.ec.eudi.rqesui.domain.extension
 
 import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
-import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import junit.framework.TestCase.assertEquals
 import org.junit.After
