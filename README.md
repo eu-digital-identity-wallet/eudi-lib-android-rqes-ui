@@ -23,22 +23,7 @@ The `EudiRQESUi` object defines methods for setting up and using the SDK. The SD
 
 ## Installation
 
-To use snapshot versions add the following to your project's settings.gradle file:
-
-```Gradle
-dependencyResolutionManagement {
-    repositories {
-        // .. other repositories
-        maven {
-            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            mavenContent { snapshotsOnly() }
-        }
-    }
-}
-```
-
-Add the following dependency to your app's build.gradle file to include the library in your project. 
-If you want to use a snapshot version, please add the `-snapshot` suffix to the library version.
+Add the following dependency to your app's build.gradle file to include the library in your project.
 
 ```Gradle
 dependencies {
