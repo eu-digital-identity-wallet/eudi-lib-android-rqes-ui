@@ -230,7 +230,7 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 6
-    // Function setEvent() is called with an Event.Init after a successful file selection.
+    // Function setEvent() is called with an Event.Init.
     // Case 6 Expected Result:
     // 1. The view state should reflect a non-null selectionItem with the correct documentData.
     // 2. The effect should trigger Effect.OnSelectionItemCreated, indicating that the selection item
