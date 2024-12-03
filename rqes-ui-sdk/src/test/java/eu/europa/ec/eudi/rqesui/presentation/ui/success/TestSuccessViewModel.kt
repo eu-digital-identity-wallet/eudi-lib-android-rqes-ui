@@ -93,6 +93,11 @@ class TestSuccessViewModel {
     }
 
     //region setInitialState
+    // Case 1
+    // Function setInitialState() is called to initialize the ViewModel state.
+    // Case 1 Expected Result:
+    // 1. The ViewModel's initialState should be correctly initialized with a title, a bottom bar
+    // and the related wordings for the bottom sheet.
     @Test
     fun `Given Case 1, When setInitialState is called, Then the expected result is returned`() {
         // Act
@@ -121,6 +126,10 @@ class TestSuccessViewModel {
 
     //region setEvent
     // Case 1
+    // Function setEvent(Event.Init) is called to initialize the ViewModel with selected file and QTSP data.
+    // Case 1 Expected Result:
+    // 1. The mocked response contains the selected file (document name and Uri) and QTSP data.
+    // 2. When the Event.Init event is triggered, the ViewModel should emit the Effect.OnSelectedFileAndQtspGot effect.
     @Test
     fun `Given Case 1, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -146,6 +155,11 @@ class TestSuccessViewModel {
         }
 
     // Case 2
+    // Function setEvent(Event.SignAndSaveDocument) is called to trigger the signing and saving of a document.
+    // Case 2 Expected Result:
+    // 1. The mocked response simulates a successfully signed and saved document with a text prefix.
+    // 2. When the event is triggered, the ViewModel updates its state to reflect success.
+    // This includes the updated selection item, title, subtitle, bottom bar button text and bottom sheet content.
     @Test
     fun `Given Case 2, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -203,6 +217,10 @@ class TestSuccessViewModel {
         }
 
     // Case 3
+    // Function setEvent(Event.SignAndSaveDocument) is called to trigger the signing and saving of a document.
+    // Case 3 Expected Result:
+    // 1. The mocked response simulates a failure during the signing and saving process, returning an error message.
+    // 2. When the event is triggered, the ViewModel updates its state to reflect the error.
     @Test
     fun `Given Case 3, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -226,6 +244,10 @@ class TestSuccessViewModel {
         }
 
     // Case 4
+    // Function setEvent(Event.BottomSheet.UpdateBottomSheetState) is called to update the state of the bottom sheet.
+    // Case 4 Expected Result:
+    // 1. The bottom sheet's open state should be updated to true.
+    // 2. The ViewModel's state is modified accordingly.
     @Test
     fun `Given Case 4, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -243,6 +265,10 @@ class TestSuccessViewModel {
         }
 
     // Case 5
+    // Function setEvent(Event.ViewDocument) is called to handle navigation to the ViewDocument screen.
+    // Case 5 Expected Result:
+    // 1. The correct screen route is generated based on the document data.
+    // 2. The ViewModel emits an Effect.Navigation.SwitchScreen to navigate to next screen.
     @Test
     fun `Given Case 5, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -264,6 +290,9 @@ class TestSuccessViewModel {
         }
 
     // Case 6
+    // Function setEvent(Event.Pop) is called to trigger the related event.
+    // Case 6 Expected Result:
+    // 1. The ViewModel emits the expected navigation effect to finish the current screen.
     @Test
     fun `Given Case 6, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -277,6 +306,9 @@ class TestSuccessViewModel {
         }
 
     // Case 7
+    // Function setEvent(Event.BottomBarButtonPressed) is called to trigger the bottom sheet.
+    // Case 7 Expected Result:
+    // 1. The ViewModel emits the expected effect to display the bottom sheet.
     @Test
     fun `Given Case 7, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -292,6 +324,9 @@ class TestSuccessViewModel {
         }
 
     // Case 8
+    // Function setEvent(Event.DismissError) is called to handle the event of dismissing an error.
+    // Case 8 Expected Result:
+    // 1. The error in the ViewState should be set to null, indicating the the error was cleared.
     @Test
     fun `Given Case 8, When setEvent is called, Then the expected result is returned`() {
         // Act
@@ -302,6 +337,11 @@ class TestSuccessViewModel {
     }
 
     // Case 9
+    // Function setEvent(Event.BottomSheet.ShareDocument.PrimaryButtonPressed) is called to handle the event
+    // of pressing the primary button to share a document.
+    // Case 9 Expected Result:
+    // 1. The bottom sheet should be closed (Effect.CloseBottomSheet).
+    // 2. An effect of type Effect.SharePdf should be emitted, indicating that the document will be shared.
     @Test
     fun `Given Case 9, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -320,6 +360,11 @@ class TestSuccessViewModel {
         }
 
     // Case 10
+    // Function setEvent(Event.BottomSheet.ShareDocument.SecondaryButtonPressed) is called to handle the event
+    // of pressing the secondary button in the `Share Document` bottom sheet.
+    // Case 10 Expected Result:
+    // 1. The bottom sheet should be closed (Effect.CloseBottomSheet).
+    // 2. The current screen should be finished (Effect.Navigation.Finish).
     @Test
     fun `Given Case 10, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {

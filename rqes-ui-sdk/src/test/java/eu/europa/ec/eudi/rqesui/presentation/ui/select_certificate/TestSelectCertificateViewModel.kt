@@ -115,7 +115,7 @@ class TestSelectCertificateViewModel {
     }
     //endregion
 
-    //region setEvent,
+    //region setEvent
     // Case 1
     // Event CertificateSelected is triggered by calling setEvent() with a selected certificate index.
     // Case 1 Expected Result:
@@ -194,6 +194,9 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 4
+    // Function setEvent() is called with an Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed event.
+    // Case 4 Expected Result:
+    // 1. The effect should trigger a CloseBottomSheet action, indicating that the bottom sheet will be closed.
     @Test
     fun `Given Case 4, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -210,6 +213,9 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 5
+    // Function setEvent() is called with an Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed event.
+    // Case 5 Expected Result:
+    // 1. The effect should trigger a Finish navigation action, indicating that the current screen will be finished.
     @Test
     fun `Given Case 5, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -224,6 +230,11 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 6
+    // Function setEvent() is called with an Event.Init after a successful file selection.
+    // Case 6 Expected Result:
+    // 1. The view state should reflect a non-null selectionItem with the correct documentData.
+    // 2. The effect should trigger Effect.OnSelectionItemCreated, indicating that the selection item
+    // was successfully created and set.
     @Test
     fun `Given Case 6, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -247,6 +258,10 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 7
+    // Function setEvent() is called with an Event.Pop argument.
+    // Case 7 Expected Result:
+    // 1. The effect should trigger Effect.ShowBottomSheet, indicating that a bottom sheet is
+    // displayed to the user.
     @Test
     fun `Given Case 7, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -260,8 +275,13 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 8
+    // Function setEvent() is called with an Event.BottomSheet.UpdateBottomSheetState event,
+    // and argument isOpen with value of true.
+    // Case 8 Expected Result:
+    // 1. The view state should reflect that the bottom sheet is open,
+    // correspondingly isBottomSheetOpen state value should be true.
     @Test
-    fun `Given Case 8, When setEvent is called, Then Case 1 expected result is returned`() =
+    fun `Given Case 8, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Act
             viewModel.setEvent(
@@ -273,8 +293,11 @@ class TestSelectCertificateViewModel {
         }
 
     // Case 9
+    // Function setEvent() is called with an Event.DismissError event.
+    // Case 9 Expected Result:
+    // 1. The view state should have its error field set to null, indicating that the error has been cleared.
     @Test
-    fun `Given Case 9, When setEvent is called, Then Case 1 expected result is returned`() =
+    fun `Given Case 9, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Act
             viewModel.setEvent(Event.DismissError)

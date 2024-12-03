@@ -235,6 +235,9 @@ class TestSelectQtspViewModel {
         }
 
     // Case 4
+    // Function setEvent() is called with an Event.Finish event.
+    // Case 4 Expected Result:
+    // 1. The effect should trigger a navigation finish action.
     @Test
     fun `Given Case 4, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -248,6 +251,9 @@ class TestSelectQtspViewModel {
         }
 
     // Case 5
+    // Function setEvent() is called with an Event.DismissError event.
+    // Case 5 Expected Result:
+    // 1. The view state should have its error field set to null, indicating that the error has been cleared.
     @Test
     fun `Given Case 5, When setEvent is called, Then the expected result is returned`() {
         // Act
@@ -258,6 +264,10 @@ class TestSelectQtspViewModel {
     }
 
     // Case 6
+    // Function setEvent() is called with an Event.BottomSheet.UpdateBottomSheetState event,
+    // setting isOpen to true.
+    // Case 6 Expected Result:
+    // 1. The bottom sheet should be opened and the view state's `isBottomSheetOpen` field should be true.
     @Test
     fun `Given Case 6, When setEvent is called, Then the expected result is returned`() {
         // Act
@@ -268,6 +278,9 @@ class TestSelectQtspViewModel {
     }
 
     // Case 7
+    // Function setEvent() is called with an Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed event.
+    // Case 7 Expected Result:
+    // 1. The bottom sheet should be closed and the view state's `isBottomSheetOpen` field should be false.
     @Test
     fun `Given Case 7, When setEvent is called, Then the expected result is returned`() {
         // Act
@@ -278,6 +291,9 @@ class TestSelectQtspViewModel {
     }
 
     // Case 8
+    // Function setEvent() is called with an Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed event.
+    // Case 8 Expected Result:
+    // 1. The navigation effect should trigger a finish action.
     @Test
     fun `Given Case 8, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -291,6 +307,11 @@ class TestSelectQtspViewModel {
         }
 
     // Case 9
+    // Function setEvent() is called with an Event.ViewDocument event, with
+    // documentData object as argument.
+    // Case 9 Expected Result:
+    // 1. The navigation effect should trigger a screen switch and the expected screen route
+    // based on the document data should be provided.
     @Test
     fun `Given Case 9, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -311,6 +332,11 @@ class TestSelectQtspViewModel {
         }
 
     // Case 10
+    // Function setEvent() is called with an Event.BottomSheet.QtspSelected event, with
+    // qtstData as argument.
+    // Case 10 Expected Result:
+    // 1. The BottomSheet should close, emitting Effect.CloseBottomSheet.
+    // 2. The Qtsp selection should update, emitting Effect.OnSelectedQtspUpdated.
     @Test
     fun `Given Case 10, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -330,6 +356,10 @@ class TestSelectQtspViewModel {
         }
 
     // Case 11
+    // Function setEvent() is called with an Event.FetchServiceAuthorizationUrl event and an
+    // rqesService object as argument.
+    // Case 11 Expected Result:
+    // 1. The service authorization URL should be fetched, triggering Effect.OpenUrl with the authorization Uri.
     @Test
     fun `Given Case 11, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -349,6 +379,10 @@ class TestSelectQtspViewModel {
         }
 
     // Case 12
+    // Function setEvent(Event.Pop) is called to trigger the event of popping the current screen or action.
+    // Case 12 Expected Result:
+    // 1. The sheet content should be updated to the expected "ConfirmCancellation" content.
+    // 2. The bottom sheet should be shown (Effect.ShowBottomSheet).
     @Test
     fun `Given Case 12, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
