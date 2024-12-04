@@ -125,7 +125,7 @@ class TestViewDocumentViewModel {
     // Case 2
     // Function setInitialState() is called when the deserialization returns null.
     // Case 2 Expected Result:
-    // 1. A RuntimeException should be thrown thrown.
+    // 1. A RuntimeException should be thrown.
     @Test
     fun `Given Case 2, When setInitialState is called, Then the expected result is returned`() {
         whenever(
