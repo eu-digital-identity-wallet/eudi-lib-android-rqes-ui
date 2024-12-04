@@ -148,15 +148,28 @@ koverReport {
                 "*.localization",
                 "*.infrastructure.*",
                 "*.infrastructure",
-                "*.presentation.*",
-                "*.presentation",
+                "*.presentation.architecture.*",
+                "*.presentation.architecture",
+                "*.presentation.entities.*",
+                "*.presentation.entities",
+                "*.presentation.extension.*",
+                "*.presentation.extension",
+                "*.presentation.navigation.*",
+                "*.presentation.navigation",
+                "*.presentation.router.*",
+                "*.presentation.router",
+                "*.presentation.ui.component.*",
+                "*.presentation.ui.component",
+                "*.presentation.ui.container.*",
+                "*.presentation.ui.container",
                 "*.util.*",
                 "*.util",
                 "*.helper.*",
                 "*.helper",
             )
             classes(
-                "*LogController*"
+                "*LogController*",
+                "*Screen*",
             )
         }
     }
