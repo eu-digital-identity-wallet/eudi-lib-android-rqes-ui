@@ -102,7 +102,7 @@ dependencies {
     implementation(libs.gson)
 
     // PDF
-    implementation(libs.androidx.pdf.fragment)
+    implementation(libs.android.pdf.viewer)
 
     // Test Dependencies
     testImplementation(libs.junit)
