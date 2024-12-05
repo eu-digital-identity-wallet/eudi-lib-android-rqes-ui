@@ -16,12 +16,16 @@
 
 package eu.europa.ec.eudi.rqesui.util
 
+import app.cash.turbine.ReceiveTurbine
+import app.cash.turbine.test
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.rules.TestWatcher
+import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineTestRule(
     private val testDispatcher: TestDispatcher = StandardTestDispatcher(),
@@ -30,3 +34,13 @@ class CoroutineTestRule(
 
 fun CoroutineTestRule.runTest(block: suspend CoroutineScope.() -> Unit): Unit =
     testScope.runTest { block() }
+
+suspend fun <T> Flow<T>.runFlowTest(
+    timeOut: Long? = null,
+    block: suspend ReceiveTurbine<T>.() -> Unit
+) {
+    test(timeOut?.milliseconds) {
+        block()
+        cancelAndConsumeRemainingEvents()
+    }
+}

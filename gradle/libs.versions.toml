@@ -25,6 +25,7 @@ mockito = "5.12.0"
 mockitoKotlin = "5.3.1"
 kover = "0.7.5"
 robolectric = "4.11.1"
+turbine = "1.1.0"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
@@ -57,6 +58,7 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mo
 mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
