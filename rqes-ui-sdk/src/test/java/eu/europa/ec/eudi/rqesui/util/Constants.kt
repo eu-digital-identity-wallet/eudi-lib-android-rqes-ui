@@ -34,10 +34,13 @@ const val mockedAuthorizationCode = "mockedAuthorizationCode"
 const val mockedCertificatesNotFoundMessage = "No certificates found"
 const val mockedCertificateName = "Certificate 1"
 const val mockedUri = "https://mocked.uri.com"
+const val mockedLocalFileUri = "content://mocked.provider/signed_pdfs/Document.pdf"
 const val mockedInvalidUri = "mocked_invalid_uri_string"
 const val mockedQtspEndpoint = "https://qtsp.endpoint.com"
 const val mockedAuthorizationHttpsUrl = "https://rqes.com/authorization"
 const val mockedDocumentNotFoundMessage = "mocked document not found message"
+const val mockedFetchCertificatesFailureMessage = "mocked failed to fetch certificates message"
+const val mockedSerializedConfig = "mockedSerializedConfig"
 
 val mockedExceptionWithMessage = RuntimeException("Exception to test interactor.")
 val mockedExceptionWithNoMessage = RuntimeException()
