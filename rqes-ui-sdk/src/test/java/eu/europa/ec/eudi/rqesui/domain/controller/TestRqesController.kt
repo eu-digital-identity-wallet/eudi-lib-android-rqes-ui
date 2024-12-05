@@ -43,6 +43,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedDocumentNotFoundMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
+import eu.europa.ec.eudi.rqesui.util.mockedGenericServiceErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
 import eu.europa.ec.eudi.rqesui.util.mockedQtspNotFound
@@ -125,6 +126,8 @@ class TestRqesController {
             )
         whenever(resourceProvider.genericErrorMessage())
             .thenReturn(mockedGenericErrorMessage)
+        whenever(resourceProvider.genericServiceErrorMessage())
+            .thenReturn(mockedGenericServiceErrorMessage)
     }
 
     @After
@@ -442,7 +445,7 @@ class TestRqesController {
             // Assert
             assertTrue(result is EudiRqesSignDocumentsPartialState.Failure)
             assertEquals(
-                mockedExceptionWithMessage.message,
+                mockedGenericServiceErrorMessage,
                 (result as EudiRqesSignDocumentsPartialState.Failure).error.message
             )
         }
@@ -510,13 +513,12 @@ class TestRqesController {
     fun `Given Case 3, When authorizeCredential is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val authorizationFailedMessage = "Authorization failed"
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             whenever(
                 rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode)),
-            ).thenThrow(RuntimeException(authorizationFailedMessage))
+            ).thenThrow(mockedExceptionWithMessage)
 
             // Act
             val result = rqesController.authorizeCredential()
@@ -524,7 +526,7 @@ class TestRqesController {
             // Assert
             assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
             assertEquals(
-                authorizationFailedMessage,
+                mockedGenericServiceErrorMessage,
                 (result as EudiRqesAuthorizeCredentialPartialState.Failure).error.message,
             )
         }
@@ -576,7 +578,7 @@ class TestRqesController {
             // Assert
             assertTrue(result is EudiRqesGetServiceAuthorizationUrlPartialState.Failure)
             assertEquals(
-                mockedExceptionWithMessage.message,
+                mockedGenericServiceErrorMessage,
                 (result as EudiRqesGetServiceAuthorizationUrlPartialState.Failure).error.message,
             )
         }
@@ -677,7 +679,7 @@ class TestRqesController {
             // Assert
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
             assertEquals(
-                mockedExceptionWithMessage.message,
+                mockedGenericServiceErrorMessage,
                 (result as EudiRqesAuthorizeServicePartialState.Failure).error.message,
             )
         }
@@ -759,7 +761,7 @@ class TestRqesController {
             // Assert
             assertTrue(result is EudiRqesGetCertificatesPartialState.Failure)
             assertEquals(
-                mockedExceptionWithMessage.message,
+                mockedGenericServiceErrorMessage,
                 (result as EudiRqesGetCertificatesPartialState.Failure).error.message,
             )
         }

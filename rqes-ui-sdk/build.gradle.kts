@@ -101,6 +101,9 @@ dependencies {
     //Gson
     implementation(libs.gson)
 
+    // PDF
+    implementation(libs.android.pdf.viewer)
+
     // Test Dependencies
     testImplementation(libs.junit)
     testImplementation(libs.koin.test)

@@ -45,7 +45,7 @@ private class DefaultConfig : EudiRQESUiConfig {
         get() = RqesServiceConfig(
             clientId = "wallet-client-tester",
             clientSecret = "somesecrettester2",
-            authFlowRedirectionURI = URI.create("rQES://oauth/callback"),
+            authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
             hashAlgorithm = HashAlgorithmOID.SHA_256,
         )
 

@@ -83,6 +83,9 @@ internal class RqesControllerImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
+    private val genericServiceErrorMsg
+        get() = resourceProvider.genericServiceErrorMessage()
+
     override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
         return runCatching {
             val selectedFile = eudiRQESUi.getSessionData().file
@@ -170,7 +173,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesGetServiceAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = genericServiceErrorMsg
                     )
                 )
             }
@@ -197,7 +200,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesAuthorizeServicePartialState.Failure(
                     error = EudiRQESUiError(
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = genericServiceErrorMsg
                     )
                 )
             }
@@ -237,7 +240,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesGetCertificatesPartialState.Failure(
                     error = EudiRQESUiError(
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = genericServiceErrorMsg
                     )
                 )
             }
@@ -284,7 +287,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = genericServiceErrorMsg
                     )
                 )
             }
@@ -312,7 +315,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesAuthorizeCredentialPartialState.Failure(
                     error = EudiRQESUiError(
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = genericServiceErrorMsg
                     )
                 )
             }
@@ -327,7 +330,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesSignDocumentsPartialState.Failure(
                     error = EudiRQESUiError(
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = genericServiceErrorMsg
                     )
                 )
             }

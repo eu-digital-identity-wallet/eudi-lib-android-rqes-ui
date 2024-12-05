@@ -18,7 +18,6 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.view_document
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,24 +27,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.github.barteksc.pdfviewer.PDFView
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
-import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ToolbarAction
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ToolbarConfig
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.pdf.PdfViewer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -57,7 +53,6 @@ internal fun ViewDocumentScreen(
     navController: NavController,
     viewModel: ViewDocumentViewModel,
 ) {
-    val context = LocalContext.current
     val state = viewModel.viewState.value
 
     ContentScreen(
@@ -77,7 +72,6 @@ internal fun ViewDocumentScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
-                    is Effect.Navigation.Finish -> context.finish()
                     is Effect.Navigation.Pop -> navController.popBackStack()
                 }
             },
@@ -102,19 +96,19 @@ private fun Content(
         verticalArrangement = Arrangement.Top
     ) {
         state.config.documentData.let { file ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                PdfViewer(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = SPACING_LARGE.dp),
-                    documentUri = file.uri,
-                    onLoadingListener = { isLoading ->
-                        onEventSend(
-                            Event.LoadingStateChanged(isLoading = isLoading)
-                        )
-                    }
-                )
-            }
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { context -> PDFView(context, null) },
+                update = { pdfView ->
+                    pdfView
+                        .fromUri(file.uri)
+                        .enableAnnotationRendering(true)
+                        .onLoad {
+                            onEventSend(Event.LoadingStateChanged(isLoading = false))
+                        }
+                        .load()
+                }
+            )
         }
     }
 
