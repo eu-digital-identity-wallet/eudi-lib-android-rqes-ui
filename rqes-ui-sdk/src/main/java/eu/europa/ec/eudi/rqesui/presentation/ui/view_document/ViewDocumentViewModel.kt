@@ -43,8 +43,6 @@ internal sealed class Event : ViewEvent {
 
 internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
-
-        data object Finish : Navigation()
         data object Pop : Navigation()
     }
 }

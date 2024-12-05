@@ -26,6 +26,7 @@ mockitoKotlin = "5.3.1"
 kover = "0.7.5"
 robolectric = "4.11.1"
 turbine = "1.1.0"
+androidxPdfFragment = "1.0.0-alpha04"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
@@ -59,6 +60,7 @@ mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", versio
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+androidx-pdf-fragment = { group = "androidx.pdf", name = "pdf-viewer-fragment", version.ref = "androidxPdfFragment" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

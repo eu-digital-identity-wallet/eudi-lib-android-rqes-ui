@@ -36,7 +36,6 @@ import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
-import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
@@ -77,7 +76,6 @@ internal fun ViewDocumentScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
-                    is Effect.Navigation.Finish -> context.finish()
                     is Effect.Navigation.Pop -> navController.popBackStack()
                 }
             },
