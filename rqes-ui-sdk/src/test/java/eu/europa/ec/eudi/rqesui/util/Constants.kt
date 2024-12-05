@@ -18,6 +18,7 @@ package eu.europa.ec.eudi.rqesui.util
 
 const val mockedPlainFailureMessage = "Failure message"
 const val mockedGenericErrorMessage = "resourceProvider's genericErrorMessage"
+const val mockedGenericServiceErrorMessage = "resourceProvider's genericServiceErrorMessage"
 const val mockedAuthorizationUrl = "https://endpoint.com/mockedAuthorizationUrl"
 const val mockedDocumentName = "Document.pdf"
 const val mockedLocalizedText = "Localized text"

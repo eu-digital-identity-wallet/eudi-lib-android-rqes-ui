@@ -47,6 +47,7 @@ enum class LocalizableKey {
     CloseSharingMessage,
     GenericErrorButtonRetry,
     GenericErrorMessage,
+    GenericServiceErrorMessage,
     GenericErrorDescription,
     GenericErrorDocumentNotFound,
     GenericErrorQtspNotFound,
@@ -85,6 +86,7 @@ enum class LocalizableKey {
             CloseSharingMessage -> "Closing will redirect you back to the dashboard without saving or sharing the document."
             GenericErrorButtonRetry -> "TRY AGAIN"
             GenericErrorMessage -> "Oups! Something went wrong"
+            GenericServiceErrorMessage -> "It seems the RQES Signing Service is unavailable. Please try again later."
             GenericErrorDescription -> "If the issue persists, please contact customer support"
             GenericErrorDocumentNotFound -> "No Document data found"
             GenericErrorQtspNotFound -> "No selected QTSP found"
