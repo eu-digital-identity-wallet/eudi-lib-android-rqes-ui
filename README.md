@@ -101,6 +101,8 @@ It is the application's responsibility to retrieve the `code` query parameter fr
 </intent-filter>
 ```
 
+Alternatively, you can use Android App Links [Google Documentation](https://developer.android.com/studio/write/app-link-indexing)
+
 Initialize the SDK in your Application class by providing your application context, configuration, and, if you are using Koin for dependency injection, the KoinApplication.
 
 ```kotlin
