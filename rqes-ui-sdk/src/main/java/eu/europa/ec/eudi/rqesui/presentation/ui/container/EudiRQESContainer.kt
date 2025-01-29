@@ -79,7 +79,7 @@ internal class EudiRQESContainer : ComponentActivity() {
         val state = intent.getParcelableExtra<EudiRQESUi.State>(SDK_STATE)
         val screen: Screen = when (state) {
             is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
-            is EudiRQESUi.State.Initial -> SdkScreens.SelectQtsp
+            is EudiRQESUi.State.Initial -> SdkScreens.OptionsSelection
             is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
             is EudiRQESUi.State.Success -> SdkScreens.Success
         }

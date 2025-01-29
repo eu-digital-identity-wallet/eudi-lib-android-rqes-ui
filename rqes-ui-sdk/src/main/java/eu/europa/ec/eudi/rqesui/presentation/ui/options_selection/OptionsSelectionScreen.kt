@@ -14,20 +14,19 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.ui.success
+package eu.europa.ec.eudi.rqesui.presentation.ui.options_selection
 
-import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,12 +38,10 @@ import androidx.navigation.NavController
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
-import eu.europa.ec.eudi.rqesui.presentation.extension.openIntentChooser
+import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.TextWithBadge
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
@@ -52,7 +49,10 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
@@ -65,9 +65,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SuccessScreen(
+internal fun OptionsSelectionScreen(
     navController: NavController,
-    viewModel: SuccessViewModel
+    viewModel: OptionsSelectionViewModel
 ) {
     val state = viewModel.viewState.value
     val context = LocalContext.current
@@ -79,21 +79,23 @@ internal fun SuccessScreen(
 
     ContentScreen(
         isLoading = state.isLoading,
-        navigatableAction = ScreenNavigateAction.NONE,
+        navigatableAction = ScreenNavigateAction.CANCELABLE,
+        onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
-            WrapBottomBarSecondaryButton(
-                stickyBottomContentModifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues),
-                buttonText = state.bottomBarButtonText,
-                enabled = state.isBottomBarButtonEnabled,
-                onButtonClick = {
-                    viewModel.setEvent(
-                        Event.BottomBarButtonPressed
-                    )
-                }
-            )
+            AnimatedVisibility(visible = state.isContinueButtonVisible) {
+                WrapBottomBarSecondaryButton(
+                    stickyBottomContentModifier = Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues),
+                    buttonText = state.bottomBarButtonText,
+                    onButtonClick = {
+                        viewModel.setEvent(
+                            Event.BottomBarButtonPressed
+                        )
+                    }
+                )
+            }
         }
     ) { paddingValues ->
         Content(
@@ -111,23 +113,19 @@ internal fun SuccessScreen(
         )
 
         if (isBottomSheetOpen) {
-            state.selectionItem?.let { safeSelectionItem ->
-                WrapModalBottomSheet(
-                    onDismissRequest = {
-                        viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
-                    },
-                    sheetState = bottomSheetState
-                ) {
-                    safeSelectionItem.documentData?.uri?.let { safeUri ->
-                        SuccessSheetContent(
-                            sheetContent = state.sheetContent,
-                            documentUri = safeUri,
-                            onEventSent = { event ->
-                                viewModel.setEvent(event)
-                            }
-                        )
+            WrapModalBottomSheet(
+                onDismissRequest = {
+                    viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                },
+                sheetState = bottomSheetState
+            ) {
+                SelectQtspSheetContent(
+                    sheetContent = state.sheetContent,
+                    selectedQtspIndex = state.selectedQtspIndex,
+                    onEventSent = { event ->
+                        viewModel.setEvent(event)
                     }
-                }
+                )
             }
         }
     }
@@ -153,62 +151,52 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
-        verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
+            .padding(
+                start = 0.dp,
+                end = 0.dp,
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding()
+            ),
+        verticalArrangement = Arrangement.Top
     ) {
-
         ContentTitle(
-            title = state.title,
-            verticalPadding = PaddingValues(0.dp)
+            modifier = Modifier.padding(horizontal = SPACING_LARGE.dp),
+            title = state.title
         )
 
-        state.headline?.let { safeHeadline ->
-            Text(
-                text = safeHeadline,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    color = MaterialTheme.colorScheme.success
-                )
+        VSpacer.Large()
+
+        safeLet(
+            state.documentSelectionItem,
+            state.documentSelectionItem?.documentData
+        ) { safeSelectionItem, documentData ->
+            SelectionItem(
+                modifier = Modifier.fillMaxWidth(),
+                data = safeSelectionItem,
+                leadingIconTint = safeSelectionItem.leadingIconTint,
+                onClick = {
+                    onEventSend(
+                        Event.ViewDocument(
+                            documentData = documentData
+                        )
+                    )
+                }
             )
         }
 
-        safeLet(
-            state.subtitle,
-            state.selectionItem
-        ) { subtitle, selectionItem ->
+        state.qtspServiceSelectionItem?.let { safeSelectionItem ->
+            ListDivider()
 
-            Column {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-
-                selectionItem.documentData?.documentName?.let { safeDocumentName ->
-                    TextWithBadge(
-                        message = safeDocumentName,
-                        showBadge = true
+            SelectionItem(
+                modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
+                data = safeSelectionItem,
+                leadingIconTint = safeSelectionItem.leadingIconTint,
+                onClick = {
+                    onEventSend(
+                        Event.RqesServiceSelectionItemPressed
                     )
                 }
-            }
-
-            selectionItem.documentData?.let { safeDocumentData ->
-                SelectionItem(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary
-                    ),
-                    data = selectionItem,
-                    onClick = {
-                        onEventSend(
-                            Event.ViewDocument(
-                                documentData = safeDocumentData
-                            )
-                        )
-                    }
-                )
-            }
-
+            )
         }
     }
 
@@ -231,20 +219,16 @@ private fun Content(
                     onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
                 }
 
-                is Effect.OnSelectedFileAndQtspGot -> {
-                    onEventSend(
-                        Event.SignAndSaveDocument(
-                            originalDocumentName = effect.selectedFile.documentName,
-                            qtspName = effect.selectedQtsp.name,
-                        )
-                    )
+                is Effect.OpenUrl -> {
+                    context.openUrl(uri = effect.uri)
                 }
 
-                is Effect.SharePdf -> {
-                    context.openIntentChooser(
-                        intent = effect.intent,
-                        title = effect.chooserTitle,
-                    )
+                is Effect.OnSelectedQtspUpdated -> {
+                    onEventSend(Event.FetchServiceAuthorizationUrl(service = effect.service))
+                }
+
+                is Effect.OnSelectionItemCreated -> {
+                    onEventSend(Event.AuthorizeServiceAndFetchCertificates)
                 }
             }
         }.collect()
@@ -252,58 +236,84 @@ private fun Content(
 }
 
 @Composable
-private fun SuccessSheetContent(
-    sheetContent: SuccessBottomSheetContent,
-    documentUri: Uri,
-    onEventSent: (event: Event) -> Unit
+private fun SelectQtspSheetContent(
+    sheetContent: SelectAndSignBottomSheetContent,
+    onEventSent: (event: Event) -> Unit,
+    selectedQtspIndex: Int
 ) {
     when (sheetContent) {
-        is SuccessBottomSheetContent.ShareDocument -> {
+        is SelectAndSignBottomSheetContent.ConfirmCancellation -> {
             DialogBottomSheet(
                 textData = sheetContent.bottomSheetTextData,
                 onPositiveClick = {
+                    onEventSent(Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed)
+                },
+                onNegativeClick = {
+                    onEventSent(Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed)
+                }
+            )
+        }
+
+        is SelectAndSignBottomSheetContent.SelectQTSP -> {
+            BottomSheetWithOptionsList(
+                textData = sheetContent.bottomSheetTextData,
+                options = sheetContent.options,
+                onIndexSelected = { selectedIndex ->
                     onEventSent(
-                        Event.BottomSheet.ShareDocument.PrimaryButtonPressed(
-                            documentUri = documentUri,
+                        Event.BottomSheet.QtspIndexSelectedOnRadioButtonPressed(
+                            index = selectedIndex
                         )
                     )
                 },
+                onPositiveClick = {
+                    if (selectedQtspIndex < sheetContent.options.size) {
+                        onEventSent(
+                            sheetContent.options[selectedQtspIndex].event
+                        )
+                    }
+                },
                 onNegativeClick = {
-                    onEventSent(Event.BottomSheet.ShareDocument.SecondaryButtonPressed)
+                    onEventSent(
+                        Event.BottomSheet.CancelQtspSelection
+                    )
                 }
             )
         }
     }
 }
 
+@Composable
+private fun ListDivider() {
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.outlineVariant
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
-private fun SuccessScreenPreview() {
+private fun OptionsSelectionScreenContentPreview() {
     PreviewTheme {
-        val documentName = "Document name.PDF"
         Content(
             state = State(
-                title = "Sign document",
-                headline = "Success",
-                subtitle = "You successfully signed your document",
-                selectionItem = SelectionItemUi(
+                title = "Sign a document",
+                documentSelectionItem = SelectionItemUi(
                     documentData = DocumentData(
-                        documentName = documentName,
+                        documentName = "Document name.PDF",
                         uri = "".toUri()
                     ),
-                    subtitle = "Signed by: Entrust",
-                    action = "View",
+                    action = "VIEW",
                 ),
-                bottomBarButtonText = "Close",
-                sheetContent = SuccessBottomSheetContent.ShareDocument(
+                sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
                     bottomSheetTextData = BottomSheetTextData(
-                        title = "Sharing document?",
-                        message = "Closing will redirect you back to the dashboard without saving or sharing the document.",
-                        positiveButtonText = "Share",
-                        negativeButtonText = "Close",
+                        title = "title",
+                        message = "message",
                     )
-                )
+                ),
+                bottomBarButtonText = "Sign",
+                selectedQtspIndex = 0
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

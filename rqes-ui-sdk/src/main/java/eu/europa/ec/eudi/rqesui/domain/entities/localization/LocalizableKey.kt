@@ -27,9 +27,12 @@ enum class LocalizableKey {
     CancelSignProcessSecondaryText,
     CancelSignProcessPrimaryText,
     SelectDocumentTitle,
+    SelectDocumentSubtitle,
     SelectDocument,
+    Document,
     ConfirmSelectionTitle,
-    SelectService,
+    SelectSigningService,
+    SelectSigningServiceSubtitle,
     SelectServiceTitle,
     SelectServiceSubtitle,
     SelectCertificateTitle,
@@ -40,6 +43,7 @@ enum class LocalizableKey {
     View,
     Close,
     Cancel,
+    Done,
     Save,
     Share,
     Sign,
@@ -66,11 +70,14 @@ enum class LocalizableKey {
             CancelSignProcessSecondaryText -> "Cancel signing"
             CancelSignProcessPrimaryText -> "Continue signing"
             SelectDocumentTitle -> "Select a document from your device to sign electronically."
+            SelectDocumentSubtitle -> "Choose a document from your device to sign electronically."
             SelectDocument -> "Select document"
+            Document -> "Document"
             ConfirmSelectionTitle -> "Please confirm signing of the following"
-            SelectService -> "Select service"
-            SelectServiceTitle -> "Select remote signing service."
-            SelectServiceSubtitle -> "Remote Signing Service enables secure online document signing."
+            SelectSigningService -> "Select signing service"
+            SelectSigningServiceSubtitle -> "Remote Signing Service enables secure online document signing."
+            SelectServiceTitle -> "Signing services"
+            SelectServiceSubtitle -> "Select the Signing Service that will be used to issue a digital certificate"
             SelectCertificateTitle -> "You have chosen to sign the following document:"
             SelectCertificateSubtitle -> "Please confirm signing with one of the following certificates:"
             Success -> "Success!"
@@ -79,6 +86,7 @@ enum class LocalizableKey {
             View -> "VIEW"
             Close -> "Close"
             Cancel -> "Cancel"
+            Done -> "Done"
             Save -> "Save"
             Share -> "Share"
             Sign -> "Sign"

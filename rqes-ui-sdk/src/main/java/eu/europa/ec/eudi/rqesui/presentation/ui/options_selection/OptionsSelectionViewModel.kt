@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.ui.select_qtsp
+package eu.europa.ec.eudi.rqesui.presentation.ui.options_selection
 
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
@@ -29,6 +29,7 @@ import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.eudi.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewSideEffect
@@ -39,6 +40,7 @@ import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfi
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableNavigationLink
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
@@ -46,15 +48,20 @@ import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
     val isLoading: Boolean = false,
-    val selectionItem: SelectionItemUi? = null,
+
+    val documentSelectionItem: SelectionItemUi? = null,
+    val qtspServiceSelectionItem: SelectionItemUi? = null,
+
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
 
     val title: String,
-    val subtitle: String,
+    //val subtitle: String,
     val bottomBarButtonText: String,
 
-    val sheetContent: SelectQtspBottomSheetContent,
+    val sheetContent: SelectAndSignBottomSheetContent,
+    val selectedQtspIndex: Int,
+    val isContinueButtonVisible: Boolean = false,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
@@ -63,6 +70,8 @@ internal sealed class Event : ViewEvent {
     data object Finish : Event()
     data object DismissError : Event()
     data object BottomBarButtonPressed : Event()
+
+    data object RqesServiceSelectionItemPressed : Event()
 
     data class ViewDocument(val documentData: DocumentData) : Event()
     data class FetchServiceAuthorizationUrl(val service: RQESService) : Event()
@@ -75,8 +84,14 @@ internal sealed class Event : ViewEvent {
             data object SecondaryButtonPressed : CancelSignProcess()
         }
 
-        data class QtspSelected(val qtspData: QtspData) : BottomSheet()
+        data class QtspSelectedOnDoneButtonPressed(val qtspData: QtspData) : BottomSheet()
+
+        data class QtspIndexSelectedOnRadioButtonPressed(val index: Int) : BottomSheet()
+
+        data object CancelQtspSelection : BottomSheet()
     }
+
+    data object AuthorizeServiceAndFetchCertificates : Event()
 }
 
 internal sealed class Effect : ViewSideEffect {
@@ -90,21 +105,23 @@ internal sealed class Effect : ViewSideEffect {
 
     data class OpenUrl(val uri: Uri) : Effect()
     data class OnSelectedQtspUpdated(val service: RQESService) : Effect()
+    data object OnSelectionItemCreated : Effect()
 }
 
-internal sealed class SelectQtspBottomSheetContent {
+internal sealed class SelectAndSignBottomSheetContent {
     data class ConfirmCancellation(
         val bottomSheetTextData: BottomSheetTextData,
-    ) : SelectQtspBottomSheetContent()
+    ) : SelectAndSignBottomSheetContent()
 
     data class SelectQTSP(
         val bottomSheetTextData: BottomSheetTextData,
         val options: List<ModalOptionUi<Event>>,
-    ) : SelectQtspBottomSheetContent()
+        val selectedIndex: Int,
+    ) : SelectAndSignBottomSheetContent()
 }
 
 @KoinViewModel
-internal class SelectQtspViewModel(
+internal class OptionsSelectionViewModel(
     private val selectQtspInteractor: SelectQtspInteractor,
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
@@ -112,22 +129,24 @@ internal class SelectQtspViewModel(
 
     override fun setInitialState(): State = State(
         title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
-        subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
+        //subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
         bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
-        sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
+        sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
             bottomSheetTextData = getConfirmCancellationTextData()
         ),
+        selectedQtspIndex = 0
     )
 
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> {
-                createSelectionItem(event)
+                createFileSelectionItem(event)
+                createQTSPSelectionItem(event)
             }
 
             is Event.Pop -> {
                 showBottomSheet(
-                    sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
+                    sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
                         bottomSheetTextData = getConfirmCancellationTextData()
                     )
                 )
@@ -167,7 +186,7 @@ internal class SelectQtspViewModel(
                 getQtsps(event)
             }
 
-            is Event.BottomSheet.QtspSelected -> {
+            is Event.BottomSheet.QtspSelectedOnDoneButtonPressed -> {
                 val response = selectQtspInteractor.updateQtspUserSelection(event.qtspData)
                 hideBottomSheet()
                 when (response) {
@@ -189,6 +208,14 @@ internal class SelectQtspViewModel(
                     }
 
                     is EudiRqesSetSelectedQtspPartialState.Success -> {
+                        setState {
+                            copy(
+                                qtspServiceSelectionItem = qtspServiceSelectionItem?.copy(
+                                    leadingIconTint = ThemeColors.success
+                                )
+                            )
+                        }
+
                         setEffect {
                             Effect.OnSelectedQtspUpdated(service = response.service)
                         }
@@ -199,15 +226,33 @@ internal class SelectQtspViewModel(
             is Event.FetchServiceAuthorizationUrl -> {
                 fetchServiceAuthorizationUrl(event, event.service)
             }
+
+            is Event.AuthorizeServiceAndFetchCertificates -> {
+                // TODO
+            }
+
+            is Event.RqesServiceSelectionItemPressed -> {
+                getQtsps(event)
+            }
+
+            is Event.BottomSheet.CancelQtspSelection -> {
+                hideBottomSheet()
+            }
+
+            is Event.BottomSheet.QtspIndexSelectedOnRadioButtonPressed -> {
+                setState {
+                    copy(selectedQtspIndex = event.index)
+                }
+            }
         }
     }
 
-    private fun createSelectionItem(event: Event) {
+    private fun createFileSelectionItem(event: Event) {
         when (val response = selectQtspInteractor.getSelectedFile()) {
             is EudiRqesGetSelectedFilePartialState.Failure -> {
                 setState {
                     copy(
-                        selectionItem = null,
+                        documentSelectionItem = null,
                         error = ContentErrorConfig(
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
@@ -223,11 +268,54 @@ internal class SelectQtspViewModel(
             is EudiRqesGetSelectedFilePartialState.Success -> {
                 setState {
                     copy(
-                        selectionItem = SelectionItemUi(
+                        documentSelectionItem = SelectionItemUi(
                             documentData = response.file,
-                            action = resourceProvider.getLocalizedString(LocalizableKey.View)
+                            overlineText = resourceProvider.getLocalizedString(LocalizableKey.Document),
+                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
+                            action = resourceProvider.getLocalizedString(LocalizableKey.View),
+                            leadingIcon = AppIcons.StepOne,
+                            leadingIconTint = ThemeColors.success,
+                            trailingIcon = AppIcons.KeyboardArrowRight
                         )
                     )
+                }
+            }
+        }
+    }
+
+    private fun createQTSPSelectionItem(event: Event) {
+        when (val response = selectQtspInteractor.getSelectedFile()) {
+            is EudiRqesGetSelectedFilePartialState.Failure -> {
+                setState {
+                    copy(
+                        qtspServiceSelectionItem = null,
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetSelectedFilePartialState.Success -> {
+                setState {
+                    copy(
+                        qtspServiceSelectionItem = SelectionItemUi(
+                            mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
+                            documentData = null,
+                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
+                            action = null,
+                            leadingIcon = AppIcons.StepTwo,
+                            trailingIcon = AppIcons.KeyboardArrowRight
+                        )
+                    )
+                }
+                setEffect {
+                    Effect.OnSelectionItemCreated
                 }
             }
         }
@@ -252,18 +340,20 @@ internal class SelectQtspViewModel(
 
             is EudiRqesGetQtspsPartialState.Success -> {
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
-                    response.qtsps.map { qtspData ->
+                    response.qtsps.mapIndexed { index, qtspData ->
                         ModalOptionUi(
                             title = qtspData.name,
                             trailingIcon = null,
-                            event = Event.BottomSheet.QtspSelected(qtspData)
+                            event = Event.BottomSheet.QtspSelectedOnDoneButtonPressed(qtspData),
+                            radioButtonSelected = index == viewState.value.selectedQtspIndex
                         )
                     }
 
                 showBottomSheet(
-                    sheetContent = SelectQtspBottomSheetContent.SelectQTSP(
+                    sheetContent = SelectAndSignBottomSheetContent.SelectQTSP(
                         bottomSheetTextData = getSelectQTSPTextData(),
-                        options = bottomSheetOptions
+                        options = bottomSheetOptions,
+                        selectedIndex = viewState.value.selectedQtspIndex,
                     )
                 )
             }
@@ -343,10 +433,12 @@ internal class SelectQtspViewModel(
         return BottomSheetTextData(
             title = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceTitle),
             message = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceSubtitle),
+            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.Done),
+            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.Cancel),
         )
     }
 
-    private fun showBottomSheet(sheetContent: SelectQtspBottomSheetContent) {
+    private fun showBottomSheet(sheetContent: SelectAndSignBottomSheetContent) {
         setState {
             copy(sheetContent = sheetContent)
         }

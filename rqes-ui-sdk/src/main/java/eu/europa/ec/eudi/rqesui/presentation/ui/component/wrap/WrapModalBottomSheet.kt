@@ -41,7 +41,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.entities.ModalOptionUi
@@ -51,6 +53,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
@@ -89,7 +92,8 @@ internal fun WrapModalBottomSheet(
 @Composable
 internal fun GenericBaseSheetContent(
     title: String,
-    bodyContent: @Composable () -> Unit
+    bodyContent: @Composable () -> Unit,
+    buttonsContent: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -107,6 +111,9 @@ internal fun GenericBaseSheetContent(
 
         VSpacer.Small()
         bodyContent()
+
+        VSpacer.Medium()
+        buttonsContent?.invoke()
     }
 }
 
@@ -187,7 +194,9 @@ internal fun DialogBottomSheet(
 internal fun <T : ViewEvent> BottomSheetWithOptionsList(
     textData: BottomSheetTextData,
     options: List<ModalOptionUi<T>>,
-    onEventSent: (T) -> Unit
+    onIndexSelected: (Int) -> Unit,
+    onPositiveClick: () -> Unit = {},
+    onNegativeClick: () -> Unit = {}
 ) {
     if (options.isNotEmpty()) {
         with(textData) {
@@ -200,7 +209,7 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                             color = bottomSheetDefaultTextColor
                         )
                     )
-                    VSpacer.Large()
+                    VSpacer.Medium()
 
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -209,8 +218,43 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                     ) {
                         OptionsList(
                             optionItems = options,
-                            itemSelected = onEventSent
+                            indexSelected = onIndexSelected
                         )
+                    }
+                },
+                buttonsContent = {
+                    safeLet(
+                        textData.positiveButtonText,
+                        textData.negativeButtonText
+                    ) { positiveButtonText, negativeButtonText ->
+                        Row(
+                            modifier = Modifier.padding(vertical = SPACING_EXTRA_SMALL.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            WrapSecondaryButton(
+                                modifier = Modifier.weight(1f),
+                                onClick = onNegativeClick
+                            ) {
+                                Text(
+                                    text = negativeButtonText,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+
+                            HSpacer.Small()
+
+                            WrapPrimaryButton(
+                                modifier = Modifier.weight(1f),
+                                onClick = onPositiveClick
+                            ) {
+                                Text(
+                                    text = positiveButtonText,
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
                     }
                 }
             )
@@ -221,7 +265,7 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
 @Composable
 private fun <T : ViewEvent> OptionsList(
     optionItems: List<ModalOptionUi<T>>,
-    itemSelected: (T) -> Unit
+    indexSelected: (Int) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
@@ -230,7 +274,9 @@ private fun <T : ViewEvent> OptionsList(
 
             OptionListItem(
                 item = item,
-                itemSelected = itemSelected
+                onIndexSelected = {
+                    indexSelected(index)
+                }
             )
 
             if (index < optionItems.lastIndex) {
@@ -245,7 +291,7 @@ private fun <T : ViewEvent> OptionsList(
 @Composable
 private fun <T : ViewEvent> OptionListItem(
     item: ModalOptionUi<T>,
-    itemSelected: (T) -> Unit
+    onIndexSelected: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -253,7 +299,7 @@ private fun <T : ViewEvent> OptionListItem(
             .clip(RoundedCornerShape(SIZE_SMALL.dp))
             .background(bottomSheetDefaultBackgroundColor)
             .throttledClickable {
-                itemSelected(item.event)
+                onIndexSelected()
             }
             .padding(
                 horizontal = SPACING_SMALL.dp,
@@ -270,11 +316,17 @@ private fun <T : ViewEvent> OptionListItem(
             )
         )
 
-        item.icon?.let {
+        item.trailingIcon?.let {
             WrapIcon(
                 modifier = Modifier.wrapContentWidth(),
-                iconData = item.icon,
+                iconData = item.trailingIcon,
                 customTint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        item.radioButtonSelected?.let {
+            WrapRadioButton(
+                isSelected = it
             )
         }
     }
@@ -321,7 +373,9 @@ private fun BottomSheetWithOptionsListPreview() {
         BottomSheetWithOptionsList(
             textData = BottomSheetTextData(
                 title = "Title",
-                message = "Message"
+                message = "Message",
+                positiveButtonText = "Done",
+                negativeButtonText = "Cancel"
             ),
             options = buildList {
                 addAll(
@@ -332,16 +386,18 @@ private fun BottomSheetWithOptionsListPreview() {
                         ),
                         ModalOptionUi(
                             title = "Option 2",
-                            event = DummyEventForPreview
+                            event = DummyEventForPreview,
+                            radioButtonSelected = false
                         ),
                         ModalOptionUi(
                             title = "Option 3",
-                            event = DummyEventForPreview
+                            event = DummyEventForPreview,
+                            radioButtonSelected = true
                         ),
                     )
                 )
             },
-            onEventSent = {}
+            onIndexSelected = {}
         )
     }
 }

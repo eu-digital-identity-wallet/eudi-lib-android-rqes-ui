@@ -155,17 +155,20 @@ private fun Content(
         VSpacer.Large()
 
         state.selectionItem?.let { safeSelectionItem ->
-            SelectionItem(
-                modifier = Modifier.fillMaxWidth(),
-                data = safeSelectionItem,
-                onClick = {
-                    onEventSend(
-                        Event.ViewDocument(
-                            documentData = safeSelectionItem.documentData
+            safeSelectionItem.documentData?.let {
+                SelectionItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    data = safeSelectionItem,
+                    leadingIconTint = safeSelectionItem.leadingIconTint,
+                    onClick = {
+                        onEventSend(
+                            Event.ViewDocument(
+                                documentData = safeSelectionItem.documentData
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
         }
     }
 
@@ -222,7 +225,7 @@ private fun SelectQtspSheetContent(
             BottomSheetWithOptionsList(
                 textData = sheetContent.bottomSheetTextData,
                 options = sheetContent.options,
-                onEventSent = onEventSent
+                onIndexSelected = {}
             )
         }
     }

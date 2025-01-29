@@ -20,6 +20,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Stable
@@ -62,6 +63,12 @@ internal object AppIcons {
         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
     )
 
+    val KeyboardArrowRight: IconData = IconData(
+        resourceId = null,
+        contentDescriptionId = R.string.content_description_arrow_right_icon,
+        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight
+    )
+
     val Close: IconData = IconData(
         resourceId = null,
         contentDescriptionId = R.string.content_description_close_icon,
@@ -84,5 +91,17 @@ internal object AppIcons {
         resourceId = null,
         contentDescriptionId = R.string.content_description_more_vert_icon,
         imageVector = Icons.Filled.MoreVert
+    )
+
+    val StepOne: IconData = IconData(
+        resourceId = R.drawable.ic_step_one,
+        contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
+    )
+
+    val StepTwo: IconData = IconData(
+        resourceId = R.drawable.ic_step_two,
+        contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
     )
 }

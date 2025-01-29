@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -39,17 +40,20 @@ import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 
 @Composable
 internal fun SelectionItem(
     modifier: Modifier = Modifier,
     data: SelectionItemUi,
+    leadingIconTint: Color? = null,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        containerColor = Color.Transparent
     ),
     shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
     onClick: (() -> Unit)?,
@@ -63,21 +67,48 @@ internal fun SelectionItem(
     ) {
         Row(
             modifier = Modifier.padding(
-                horizontal = SPACING_MEDIUM.dp,
-                vertical = SPACING_LARGE.dp
+                horizontal = SPACING_LARGE.dp,
+                vertical = SPACING_MEDIUM.dp
             ),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-
-                Text(
-                    text = data.documentData.documentName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+            data.leadingIcon?.let { safeIcon ->
+                WrapIcon(
+                    modifier = Modifier.padding(end = SPACING_MEDIUM.dp),
+                    iconData = safeIcon,
+                    customTint = leadingIconTint
                 )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                data.overlineText?.let { safeOverlineText ->
+                    Text(
+                        text = safeOverlineText,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                data.mainText?.let { safeMainText ->
+                    Text(
+                        text = safeMainText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                data.documentData?.documentName?.let { safeDocumentName ->
+                    Text(
+                        text = safeDocumentName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
                 data.subtitle?.let { subtitle ->
                     Text(
@@ -90,13 +121,26 @@ internal fun SelectionItem(
                 }
             }
 
-            data.action?.let { action ->
-                Text(
-                    modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
-                    text = action,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            Row(
+                modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                data.action?.let { action ->
+                    Text(
+                        text = action,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                HSpacer.Small()
+
+                data.trailingIcon?.let { safeIcon ->
+                    WrapIcon(
+                        iconData = safeIcon,
+                        customTint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -137,6 +181,8 @@ private fun SelectionItemWithSubtitlePreview(
                 ),
                 subtitle = text,
                 action = "VIEW",
+                leadingIcon = AppIcons.StepOne,
+                trailingIcon = AppIcons.KeyboardArrowRight
             ),
             onClick = {}
         )

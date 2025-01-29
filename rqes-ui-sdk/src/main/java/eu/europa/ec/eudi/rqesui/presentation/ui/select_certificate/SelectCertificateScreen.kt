@@ -354,7 +354,7 @@ private fun SelectCertificateScreenPreview() {
                         uri = "".toUri()
                     ),
                     subtitle = "Signed by: Entrust",
-                    iconTint = ThemeColors.success
+                    trailingIconTint = ThemeColors.success
                 ),
                 certificatesSectionTitle = "Please confirm signing with one of the following certificates:",
                 certificates = listOf(

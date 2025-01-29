@@ -163,7 +163,8 @@ class TestSelectQtspViewModel {
         assertEquals(
             SelectionItemUi(
                 documentData = documentData,
-                action = resourceProvider.getLocalizedString(LocalizableKey.View)
+                action = resourceProvider.getLocalizedString(LocalizableKey.View),
+                subtitle = null
             ),
             viewModel.viewState.value.selectionItem
         )
@@ -193,7 +194,7 @@ class TestSelectQtspViewModel {
             mockedQtspDataList.map { qtspData ->
                 ModalOptionUi(
                     title = qtspData.name,
-                    icon = null,
+                    trailingIcon = null,
                     event = Event.BottomSheet.QtspSelected(qtspData)
                 )
             }

@@ -36,6 +36,10 @@ internal sealed class SdkScreens {
         name = "SUCCESS"
     )
 
+    data object OptionsSelection : Screen(
+        name = "OPTIONS_SELECTION"
+    )
+
     data object ViewDocument : Screen(
         name = "VIEW_DOCUMENT",
         parameters = "?viewDocumentConfig={viewDocumentConfig}"
