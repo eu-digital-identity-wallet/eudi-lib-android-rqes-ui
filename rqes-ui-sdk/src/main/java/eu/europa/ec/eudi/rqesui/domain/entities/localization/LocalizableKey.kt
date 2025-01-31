@@ -37,12 +37,18 @@ enum class LocalizableKey {
     SelectServiceSubtitle,
     SelectCertificateTitle,
     SelectCertificateSubtitle,
+    SelectSigningCertificateTitle,
+    SelectSigningCertificateSubtitle,
+    SigningService,
+    SigningCertificate,
+    SigningCertificates,
     Success,
     SuccessfullySignedDocument,
     SignedBy,
     View,
     Close,
     Cancel,
+    Continue,
     Done,
     Save,
     Share,
@@ -73,19 +79,22 @@ enum class LocalizableKey {
             SelectDocumentSubtitle -> "Choose a document from your device to sign electronically."
             SelectDocument -> "Select document"
             Document -> "Document"
+            SigningService -> "Signing service"
             ConfirmSelectionTitle -> "Please confirm signing of the following"
             SelectSigningService -> "Select signing service"
             SelectSigningServiceSubtitle -> "Remote Signing Service enables secure online document signing."
             SelectServiceTitle -> "Signing services"
             SelectServiceSubtitle -> "Select the Signing Service that will be used to issue a digital certificate"
             SelectCertificateTitle -> "You have chosen to sign the following document:"
-            SelectCertificateSubtitle -> "Please confirm signing with one of the following certificates:"
+            SelectSigningCertificateTitle -> "Select signing certificate"
+            SelectCertificateSubtitle -> "The signing certificate is used to verify your identity and is linked to your electronic signature."
             Success -> "Success!"
             SuccessfullySignedDocument -> "You successfully signed your document"
             SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"
             View -> "VIEW"
             Close -> "Close"
             Cancel -> "Cancel"
+            Continue -> "Continue"
             Done -> "Done"
             Save -> "Save"
             Share -> "Share"
@@ -99,6 +108,9 @@ enum class LocalizableKey {
             GenericErrorDocumentNotFound -> "No Document data found"
             GenericErrorQtspNotFound -> "No selected QTSP found"
             GenericErrorCertificatesNotFound -> "No certificates found"
+            SigningCertificate -> "Signing certificate"
+            SigningCertificates -> "Signing certificates"
+            SelectSigningCertificateSubtitle -> "Select a digital certificate to sign your document"
             Certificate -> "Certificate $ARGUMENTS_SEPARATOR"
         }
     }

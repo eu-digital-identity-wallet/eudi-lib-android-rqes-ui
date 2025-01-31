@@ -28,13 +28,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.RouterHost
 import eu.europa.ec.eudi.rqesui.presentation.navigation.Screen
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.eudi.rqesui.presentation.router.sdkGraph
+import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.CERTIFICATE_SELECTION_STATE
+import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.QTSP_SELECTION_STATE
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -42,6 +47,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 internal class EudiRQESContainer : ComponentActivity() {
 
     private val routerHost: RouterHost by inject()
+    private val uiSerializer: UiSerializer by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,12 +86,38 @@ internal class EudiRQESContainer : ComponentActivity() {
         val screen: Screen = when (state) {
             is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
             is EudiRQESUi.State.Initial -> SdkScreens.OptionsSelection
-            is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
+            is EudiRQESUi.State.Certificate -> SdkScreens.OptionsSelection
             is EudiRQESUi.State.Success -> SdkScreens.Success
         }
         return generateComposableNavigationLink(
             screen = screen,
-            arguments = ""
+            arguments = prepareScreenArguments(
+                screen = screen,
+                rqesState = state
+            )
         )
+    }
+
+    private fun prepareScreenArguments(
+        screen: Screen,
+        rqesState: EudiRQESUi.State
+    ): String {
+        val screenArguments = if (screen is SdkScreens.OptionsSelection) {
+            generateComposableArguments(
+                arguments = mapOf(
+                    OptionsSelectionUiConfig.serializedKeyName to uiSerializer.toBase64(
+                        model = OptionsSelectionUiConfig(
+                            optionsSelectionScreenState = when (rqesState) {
+                                is EudiRQESUi.State.Initial -> QTSP_SELECTION_STATE
+                                is EudiRQESUi.State.Certificate -> CERTIFICATE_SELECTION_STATE
+                                else -> ""
+                            }
+                        ),
+                        parser = OptionsSelectionUiConfig.Parser
+                    )
+                )
+            )
+        } else ""
+        return screenArguments
     }
 }

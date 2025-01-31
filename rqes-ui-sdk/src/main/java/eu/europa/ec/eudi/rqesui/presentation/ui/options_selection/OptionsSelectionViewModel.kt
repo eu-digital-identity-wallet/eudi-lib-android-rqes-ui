@@ -19,13 +19,17 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.options_selection
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import eu.europa.ec.eudi.rqes.core.RQESService
+import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetQtspsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetServiceAuthorizationUrlPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectQtspInteractor
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractor
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorGetSelectedFileAndQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
+import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
@@ -36,6 +40,7 @@ import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.eudi.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
@@ -45,35 +50,51 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentErrorCo
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.InjectedParam
 
 internal data class State(
     val isLoading: Boolean = false,
+    val config: OptionsSelectionUiConfig,
+    val currentScreenSelectionState: String = QTSP_SELECTION_STATE,
 
     val documentSelectionItem: SelectionItemUi? = null,
     val qtspServiceSelectionItem: SelectionItemUi? = null,
+    val certificateSelectionItem: SelectionItemUi? = null,
 
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
 
     val title: String,
-    //val subtitle: String,
     val bottomBarButtonText: String,
 
     val sheetContent: SelectAndSignBottomSheetContent,
+
     val selectedQtspIndex: Int,
+    val selectedCertificateIndex: Int,
+
+    val certificates: List<CertificateData> = emptyList(),
+    val authorizationUri: Uri? = null,
+
     val isContinueButtonVisible: Boolean = false,
 ) : ViewState
 
+internal const val QTSP_SELECTION_STATE = "QTSP_SELECTION"
+internal const val CERTIFICATE_SELECTION_STATE = "CERTIFICATE_SELECTION"
+
 internal sealed class Event : ViewEvent {
-    data object Init : Event()
+    data class Initialize(val screenSelectionState: String) : Event()
     data object Pop : Event()
     data object Finish : Event()
     data object DismissError : Event()
-    data object BottomBarButtonPressed : Event()
+    data class BottomBarButtonPressed(val uri: Uri) : Event()
 
     data object RqesServiceSelectionItemPressed : Event()
+    data object CertificateSelectionItemPressed : Event()
 
     data class ViewDocument(val documentData: DocumentData) : Event()
+
+    data object AuthorizeServiceAndFetchCertificates : Event()
+
     data class FetchServiceAuthorizationUrl(val service: RQESService) : Event()
 
     sealed class BottomSheet : Event() {
@@ -84,14 +105,16 @@ internal sealed class Event : ViewEvent {
             data object SecondaryButtonPressed : CancelSignProcess()
         }
 
+        data class QtspIndexSelectedOnRadioButtonPressed(val index: Int) : BottomSheet()
         data class QtspSelectedOnDoneButtonPressed(val qtspData: QtspData) : BottomSheet()
 
-        data class QtspIndexSelectedOnRadioButtonPressed(val index: Int) : BottomSheet()
+        data class CertificateIndexSelectedOnRadioButtonPressed(val index: Int) : BottomSheet()
+        data class CertificateSelectedOnDoneButtonPressed(val certificateData: CertificateData) :
+            BottomSheet()
 
         data object CancelQtspSelection : BottomSheet()
+        data object CancelCertificateSelection : BottomSheet()
     }
-
-    data object AuthorizeServiceAndFetchCertificates : Event()
 }
 
 internal sealed class Effect : ViewSideEffect {
@@ -103,9 +126,10 @@ internal sealed class Effect : ViewSideEffect {
     data object ShowBottomSheet : Effect()
     data object CloseBottomSheet : Effect()
 
-    data class OpenUrl(val uri: Uri) : Effect()
     data class OnSelectedQtspUpdated(val service: RQESService) : Effect()
-    data object OnSelectionItemCreated : Effect()
+    data object OnCertificateSelectionItemCreated : Effect()
+
+    data class OpenUrl(val uri: Uri) : Effect()
 }
 
 internal sealed class SelectAndSignBottomSheetContent {
@@ -118,30 +142,56 @@ internal sealed class SelectAndSignBottomSheetContent {
         val options: List<ModalOptionUi<Event>>,
         val selectedIndex: Int,
     ) : SelectAndSignBottomSheetContent()
+
+    data class SelectCertificate(
+        val bottomSheetTextData: BottomSheetTextData,
+        val options: List<ModalOptionUi<Event>>,
+        val selectedIndex: Int,
+    ) : SelectAndSignBottomSheetContent()
 }
 
 @KoinViewModel
 internal class OptionsSelectionViewModel(
-    private val selectQtspInteractor: SelectQtspInteractor,
+    private val optionsSelectionInteractor: OptionsSelectionInteractor,
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
+    @InjectedParam private val serializedOptionsSelectionUiConfig: String,
 ) : MviViewModel<Event, State, Effect>() {
 
-    override fun setInitialState(): State = State(
-        title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
-        //subtitle = resourceProvider.getLocalizedString(LocalizableKey.ConfirmSelectionTitle),
-        bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Sign),
-        sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
-            bottomSheetTextData = getConfirmCancellationTextData()
-        ),
-        selectedQtspIndex = 0
-    )
+    override fun setInitialState(): State {
+        val deserializedConfig: OptionsSelectionUiConfig = uiSerializer.fromBase64(
+            payload = serializedOptionsSelectionUiConfig,
+            model = OptionsSelectionUiConfig::class.java,
+            parser = OptionsSelectionUiConfig.Parser
+        ) ?: throw RuntimeException("OptionsSelectionUiConfig:: is Missing or invalid")
+
+        return State(
+            title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
+            bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Continue),
+            sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
+                bottomSheetTextData = getConfirmCancellationTextData()
+            ),
+            selectedQtspIndex = 0,
+            selectedCertificateIndex = 0,
+            config = deserializedConfig
+        )
+    }
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.Init -> {
+            is Event.Initialize -> {
                 createFileSelectionItem(event)
-                createQTSPSelectionItem(event)
+
+                when (event.screenSelectionState) {
+                    QTSP_SELECTION_STATE -> {
+                        createQTSPSelectionItem(event)
+                    }
+
+                    CERTIFICATE_SELECTION_STATE -> {
+                        createQTSPSelectionItemOnSelectCertificateStep(event = event)
+                        createCertificateSelectionItem(event = event)
+                    }
+                }
             }
 
             is Event.Pop -> {
@@ -183,11 +233,12 @@ internal class OptionsSelectionViewModel(
             }
 
             is Event.BottomBarButtonPressed -> {
-                getQtsps(event)
+                setEffect { Effect.OpenUrl(uri = event.uri) }
+                setEffect { Effect.Navigation.Finish }
             }
 
             is Event.BottomSheet.QtspSelectedOnDoneButtonPressed -> {
-                val response = selectQtspInteractor.updateQtspUserSelection(event.qtspData)
+                val response = optionsSelectionInteractor.updateQtspUserSelection(event.qtspData)
                 hideBottomSheet()
                 when (response) {
                     is EudiRqesSetSelectedQtspPartialState.Failure -> {
@@ -208,17 +259,10 @@ internal class OptionsSelectionViewModel(
                     }
 
                     is EudiRqesSetSelectedQtspPartialState.Success -> {
-                        setState {
-                            copy(
-                                qtspServiceSelectionItem = qtspServiceSelectionItem?.copy(
-                                    leadingIconTint = ThemeColors.success
-                                )
-                            )
-                        }
-
-                        setEffect {
-                            Effect.OnSelectedQtspUpdated(service = response.service)
-                        }
+                        updateQTSPSelectionItem(
+                            qtspData = event.qtspData,
+                            rqesService = response.service
+                        )
                     }
                 }
             }
@@ -228,11 +272,7 @@ internal class OptionsSelectionViewModel(
             }
 
             is Event.AuthorizeServiceAndFetchCertificates -> {
-                // TODO
-            }
-
-            is Event.RqesServiceSelectionItemPressed -> {
-                getQtsps(event)
+                authorizeServiceAndFetchCertificates(event)
             }
 
             is Event.BottomSheet.CancelQtspSelection -> {
@@ -244,11 +284,59 @@ internal class OptionsSelectionViewModel(
                     copy(selectedQtspIndex = event.index)
                 }
             }
+
+            is Event.RqesServiceSelectionItemPressed -> {
+                getQtsps(event)
+            }
+
+            is Event.CertificateSelectionItemPressed -> {
+                val bottomSheetOptions: List<ModalOptionUi<Event>> =
+                    viewState.value.certificates.mapIndexed { index, certificateData ->
+                        ModalOptionUi(
+                            title = certificateData.name,
+                            trailingIcon = null,
+                            event = Event.BottomSheet.CertificateSelectedOnDoneButtonPressed(
+                                certificateData
+                            ),
+                            radioButtonSelected = index == viewState.value.selectedQtspIndex
+                        )
+                    }
+
+                showBottomSheet(
+                    sheetContent = SelectAndSignBottomSheetContent.SelectCertificate(
+                        bottomSheetTextData = getSelectCertificateTextData(),
+                        options = bottomSheetOptions,
+                        selectedIndex = 0
+                    )
+                )
+            }
+
+            is Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed -> {
+                setState {
+                    copy(selectedCertificateIndex = event.index)
+                }
+            }
+
+            is Event.BottomSheet.CertificateSelectedOnDoneButtonPressed -> {
+                hideBottomSheet()
+                with(viewState.value) {
+                    if (certificates.isNotEmpty() && selectedCertificateIndex >= 0) {
+                        getCertificateAuthorizationUrl(
+                            event,
+                            certificates[selectedCertificateIndex],
+                        )
+                    }
+                }
+            }
+
+            is Event.BottomSheet.CancelCertificateSelection -> {
+                hideBottomSheet()
+            }
         }
     }
 
     private fun createFileSelectionItem(event: Event) {
-        when (val response = selectQtspInteractor.getSelectedFile()) {
+        when (val response = optionsSelectionInteractor.getSelectedFile()) {
             is EudiRqesGetSelectedFilePartialState.Failure -> {
                 setState {
                     copy(
@@ -270,12 +358,14 @@ internal class OptionsSelectionViewModel(
                     copy(
                         documentSelectionItem = SelectionItemUi(
                             documentData = response.file,
+                            qtspData = null,
                             overlineText = resourceProvider.getLocalizedString(LocalizableKey.Document),
                             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
                             action = resourceProvider.getLocalizedString(LocalizableKey.View),
                             leadingIcon = AppIcons.StepOne,
                             leadingIconTint = ThemeColors.success,
-                            trailingIcon = AppIcons.KeyboardArrowRight
+                            trailingIcon = AppIcons.KeyboardArrowRight,
+                            enabled = true
                         )
                     )
                 }
@@ -284,7 +374,7 @@ internal class OptionsSelectionViewModel(
     }
 
     private fun createQTSPSelectionItem(event: Event) {
-        when (val response = selectQtspInteractor.getSelectedFile()) {
+        when (val response = optionsSelectionInteractor.getSelectedFile()) {
             is EudiRqesGetSelectedFilePartialState.Failure -> {
                 setState {
                     copy(
@@ -306,23 +396,125 @@ internal class OptionsSelectionViewModel(
                     copy(
                         qtspServiceSelectionItem = SelectionItemUi(
                             mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
+                            qtspData = null,
                             documentData = null,
                             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
                             action = null,
                             leadingIcon = AppIcons.StepTwo,
-                            trailingIcon = AppIcons.KeyboardArrowRight
+                            trailingIcon = AppIcons.KeyboardArrowRight,
+                            enabled = true
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun createQTSPSelectionItemOnSelectCertificateStep(event: Event) {
+        when (val response = optionsSelectionInteractor.getSelectedFileAndQtsp()) {
+            is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure -> {
+                setState {
+                    copy(
+                        qtspServiceSelectionItem = null,
+                        error = ContentErrorConfig(
+                            onRetry = { setEvent(event) },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Success -> {
+                setState {
+                    copy(
+                        qtspServiceSelectionItem = SelectionItemUi(
+                            overlineText = resourceProvider.getLocalizedString(
+                                LocalizableKey.SigningService
+                            ),
+                            mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
+                            qtspData = response.selectedQtsp,
+                            documentData = null,
+                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
+                            action = null,
+                            leadingIcon = AppIcons.StepTwo,
+                            leadingIconTint = ThemeColors.success,
+                            trailingIcon = AppIcons.KeyboardArrowRight,
+                            enabled = false
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateQTSPSelectionItem(qtspData: QtspData, rqesService: RQESService) {
+        setState {
+            copy(
+                qtspServiceSelectionItem = qtspServiceSelectionItem?.copy(
+                    qtspData = qtspData,
+                    overlineText = resourceProvider.getLocalizedString(
+                        LocalizableKey.SigningService
+                    ),
+                    mainText = qtspData.name,
+                    leadingIconTint = ThemeColors.success
+                )
+            )
+        }
+
+        setEffect {
+            Effect.OnSelectedQtspUpdated(service = rqesService)
+        }
+    }
+
+    private fun createCertificateSelectionItem(event: Event) {
+        when (val response = optionsSelectionInteractor.getSelectedFile()) {
+            is EudiRqesGetSelectedFilePartialState.Failure -> {
+                setState {
+                    copy(
+                        certificateSelectionItem = null,
+                        error = ContentErrorConfig(
+                            onRetry = {
+                                setEvent(Event.DismissError)
+                                setEvent(event)
+                            },
+                            errorSubTitle = response.error.message,
+                            onCancel = {
+                                setEvent(Event.DismissError)
+                                setEffect { Effect.Navigation.Finish }
+                            }
+                        )
+                    )
+                }
+            }
+
+            is EudiRqesGetSelectedFilePartialState.Success -> {
+                setState {
+                    copy(
+                        certificateSelectionItem = SelectionItemUi(
+                            documentData = null,
+                            qtspData = null,
+                            overlineText = resourceProvider.getLocalizedString(LocalizableKey.SigningCertificate),
+                            mainText = null,
+                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
+                            leadingIcon = AppIcons.StepThree,
+                            trailingIcon = AppIcons.KeyboardArrowRight,
+                            enabled = true
                         )
                     )
                 }
                 setEffect {
-                    Effect.OnSelectionItemCreated
+                    Effect.OnCertificateSelectionItemCreated
                 }
             }
         }
     }
 
     private fun getQtsps(event: Event) {
-        when (val response = selectQtspInteractor.getQtsps()) {
+        when (val response = optionsSelectionInteractor.getQtsps()) {
             is EudiRqesGetQtspsPartialState.Failure -> {
                 setState {
                     copy(
@@ -366,10 +558,9 @@ internal class OptionsSelectionViewModel(
         }
 
         viewModelScope.launch {
-            val response = selectQtspInteractor.getServiceAuthorizationUrl(
+            val response = optionsSelectionInteractor.getServiceAuthorizationUrl(
                 rqesService = service
             )
-
             when (response) {
                 is EudiRqesGetServiceAuthorizationUrlPartialState.Failure -> {
                     setState {
@@ -397,6 +588,102 @@ internal class OptionsSelectionViewModel(
                     setEffect { Effect.Navigation.Finish }
                 }
             }
+        }
+    }
+
+    private fun authorizeServiceAndFetchCertificates(event: Event) {
+        setState { copy(isLoading = true) }
+
+        viewModelScope.launch {
+            val response = optionsSelectionInteractor.authorizeServiceAndFetchCertificates()
+            when (response) {
+                is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure -> {
+                    setState {
+                        copy(
+                            certificates = emptyList(),
+                            error = ContentErrorConfig(
+                                onRetry = {
+                                    setEvent(Event.DismissError)
+                                    setEvent(event)
+                                },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    setEffect { Effect.Navigation.Finish }
+                                }
+                            ),
+                            isLoading = false,
+                        )
+                    }
+                }
+
+                is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Success -> {
+                    setState {
+                        copy(
+                            certificates = response.certificates,
+                            isLoading = false,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getCertificateAuthorizationUrl(
+        event: Event,
+        certificateData: CertificateData
+    ) {
+        setState { copy(isLoading = true) }
+
+        viewModelScope.launch {
+            val response = optionsSelectionInteractor.getCredentialAuthorizationUrl(
+                certificateData = certificateData,
+            )
+            when (response) {
+                is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure -> {
+                    setState {
+                        copy(
+                            error = ContentErrorConfig(
+                                onRetry = {
+                                    setEvent(Event.DismissError)
+                                    setEvent(event)
+                                },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                }
+                            ),
+                            isLoading = false,
+                        )
+                    }
+                }
+
+                is EudiRqesGetCredentialAuthorizationUrlPartialState.Success -> {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            authorizationUri = response.authorizationUrl,
+                            isContinueButtonVisible = true
+                        )
+                    }
+                    updateCertificateSelectionItem(certificateData = certificateData)
+                }
+            }
+        }
+    }
+
+    private fun updateCertificateSelectionItem(certificateData: CertificateData) {
+        setState {
+            copy(
+                certificateSelectionItem = certificateSelectionItem?.copy(
+                    overlineText = resourceProvider.getLocalizedString(
+                        LocalizableKey.SigningCertificate
+                    ),
+                    mainText = certificateData.name,
+                    leadingIconTint = ThemeColors.success,
+                    enabled = false
+                )
+            )
         }
     }
 
@@ -433,6 +720,15 @@ internal class OptionsSelectionViewModel(
         return BottomSheetTextData(
             title = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceTitle),
             message = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceSubtitle),
+            positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.Done),
+            negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.Cancel),
+        )
+    }
+
+    private fun getSelectCertificateTextData(): BottomSheetTextData {
+        return BottomSheetTextData(
+            title = resourceProvider.getLocalizedString(LocalizableKey.SigningCertificates),
+            message = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateSubtitle),
             positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.Done),
             negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.Cancel),
         )

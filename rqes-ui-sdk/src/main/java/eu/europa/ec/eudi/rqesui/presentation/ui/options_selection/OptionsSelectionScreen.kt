@@ -39,6 +39,7 @@ import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
@@ -83,18 +84,20 @@ internal fun OptionsSelectionScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
-            AnimatedVisibility(visible = state.isContinueButtonVisible) {
-                WrapBottomBarSecondaryButton(
-                    stickyBottomContentModifier = Modifier
-                        .fillMaxWidth()
-                        .padding(paddingValues),
-                    buttonText = state.bottomBarButtonText,
-                    onButtonClick = {
-                        viewModel.setEvent(
-                            Event.BottomBarButtonPressed
-                        )
-                    }
-                )
+            if (state.isContinueButtonVisible) {
+                state.authorizationUri?.let { safeUri ->
+                    WrapBottomBarSecondaryButton(
+                        stickyBottomContentModifier = Modifier
+                            .fillMaxWidth()
+                            .padding(paddingValues),
+                        buttonText = state.bottomBarButtonText,
+                        onButtonClick = {
+                            viewModel.setEvent(
+                                Event.BottomBarButtonPressed(uri = safeUri)
+                            )
+                        }
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -119,9 +122,10 @@ internal fun OptionsSelectionScreen(
                 },
                 sheetState = bottomSheetState
             ) {
-                SelectQtspSheetContent(
+                OptionsSelectionSheetContent(
                     sheetContent = state.sheetContent,
                     selectedQtspIndex = state.selectedQtspIndex,
+                    selectedCertificateIndex = state.selectedCertificateIndex,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
                     }
@@ -131,7 +135,11 @@ internal fun OptionsSelectionScreen(
     }
 
     OneTimeLaunchedEffect {
-        viewModel.setEvent(Event.Init)
+        viewModel.setEvent(
+            Event.Initialize(
+                screenSelectionState = state.config.optionsSelectionScreenState
+            )
+        )
     }
 }
 
@@ -186,17 +194,36 @@ private fun Content(
 
         state.qtspServiceSelectionItem?.let { safeSelectionItem ->
             ListDivider()
-
             SelectionItem(
                 modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
                 data = safeSelectionItem,
                 leadingIconTint = safeSelectionItem.leadingIconTint,
                 onClick = {
-                    onEventSend(
-                        Event.RqesServiceSelectionItemPressed
-                    )
+                    if (safeSelectionItem.enabled) {
+                        onEventSend(
+                            Event.RqesServiceSelectionItemPressed
+                        )
+                    }
                 }
             )
+        }
+
+        AnimatedVisibility(visible = state.certificates.isNotEmpty()) {
+            state.certificateSelectionItem?.let { safeSelectionItem ->
+                ListDivider()
+                SelectionItem(
+                    modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
+                    data = safeSelectionItem,
+                    leadingIconTint = safeSelectionItem.leadingIconTint,
+                    onClick = {
+                        if (safeSelectionItem.enabled) {
+                            onEventSend(
+                                Event.CertificateSelectionItemPressed
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -224,10 +251,12 @@ private fun Content(
                 }
 
                 is Effect.OnSelectedQtspUpdated -> {
-                    onEventSend(Event.FetchServiceAuthorizationUrl(service = effect.service))
+                    onEventSend(
+                        Event.FetchServiceAuthorizationUrl(service = effect.service)
+                    )
                 }
 
-                is Effect.OnSelectionItemCreated -> {
+                is Effect.OnCertificateSelectionItemCreated -> {
                     onEventSend(Event.AuthorizeServiceAndFetchCertificates)
                 }
             }
@@ -236,10 +265,11 @@ private fun Content(
 }
 
 @Composable
-private fun SelectQtspSheetContent(
+private fun OptionsSelectionSheetContent(
     sheetContent: SelectAndSignBottomSheetContent,
     onEventSent: (event: Event) -> Unit,
-    selectedQtspIndex: Int
+    selectedQtspIndex: Int,
+    selectedCertificateIndex: Int
 ) {
     when (sheetContent) {
         is SelectAndSignBottomSheetContent.ConfirmCancellation -> {
@@ -279,6 +309,32 @@ private fun SelectQtspSheetContent(
                 }
             )
         }
+
+        is SelectAndSignBottomSheetContent.SelectCertificate -> {
+            BottomSheetWithOptionsList(
+                textData = sheetContent.bottomSheetTextData,
+                options = sheetContent.options,
+                onIndexSelected = { selectedIndex ->
+                    onEventSent(
+                        Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed(
+                            index = selectedIndex
+                        )
+                    )
+                },
+                onPositiveClick = {
+                    if (selectedCertificateIndex < sheetContent.options.size) {
+                        onEventSent(
+                            sheetContent.options[selectedCertificateIndex].event
+                        )
+                    }
+                },
+                onNegativeClick = {
+                    onEventSent(
+                        Event.BottomSheet.CancelCertificateSelection
+                    )
+                }
+            )
+        }
     }
 }
 
@@ -286,7 +342,8 @@ private fun SelectQtspSheetContent(
 private fun ListDivider() {
     HorizontalDivider(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = SPACING_LARGE.dp),
         color = MaterialTheme.colorScheme.outlineVariant
     )
 }
@@ -305,6 +362,8 @@ private fun OptionsSelectionScreenContentPreview() {
                         uri = "".toUri()
                     ),
                     action = "VIEW",
+                    qtspData = null,
+                    enabled = true
                 ),
                 sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
                     bottomSheetTextData = BottomSheetTextData(
@@ -313,7 +372,11 @@ private fun OptionsSelectionScreenContentPreview() {
                     )
                 ),
                 bottomBarButtonText = "Sign",
-                selectedQtspIndex = 0
+                selectedQtspIndex = 0,
+                selectedCertificateIndex = 0,
+                config = OptionsSelectionUiConfig(
+                    optionsSelectionScreenState = QTSP_SELECTION_STATE,
+                ),
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

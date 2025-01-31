@@ -18,10 +18,12 @@ package eu.europa.ec.eudi.rqesui.presentation.entities
 
 import androidx.compose.ui.graphics.Color
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.IconData
 
 internal data class SelectionItemUi(
     val documentData: DocumentData?,
+    val qtspData: QtspData?,
 
     val overlineText: String? = null,
     val mainText: String? = null,
@@ -31,4 +33,5 @@ internal data class SelectionItemUi(
     val leadingIconTint: Color? = null,
     val trailingIcon: IconData? = null,
     val trailingIconTint: Color? = null,
+    val enabled: Boolean = true
 )

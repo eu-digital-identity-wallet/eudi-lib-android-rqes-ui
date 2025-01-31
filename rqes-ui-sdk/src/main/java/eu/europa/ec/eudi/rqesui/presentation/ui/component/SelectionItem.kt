@@ -114,9 +114,7 @@ internal fun SelectionItem(
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -160,6 +158,8 @@ private fun SelectionItemWithNoSubtitlePreview(
                     uri = "test".toUri()
                 ),
                 action = "VIEW",
+                qtspData = null,
+                enabled = true
             ),
             onClick = {}
         )
@@ -179,10 +179,12 @@ private fun SelectionItemWithSubtitlePreview(
                     documentName = text,
                     uri = "test".toUri()
                 ),
+                qtspData = null,
                 subtitle = text,
                 action = "VIEW",
                 leadingIcon = AppIcons.StepOne,
-                trailingIcon = AppIcons.KeyboardArrowRight
+                trailingIcon = AppIcons.KeyboardArrowRight,
+                enabled = true
             ),
             onClick = {}
         )

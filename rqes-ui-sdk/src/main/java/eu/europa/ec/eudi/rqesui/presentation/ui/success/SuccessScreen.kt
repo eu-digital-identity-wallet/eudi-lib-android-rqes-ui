@@ -294,6 +294,7 @@ private fun SuccessScreenPreview() {
                     ),
                     subtitle = "Signed by: Entrust",
                     action = "View",
+                    qtspData = null,
                 ),
                 bottomBarButtonText = "Close",
                 sheetContent = SuccessBottomSheetContent.ShareDocument(

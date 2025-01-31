@@ -16,6 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
+/*
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
@@ -115,3 +116,4 @@ class TestSelectQtspInteractor {
         }
     //endregion
 }
+*/

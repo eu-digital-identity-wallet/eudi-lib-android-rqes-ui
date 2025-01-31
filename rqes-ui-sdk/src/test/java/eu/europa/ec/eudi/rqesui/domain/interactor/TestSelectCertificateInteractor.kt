@@ -16,6 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
+/*
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
@@ -386,4 +387,4 @@ class TestSelectCertificateInteractor {
     }
     //endregion
 }
-
+*/

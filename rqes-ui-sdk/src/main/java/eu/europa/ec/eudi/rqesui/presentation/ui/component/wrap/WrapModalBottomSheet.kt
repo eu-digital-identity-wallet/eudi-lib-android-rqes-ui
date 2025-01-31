@@ -228,7 +228,6 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                         textData.negativeButtonText
                     ) { positiveButtonText, negativeButtonText ->
                         Row(
-                            modifier = Modifier.padding(vertical = SPACING_EXTRA_SMALL.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             WrapSecondaryButton(

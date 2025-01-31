@@ -104,4 +104,10 @@ internal object AppIcons {
         contentDescriptionId = R.string.content_description_selection_step_icon,
         imageVector = null
     )
+
+    val StepThree: IconData = IconData(
+        resourceId = R.drawable.ic_step_three,
+        contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
+    )
 }

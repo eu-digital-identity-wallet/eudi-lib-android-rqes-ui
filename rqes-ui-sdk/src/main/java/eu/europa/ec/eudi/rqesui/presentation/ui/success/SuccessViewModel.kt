@@ -257,6 +257,7 @@ internal class SuccessViewModel(
                             listOf(qtspName)
                         ),
                         action = resourceProvider.getLocalizedString(LocalizableKey.View),
+                        qtspData = null
                     )
 
                     setState {
