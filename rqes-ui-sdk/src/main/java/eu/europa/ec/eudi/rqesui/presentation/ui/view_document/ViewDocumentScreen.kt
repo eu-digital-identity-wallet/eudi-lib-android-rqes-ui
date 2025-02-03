@@ -25,9 +25,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.github.barteksc.pdfviewer.PDFView
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
@@ -53,7 +55,7 @@ internal fun ViewDocumentScreen(
     navController: NavController,
     viewModel: ViewDocumentViewModel,
 ) {
-    val state = viewModel.viewState.value
+    val state: State by viewModel.viewState.collectAsStateWithLifecycle()
 
     ContentScreen(
         isLoading = state.isLoading,
