@@ -23,4 +23,6 @@
     <string name="content_description_more_vert_icon">More Items</string>
     <string name="content_description_arrow_right_icon">Next</string>
     <string name="content_description_selection_step_icon">Selection step</string>
+    <string name="content_description_logo_plain_icon">Plain Logo icon</string>
+    <string name="content_description_logo_text_icon">Text Logo icon</string>
 </resources>

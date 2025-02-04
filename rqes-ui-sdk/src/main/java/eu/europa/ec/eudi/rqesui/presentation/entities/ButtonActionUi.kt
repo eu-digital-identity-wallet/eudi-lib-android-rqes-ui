@@ -16,22 +16,9 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.entities
 
-import androidx.compose.ui.graphics.Color
-import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.IconData
+import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 
-internal data class SelectionItemUi(
-    val documentData: DocumentData?,
-    val qtspData: QtspData?,
-
-    val overlineText: String? = null,
-    val mainText: String? = null,
-    val subtitle: String? = null,
-    val action: String? = null,
-    val leadingIcon: IconData? = null,
-    val leadingIconTint: Color? = null,
-    val trailingIcon: IconData? = null,
-    val trailingIconTint: Color? = null,
-    val enabled: Boolean = true
+internal data class ButtonActionUi<T : ViewEvent>(
+    val buttonText: String,
+    val event: T
 )

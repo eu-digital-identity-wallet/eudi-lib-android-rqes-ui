@@ -44,6 +44,7 @@ enum class LocalizableKey {
     SigningCertificates,
     Success,
     SuccessfullySignedDocument,
+    SuccessDescription,
     SignedBy,
     View,
     Close,
@@ -90,6 +91,7 @@ enum class LocalizableKey {
             SelectCertificateSubtitle -> "The signing certificate is used to verify your identity and is linked to your electronic signature."
             Success -> "Success!"
             SuccessfullySignedDocument -> "You successfully signed your document"
+            SuccessDescription -> "You have successfully signed your document."
             SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"
             View -> "VIEW"
             Close -> "Close"

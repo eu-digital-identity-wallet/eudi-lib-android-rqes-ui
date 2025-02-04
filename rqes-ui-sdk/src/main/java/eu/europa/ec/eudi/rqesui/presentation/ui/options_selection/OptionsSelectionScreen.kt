@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -40,10 +42,12 @@ import androidx.navigation.NavController
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.ButtonActionUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
@@ -86,16 +90,16 @@ internal fun OptionsSelectionScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
-            if (state.isContinueButtonVisible) {
-                state.authorizationUri?.let { safeUri ->
+            if (state.isBottomBarButtonVisible) {
+                state.bottomBarButtonAction?.let { safeButtonAction ->
                     WrapBottomBarSecondaryButton(
                         stickyBottomContentModifier = Modifier
                             .fillMaxWidth()
                             .padding(paddingValues),
-                        buttonText = state.bottomBarButtonText,
+                        buttonText = safeButtonAction.buttonText,
                         onButtonClick = {
                             viewModel.setEvent(
-                                Event.BottomBarButtonPressed(uri = safeUri)
+                                safeButtonAction.event
                             )
                         }
                     )
@@ -126,8 +130,7 @@ internal fun OptionsSelectionScreen(
             ) {
                 OptionsSelectionSheetContent(
                     sheetContent = state.sheetContent,
-                    selectedQtspIndex = state.selectedQtspIndex,
-                    selectedCertificateIndex = state.selectedCertificateIndex,
+                    state = state,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
                     }
@@ -157,10 +160,12 @@ private fun Content(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(
                 start = 0.dp,
                 end = 0.dp,
@@ -178,17 +183,14 @@ private fun Content(
 
         safeLet(
             state.documentSelectionItem,
-            state.documentSelectionItem?.documentData
-        ) { safeSelectionItem, documentData ->
+            state.documentSelectionItem?.event
+        ) { safeSelectionItem, selectionItemEvent ->
             SelectionItem(
                 modifier = Modifier.fillMaxWidth(),
-                data = safeSelectionItem,
-                leadingIconTint = safeSelectionItem.leadingIconTint,
+                selectionItemData = safeSelectionItem,
                 onClick = {
                     onEventSend(
-                        Event.ViewDocument(
-                            documentData = documentData
-                        )
+                        selectionItemEvent
                     )
                 }
             )
@@ -198,31 +200,27 @@ private fun Content(
             ListDivider()
             SelectionItem(
                 modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
-                data = safeSelectionItem,
-                leadingIconTint = safeSelectionItem.leadingIconTint,
+                selectionItemData = safeSelectionItem,
+                enabled = safeSelectionItem.enabled,
                 onClick = {
-                    if (safeSelectionItem.enabled) {
-                        onEventSend(
-                            Event.RqesServiceSelectionItemPressed
-                        )
-                    }
+                    onEventSend(
+                        Event.RqesServiceSelectionItemPressed
+                    )
                 }
             )
         }
 
-        AnimatedVisibility(visible = state.certificates.isNotEmpty()) {
+        AnimatedVisibility(visible = state.certificateDataList.isNotEmpty()) {
             state.certificateSelectionItem?.let { safeSelectionItem ->
                 ListDivider()
                 SelectionItem(
                     modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
-                    data = safeSelectionItem,
-                    leadingIconTint = safeSelectionItem.leadingIconTint,
+                    selectionItemData = safeSelectionItem,
+                    enabled = safeSelectionItem.enabled,
                     onClick = {
-                        if (safeSelectionItem.enabled) {
-                            onEventSend(
-                                Event.CertificateSelectionItemPressed
-                            )
-                        }
+                        onEventSend(
+                            Event.CertificateSelectionItemPressed
+                        )
                     }
                 )
             }
@@ -268,13 +266,12 @@ private fun Content(
 
 @Composable
 private fun OptionsSelectionSheetContent(
-    sheetContent: SelectAndSignBottomSheetContent,
+    sheetContent: OptionsSelectionBottomSheetContent,
+    state: State,
     onEventSent: (event: Event) -> Unit,
-    selectedQtspIndex: Int,
-    selectedCertificateIndex: Int
 ) {
     when (sheetContent) {
-        is SelectAndSignBottomSheetContent.ConfirmCancellation -> {
+        is OptionsSelectionBottomSheetContent.ConfirmCancellation -> {
             DialogBottomSheet(
                 textData = sheetContent.bottomSheetTextData,
                 onPositiveClick = {
@@ -286,7 +283,7 @@ private fun OptionsSelectionSheetContent(
             )
         }
 
-        is SelectAndSignBottomSheetContent.SelectQTSP -> {
+        is OptionsSelectionBottomSheetContent.SelectQTSP -> {
             BottomSheetWithOptionsList(
                 textData = sheetContent.bottomSheetTextData,
                 options = sheetContent.options,
@@ -298,10 +295,8 @@ private fun OptionsSelectionSheetContent(
                     )
                 },
                 onPositiveClick = {
-                    if (selectedQtspIndex < sheetContent.options.size) {
-                        onEventSent(
-                            sheetContent.options[selectedQtspIndex].event
-                        )
+                    sheetContent.options.getOrNull(state.selectedQtspIndex)?.let { safeOption ->
+                        onEventSent(safeOption.event)
                     }
                 },
                 onNegativeClick = {
@@ -312,7 +307,7 @@ private fun OptionsSelectionSheetContent(
             )
         }
 
-        is SelectAndSignBottomSheetContent.SelectCertificate -> {
+        is OptionsSelectionBottomSheetContent.SelectCertificate -> {
             BottomSheetWithOptionsList(
                 textData = sheetContent.bottomSheetTextData,
                 options = sheetContent.options,
@@ -324,11 +319,10 @@ private fun OptionsSelectionSheetContent(
                     )
                 },
                 onPositiveClick = {
-                    if (selectedCertificateIndex < sheetContent.options.size) {
-                        onEventSent(
-                            sheetContent.options[selectedCertificateIndex].event
-                        )
-                    }
+                    sheetContent.options
+                        .getOrNull(state.selectedCertificateIndex)?.let { safeOption ->
+                            onEventSent(safeOption.event)
+                        }
                 },
                 onNegativeClick = {
                     onEventSent(
@@ -350,6 +344,13 @@ private fun ListDivider() {
     )
 }
 
+private val DummyEventForPreview = Event.ViewDocumentItemPressed(
+    documentData = DocumentData(
+        documentName = "File_to_be_signed.pdf",
+        uri = "mockedUri".toUri()
+    )
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
@@ -357,23 +358,26 @@ private fun OptionsSelectionScreenContentPreview() {
     PreviewTheme {
         Content(
             state = State(
-                title = "Sign a document",
-                documentSelectionItem = SelectionItemUi(
-                    documentData = DocumentData(
-                        documentName = "Document name.PDF",
-                        uri = "".toUri()
-                    ),
-                    action = "VIEW",
-                    qtspData = null,
-                    enabled = true
+                title = "Sign document",
+                documentSelectionItem = SelectionOptionUi(
+                    actionText = "VIEW",
+                    overlineText = "Document",
+                    mainText = "File_to_be_signed.pdf",
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    subtitle = "Choose a document from your device to sign electronically.",
+                    enabled = true,
+                    event = DummyEventForPreview
                 ),
-                sheetContent = SelectAndSignBottomSheetContent.ConfirmCancellation(
+                sheetContent = OptionsSelectionBottomSheetContent.ConfirmCancellation(
                     bottomSheetTextData = BottomSheetTextData(
                         title = "title",
                         message = "message",
                     )
                 ),
-                bottomBarButtonText = "Sign",
+                bottomBarButtonAction = ButtonActionUi(
+                    buttonText = "Continue",
+                    event = Event.BottomBarButtonPressed(uri = "mockedUri".toUri())
+                ),
                 selectedQtspIndex = 0,
                 selectedCertificateIndex = 0,
                 config = OptionsSelectionUiConfig(

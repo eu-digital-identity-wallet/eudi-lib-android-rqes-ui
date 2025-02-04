@@ -82,7 +82,7 @@ internal object AppIcons {
     )
 
     val Verified: IconData = IconData(
-        resourceId = R.drawable.ic_verified,
+        resourceId = R.drawable.ic_rqes_verified,
         contentDescriptionId = R.string.content_description_verified_icon,
         imageVector = null
     )
@@ -108,6 +108,18 @@ internal object AppIcons {
     val StepThree: IconData = IconData(
         resourceId = R.drawable.ic_step_three,
         contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
+    )
+
+    val LogoPlain: IconData = IconData(
+        resourceId = R.drawable.ic_logo_plain,
+        contentDescriptionId = R.string.content_description_logo_plain_icon,
+        imageVector = null
+    )
+
+    val LogoText: IconData = IconData(
+        resourceId = R.drawable.ic_logo_text,
+        contentDescriptionId = R.string.content_description_logo_text_icon,
         imageVector = null
     )
 }

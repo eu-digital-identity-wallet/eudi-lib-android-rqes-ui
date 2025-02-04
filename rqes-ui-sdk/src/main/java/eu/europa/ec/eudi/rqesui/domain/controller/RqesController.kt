@@ -37,6 +37,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.toCertificatesData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
@@ -78,6 +79,7 @@ internal interface RqesController {
 internal class RqesControllerImpl(
     private val eudiRQESUi: EudiRQESUi,
     private val resourceProvider: ResourceProvider,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : RqesController {
 
     private val genericErrorMsg
@@ -164,7 +166,7 @@ internal class RqesControllerImpl(
     }
 
     override suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 val authorizationUrl = rqesService.getServiceAuthorizationUrl()
                     .getOrThrow()
@@ -181,7 +183,7 @@ internal class RqesControllerImpl(
     }
 
     override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 safeLet(
                     eudiRQESUi.getRqesService(),
@@ -216,7 +218,7 @@ internal class RqesControllerImpl(
     }
 
     override suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 val certificates = authorizedService.listCredentials()
                     .getOrThrow()
@@ -251,7 +253,7 @@ internal class RqesControllerImpl(
         authorizedService: Authorized,
         certificateData: CertificateData
     ): EudiRqesGetCredentialAuthorizationUrlPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 eudiRQESUi.getSessionData().file?.let { safeSelectedFile ->
 
@@ -295,7 +297,7 @@ internal class RqesControllerImpl(
     }
 
     override suspend fun authorizeCredential(): EudiRqesAuthorizeCredentialPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 safeLet(
                     getAuthorizedService(),
@@ -323,7 +325,7 @@ internal class RqesControllerImpl(
     }
 
     override suspend fun signDocuments(authorizedCredential: RQESService.CredentialAuthorized): EudiRqesSignDocumentsPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 val signedDocuments = authorizedCredential.signDocuments().getOrThrow()
                 EudiRqesSignDocumentsPartialState.Success(signedDocuments = signedDocuments)
@@ -341,7 +343,7 @@ internal class RqesControllerImpl(
         originalDocumentName: String,
         signedDocuments: SignedDocuments,
     ): EudiRqesSaveSignedDocumentsPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 val uris = mutableListOf<Uri>()
 
