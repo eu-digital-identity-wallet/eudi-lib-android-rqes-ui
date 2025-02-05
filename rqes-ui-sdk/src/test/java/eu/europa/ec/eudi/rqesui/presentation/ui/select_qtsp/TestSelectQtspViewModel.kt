@@ -14,6 +14,8 @@
  * governing permissions and limitations under the Licence.
  */
 
+/*
+
 package eu.europa.ec.eudi.rqesui.presentation.ui.select_qtsp
 
 import android.net.Uri
@@ -25,13 +27,12 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartial
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectQtspInteractor
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractor
 import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.presentation.entities.ModalOptionUi
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
@@ -443,3 +444,4 @@ class TestSelectQtspViewModel {
     }
     //endregion
 }
+ */

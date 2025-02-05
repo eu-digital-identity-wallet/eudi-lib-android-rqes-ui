@@ -14,15 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
+/**
 package eu.europa.ec.eudi.rqesui.presentation.ui.select_certificate
+
 
 import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectCertificateInteractor
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
@@ -327,3 +327,4 @@ class TestSelectCertificateViewModel {
     }
     //endregion
 }
+ */

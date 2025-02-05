@@ -14,6 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
+/*
 package eu.europa.ec.eudi.rqesui.presentation.ui.success
 
 import android.net.Uri
@@ -27,7 +28,6 @@ import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
@@ -420,3 +420,4 @@ class TestSuccessViewModel {
     }
     //endregion
 }
+*/
