@@ -87,6 +87,12 @@ internal object AppIcons {
         imageVector = null
     )
 
+    val VerifiedBadge: IconData = IconData(
+        resourceId = R.drawable.ic_verified_badge,
+        contentDescriptionId = R.string.content_description_verified_icon,
+        imageVector = null
+    )
+
     val VerticalMore: IconData = IconData(
         resourceId = null,
         contentDescriptionId = R.string.content_description_more_vert_icon,

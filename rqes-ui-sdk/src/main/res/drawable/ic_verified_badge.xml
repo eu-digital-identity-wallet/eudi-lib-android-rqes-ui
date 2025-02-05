@@ -1,0 +1,25 @@
+<!--
+  ~ Copyright (c) 2023 European Commission
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+  ~ Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+  ~ except in compliance with the Licence.
+  ~
+  ~ You may obtain a copy of the Licence at:
+  ~ https://joinup.ec.europa.eu/software/page/eupl
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+  ~ ANY KIND, either express or implied. See the Licence for the specific language
+  ~ governing permissions and limitations under the Licence.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="17dp"
+    android:viewportWidth="16"
+    android:viewportHeight="17">
+    <path
+        android:fillColor="#55953B"
+        android:pathData="M7.991,0.259C9.116,0.259 10.116,0.915 10.616,1.884C11.648,1.54 12.835,1.79 13.648,2.603C14.46,3.415 14.71,4.603 14.366,5.634C15.335,6.134 15.991,7.134 15.991,8.259C15.991,9.415 15.335,10.415 14.366,10.915C14.71,11.946 14.46,13.102 13.648,13.915C12.835,14.727 11.648,14.977 10.616,14.665C10.116,15.634 9.116,16.259 7.991,16.259C6.835,16.259 5.835,15.634 5.335,14.665C4.304,14.977 3.147,14.727 2.335,13.915C1.522,13.102 1.272,11.946 1.585,10.915C0.616,10.415 -0.009,9.415 -0.009,8.259C-0.009,7.134 0.616,6.134 1.585,5.634C1.272,4.603 1.522,3.415 2.335,2.603C3.147,1.79 4.304,1.54 5.335,1.884C5.835,0.915 6.835,0.259 7.991,0.259ZM11.023,7.29C11.304,7.009 11.304,6.54 11.023,6.259C10.71,5.946 10.241,5.946 9.96,6.259L6.991,9.228L5.772,8.009C5.46,7.696 4.991,7.696 4.71,8.009C4.397,8.29 4.397,8.759 4.71,9.04L6.46,10.79C6.741,11.102 7.21,11.102 7.522,10.79L11.023,7.29Z" />
+</vector>

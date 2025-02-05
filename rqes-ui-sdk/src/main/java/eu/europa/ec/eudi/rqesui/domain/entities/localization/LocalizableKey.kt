@@ -28,14 +28,10 @@ enum class LocalizableKey {
     CancelSignProcessPrimaryText,
     SelectDocumentTitle,
     SelectDocumentSubtitle,
-    SelectDocument,
-    Document,
-    ConfirmSelectionTitle,
     SelectSigningService,
     SelectSigningServiceSubtitle,
     SelectServiceTitle,
     SelectServiceSubtitle,
-    SelectCertificateTitle,
     SelectCertificateSubtitle,
     SelectSigningCertificateTitle,
     SelectSigningCertificateSubtitle,
@@ -45,15 +41,12 @@ enum class LocalizableKey {
     Success,
     SuccessfullySignedDocument,
     SuccessDescription,
-    SignedBy,
     View,
     Close,
     Cancel,
     Continue,
     Done,
-    Save,
     Share,
-    Sign,
     SharingDocument,
     CloseSharingMessage,
     GenericErrorButtonRetry,
@@ -76,31 +69,24 @@ enum class LocalizableKey {
             CancelSignProcessSubtitle -> "Cancel will redirect you back to the documents list without signing your document"
             CancelSignProcessSecondaryText -> "Cancel signing"
             CancelSignProcessPrimaryText -> "Continue signing"
-            SelectDocumentTitle -> "Select a document from your device to sign electronically."
+            SelectDocumentTitle -> "Document"
             SelectDocumentSubtitle -> "Choose a document from your device to sign electronically."
-            SelectDocument -> "Select document"
-            Document -> "Document"
             SigningService -> "Signing service"
-            ConfirmSelectionTitle -> "Please confirm signing of the following"
             SelectSigningService -> "Select signing service"
             SelectSigningServiceSubtitle -> "Remote Signing Service enables secure online document signing."
             SelectServiceTitle -> "Signing services"
             SelectServiceSubtitle -> "Select the Signing Service that will be used to issue a digital certificate"
-            SelectCertificateTitle -> "You have chosen to sign the following document:"
             SelectSigningCertificateTitle -> "Select signing certificate"
             SelectCertificateSubtitle -> "The signing certificate is used to verify your identity and is linked to your electronic signature."
             Success -> "Success!"
             SuccessfullySignedDocument -> "You successfully signed your document"
             SuccessDescription -> "You have successfully signed your document."
-            SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"
             View -> "VIEW"
             Close -> "Close"
             Cancel -> "Cancel"
             Continue -> "Continue"
             Done -> "Done"
-            Save -> "Save"
             Share -> "Share"
-            Sign -> "Sign"
             SharingDocument -> "Sharing document?"
             CloseSharingMessage -> "Closing will redirect you back to the dashboard without saving or sharing the document."
             GenericErrorButtonRetry -> "TRY AGAIN"

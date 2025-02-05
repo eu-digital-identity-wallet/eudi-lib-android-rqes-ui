@@ -69,7 +69,7 @@ fun RelyingParty(
                 if (isVerified) {
                     WrapIcon(
                         modifier = Modifier.size(20.dp),
-                        iconData = AppIcons.Verified,
+                        iconData = AppIcons.VerifiedBadge,
                         customTint = MaterialTheme.colorScheme.success,
                     )
                 }

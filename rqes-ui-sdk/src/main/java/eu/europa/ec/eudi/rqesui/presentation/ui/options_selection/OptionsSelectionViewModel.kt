@@ -351,7 +351,7 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(
                         documentSelectionItem = SelectionOptionUi(
-                            overlineText = resourceProvider.getLocalizedString(LocalizableKey.Document),
+                            overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
                             mainText = response.file.documentName,
                             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
                             actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
@@ -492,8 +492,8 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(
                         certificateSelectionItem = SelectionOptionUi(
-                            overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateTitle),
-                            mainText = null,
+                            overlineText = null,
+                            mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateTitle),
                             subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
                             leadingIcon = AppIcons.StepThree,
                             trailingIcon = AppIcons.KeyboardArrowRight,

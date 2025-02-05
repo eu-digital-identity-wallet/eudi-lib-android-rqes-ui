@@ -19,7 +19,6 @@ package eu.europa.ec.eudi.testrqes
 import android.app.Application
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
@@ -63,7 +62,6 @@ private class DefaultConfig : EudiRQESUiConfig {
             return mapOf(
                 "en" to mapOf(
                     LocalizableKey.View to "VIEW",
-                    LocalizableKey.SignedBy to "Signed by: $ARGUMENTS_SEPARATOR",
                 )
             )
         }
