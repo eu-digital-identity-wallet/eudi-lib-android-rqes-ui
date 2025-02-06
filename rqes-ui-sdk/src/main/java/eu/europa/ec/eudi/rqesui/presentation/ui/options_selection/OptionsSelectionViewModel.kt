@@ -27,7 +27,7 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartial
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState
-import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorGetSelectedFileAndQtspPartialState
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorGetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
@@ -182,7 +182,7 @@ internal class OptionsSelectionViewModel(
 
                     CERTIFICATE_SELECTION_STATE -> {
                         createQTSPSelectionItemOnSelectCertificateStep(event = event)
-                        createCertificateSelectionItemOnSelectCertificateStep(event = event)
+                        createCertificateSelectionItemOnSelectCertificateStep()
                     }
                 }
             }
@@ -333,7 +333,6 @@ internal class OptionsSelectionViewModel(
             is EudiRqesGetSelectedFilePartialState.Failure -> {
                 setState {
                     copy(
-                        documentSelectionItem = null,
                         error = ContentErrorConfig(
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
@@ -373,7 +372,6 @@ internal class OptionsSelectionViewModel(
             is EudiRqesGetSelectedFilePartialState.Failure -> {
                 setState {
                     copy(
-                        qtspServiceSelectionItem = null,
                         error = ContentErrorConfig(
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
@@ -406,11 +404,10 @@ internal class OptionsSelectionViewModel(
     }
 
     private fun createQTSPSelectionItemOnSelectCertificateStep(event: Event) {
-        when (val response = optionsSelectionInteractor.getSelectedFileAndQtsp()) {
-            is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure -> {
+        when (val response = optionsSelectionInteractor.getSelectedQtsp()) {
+            is OptionsSelectionInteractorGetSelectedQtspPartialState.Failure -> {
                 setState {
                     copy(
-                        qtspServiceSelectionItem = null,
                         error = ContentErrorConfig(
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
@@ -423,7 +420,7 @@ internal class OptionsSelectionViewModel(
                 }
             }
 
-            is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Success -> {
+            is OptionsSelectionInteractorGetSelectedQtspPartialState.Success -> {
                 setState {
                     copy(
                         qtspServiceSelectionItem = SelectionOptionUi(
@@ -466,45 +463,22 @@ internal class OptionsSelectionViewModel(
         }
     }
 
-    private fun createCertificateSelectionItemOnSelectCertificateStep(event: Event) {
-        when (val response = optionsSelectionInteractor.getSelectedFile()) {
-            is EudiRqesGetSelectedFilePartialState.Failure -> {
-                setState {
-                    copy(
-                        certificateSelectionItem = null,
-                        error = ContentErrorConfig(
-                            onRetry = {
-                                setEvent(Event.DismissError)
-                                setEvent(event)
-                            },
-                            errorSubTitle = response.error.message,
-                            onCancel = {
-                                setEvent(Event.DismissError)
-                                setEffect { Effect.Navigation.Finish }
-                            }
-                        )
-                    )
-                }
-            }
-
-            is EudiRqesGetSelectedFilePartialState.Success -> {
-                setState {
-                    copy(
-                        certificateSelectionItem = SelectionOptionUi(
-                            overlineText = null,
-                            mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateTitle),
-                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
-                            leadingIcon = AppIcons.StepThree,
-                            trailingIcon = AppIcons.KeyboardArrowRight,
-                            enabled = true,
-                            event = Event.CertificateSelectionItemPressed
-                        )
-                    )
-                }
-                setEffect {
-                    Effect.OnCertificateSelectionItemCreated
-                }
-            }
+    private fun createCertificateSelectionItemOnSelectCertificateStep() {
+        setState {
+            copy(
+                certificateSelectionItem = SelectionOptionUi(
+                    overlineText = null,
+                    mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateTitle),
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
+                    leadingIcon = AppIcons.StepThree,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = true,
+                    event = Event.CertificateSelectionItemPressed
+                )
+            )
+        }
+        setEffect {
+            Effect.OnCertificateSelectionItemCreated
         }
     }
 

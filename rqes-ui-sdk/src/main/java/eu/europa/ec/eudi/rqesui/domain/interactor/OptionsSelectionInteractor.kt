@@ -28,23 +28,11 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartial
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
-import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-internal sealed class OptionsSelectionInteractorGetSelectedFileAndQtspPartialState {
-    data class Success(
-        val selectedFile: DocumentData,
-        val selectedQtsp: QtspData,
-    ) : OptionsSelectionInteractorGetSelectedFileAndQtspPartialState()
-
-    data class Failure(
-        val error: EudiRQESUiError
-    ) : OptionsSelectionInteractorGetSelectedFileAndQtspPartialState()
-}
 
 internal sealed class OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState {
     data class Success(
@@ -56,6 +44,16 @@ internal sealed class OptionsSelectionInteractorAuthorizeServiceAndFetchCertific
     ) : OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState()
 }
 
+internal sealed class OptionsSelectionInteractorGetSelectedQtspPartialState {
+    data class Success(
+        val selectedQtsp: QtspData,
+    ) : OptionsSelectionInteractorGetSelectedQtspPartialState()
+
+    data class Failure(
+        val error: EudiRQESUiError
+    ) : OptionsSelectionInteractorGetSelectedQtspPartialState()
+}
+
 internal interface OptionsSelectionInteractor {
     fun getQtsps(): EudiRqesGetQtspsPartialState
 
@@ -63,7 +61,7 @@ internal interface OptionsSelectionInteractor {
 
     fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
 
-    fun getSelectedFileAndQtsp(): OptionsSelectionInteractorGetSelectedFileAndQtspPartialState
+    fun getSelectedQtsp(): OptionsSelectionInteractorGetSelectedQtspPartialState
 
     suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
 
@@ -173,34 +171,23 @@ internal class OptionsSelectionInteractorImpl(
         }
     }
 
-    override fun getSelectedFileAndQtsp(): OptionsSelectionInteractorGetSelectedFileAndQtspPartialState {
+    override fun getSelectedQtsp(): OptionsSelectionInteractorGetSelectedQtspPartialState {
         return runCatching {
-            when (val getSelectedFileResponse = eudiRqesController.getSelectedFile()) {
-                is EudiRqesGetSelectedFilePartialState.Failure -> {
-                    return@runCatching OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure(
-                        error = getSelectedFileResponse.error
+            when (val getSelectedQtspResponse = eudiRqesController.getSelectedQtsp()) {
+                is EudiRqesGetSelectedQtspPartialState.Failure -> {
+                    return@runCatching OptionsSelectionInteractorGetSelectedQtspPartialState.Failure(
+                        error = getSelectedQtspResponse.error
                     )
                 }
 
-                is EudiRqesGetSelectedFilePartialState.Success -> {
-                    when (val getSelectedQtspResponse = eudiRqesController.getSelectedQtsp()) {
-                        is EudiRqesGetSelectedQtspPartialState.Failure -> {
-                            return@runCatching OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure(
-                                error = getSelectedQtspResponse.error
-                            )
-                        }
-
-                        is EudiRqesGetSelectedQtspPartialState.Success -> {
-                            return@runCatching OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Success(
-                                selectedFile = getSelectedFileResponse.file,
-                                selectedQtsp = getSelectedQtspResponse.qtsp,
-                            )
-                        }
-                    }
+                is EudiRqesGetSelectedQtspPartialState.Success -> {
+                    return@runCatching OptionsSelectionInteractorGetSelectedQtspPartialState.Success(
+                        selectedQtsp = getSelectedQtspResponse.qtsp,
+                    )
                 }
             }
         }.getOrElse {
-            OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure(
+            OptionsSelectionInteractorGetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
                     message = it.localizedMessage ?: genericErrorMsg
                 )

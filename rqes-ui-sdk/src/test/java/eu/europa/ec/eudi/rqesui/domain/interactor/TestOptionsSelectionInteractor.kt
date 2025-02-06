@@ -233,7 +233,7 @@ class TestOptionsSelectionInteractor {
         }
     //endregion
 
-    //region getSelectedFileAndQtsp
+    //region getSelectedQtsp
     @Test
     fun `Given both file and qtsp are selected, When getSelectedFileAndQtsp is called, Then return Success`() {
         // Arrange
@@ -243,12 +243,11 @@ class TestOptionsSelectionInteractor {
             .thenReturn(EudiRqesGetSelectedQtspPartialState.Success(qtsp = qtspData))
 
         // Act
-        val result = interactor.getSelectedFileAndQtsp()
+        val result = interactor.getSelectedQtsp()
 
         // Assert
-        assertTrue(result is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Success)
-        with(result as OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Success) {
-            assertEquals(documentData, selectedFile)
+        assertTrue(result is OptionsSelectionInteractorGetSelectedQtspPartialState.Success)
+        with(result as OptionsSelectionInteractorGetSelectedQtspPartialState.Success) {
             assertEquals(qtspData, selectedQtsp)
         }
     }
@@ -256,18 +255,18 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given selected file retrieval fails, When getSelectedFileAndQtsp is called, Then return Failure`() {
         // Arrange
-        val error = EudiRQESUiError(message = mockedPlainFailureMessage)
+        val error = EudiRQESUiError(message = mockedGenericErrorMessage)
         whenever(eudiController.getSelectedFile())
             .thenReturn(EudiRqesGetSelectedFilePartialState.Failure(error))
 
         // Act
-        val result = interactor.getSelectedFileAndQtsp()
+        val result = interactor.getSelectedQtsp()
 
         // Assert
-        assertTrue(result is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure)
+        assertTrue(result is OptionsSelectionInteractorGetSelectedQtspPartialState.Failure)
         assertEquals(
-            error,
-            (result as OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure).error
+            error.message,
+            (result as OptionsSelectionInteractorGetSelectedQtspPartialState.Failure).error.message
         )
     }
 
@@ -281,13 +280,13 @@ class TestOptionsSelectionInteractor {
             .thenReturn(EudiRqesGetSelectedQtspPartialState.Failure(error = failureError))
 
         // Act
-        val result = interactor.getSelectedFileAndQtsp()
+        val result = interactor.getSelectedQtsp()
 
         // Assert
-        assertTrue(result is OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure)
+        assertTrue(result is OptionsSelectionInteractorGetSelectedQtspPartialState.Failure)
         assertEquals(
             failureError,
-            (result as OptionsSelectionInteractorGetSelectedFileAndQtspPartialState.Failure).error
+            (result as OptionsSelectionInteractorGetSelectedQtspPartialState.Failure).error
         )
     }
     //endregion
