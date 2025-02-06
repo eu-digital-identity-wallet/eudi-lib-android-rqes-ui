@@ -53,7 +53,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL

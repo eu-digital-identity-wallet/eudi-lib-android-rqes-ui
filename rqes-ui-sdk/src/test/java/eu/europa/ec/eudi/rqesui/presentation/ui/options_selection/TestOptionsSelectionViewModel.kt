@@ -77,7 +77,7 @@ import kotlin.test.assertNotNull
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class TestSelectQtspViewModel {
+class TestOptionsSelectionViewModel {
 
     @get:Rule
     val coroutineRule = CoroutineTestRule()

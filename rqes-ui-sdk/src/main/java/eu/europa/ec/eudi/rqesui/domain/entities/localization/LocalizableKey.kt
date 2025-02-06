@@ -38,8 +38,6 @@ enum class LocalizableKey {
     SigningService,
     SigningCertificate,
     SigningCertificates,
-    Success,
-    SuccessfullySignedDocument,
     SuccessDescription,
     View,
     Close,
@@ -78,8 +76,6 @@ enum class LocalizableKey {
             SelectServiceSubtitle -> "Select the Signing Service that will be used to issue a digital certificate"
             SelectSigningCertificateTitle -> "Select signing certificate"
             SelectCertificateSubtitle -> "The signing certificate is used to verify your identity and is linked to your electronic signature."
-            Success -> "Success!"
-            SuccessfullySignedDocument -> "You successfully signed your document"
             SuccessDescription -> "You have successfully signed your document."
             View -> "VIEW"
             Close -> "Close"
