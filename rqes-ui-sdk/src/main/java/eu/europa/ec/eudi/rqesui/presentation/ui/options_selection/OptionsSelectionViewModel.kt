@@ -56,7 +56,6 @@ import org.koin.core.annotation.InjectedParam
 internal data class State(
     val isLoading: Boolean = false,
     val config: OptionsSelectionUiConfig,
-    val currentScreenSelectionState: String = QTSP_SELECTION_STATE,
 
     val documentSelectionItem: SelectionOptionUi<Event.ViewDocumentItemPressed>? = null,
     val qtspServiceSelectionItem: SelectionOptionUi<Event.RqesServiceSelectionItemPressed>? = null,

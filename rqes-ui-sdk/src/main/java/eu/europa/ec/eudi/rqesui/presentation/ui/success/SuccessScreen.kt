@@ -104,7 +104,10 @@ internal fun SuccessScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
-                    is Effect.Navigation.SwitchScreen -> navController.navigate(navigationEffect.screenRoute)
+                    is Effect.Navigation.SwitchScreen -> {
+                        navController.navigate(navigationEffect.screenRoute)
+                    }
+
                     is Effect.Navigation.Finish -> context.finish()
                 }
             },
@@ -116,7 +119,9 @@ internal fun SuccessScreen(
             state.selectionItem?.let { safeSelectionItem ->
                 WrapModalBottomSheet(
                     onDismissRequest = {
-                        viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                        viewModel.setEvent(
+                            Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
+                        )
                     },
                     sheetState = bottomSheetState
                 ) {
@@ -197,7 +202,9 @@ private fun Content(
                         modalBottomSheetState.hide()
                     }.invokeOnCompletion {
                         if (!modalBottomSheetState.isVisible) {
-                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                            onEventSend(
+                                Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
+                            )
                         }
                     }
                 }
@@ -262,9 +269,6 @@ private fun SuccessScreenPreview() {
     PreviewTheme {
         Content(
             state = State(
-                title = "Sign document",
-                headline = "Success",
-                subtitle = "You successfully signed your document",
                 selectionItem = SelectionOptionUi(
                     mainText = "Document name.PDF",
                     actionText = "VIEW",

@@ -56,12 +56,7 @@ internal data class State(
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
     val isBottomBarButtonEnabled: Boolean = false,
-
-    val title: String,
-    val headline: String? = null,
-    val subtitle: String? = null,
     val bottomBarButtonText: String,
-
     val sheetContent: SuccessBottomSheetContent,
 ) : ViewState
 
@@ -126,7 +121,6 @@ internal class SuccessViewModel(
 
     override fun setInitialState(): State {
         return State(
-            title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
             bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
             sheetContent = SuccessBottomSheetContent.ShareDocument(bottomSheetTextData = getShareDocumentTextData()),
         )
@@ -249,8 +243,6 @@ internal class SuccessViewModel(
                                 }
                             ),
                             selectionItem = null,
-                            headline = null,
-                            subtitle = null,
                             isBottomBarButtonEnabled = false,
                             isLoading = false,
                         )
@@ -276,8 +268,6 @@ internal class SuccessViewModel(
                         copy(
                             headerConfig = headerConfig,
                             selectionItem = selectionItem,
-                            headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
-                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
                             isBottomBarButtonEnabled = true,
                             isLoading = false,
                         )
