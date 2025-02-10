@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.entities.ModalOptionUi
@@ -111,26 +110,10 @@ internal fun GenericBaseSheetContent(
         VSpacer.Small()
         bodyContent()
 
-        VSpacer.Medium()
-        buttonsContent?.invoke()
-    }
-}
-
-@Composable
-internal fun GenericBaseSheetContent(
-    titleContent: @Composable () -> Unit,
-    bodyContent: @Composable () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .wrapContentHeight()
-            .background(color = bottomSheetDefaultBackgroundColor)
-            .fillMaxWidth()
-            .padding(defaultBottomSheetPadding)
-    ) {
-        titleContent()
-        VSpacer.Large()
-        bodyContent()
+        buttonsContent?.let { content ->
+            VSpacer.Medium()
+            content.invoke()
+        }
     }
 }
 
@@ -222,35 +205,33 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                     }
                 },
                 buttonsContent = {
-                    safeLet(
-                        textData.positiveButtonText,
-                        textData.negativeButtonText
-                    ) { positiveButtonText, negativeButtonText ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
+                    ) {
+                        textData.negativeButtonText?.let { safeNegativeButtonText ->
                             WrapSecondaryButton(
                                 modifier = Modifier.weight(1f),
                                 onClick = onNegativeClick
                             ) {
                                 Text(
-                                    text = negativeButtonText,
+                                    text = safeNegativeButtonText,
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.labelLarge
                                 )
                             }
 
-                            HSpacer.Small()
-
-                            WrapPrimaryButton(
-                                modifier = Modifier.weight(1f),
-                                onClick = onPositiveClick
-                            ) {
-                                Text(
-                                    text = positiveButtonText,
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.labelLarge
-                                )
+                            textData.positiveButtonText?.let { safePositiveButtonText ->
+                                WrapPrimaryButton(
+                                    modifier = Modifier.weight(1f),
+                                    onClick = onPositiveClick
+                                ) {
+                                    Text(
+                                        text = safePositiveButtonText,
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
                             }
                         }
                     }
