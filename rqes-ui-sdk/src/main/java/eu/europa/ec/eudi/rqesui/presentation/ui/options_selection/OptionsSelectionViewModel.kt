@@ -452,8 +452,7 @@ internal class OptionsSelectionViewModel(
                     overlineText = resourceProvider.getLocalizedString(
                         LocalizableKey.SigningService
                     ),
-                    mainText = qtspData.name,
-                    leadingIconTint = ThemeColors.success
+                    mainText = qtspData.name
                 )
             )
         }
