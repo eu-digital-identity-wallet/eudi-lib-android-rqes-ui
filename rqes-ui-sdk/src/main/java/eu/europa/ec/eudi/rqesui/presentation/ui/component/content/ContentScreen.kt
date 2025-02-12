@@ -146,10 +146,12 @@ internal fun ContentScreen(
             if (topBar != null && contentErrorConfig == null) topBar.invoke()
             else if (hasToolBar) {
                 SelectToolBar(
-                    navigatableAction = navigatableAction,
+                    navigatableAction = contentErrorConfig?.let {
+                        ScreenNavigateAction.CANCELABLE
+                    } ?: navigatableAction,
                     keyboardController = keyboardController,
                     toolBarConfig = toolBarConfig,
-                    onBack = onBack
+                    onBack = contentErrorConfig?.onCancel ?: onBack
                 )
             }
         },
