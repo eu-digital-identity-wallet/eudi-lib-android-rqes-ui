@@ -20,6 +20,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Stable
@@ -62,6 +63,12 @@ internal object AppIcons {
         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
     )
 
+    val KeyboardArrowRight: IconData = IconData(
+        resourceId = null,
+        contentDescriptionId = R.string.content_description_arrow_right_icon,
+        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight
+    )
+
     val Close: IconData = IconData(
         resourceId = null,
         contentDescriptionId = R.string.content_description_close_icon,
@@ -75,7 +82,13 @@ internal object AppIcons {
     )
 
     val Verified: IconData = IconData(
-        resourceId = R.drawable.ic_verified,
+        resourceId = R.drawable.ic_rqes_verified,
+        contentDescriptionId = R.string.content_description_verified_icon,
+        imageVector = null
+    )
+
+    val VerifiedBadge: IconData = IconData(
+        resourceId = R.drawable.ic_verified_badge,
         contentDescriptionId = R.string.content_description_verified_icon,
         imageVector = null
     )
@@ -84,5 +97,35 @@ internal object AppIcons {
         resourceId = null,
         contentDescriptionId = R.string.content_description_more_vert_icon,
         imageVector = Icons.Filled.MoreVert
+    )
+
+    val StepOne: IconData = IconData(
+        resourceId = R.drawable.ic_step_one,
+        contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
+    )
+
+    val StepTwo: IconData = IconData(
+        resourceId = R.drawable.ic_step_two,
+        contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
+    )
+
+    val StepThree: IconData = IconData(
+        resourceId = R.drawable.ic_step_three,
+        contentDescriptionId = R.string.content_description_selection_step_icon,
+        imageVector = null
+    )
+
+    val LogoPlain: IconData = IconData(
+        resourceId = R.drawable.ic_logo_plain,
+        contentDescriptionId = R.string.content_description_logo_plain_icon,
+        imageVector = null
+    )
+
+    val LogoText: IconData = IconData(
+        resourceId = R.drawable.ic_logo_text,
+        contentDescriptionId = R.string.content_description_logo_text_icon,
+        imageVector = null
     )
 }

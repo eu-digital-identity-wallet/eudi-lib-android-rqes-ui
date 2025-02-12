@@ -17,29 +17,20 @@
 package eu.europa.ec.eudi.rqesui.domain.di
 
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectCertificateInteractor
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectCertificateInteractorImpl
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectQtspInteractor
-import eu.europa.ec.eudi.rqesui.domain.interactor.SelectQtspInteractorImpl
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractor
+import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorImpl
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractorImpl
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import org.koin.core.annotation.Factory
 
 @Factory
-internal fun provideSelectQtspInteractor(
-    eudiRqesController: RqesController,
-): SelectQtspInteractor = SelectQtspInteractorImpl(
-    eudiRqesController,
-)
-
-@Factory
-internal fun provideSelectCertificateInteractor(
+internal fun provideOptionsSelectionInteractor(
     resourceProvider: ResourceProvider,
     eudiRqesController: RqesController,
-): SelectCertificateInteractor = SelectCertificateInteractorImpl(
-    resourceProvider,
+): OptionsSelectionInteractor = OptionsSelectionInteractorImpl(
     eudiRqesController,
+    resourceProvider
 )
 
 @Factory

@@ -230,7 +230,7 @@ class TestSuccessInteractor {
     // 3. Save the signed document(s) to the provided location.
     // Case 1 Expected Result:
     // The function should return a `SuccessInteractorSignAndSaveDocumentPartialState.Success` state
-    // with the correct saved document data, and all operations should complete successfully.
+    // with the correct saved document data and all operations should complete successfully.
     @Test
     fun `Given Case 1, When signAndSaveDocument is called, Then Case 1 expected result is returned`() =
         coroutineRule.runTest {

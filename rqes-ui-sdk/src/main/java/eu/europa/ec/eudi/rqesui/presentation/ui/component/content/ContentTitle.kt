@@ -63,6 +63,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
  */
 @Composable
 internal fun ContentTitle(
+    modifier: Modifier = Modifier,
     title: String? = null,
     titleWithBadge: TitleWithBadge? = null,
     onTitleWithBadgeClick: (() -> Unit)? = null,
@@ -82,7 +83,7 @@ internal fun ContentTitle(
     trailingAction: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .wrapContentHeight()
             .padding(verticalPadding)
             .then(

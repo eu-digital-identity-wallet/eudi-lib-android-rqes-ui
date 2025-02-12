@@ -27,33 +27,33 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
-import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.success
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
+import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openIntentChooser
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.TextWithBadge
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeader
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
@@ -104,7 +104,10 @@ internal fun SuccessScreen(
             onEventSend = { viewModel.setEvent(it) },
             onNavigationRequested = { navigationEffect ->
                 when (navigationEffect) {
-                    is Effect.Navigation.SwitchScreen -> navController.navigate(navigationEffect.screenRoute)
+                    is Effect.Navigation.SwitchScreen -> {
+                        navController.navigate(navigationEffect.screenRoute)
+                    }
+
                     is Effect.Navigation.Finish -> context.finish()
                 }
             },
@@ -116,24 +119,28 @@ internal fun SuccessScreen(
             state.selectionItem?.let { safeSelectionItem ->
                 WrapModalBottomSheet(
                     onDismissRequest = {
-                        viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                        viewModel.setEvent(
+                            Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
+                        )
                     },
                     sheetState = bottomSheetState
                 ) {
-                    SuccessSheetContent(
-                        sheetContent = state.sheetContent,
-                        documentUri = safeSelectionItem.documentData.uri,
-                        onEventSent = { event ->
-                            viewModel.setEvent(event)
-                        }
-                    )
+                    safeSelectionItem.event?.documentData?.uri?.let { safeUri ->
+                        SuccessSheetContent(
+                            sheetContent = state.sheetContent,
+                            documentUri = safeUri,
+                            onEventSent = { event ->
+                                viewModel.setEvent(event)
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 
     OneTimeLaunchedEffect {
-        viewModel.setEvent(Event.Init)
+        viewModel.setEvent(Event.Initialize)
     }
 }
 
@@ -156,53 +163,32 @@ private fun Content(
             .padding(paddingValues),
         verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
     ) {
-
-        ContentTitle(
-            title = state.title,
-            verticalPadding = PaddingValues(0.dp)
+        ContentHeader(
+            modifier = Modifier.fillMaxWidth(),
+            config = state.headerConfig,
         )
 
-        state.headline?.let { safeHeadline ->
-            Text(
-                text = safeHeadline,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    color = MaterialTheme.colorScheme.success
-                )
-            )
-        }
-
-        safeLet(
-            state.subtitle,
-            state.selectionItem
-        ) { subtitle, selectionItem ->
-
-            Column {
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-                TextWithBadge(
-                    message = selectionItem.documentData.documentName,
-                    showBadge = true
+        state.selectionItem?.let { safeSelectionItem ->
+            safeSelectionItem.event?.documentData?.let { safeDocumentData ->
+                SelectionItem(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary
+                    ),
+                    selectionItemData = safeSelectionItem,
+                    verticalPadding = SPACING_LARGE.dp,
+                    horizontalPadding = SPACING_MEDIUM.dp,
+                    trailingActionAlignment = Alignment.CenterVertically,
+                    onClick = {
+                        onEventSend(
+                            Event.ViewDocumentItemPressed(
+                                documentData = safeDocumentData
+                            )
+                        )
+                    }
                 )
             }
-
-            SelectionItem(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                ),
-                data = selectionItem,
-                onClick = {
-                    onEventSend(
-                        Event.ViewDocument(
-                            documentData = selectionItem.documentData
-                        )
-                    )
-                }
-            )
         }
     }
 
@@ -216,7 +202,9 @@ private fun Content(
                         modalBottomSheetState.hide()
                     }.invokeOnCompletion {
                         if (!modalBottomSheetState.isVisible) {
-                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                            onEventSend(
+                                Event.BottomSheet.UpdateBottomSheetState(isOpen = false)
+                            )
                         }
                     }
                 }
@@ -270,24 +258,23 @@ private fun SuccessSheetContent(
     }
 }
 
+private val DummyEventForPreview = Event.ViewDocumentItemPressed(
+    documentData = DocumentData(documentName = "Document.pdf", uri = "mockedUri".toUri())
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
 private fun SuccessScreenPreview() {
     PreviewTheme {
-        val documentName = "Document name.PDF"
         Content(
             state = State(
-                title = "Sign document",
-                headline = "Success",
-                subtitle = "You successfully signed your document",
-                selectionItem = SelectionItemUi(
-                    documentData = DocumentData(
-                        documentName = documentName,
-                        uri = "".toUri()
-                    ),
-                    subtitle = "Signed by: Entrust",
-                    action = "View",
+                selectionItem = SelectionOptionUi(
+                    mainText = "Document name.PDF",
+                    actionText = "VIEW",
+                    leadingIcon = AppIcons.Verified,
+                    leadingIconTint = ThemeColors.success,
+                    event = DummyEventForPreview
                 ),
                 bottomBarButtonText = "Close",
                 sheetContent = SuccessBottomSheetContent.ShareDocument(

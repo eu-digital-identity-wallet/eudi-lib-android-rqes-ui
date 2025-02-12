@@ -14,27 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.navigation
+package eu.europa.ec.eudi.rqesui.presentation.entities.config
 
-internal interface NavigatableItem
+import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializable
+import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializableParser
 
-internal open class Screen(name: String, parameters: String = "") : NavigatableItem {
-    val screenRoute: String = name + parameters
-    val screenName = name
-}
-
-internal sealed class SdkScreens {
-    data object Success : Screen(
-        name = "SUCCESS"
-    )
-
-    data object OptionsSelection : Screen(
-        name = "OPTIONS_SELECTION",
-        parameters = "?optionsSelectionConfig={optionsSelectionConfig}"
-    )
-
-    data object ViewDocument : Screen(
-        name = "VIEW_DOCUMENT",
-        parameters = "?viewDocumentConfig={viewDocumentConfig}"
-    )
+internal data class OptionsSelectionUiConfig(
+    val optionsSelectionScreenState: String,
+) : UiSerializable {
+    companion object Parser : UiSerializableParser {
+        override val serializedKeyName = "optionsSelectionConfig"
+    }
 }

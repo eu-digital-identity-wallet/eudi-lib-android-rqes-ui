@@ -145,6 +145,7 @@ private fun rememberToolbarConfig(
         ToolbarConfig(
             title = documentName,
             actions = toolbarActions,
+            isMultiRow = true,
             hasShadow = true
         )
     }

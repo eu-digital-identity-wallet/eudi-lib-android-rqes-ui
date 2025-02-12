@@ -29,29 +29,37 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
+import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.Event
 
 @Composable
 internal fun SelectionItem(
     modifier: Modifier = Modifier,
-    data: SelectionItemUi,
+    selectionItemData: SelectionOptionUi<*>,
     colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        containerColor = Color.Transparent
     ),
     shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
+    verticalPadding: Dp = SPACING_MEDIUM.dp,
+    horizontalPadding: Dp = SPACING_LARGE.dp,
+    trailingActionAlignment: Alignment.Vertical = Alignment.Top,
+    enabled: Boolean = true,
     onClick: (() -> Unit)?,
 ) {
     WrapCard(
@@ -60,62 +68,95 @@ internal fun SelectionItem(
         throttleClicks = true,
         shape = shape,
         colors = colors,
+        enabled = enabled
     ) {
         Row(
             modifier = Modifier.padding(
-                horizontal = SPACING_MEDIUM.dp,
-                vertical = SPACING_LARGE.dp
+                horizontal = horizontalPadding,
+                vertical = verticalPadding
             ),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = trailingActionAlignment
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-
-                Text(
-                    text = data.documentData.documentName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+            selectionItemData.leadingIcon?.let { safeIcon ->
+                WrapIcon(
+                    modifier = Modifier.padding(end = SPACING_MEDIUM.dp),
+                    iconData = safeIcon,
+                    customTint = selectionItemData.leadingIconTint
                 )
+            }
 
-                data.subtitle?.let { subtitle ->
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                selectionItemData.overlineText?.let { safeOverlineText ->
+                    Text(
+                        text = safeOverlineText,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                selectionItemData.mainText?.let { safeMainText ->
+                    Text(
+                        text = safeMainText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+
+                selectionItemData.subtitle?.let { subtitle ->
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
-            data.action?.let { action ->
-                Text(
-                    modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
-                    text = action,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            Row(
+                modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                selectionItemData.actionText?.let { action ->
+                    Text(
+                        text = action,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                HSpacer.Small()
+
+                selectionItemData.trailingIcon?.let { safeIcon ->
+                    WrapIcon(
+                        iconData = safeIcon,
+                        customTint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
 }
 
+private val DummyEventForPreview = Event.ViewDocumentItemPressed(
+    documentData = DocumentData(
+        documentName = "Document.pdf",
+        uri = "mockedUri".toUri()
+    )
+)
+
 @ThemeModePreviews
 @Composable
-private fun SelectionItemWithNoSubtitlePreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
-) {
+private fun SelectionItemWithNoSubtitlePreview() {
     PreviewTheme {
         SelectionItem(
             modifier = Modifier.fillMaxWidth(),
-            data = SelectionItemUi(
-                documentData = DocumentData(
-                    documentName = text,
-                    uri = "test".toUri()
-                ),
-                action = "VIEW",
+            selectionItemData = SelectionOptionUi(
+                mainText = "Select document",
+                actionText = "VIEW",
+                enabled = true,
+                event = DummyEventForPreview
             ),
             onClick = {}
         )
@@ -130,13 +171,14 @@ private fun SelectionItemWithSubtitlePreview(
     PreviewTheme {
         SelectionItem(
             modifier = Modifier.fillMaxWidth(),
-            data = SelectionItemUi(
-                documentData = DocumentData(
-                    documentName = text,
-                    uri = "test".toUri()
-                ),
+            selectionItemData = SelectionOptionUi(
+                mainText = text,
                 subtitle = text,
-                action = "VIEW",
+                actionText = "VIEW",
+                leadingIcon = AppIcons.StepOne,
+                trailingIcon = AppIcons.KeyboardArrowRight,
+                enabled = true,
+                event = DummyEventForPreview
             ),
             onClick = {}
         )

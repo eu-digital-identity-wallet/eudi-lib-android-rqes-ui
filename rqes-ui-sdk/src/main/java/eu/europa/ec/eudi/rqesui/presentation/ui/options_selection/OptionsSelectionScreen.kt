@@ -14,15 +14,20 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.ui.select_qtsp
+package eu.europa.ec.eudi.rqesui.presentation.ui.options_selection
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -35,10 +40,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.ButtonActionUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
@@ -47,11 +56,12 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapBottomBarPrimaryButton
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -62,9 +72,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SelectQtspScreen(
+internal fun OptionsSelectionScreen(
     navController: NavController,
-    viewModel: SelectQtspViewModel
+    viewModel: OptionsSelectionViewModel
 ) {
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -80,17 +90,21 @@ internal fun SelectQtspScreen(
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
-            WrapBottomBarPrimaryButton(
-                stickyBottomContentModifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues),
-                buttonText = state.bottomBarButtonText,
-                onButtonClick = {
-                    viewModel.setEvent(
-                        Event.BottomBarButtonPressed
+            if (state.isBottomBarButtonVisible) {
+                state.bottomBarButtonAction?.let { safeButtonAction ->
+                    WrapBottomBarSecondaryButton(
+                        stickyBottomContentModifier = Modifier
+                            .fillMaxWidth()
+                            .padding(paddingValues),
+                        buttonText = safeButtonAction.buttonText,
+                        onButtonClick = {
+                            viewModel.setEvent(
+                                safeButtonAction.event
+                            )
+                        }
                     )
                 }
-            )
+            }
         }
     ) { paddingValues ->
         Content(
@@ -114,8 +128,9 @@ internal fun SelectQtspScreen(
                 },
                 sheetState = bottomSheetState
             ) {
-                SelectQtspSheetContent(
+                OptionsSelectionSheetContent(
                     sheetContent = state.sheetContent,
+                    state = state,
                     onEventSent = { event ->
                         viewModel.setEvent(event)
                     }
@@ -125,7 +140,11 @@ internal fun SelectQtspScreen(
     }
 
     OneTimeLaunchedEffect {
-        viewModel.setEvent(Event.Init)
+        viewModel.setEvent(
+            Event.Initialize(
+                screenSelectionState = state.config.optionsSelectionScreenState
+            )
+        )
     }
 }
 
@@ -141,33 +160,70 @@ private fun Content(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues),
+            .verticalScroll(scrollState)
+            .padding(
+                start = 0.dp,
+                end = 0.dp,
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding()
+            ),
         verticalArrangement = Arrangement.Top
     ) {
-
         ContentTitle(
-            title = state.title,
-            subtitle = state.subtitle,
+            modifier = Modifier.padding(horizontal = SPACING_LARGE.dp),
+            title = state.title
         )
 
         VSpacer.Large()
 
-        state.selectionItem?.let { safeSelectionItem ->
+        safeLet(
+            state.documentSelectionItem,
+            state.documentSelectionItem?.event
+        ) { safeSelectionItem, selectionItemEvent ->
             SelectionItem(
                 modifier = Modifier.fillMaxWidth(),
-                data = safeSelectionItem,
+                selectionItemData = safeSelectionItem,
                 onClick = {
                     onEventSend(
-                        Event.ViewDocument(
-                            documentData = safeSelectionItem.documentData
-                        )
+                        selectionItemEvent
                     )
                 }
             )
+        }
+
+        state.qtspServiceSelectionItem?.let { safeSelectionItem ->
+            ListDivider()
+            SelectionItem(
+                modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
+                selectionItemData = safeSelectionItem,
+                enabled = safeSelectionItem.enabled,
+                onClick = {
+                    onEventSend(
+                        Event.RqesServiceSelectionItemPressed
+                    )
+                }
+            )
+        }
+
+        AnimatedVisibility(visible = state.certificateDataList.isNotEmpty()) {
+            state.certificateSelectionItem?.let { safeSelectionItem ->
+                ListDivider()
+                SelectionItem(
+                    modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
+                    selectionItemData = safeSelectionItem,
+                    enabled = safeSelectionItem.enabled,
+                    onClick = {
+                        onEventSend(
+                            Event.CertificateSelectionItemPressed
+                        )
+                    }
+                )
+            }
         }
     }
 
@@ -195,7 +251,13 @@ private fun Content(
                 }
 
                 is Effect.OnSelectedQtspUpdated -> {
-                    onEventSend(Event.FetchServiceAuthorizationUrl(service = effect.service))
+                    onEventSend(
+                        Event.FetchServiceAuthorizationUrl(service = effect.service)
+                    )
+                }
+
+                is Effect.OnCertificateSelectionItemCreated -> {
+                    onEventSend(Event.AuthorizeServiceAndFetchCertificates)
                 }
             }
         }.collect()
@@ -203,12 +265,13 @@ private fun Content(
 }
 
 @Composable
-private fun SelectQtspSheetContent(
-    sheetContent: SelectQtspBottomSheetContent,
-    onEventSent: (event: Event) -> Unit
+private fun OptionsSelectionSheetContent(
+    sheetContent: OptionsSelectionBottomSheetContent,
+    state: State,
+    onEventSent: (event: Event) -> Unit,
 ) {
     when (sheetContent) {
-        is SelectQtspBottomSheetContent.ConfirmCancellation -> {
+        is OptionsSelectionBottomSheetContent.ConfirmCancellation -> {
             DialogBottomSheet(
                 textData = sheetContent.bottomSheetTextData,
                 onPositiveClick = {
@@ -220,39 +283,106 @@ private fun SelectQtspSheetContent(
             )
         }
 
-        is SelectQtspBottomSheetContent.SelectQTSP -> {
+        is OptionsSelectionBottomSheetContent.SelectQTSP -> {
             BottomSheetWithOptionsList(
                 textData = sheetContent.bottomSheetTextData,
                 options = sheetContent.options,
-                onEventSent = onEventSent
+                onIndexSelected = { selectedIndex ->
+                    onEventSent(
+                        Event.BottomSheet.QtspIndexSelectedOnRadioButtonPressed(
+                            index = selectedIndex
+                        )
+                    )
+                },
+                onPositiveClick = {
+                    sheetContent.options.getOrNull(state.selectedQtspIndex)?.let { safeOption ->
+                        onEventSent(safeOption.event)
+                    }
+                },
+                onNegativeClick = {
+                    onEventSent(
+                        Event.BottomSheet.CancelQtspSelection
+                    )
+                }
+            )
+        }
+
+        is OptionsSelectionBottomSheetContent.SelectCertificate -> {
+            BottomSheetWithOptionsList(
+                textData = sheetContent.bottomSheetTextData,
+                options = sheetContent.options,
+                onIndexSelected = { selectedIndex ->
+                    onEventSent(
+                        Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed(
+                            index = selectedIndex
+                        )
+                    )
+                },
+                onPositiveClick = {
+                    sheetContent.options
+                        .getOrNull(state.selectedCertificateIndex)?.let { safeOption ->
+                            onEventSent(safeOption.event)
+                        }
+                },
+                onNegativeClick = {
+                    onEventSent(
+                        Event.BottomSheet.CancelCertificateSelection
+                    )
+                }
             )
         }
     }
 }
 
+@Composable
+private fun ListDivider() {
+    HorizontalDivider(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = SPACING_LARGE.dp),
+        color = MaterialTheme.colorScheme.outlineVariant
+    )
+}
+
+private val DummyEventForPreview = Event.ViewDocumentItemPressed(
+    documentData = DocumentData(
+        documentName = "File_to_be_signed.pdf",
+        uri = "mockedUri".toUri()
+    )
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
-private fun SelectQtspScreenPreview() {
+private fun OptionsSelectionScreenContentPreview() {
     PreviewTheme {
         Content(
             state = State(
-                title = "Sign a document",
-                subtitle = "Select a document from your device or scan QR",
-                selectionItem = SelectionItemUi(
-                    documentData = DocumentData(
-                        documentName = "Document name.PDF",
-                        uri = "".toUri()
-                    ),
-                    action = "VIEW",
+                title = "Sign document",
+                documentSelectionItem = SelectionOptionUi(
+                    actionText = "VIEW",
+                    overlineText = "Document",
+                    mainText = "File_to_be_signed.pdf",
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    subtitle = "Choose a document from your device to sign electronically.",
+                    enabled = true,
+                    event = DummyEventForPreview
                 ),
-                sheetContent = SelectQtspBottomSheetContent.ConfirmCancellation(
+                sheetContent = OptionsSelectionBottomSheetContent.ConfirmCancellation(
                     bottomSheetTextData = BottomSheetTextData(
                         title = "title",
                         message = "message",
                     )
                 ),
-                bottomBarButtonText = "Sign",
+                bottomBarButtonAction = ButtonActionUi(
+                    buttonText = "Continue",
+                    event = Event.BottomBarButtonPressed(uri = "mockedUri".toUri())
+                ),
+                selectedQtspIndex = 0,
+                selectedCertificateIndex = 0,
+                config = OptionsSelectionUiConfig(
+                    optionsSelectionScreenState = QTSP_SELECTION_STATE,
+                ),
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},

@@ -16,12 +16,9 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.entities
 
-import androidx.compose.ui.graphics.Color
-import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 
-internal data class SelectionItemUi(
-    val documentData: DocumentData,
-    val subtitle: String? = null,
-    val action: String? = null,
-    val iconTint: Color? = null,
+internal data class ButtonActionUi<T : ViewEvent>(
+    val buttonText: String,
+    val event: T
 )

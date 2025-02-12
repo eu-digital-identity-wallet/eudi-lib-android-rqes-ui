@@ -16,11 +16,16 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.entities
 
+import androidx.compose.ui.graphics.Color
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.IconData
 
 internal data class ModalOptionUi<T : ViewEvent>(
     val title: String,
-    val icon: IconData? = null,
+    val leadingIcon: IconData? = null,
+    val leadingIconTint: Color? = null,
+    val trailingIcon: IconData? = null,
+    val trailingIconTint: Color? = null,
+    val radioButtonSelected: Boolean? = null,
     val event: T
 )

@@ -17,8 +17,6 @@
 package eu.europa.ec.eudi.rqesui.domain.di
 
 import android.content.Context
-import eu.europa.ec.eudi.rqesui.domain.controller.KeyStorage
-import eu.europa.ec.eudi.rqesui.domain.controller.KeyStorageImpl
 import eu.europa.ec.eudi.rqesui.domain.controller.LocalizationController
 import eu.europa.ec.eudi.rqesui.domain.controller.LocalizationControllerImpl
 import eu.europa.ec.eudi.rqesui.domain.controller.LogController
@@ -47,7 +45,3 @@ internal fun provideRqesController(resourceProvider: ResourceProvider): RqesCont
 @Factory
 internal fun provideLogController(): LogController =
     LogControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
-
-@Factory
-internal fun provideKeyStorage(preferencesController: PreferencesController): KeyStorage =
-    KeyStorageImpl(preferencesController)

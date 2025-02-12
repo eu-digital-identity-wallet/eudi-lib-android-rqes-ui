@@ -75,7 +75,7 @@ class TestLocalizationController {
     @Test
     fun `Given Case 2, When get() is called, Then Case 2 expected result is returned`() {
         // Arrange
-        val localizableKey = LocalizableKey.Sign
+        val localizableKey = LocalizableKey.SignDocument
         val config =
             testConfiguration(
                 translations =
