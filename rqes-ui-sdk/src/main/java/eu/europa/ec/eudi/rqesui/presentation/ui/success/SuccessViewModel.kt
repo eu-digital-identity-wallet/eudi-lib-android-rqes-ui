@@ -31,33 +31,36 @@ import eu.europa.ec.eudi.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewState
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableNavigationLink
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIconAndTextData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.RelyingPartyData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCardData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentErrorConfig
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeaderConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
     val isLoading: Boolean = false,
-    val selectionItem: SelectionItemUi? = null,
+    val headerConfig: ContentHeaderConfig = ContentHeaderConfig(
+        appIconAndTextData = AppIconAndTextData(),
+        description = null,
+    ),
+    val successCardData: SuccessCardData? = null,
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
     val isBottomBarButtonEnabled: Boolean = false,
-
-    val title: String,
-    val headline: String? = null,
-    val subtitle: String? = null,
     val bottomBarButtonText: String,
-
     val sheetContent: SuccessBottomSheetContent,
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
-    data object Init : Event()
+    data object Initialize : Event()
     data class SignAndSaveDocument(
         val originalDocumentName: String,
         val qtspName: String,
@@ -66,9 +69,8 @@ internal sealed class Event : ViewEvent {
     data object Pop : Event()
     data object DismissError : Event()
 
+    data class ViewDocumentItemPressed(val documentData: DocumentData) : Event()
     data object BottomBarButtonPressed : Event()
-
-    data class ViewDocument(val documentData: DocumentData) : Event()
 
     sealed class BottomSheet : Event() {
         data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
@@ -118,7 +120,6 @@ internal class SuccessViewModel(
 
     override fun setInitialState(): State {
         return State(
-            title = resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
             bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
             sheetContent = SuccessBottomSheetContent.ShareDocument(bottomSheetTextData = getShareDocumentTextData()),
         )
@@ -126,7 +127,7 @@ internal class SuccessViewModel(
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.Init -> {
+            is Event.Initialize -> {
                 getSelectedFileAndQtsp(event)
             }
 
@@ -150,7 +151,7 @@ internal class SuccessViewModel(
                 )
             }
 
-            is Event.ViewDocument -> {
+            is Event.ViewDocumentItemPressed -> {
                 navigateToViewDocument(event.documentData)
             }
 
@@ -240,9 +241,7 @@ internal class SuccessViewModel(
                                     setEffect { Effect.Navigation.Finish }
                                 }
                             ),
-                            selectionItem = null,
-                            headline = null,
-                            subtitle = null,
+                            successCardData = null,
                             isBottomBarButtonEnabled = false,
                             isLoading = false,
                         )
@@ -250,20 +249,22 @@ internal class SuccessViewModel(
                 }
 
                 is SuccessInteractorSignAndSaveDocumentPartialState.Success -> {
-                    val selectionItem = SelectionItemUi(
+                    val headerConfig = ContentHeaderConfig(
+                        appIconAndTextData = AppIconAndTextData(),
+                        description = resourceProvider.getLocalizedString(LocalizableKey.SuccessDescription),
+                        relyingPartyData = getHeaderConfigData(qtspName = qtspName)
+                    )
+
+                    val successCard = SuccessCardData(
+                        leadingIcon = AppIcons.Verified,
                         documentData = response.savedDocument,
-                        subtitle = resourceProvider.getLocalizedString(
-                            LocalizableKey.SignedBy,
-                            listOf(qtspName)
-                        ),
-                        action = resourceProvider.getLocalizedString(LocalizableKey.View),
+                        actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
                     )
 
                     setState {
                         copy(
-                            selectionItem = selectionItem,
-                            headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
-                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
+                            headerConfig = headerConfig,
+                            successCardData = successCard,
                             isBottomBarButtonEnabled = true,
                             isLoading = false,
                         )
@@ -315,5 +316,12 @@ internal class SuccessViewModel(
         setEffect {
             Effect.CloseBottomSheet
         }
+    }
+
+    private fun getHeaderConfigData(qtspName: String): RelyingPartyData {
+        return RelyingPartyData(
+            isVerified = true,
+            name = qtspName,
+        )
     }
 }

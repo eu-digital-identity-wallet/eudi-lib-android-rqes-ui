@@ -305,9 +305,3 @@ internal class PreferencesControllerImpl(
             .apply()
     }
 }
-
-internal interface KeyStorage
-
-internal class KeyStorageImpl(
-    private val preferencesController: PreferencesController
-) : KeyStorage

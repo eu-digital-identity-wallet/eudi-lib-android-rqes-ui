@@ -147,7 +147,6 @@ internal fun ContentScreen(
                     onBack = contentErrorConfig?.onCancel ?: onBack,
                     keyboardController = keyboardController,
                     toolbarConfig = toolBarConfig,
-                    hasShadow = toolBarConfig?.hasShadow == true
                 )
             }
         },
@@ -212,12 +211,11 @@ private fun DefaultToolBar(
     onBack: (() -> Unit)?,
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
-    hasShadow: Boolean,
 ) {
     TopAppBar(
         modifier = Modifier
             .shadow(elevation = SPACING_SMALL.dp)
-            .takeIf { hasShadow } ?: Modifier,
+            .takeIf { toolbarConfig?.hasShadow == true } ?: Modifier,
         title = {
             Text(
                 text = toolbarConfig?.title.orEmpty(),

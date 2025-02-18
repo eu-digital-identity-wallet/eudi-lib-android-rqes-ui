@@ -27,22 +27,24 @@ enum class LocalizableKey {
     CancelSignProcessSecondaryText,
     CancelSignProcessPrimaryText,
     SelectDocumentTitle,
-    SelectDocument,
-    ConfirmSelectionTitle,
-    SelectService,
+    SelectDocumentSubtitle,
+    SelectSigningService,
+    SelectSigningServiceSubtitle,
     SelectServiceTitle,
     SelectServiceSubtitle,
-    SelectCertificateTitle,
     SelectCertificateSubtitle,
-    Success,
-    SuccessfullySignedDocument,
-    SignedBy,
+    SelectSigningCertificateTitle,
+    SelectSigningCertificateSubtitle,
+    SigningService,
+    SigningCertificate,
+    SigningCertificates,
+    SuccessDescription,
     View,
     Close,
     Cancel,
-    Save,
+    Continue,
+    Done,
     Share,
-    Sign,
     SharingDocument,
     CloseSharingMessage,
     GenericErrorButtonRetry,
@@ -65,23 +67,22 @@ enum class LocalizableKey {
             CancelSignProcessSubtitle -> "Cancel will redirect you back to the documents list without signing your document"
             CancelSignProcessSecondaryText -> "Cancel signing"
             CancelSignProcessPrimaryText -> "Continue signing"
-            SelectDocumentTitle -> "Select a document from your device to sign electronically."
-            SelectDocument -> "Select document"
-            ConfirmSelectionTitle -> "Please confirm signing of the following"
-            SelectService -> "Select service"
-            SelectServiceTitle -> "Select remote signing service."
-            SelectServiceSubtitle -> "Remote Signing Service enables secure online document signing."
-            SelectCertificateTitle -> "You have chosen to sign the following document:"
-            SelectCertificateSubtitle -> "Please confirm signing with one of the following certificates:"
-            Success -> "Success!"
-            SuccessfullySignedDocument -> "You successfully signed your document"
-            SignedBy -> "Signed by: $ARGUMENTS_SEPARATOR"
+            SelectDocumentTitle -> "Document"
+            SelectDocumentSubtitle -> "Choose a document from your device to sign electronically."
+            SigningService -> "Signing service"
+            SelectSigningService -> "Select signing service"
+            SelectSigningServiceSubtitle -> "Remote Signing Service enables secure online document signing."
+            SelectServiceTitle -> "Signing services"
+            SelectServiceSubtitle -> "Select the Signing Service that will be used to issue a digital certificate"
+            SelectSigningCertificateTitle -> "Select signing certificate"
+            SelectCertificateSubtitle -> "The signing certificate is used to verify your identity and is linked to your electronic signature."
+            SuccessDescription -> "You have successfully signed your document."
             View -> "VIEW"
             Close -> "Close"
             Cancel -> "Cancel"
-            Save -> "Save"
+            Continue -> "Continue"
+            Done -> "Done"
             Share -> "Share"
-            Sign -> "Sign"
             SharingDocument -> "Sharing document?"
             CloseSharingMessage -> "Closing will redirect you back to the dashboard without saving or sharing the document."
             GenericErrorButtonRetry -> "TRY AGAIN"
@@ -91,6 +92,9 @@ enum class LocalizableKey {
             GenericErrorDocumentNotFound -> "No Document data found"
             GenericErrorQtspNotFound -> "No selected QTSP found"
             GenericErrorCertificatesNotFound -> "No certificates found"
+            SigningCertificate -> "Signing certificate"
+            SigningCertificates -> "Signing certificates"
+            SelectSigningCertificateSubtitle -> "Select a digital certificate to sign your document"
             Certificate -> "Certificate $ARGUMENTS_SEPARATOR"
         }
     }

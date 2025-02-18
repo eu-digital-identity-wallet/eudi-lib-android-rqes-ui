@@ -14,27 +14,11 @@
  * governing permissions and limitations under the Licence.
  */
 
-package eu.europa.ec.eudi.rqesui.presentation.navigation
+package eu.europa.ec.eudi.rqesui.presentation.entities
 
-internal interface NavigatableItem
+import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 
-internal open class Screen(name: String, parameters: String = "") : NavigatableItem {
-    val screenRoute: String = name + parameters
-    val screenName = name
-}
-
-internal sealed class SdkScreens {
-    data object Success : Screen(
-        name = "SUCCESS"
-    )
-
-    data object OptionsSelection : Screen(
-        name = "OPTIONS_SELECTION",
-        parameters = "?optionsSelectionConfig={optionsSelectionConfig}"
-    )
-
-    data object ViewDocument : Screen(
-        name = "VIEW_DOCUMENT",
-        parameters = "?viewDocumentConfig={viewDocumentConfig}"
-    )
-}
+internal data class ButtonActionUi<T : ViewEvent>(
+    val buttonText: String,
+    val event: T
+)

@@ -16,43 +16,91 @@
 
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
+import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeServicePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCertificatesPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetCredentialAuthorizationUrlPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetQtspsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetServiceAuthorizationUrlPartialState
+import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
+import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-internal interface SelectCertificateInteractor {
-    fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+internal sealed class OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState {
+    data class Success(
+        val certificates: List<CertificateData>,
+    ) : OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState()
 
-    suspend fun authorizeServiceAndFetchCertificates(): SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState
-
-    suspend fun getCredentialAuthorizationUrl(certificate: CertificateData): EudiRqesGetCredentialAuthorizationUrlPartialState
+    data class Failure(
+        val error: EudiRQESUiError
+    ) : OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState()
 }
 
-internal class SelectCertificateInteractorImpl(
-    private val resourceProvider: ResourceProvider,
+internal sealed class OptionsSelectionInteractorGetSelectedQtspPartialState {
+    data class Success(
+        val selectedQtsp: QtspData,
+    ) : OptionsSelectionInteractorGetSelectedQtspPartialState()
+
+    data class Failure(
+        val error: EudiRQESUiError
+    ) : OptionsSelectionInteractorGetSelectedQtspPartialState()
+}
+
+internal interface OptionsSelectionInteractor {
+    fun getQtsps(): EudiRqesGetQtspsPartialState
+
+    fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+
+    fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
+
+    fun getSelectedQtsp(): OptionsSelectionInteractorGetSelectedQtspPartialState
+
+    suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState
+
+    suspend fun getCredentialAuthorizationUrl(certificateData: CertificateData): EudiRqesGetCredentialAuthorizationUrlPartialState
+
+    suspend fun authorizeServiceAndFetchCertificates(): OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState
+}
+
+internal class OptionsSelectionInteractorImpl(
     private val eudiRqesController: RqesController,
-) : SelectCertificateInteractor {
+    private val resourceProvider: ResourceProvider,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+) : OptionsSelectionInteractor {
 
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
+
+    override fun getQtsps(): EudiRqesGetQtspsPartialState {
+        return eudiRqesController.getQtsps()
+    }
 
     override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
         return eudiRqesController.getSelectedFile()
     }
 
-    override suspend fun authorizeServiceAndFetchCertificates(): SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState {
-        return withContext(Dispatchers.IO) {
+    override fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {
+        return eudiRqesController.setSelectedQtsp(qtspData)
+    }
+
+    override suspend fun getServiceAuthorizationUrl(rqesService: RQESService): EudiRqesGetServiceAuthorizationUrlPartialState {
+        return eudiRqesController.getServiceAuthorizationUrl(rqesService)
+    }
+
+    override suspend fun authorizeServiceAndFetchCertificates(): OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState {
+        return withContext(dispatcher) {
             runCatching {
                 when (val authorizeServiceResponse = eudiRqesController.authorizeService()) {
                     is EudiRqesAuthorizeServicePartialState.Failure -> {
-                        return@runCatching SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
+                        return@runCatching OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
                             error = authorizeServiceResponse.error
                         )
                     }
@@ -63,14 +111,14 @@ internal class SelectCertificateInteractorImpl(
                         )
                         when (getCertificatesResponse) {
                             is EudiRqesGetCertificatesPartialState.Failure -> {
-                                return@runCatching SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
+                                return@runCatching OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
                                     error = getCertificatesResponse.error
                                 )
                             }
 
                             is EudiRqesGetCertificatesPartialState.Success -> {
                                 eudiRqesController.setAuthorizedService(authorizedService = authorizeServiceResponse.authorizedService)
-                                return@runCatching SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Success(
+                                return@runCatching OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Success(
                                     certificates = getCertificatesResponse.certificates
                                 )
                             }
@@ -78,7 +126,7 @@ internal class SelectCertificateInteractorImpl(
                     }
                 }
             }.getOrElse {
-                SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
+                OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
                     error = EudiRQESUiError(
                         message = it.localizedMessage ?: genericErrorMsg
                     )
@@ -87,15 +135,15 @@ internal class SelectCertificateInteractorImpl(
         }
     }
 
-    override suspend fun getCredentialAuthorizationUrl(certificate: CertificateData): EudiRqesGetCredentialAuthorizationUrlPartialState {
-        return withContext(Dispatchers.IO) {
+    override suspend fun getCredentialAuthorizationUrl(certificateData: CertificateData): EudiRqesGetCredentialAuthorizationUrlPartialState {
+        return withContext(dispatcher) {
             runCatching {
                 val authorizedService = eudiRqesController.getAuthorizedService()
                 authorizedService?.let { safeAuthorizedService ->
                     val getCredentialAuthorizationUrlResponse =
                         eudiRqesController.getCredentialAuthorizationUrl(
                             authorizedService = safeAuthorizedService,
-                            certificateData = certificate,
+                            certificateData = certificateData,
                         )
                     when (getCredentialAuthorizationUrlResponse) {
                         is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure -> {
@@ -122,14 +170,28 @@ internal class SelectCertificateInteractorImpl(
             }
         }
     }
-}
 
-internal sealed class SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState {
-    data class Success(
-        val certificates: List<CertificateData>,
-    ) : SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState()
+    override fun getSelectedQtsp(): OptionsSelectionInteractorGetSelectedQtspPartialState {
+        return runCatching {
+            when (val getSelectedQtspResponse = eudiRqesController.getSelectedQtsp()) {
+                is EudiRqesGetSelectedQtspPartialState.Failure -> {
+                    return@runCatching OptionsSelectionInteractorGetSelectedQtspPartialState.Failure(
+                        error = getSelectedQtspResponse.error
+                    )
+                }
 
-    data class Failure(
-        val error: EudiRQESUiError
-    ) : SelectCertificateInteractorAuthorizeServiceAndFetchCertificatesPartialState()
+                is EudiRqesGetSelectedQtspPartialState.Success -> {
+                    return@runCatching OptionsSelectionInteractorGetSelectedQtspPartialState.Success(
+                        selectedQtsp = getSelectedQtspResponse.qtsp,
+                    )
+                }
+            }
+        }.getOrElse {
+            OptionsSelectionInteractorGetSelectedQtspPartialState.Failure(
+                error = EudiRQESUiError(
+                    message = it.localizedMessage ?: genericErrorMsg
+                )
+            )
+        }
+    }
 }

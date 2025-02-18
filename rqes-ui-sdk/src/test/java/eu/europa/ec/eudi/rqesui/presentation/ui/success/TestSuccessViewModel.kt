@@ -27,11 +27,15 @@ import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableNavigationLink
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIconAndTextData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.RelyingPartyData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCardData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeaderConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
@@ -96,8 +100,8 @@ class TestSuccessViewModel {
     // Case 1
     // Function setInitialState() is called to initialize the ViewModel state.
     // Case 1 Expected Result:
-    // 1. The ViewModel's initialState should be correctly initialized with a title, a bottom bar
-    // and the related wordings for the bottom sheet.
+    // 1. The ViewModel's initialState should be correctly initialized with a ContentHeader showing
+    // the app icon, a bottom bar and the related wordings for the bottom sheet.
     @Test
     fun `Given Case 1, When setInitialState is called, Then the expected result is returned`() {
         // Act
@@ -112,9 +116,14 @@ class TestSuccessViewModel {
                 negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
             )
         )
+        val expectedHeaderConfig = ContentHeaderConfig(
+            appIconAndTextData = AppIconAndTextData(),
+            description = null,
+        )
+
         assertEquals(
-            resourceProvider.getLocalizedString(LocalizableKey.SignDocument),
-            initialState.title
+            expectedHeaderConfig,
+            initialState.headerConfig
         )
         assertEquals(
             resourceProvider.getLocalizedString(LocalizableKey.Close),
@@ -126,10 +135,11 @@ class TestSuccessViewModel {
 
     //region setEvent
     // Case 1
-    // Function setEvent(Event.Init) is called to initialize the ViewModel with selected file and QTSP data.
+    // Function setEvent(Event.Initialize) is called to initialize the ViewModel with selected file and QTSP data.
     // Case 1 Expected Result:
     // 1. The mocked response contains the selected file (document name and Uri) and QTSP data.
-    // 2. When the Event.Init event is triggered, the ViewModel should emit the Effect.OnSelectedFileAndQtspGot effect.
+    // 2. When the Event.Initialize event is triggered, the ViewModel should emit the
+    // Effect.OnSelectedFileAndQtspGot effect.
     @Test
     fun `Given Case 1, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
@@ -138,16 +148,19 @@ class TestSuccessViewModel {
                 selectedFile = DocumentData(mockedDocumentName, uri = documentFileUri),
                 selectedQtsp = qtspData
             )
-            mockQTSPData(qtspData)
+            mockQTSPData(qtspData = qtspData)
             mockGetSelectedFileAndQtspCall(response = response)
 
             // Act
-            viewModel.setEvent(Event.Init)
+            viewModel.setEvent(Event.Initialize)
 
             // Assert
             viewModel.effect.runFlowTest {
                 val expectedEffect = Effect.OnSelectedFileAndQtspGot(
-                    selectedFile = DocumentData(mockedDocumentName, uri = documentFileUri),
+                    selectedFile = DocumentData(
+                        documentName = mockedDocumentName,
+                        uri = documentFileUri
+                    ),
                     selectedQtsp = qtspData
                 )
                 assertEquals(expectedEffect, awaitItem())
@@ -159,55 +172,61 @@ class TestSuccessViewModel {
     // Case 2 Expected Result:
     // 1. The mocked response simulates a successfully signed and saved document with a text prefix.
     // 2. When the event is triggered, the ViewModel updates its state to reflect success.
-    // This includes the updated selection item, title, subtitle, bottom bar button text and bottom sheet content.
+    // This includes the updated selection item, contentHeader, bottom bar button text and
+    // bottom sheet content.
     @Test
     fun `Given Case 2, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
 
-            val title = resourceProvider.getLocalizedString(LocalizableKey.SharingDocument)
-            val message = resourceProvider.getLocalizedString(LocalizableKey.CloseSharingMessage)
-            val signDocument = resourceProvider.getLocalizedString(LocalizableKey.SignDocument)
-
             val signedDocumentPrefix = "signed_0"
-            val selectionITem = SelectionItemUi(
-                action = resourceProvider.getLocalizedString(LocalizableKey.View),
+            val successCard = SuccessCardData(
+                leadingIcon = AppIcons.Verified,
                 documentData = DocumentData(
                     documentName = "${signedDocumentPrefix}_$mockedDocumentName",
                     uri = documentFileUri
-                )
+                ),
+                actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
+            )
+
+            val title = resourceProvider.getLocalizedString(LocalizableKey.SharingDocument)
+            val message = resourceProvider.getLocalizedString(LocalizableKey.CloseSharingMessage)
+
+            val headerConfig = ContentHeaderConfig(
+                appIconAndTextData = AppIconAndTextData(),
+                description = resourceProvider.getLocalizedString(LocalizableKey.SuccessDescription),
+                relyingPartyData = RelyingPartyData(isVerified = true, name = mockedQtspName)
             )
 
             val expectedState = State(
                 isLoading = false,
-                headline = resourceProvider.getLocalizedString(LocalizableKey.Success),
-                selectionItem = selectionITem,
+                headerConfig = headerConfig,
+                successCardData = successCard,
                 error = null,
                 isBottomSheetOpen = false,
                 isBottomBarButtonEnabled = true,
-                title = signDocument,
-                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SuccessfullySignedDocument),
                 bottomBarButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close),
                 sheetContent = SuccessBottomSheetContent.ShareDocument(
                     bottomSheetTextData = BottomSheetTextData(
                         title = title,
                         message = message,
-                        resourceProvider.getLocalizedString(LocalizableKey.Share),
-                        resourceProvider.getLocalizedString(LocalizableKey.Close)
+                        positiveButtonText = resourceProvider.getLocalizedString(LocalizableKey.Share),
+                        negativeButtonText = resourceProvider.getLocalizedString(LocalizableKey.Close)
                     )
                 )
             )
 
-            whenever(successInteractor.signAndSaveDocument(originalDocumentName = mockedDocumentName))
-                .thenReturn(
-                    SuccessInteractorSignAndSaveDocumentPartialState.Success(
-                        savedDocument = DocumentData(
-                            documentName = "${signedDocumentPrefix}_$mockedDocumentName",
-                            uri = documentFileUri
-                        )
-                    )
+            val response = SuccessInteractorSignAndSaveDocumentPartialState.Success(
+                savedDocument = DocumentData(
+                    documentName = "${signedDocumentPrefix}_$mockedDocumentName",
+                    uri = documentFileUri
                 )
+            )
+            mockSignAndSaveDocumentCall(
+                documentName = mockedDocumentName,
+                response = response
+            )
 
             // Act
             viewModel.setEvent(event)
@@ -229,8 +248,7 @@ class TestSuccessViewModel {
             val errorResponse = SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                 error = EudiRQESUiError(mockedPlainFailureMessage)
             )
-            whenever(successInteractor.signAndSaveDocument(mockedDocumentName))
-                .thenReturn(errorResponse)
+            mockSignAndSaveDocumentCall(documentName = mockedDocumentName, response = errorResponse)
 
             // Act
             viewModel.setEvent(event)
@@ -255,7 +273,9 @@ class TestSuccessViewModel {
             val expectedState = viewModel.viewState.value.copy(isBottomSheetOpen = true)
 
             // Act
-            viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(true))
+            viewModel.setEvent(
+                Event.BottomSheet.UpdateBottomSheetState(isOpen = true)
+            )
 
             // Assert
             assertEquals(
@@ -265,7 +285,7 @@ class TestSuccessViewModel {
         }
 
     // Case 5
-    // Function setEvent(Event.ViewDocument) is called to handle navigation to the ViewDocument screen.
+    // Function setEvent(Event.ViewDocumentItemPressed) is called to handle navigation to the ViewDocument screen.
     // Case 5 Expected Result:
     // 1. The correct screen route is generated based on the document data.
     // 2. The ViewModel emits an Effect.Navigation.SwitchScreen to navigate to next screen.
@@ -277,7 +297,7 @@ class TestSuccessViewModel {
 
             // Act
             viewModel.setEvent(
-                Event.ViewDocument(documentData)
+                Event.ViewDocumentItemPressed(documentData = documentData)
             )
 
             // Assert
@@ -416,6 +436,14 @@ class TestSuccessViewModel {
 
     private fun mockGetSelectedFileAndQtspCall(response: SuccessInteractorGetSelectedFileAndQtspPartialState) {
         whenever(successInteractor.getSelectedFileAndQtsp())
+            .thenReturn(response)
+    }
+
+    private suspend fun mockSignAndSaveDocumentCall(
+        documentName: String,
+        response: SuccessInteractorSignAndSaveDocumentPartialState
+    ) {
+        whenever(successInteractor.signAndSaveDocument(originalDocumentName = documentName))
             .thenReturn(response)
     }
     //endregion

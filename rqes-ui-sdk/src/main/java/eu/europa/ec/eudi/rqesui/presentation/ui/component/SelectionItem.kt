@@ -22,81 +22,106 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionItemUi
+import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
+import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
+import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.Event
 
 @Composable
-internal fun SelectionItem(
+internal fun <T : ViewEvent> SelectionItem(
     modifier: Modifier = Modifier,
-    data: SelectionItemUi,
-    colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
-    ),
-    shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
-    onClick: (() -> Unit)?,
+    selectionItemData: SelectionOptionUi<T>,
+    onClick: ((T) -> Unit),
 ) {
     WrapCard(
         modifier = modifier,
-        onClick = onClick,
+        onClick = { onClick(selectionItemData.event) },
         throttleClicks = true,
-        shape = shape,
-        colors = colors,
+        shape = RoundedCornerShape(SIZE_SMALL.dp),
+        enabled = selectionItemData.enabled
     ) {
         Row(
-            modifier = Modifier.padding(
-                horizontal = SPACING_MEDIUM.dp,
-                vertical = SPACING_LARGE.dp
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = SPACING_MEDIUM.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-
-                Text(
-                    text = data.documentData.documentName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+            selectionItemData.leadingIcon?.let { safeIcon ->
+                WrapIcon(
+                    iconData = safeIcon,
+                    customTint = selectionItemData.leadingIconTint
                 )
+            }
 
-                data.subtitle?.let { subtitle ->
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = SPACING_MEDIUM.dp)
+            ) {
+                selectionItemData.overlineText?.let { safeOverlineText ->
+                    Text(
+                        text = safeOverlineText,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                selectionItemData.mainText?.let { safeMainText ->
+                    Text(
+                        text = safeMainText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+
+                selectionItemData.subtitle?.let { subtitle ->
                     Text(
                         text = subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
 
-            data.action?.let { action ->
-                Text(
-                    modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
-                    text = action,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                selectionItemData.actionText?.let { action ->
+                    Text(
+                        modifier = Modifier.padding(vertical = SPACING_EXTRA_SMALL.dp),
+                        text = action,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                HSpacer.Small()
+
+                selectionItemData.trailingIcon?.let { safeIcon ->
+                    WrapIcon(
+                        iconData = safeIcon,
+                        customTint = selectionItemData.trailingIconTint
+                            ?: MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -104,39 +129,28 @@ internal fun SelectionItem(
 
 @ThemeModePreviews
 @Composable
-private fun SelectionItemWithNoSubtitlePreview(
+private fun SelectionItemPreview(
     @PreviewParameter(TextLengthPreviewProvider::class) text: String
 ) {
-    PreviewTheme {
-        SelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            data = SelectionItemUi(
-                documentData = DocumentData(
-                    documentName = text,
-                    uri = "test".toUri()
-                ),
-                action = "VIEW",
-            ),
-            onClick = {}
+    val dummyEventForPreview = Event.ViewDocumentItemPressed(
+        documentData = DocumentData(
+            documentName = "Document.pdf",
+            uri = "mockedUri".toUri()
         )
-    }
-}
+    )
 
-@ThemeModePreviews
-@Composable
-private fun SelectionItemWithSubtitlePreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
-) {
     PreviewTheme {
         SelectionItem(
             modifier = Modifier.fillMaxWidth(),
-            data = SelectionItemUi(
-                documentData = DocumentData(
-                    documentName = text,
-                    uri = "test".toUri()
-                ),
+            selectionItemData = SelectionOptionUi(
+                overlineText = "Document",
+                mainText = "File_to_be_signed.pdf",
                 subtitle = text,
-                action = "VIEW",
+                actionText = "VIEW",
+                enabled = true,
+                event = dummyEventForPreview,
+                leadingIcon = AppIcons.StepOne,
+                trailingIcon = AppIcons.KeyboardArrowRight,
             ),
             onClick = {}
         )

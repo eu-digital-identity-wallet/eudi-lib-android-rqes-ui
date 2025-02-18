@@ -17,11 +17,18 @@
 package eu.europa.ec.eudi.rqesui.presentation.entities
 
 import androidx.compose.ui.graphics.Color
-import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.IconData
 
-internal data class SelectionItemUi(
-    val documentData: DocumentData,
+internal data class SelectionOptionUi<T : ViewEvent>(
+    val overlineText: String? = null,
+    val mainText: String? = null,
     val subtitle: String? = null,
-    val action: String? = null,
-    val iconTint: Color? = null,
+    val actionText: String? = null,
+    val leadingIcon: IconData? = null,
+    val leadingIconTint: Color? = null,
+    val trailingIcon: IconData? = null,
+    val trailingIconTint: Color? = null,
+    val enabled: Boolean,
+    val event: T,
 )

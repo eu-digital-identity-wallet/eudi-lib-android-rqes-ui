@@ -28,11 +28,15 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionScreenState
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.RouterHost
 import eu.europa.ec.eudi.rqesui.presentation.navigation.Screen
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
+import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.eudi.rqesui.presentation.router.sdkGraph
 import org.koin.android.ext.android.inject
@@ -42,6 +46,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 internal class EudiRQESContainer : ComponentActivity() {
 
     private val routerHost: RouterHost by inject()
+    private val uiSerializer: UiSerializer by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,15 +82,57 @@ internal class EudiRQESContainer : ComponentActivity() {
     @Throws(EudiRQESUiError::class)
     private fun getStartingRoute(intent: Intent): String {
         val state = intent.getParcelableExtra<EudiRQESUi.State>(SDK_STATE)
-        val screen: Screen = when (state) {
-            is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
-            is EudiRQESUi.State.Initial -> SdkScreens.SelectQtsp
-            is EudiRQESUi.State.Certificate -> SdkScreens.SelectCertificate
-            is EudiRQESUi.State.Success -> SdkScreens.Success
-        }
+
+        val (screen, arguments) = buildScreenAndArgumentsFromState(state)
+
         return generateComposableNavigationLink(
             screen = screen,
-            arguments = ""
+            arguments = arguments
         )
     }
+
+    /**
+     * Builds the screen and its associated arguments based on the provided state.
+     *
+     * @param state The current state of the UI, which determines the screen to navigate to and the arguments needed.
+     * @return A pair containing the target screen and its arguments as a string.
+     */
+    private fun buildScreenAndArgumentsFromState(state: EudiRQESUi.State?): Pair<Screen, String> {
+        return when (state) {
+            is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
+
+            is EudiRQESUi.State.Initial -> SdkScreens.OptionsSelection to prepareOptionsSelectionScreenArguments(
+                OptionsSelectionScreenState.QtspSelection
+            )
+
+            is EudiRQESUi.State.Certificate -> SdkScreens.OptionsSelection to prepareOptionsSelectionScreenArguments(
+                OptionsSelectionScreenState.CertificateSelection
+            )
+
+            is EudiRQESUi.State.Success -> SdkScreens.Success to ""
+        }
+    }
+
+    /**
+     * Prepares serialized arguments for the Options Selection screen.
+     *
+     * @param optionsSelectionState The specific state for the Options Selection screen (e.g., QtspSelection or CertificateSelection).
+     * @return A string containing the serialized arguments for the screen.
+     */
+    private fun prepareOptionsSelectionScreenArguments(
+        optionsSelectionState: OptionsSelectionScreenState
+    ): String {
+        val screenArguments = generateComposableArguments(
+            arguments = mapOf(
+                OptionsSelectionUiConfig.serializedKeyName to uiSerializer.toBase64(
+                    model = OptionsSelectionUiConfig(
+                        optionsSelectionScreenState = optionsSelectionState
+                    ),
+                    parser = OptionsSelectionUiConfig.Parser
+                )
+            )
+        )
+        return screenArguments
+    }
+
 }
