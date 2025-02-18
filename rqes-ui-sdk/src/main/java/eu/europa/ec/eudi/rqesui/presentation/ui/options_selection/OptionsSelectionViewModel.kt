@@ -41,6 +41,7 @@ import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.eudi.rqesui.presentation.entities.ButtonActionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionScreenState
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
@@ -74,11 +75,8 @@ internal data class State(
     val isBottomBarButtonVisible: Boolean = false,
 ) : ViewState
 
-internal const val QTSP_SELECTION_STATE = "QTSP_SELECTION"
-internal const val CERTIFICATE_SELECTION_STATE = "CERTIFICATE_SELECTION"
-
 internal sealed class Event : ViewEvent {
-    data class Initialize(val screenSelectionState: String) : Event()
+    data class Initialize(val screenSelectionState: OptionsSelectionScreenState) : Event()
     data object Pop : Event()
     data object Finish : Event()
     data object DismissError : Event()
@@ -176,11 +174,11 @@ internal class OptionsSelectionViewModel(
                 createFileSelectionItem(event)
 
                 when (event.screenSelectionState) {
-                    QTSP_SELECTION_STATE -> {
+                    is OptionsSelectionScreenState.QtspSelection -> {
                         createQTSPSelectionItem(event)
                     }
 
-                    CERTIFICATE_SELECTION_STATE -> {
+                    is OptionsSelectionScreenState.CertificateSelection -> {
                         createQTSPSelectionItemOnSelectCertificateStep(event = event)
                         createCertificateSelectionItemOnSelectCertificateStep()
                     }

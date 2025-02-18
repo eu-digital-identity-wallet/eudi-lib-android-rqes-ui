@@ -17,7 +17,6 @@
 package eu.europa.ec.eudi.rqesui.presentation.ui.component.content
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,7 +29,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -57,8 +55,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.MAX_TOOLBAR_ACTIONS
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.TopSpacing
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.Z_STICKY
@@ -83,7 +79,6 @@ internal data class ToolbarAction(
 internal data class ToolbarConfig(
     val title: String = "",
     val actions: List<ToolbarAction> = listOf(),
-    val isMultiRow: Boolean = false,
     val hasShadow: Boolean = false
 )
 
@@ -145,13 +140,13 @@ internal fun ContentScreen(
         topBar = {
             if (topBar != null && contentErrorConfig == null) topBar.invoke()
             else if (hasToolBar) {
-                SelectToolBar(
+                DefaultToolBar(
                     navigatableAction = contentErrorConfig?.let {
                         ScreenNavigateAction.CANCELABLE
                     } ?: navigatableAction,
+                    onBack = contentErrorConfig?.onCancel ?: onBack,
                     keyboardController = keyboardController,
-                    toolBarConfig = toolBarConfig,
-                    onBack = contentErrorConfig?.onCancel ?: onBack
+                    toolbarConfig = toolBarConfig,
                 )
             }
         },
@@ -209,31 +204,6 @@ internal fun ContentScreen(
     }
 }
 
-@Composable
-private fun SelectToolBar(
-    navigatableAction: ScreenNavigateAction,
-    toolBarConfig: ToolbarConfig?,
-    keyboardController: SoftwareKeyboardController?,
-    onBack: (() -> Unit)?
-) {
-    when (toolBarConfig?.isMultiRow) {
-        true -> MultiRowToolBar(
-            navigatableAction = navigatableAction,
-            toolbarConfig = toolBarConfig,
-            onBack = onBack,
-        )
-
-        else -> {
-            DefaultToolBar(
-                navigatableAction = navigatableAction,
-                keyboardController = keyboardController,
-                toolbarConfig = toolBarConfig,
-                onBack = onBack,
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DefaultToolBar(
@@ -281,71 +251,6 @@ private fun DefaultToolBar(
         colors = TopAppBarDefaults.topAppBarColors()
             .copy(containerColor = MaterialTheme.colorScheme.surface)
     )
-}
-
-@Composable
-internal fun MultiRowToolBar(
-    navigatableAction: ScreenNavigateAction,
-    toolbarConfig: ToolbarConfig?,
-    onBack: (() -> Unit)?
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                Modifier
-                    .shadow(elevation = SPACING_SMALL.dp)
-                    .takeIf { toolbarConfig?.hasShadow == true } ?: Modifier),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        val navigationIcon = when (navigatableAction) {
-            ScreenNavigateAction.CANCELABLE -> AppIcons.Close
-            else -> AppIcons.ArrowBack
-        }
-
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = SPACING_SMALL.dp,
-                        start = SPACING_SMALL.dp,
-                        end = SPACING_SMALL.dp
-                    ),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                WrapIconButton(
-                    iconData = navigationIcon,
-                    onClick = {
-                        onBack?.invoke()
-                    },
-                    customTint = MaterialTheme.colorScheme.onSurface
-                )
-
-                ToolBarActions(
-                    toolBarActions = toolbarConfig?.actions
-                )
-            }
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = SPACING_MEDIUM.dp,
-                        start = SPACING_LARGE.dp,
-                        end = SPACING_LARGE.dp,
-                        bottom = SPACING_LARGE.dp
-                    ),
-                text = toolbarConfig?.title.orEmpty(),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
-    }
 }
 
 @Composable
@@ -520,26 +425,5 @@ private fun ToolBarActionsWithFourActionsPreview() {
                 maxActionsShown = 4,
             )
         }
-    }
-}
-
-@ThemeModePreviews
-@Composable
-private fun MultiRowToolBarPreview() {
-    PreviewTheme {
-        MultiRowToolBar(
-            navigatableAction = ScreenNavigateAction.BACKABLE,
-            toolbarConfig = ToolbarConfig(
-                title = "Toolbar title, up to two lines text with ellipsis support.pdf",
-                actions = listOf(
-                    ToolbarAction(
-                        icon = AppIcons.Verified,
-                        clickable = false,
-                        onClick = {}
-                    ),
-                )
-            ),
-            onBack = {}
-        )
     }
 }

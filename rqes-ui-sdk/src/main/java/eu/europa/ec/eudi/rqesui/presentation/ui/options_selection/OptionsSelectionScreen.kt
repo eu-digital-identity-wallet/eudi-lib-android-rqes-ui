@@ -17,7 +17,6 @@
 package eu.europa.ec.eudi.rqesui.presentation.ui.options_selection
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +43,7 @@ import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.presentation.entities.ButtonActionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionScreenState
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
@@ -56,7 +56,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
@@ -165,63 +164,36 @@ private fun Content(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .verticalScroll(scrollState)
-            .padding(
-                start = 0.dp,
-                end = 0.dp,
-                top = paddingValues.calculateTopPadding(),
-                bottom = paddingValues.calculateBottomPadding()
-            ),
-        verticalArrangement = Arrangement.Top
     ) {
-        ContentTitle(
-            modifier = Modifier.padding(horizontal = SPACING_LARGE.dp),
-            title = state.title
-        )
-
-        VSpacer.Large()
+        ContentTitle(title = state.title)
 
         safeLet(
             state.documentSelectionItem,
             state.documentSelectionItem?.event
         ) { safeSelectionItem, selectionItemEvent ->
-            SelectionItem(
-                modifier = Modifier.fillMaxWidth(),
+            SelectionItemWithDivider(
                 selectionItemData = safeSelectionItem,
-                onClick = {
-                    onEventSend(
-                        selectionItemEvent
-                    )
-                }
+                showDividerAbove = false,
+                onClick = onEventSend,
             )
         }
 
         state.qtspServiceSelectionItem?.let { safeSelectionItem ->
-            ListDivider()
-            SelectionItem(
-                modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
+            SelectionItemWithDivider(
                 selectionItemData = safeSelectionItem,
-                enabled = safeSelectionItem.enabled,
-                onClick = {
-                    onEventSend(
-                        Event.RqesServiceSelectionItemPressed
-                    )
-                }
+                showDividerAbove = true,
+                onClick = onEventSend,
             )
         }
 
         AnimatedVisibility(visible = state.certificateDataList.isNotEmpty()) {
             state.certificateSelectionItem?.let { safeSelectionItem ->
-                ListDivider()
-                SelectionItem(
-                    modifier = Modifier.padding(top = SPACING_MEDIUM.dp),
+                SelectionItemWithDivider(
                     selectionItemData = safeSelectionItem,
-                    enabled = safeSelectionItem.enabled,
-                    onClick = {
-                        onEventSend(
-                            Event.CertificateSelectionItemPressed
-                        )
-                    }
+                    showDividerAbove = true,
+                    onClick = onEventSend,
                 )
             }
         }
@@ -335,38 +307,58 @@ private fun OptionsSelectionSheetContent(
 }
 
 @Composable
+private fun <T : Event> SelectionItemWithDivider(
+    selectionItemData: SelectionOptionUi<T>,
+    showDividerAbove: Boolean,
+    onClick: (T) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        if (showDividerAbove) {
+            ListDivider()
+            VSpacer.Medium()
+        }
+
+        SelectionItem(
+            modifier = Modifier.fillMaxWidth(),
+            selectionItemData = selectionItemData,
+            onClick = onClick
+        )
+    }
+}
+
+
+@Composable
 private fun ListDivider() {
     HorizontalDivider(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = SPACING_LARGE.dp),
+        modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.outlineVariant
     )
 }
-
-private val DummyEventForPreview = Event.ViewDocumentItemPressed(
-    documentData = DocumentData(
-        documentName = "File_to_be_signed.pdf",
-        uri = "mockedUri".toUri()
-    )
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
 private fun OptionsSelectionScreenContentPreview() {
+    val dummyEventForPreview = Event.ViewDocumentItemPressed(
+        documentData = DocumentData(
+            documentName = "File_to_be_signed.pdf",
+            uri = "mockedUri".toUri()
+        )
+    )
+
     PreviewTheme {
         Content(
             state = State(
                 title = "Sign document",
                 documentSelectionItem = SelectionOptionUi(
-                    actionText = "VIEW",
                     overlineText = "Document",
                     mainText = "File_to_be_signed.pdf",
-                    trailingIcon = AppIcons.KeyboardArrowRight,
                     subtitle = "Choose a document from your device to sign electronically.",
+                    actionText = "VIEW",
                     enabled = true,
-                    event = DummyEventForPreview
+                    event = dummyEventForPreview,
+                    leadingIcon = AppIcons.StepOne,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
                 ),
                 sheetContent = OptionsSelectionBottomSheetContent.ConfirmCancellation(
                     bottomSheetTextData = BottomSheetTextData(
@@ -381,7 +373,7 @@ private fun OptionsSelectionScreenContentPreview() {
                 selectedQtspIndex = 0,
                 selectedCertificateIndex = 0,
                 config = OptionsSelectionUiConfig(
-                    optionsSelectionScreenState = QTSP_SELECTION_STATE,
+                    optionsSelectionScreenState = OptionsSelectionScreenState.QtspSelection,
                 ),
             ),
             effectFlow = Channel<Effect>().receiveAsFlow(),

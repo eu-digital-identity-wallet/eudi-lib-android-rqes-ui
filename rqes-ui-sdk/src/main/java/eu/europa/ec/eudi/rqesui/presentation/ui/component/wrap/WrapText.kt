@@ -42,7 +42,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePrevi
  * @property maxLines The maximum number of lines the text can occupy. Defaults to 2.
  * @property overflow How visual overflow should be handled. Defaults to [TextOverflow.Ellipsis].
  */
-data class TextConfig(
+internal data class TextConfig(
     val style: TextStyle? = null,
     val color: Color? = null,
     val textAlign: TextAlign = TextAlign.Start,
@@ -51,7 +51,7 @@ data class TextConfig(
 )
 
 @Composable
-fun WrapText(
+internal fun WrapText(
     modifier: Modifier = Modifier,
     text: String,
     textConfig: TextConfig,

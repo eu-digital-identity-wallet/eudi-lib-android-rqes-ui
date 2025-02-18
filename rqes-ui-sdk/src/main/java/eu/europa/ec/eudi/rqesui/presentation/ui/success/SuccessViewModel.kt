@@ -27,12 +27,10 @@ import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.eudi.rqesui.presentation.architecture.MviViewModel
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewState
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
@@ -40,6 +38,7 @@ import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposabl
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIconAndTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.RelyingPartyData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCardData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeaderConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
@@ -52,7 +51,7 @@ internal data class State(
         appIconAndTextData = AppIconAndTextData(),
         description = null,
     ),
-    val selectionItem: SelectionOptionUi<Event.ViewDocumentItemPressed>? = null,
+    val successCardData: SuccessCardData? = null,
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
     val isBottomBarButtonEnabled: Boolean = false,
@@ -242,7 +241,7 @@ internal class SuccessViewModel(
                                     setEffect { Effect.Navigation.Finish }
                                 }
                             ),
-                            selectionItem = null,
+                            successCardData = null,
                             isBottomBarButtonEnabled = false,
                             isLoading = false,
                         )
@@ -256,18 +255,16 @@ internal class SuccessViewModel(
                         relyingPartyData = getHeaderConfigData(qtspName = qtspName)
                     )
 
-                    val selectionItem = SelectionOptionUi(
-                        mainText = response.savedDocument.documentName,
+                    val successCard = SuccessCardData(
                         leadingIcon = AppIcons.Verified,
-                        leadingIconTint = ThemeColors.success,
+                        documentData = response.savedDocument,
                         actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
-                        event = Event.ViewDocumentItemPressed(response.savedDocument)
                     )
 
                     setState {
                         copy(
                             headerConfig = headerConfig,
-                            selectionItem = selectionItem,
+                            successCardData = successCard,
                             isBottomBarButtonEnabled = true,
                             isLoading = false,
                         )

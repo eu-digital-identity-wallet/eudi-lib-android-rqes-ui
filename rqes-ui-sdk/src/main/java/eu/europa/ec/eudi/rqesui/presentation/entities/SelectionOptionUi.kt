@@ -29,6 +29,6 @@ internal data class SelectionOptionUi<T : ViewEvent>(
     val leadingIconTint: Color? = null,
     val trailingIcon: IconData? = null,
     val trailingIconTint: Color? = null,
-    val enabled: Boolean = true,
-    val event: T?,
+    val enabled: Boolean,
+    val event: T,
 )

@@ -38,6 +38,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.eudi.rqesui.presentation.entities.ModalOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
+import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionScreenState
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.OptionsSelectionUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
@@ -116,7 +117,7 @@ class TestOptionsSelectionViewModel {
     private lateinit var autoCloseable: AutoCloseable
 
     private val deserializedConfig = OptionsSelectionUiConfig(
-        optionsSelectionScreenState = QTSP_SELECTION_STATE
+        optionsSelectionScreenState = OptionsSelectionScreenState.QtspSelection
     )
 
     @Before
@@ -185,7 +186,7 @@ class TestOptionsSelectionViewModel {
 
     //region setEvent, Initialize with Screen State
     // Case 1
-    // setEvent with argument: Event.Initialize for state QTSP_SELECTION_STATE
+    // setEvent with argument: Event.Initialize for state QtspSelection
     // the ViewModel updates the `documentSelectionItem` in the state correctly.
     // Case 1 Expected Result:
     // 1. The `selectQtspInteractor.getSelectedFile()` function returns a successful state with `documentData`.
@@ -202,7 +203,7 @@ class TestOptionsSelectionViewModel {
         // Act
         viewModel.setEvent(
             Event.Initialize(
-                screenSelectionState = QTSP_SELECTION_STATE
+                screenSelectionState = OptionsSelectionScreenState.QtspSelection
             )
         )
 
@@ -243,7 +244,7 @@ class TestOptionsSelectionViewModel {
     }
 
     // Case 2
-    // setEvent with argument: Event.Initialize for state CERTIFICATE_SELECTION_STATE
+    // setEvent with argument: Event.Initialize for state CertificateSelection
     // The function `createSelectionItem` is tested to ensure that when it sets the success state,
     // the ViewModel updates the `documentSelectionItem` in the state correctly.
     // Case 2 Expected Result:
@@ -265,7 +266,7 @@ class TestOptionsSelectionViewModel {
         // Act
         viewModel.setEvent(
             Event.Initialize(
-                screenSelectionState = CERTIFICATE_SELECTION_STATE
+                screenSelectionState = OptionsSelectionScreenState.CertificateSelection
             )
         )
 
@@ -317,13 +318,13 @@ class TestOptionsSelectionViewModel {
     }
 
     // Case 3
-    // Function setEvent() is called with an Event.Initialize for QTSP_SELECTION_STATE.
+    // Function setEvent() is called with an Event.Initialize for QtspSelection.
     // Case 3 Expected Result:
     // 1. The view state should reflect a non-null selectionItem with the correct documentData.
     // 2. The effect should trigger Effect.OnSelectionItemCreated, indicating that the selection item
     // was successfully created and set.
     @Test
-    fun `Given Case 3 on QTSP_SELECTION_STATE, When setEvent is called, Then the expected result is returned`() =
+    fun `Given Case 3 on QtspSelection, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             val mockSuccessState = EudiRqesGetSelectedFilePartialState.Success(file = documentData)
@@ -331,7 +332,7 @@ class TestOptionsSelectionViewModel {
 
             // Act
             viewModel.setEvent(
-                Event.Initialize(screenSelectionState = QTSP_SELECTION_STATE)
+                Event.Initialize(screenSelectionState = OptionsSelectionScreenState.QtspSelection)
             )
 
             // Assert
@@ -342,7 +343,7 @@ class TestOptionsSelectionViewModel {
         }
 
     // Case 4
-    // Function setEvent() is called with Event.Initialize(QTSP_SELECTION_STATE) and
+    // Function setEvent() is called with Event.Initialize(QtspSelection) and
     // EudiRqesGetSelectedFilePartialState.Failure is returned when attempting to get selected file
     // Case 4 Expected Result:
     // 1. Error state is set with:
@@ -354,7 +355,7 @@ class TestOptionsSelectionViewModel {
     //      * Attempts to get selected file again
     // 3. Error handling flow completes properly
     @Test
-    fun `Given Case 4 on QTSP_SELECTION_STATE, When setEvent is called, Then the expected result is returned`() =
+    fun `Given Case 4 on QtspSelection, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             val errorMessage = mockedPlainFailureMessage
@@ -367,7 +368,7 @@ class TestOptionsSelectionViewModel {
 
             // Act
             viewModel.setEvent(
-                Event.Initialize(screenSelectionState = QTSP_SELECTION_STATE)
+                Event.Initialize(screenSelectionState = OptionsSelectionScreenState.QtspSelection)
             )
 
             // Assert
@@ -395,7 +396,7 @@ class TestOptionsSelectionViewModel {
         }
 
     // Case 5
-    // Function setEvent() is called with Event.Initialize(CERTIFICATE_SELECTION_STATE) and
+    // Function setEvent() is called with Event.Initialize(CertificateSelection) and
     // OptionsSelectionInteractorGetSelectedQtspPartialState.Failure is returned when attempting to get selected QTSP
     // (while file selection succeeds)
     // Case 5 Expected Result:
@@ -405,7 +406,7 @@ class TestOptionsSelectionViewModel {
     //    - Working retry action that attempts to get selected QTSP again
     // 2. File selection success state is maintained
     @Test
-    fun `Given Case 5, When setEvent is called on CERTIFICATE_SELECTION_STATE, Then the expected result is returned`() =
+    fun `Given Case 5, When setEvent is called on CertificateSelection, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
             whenever(optionsSelectionInteractor.getSelectedFile())
@@ -421,7 +422,7 @@ class TestOptionsSelectionViewModel {
 
             // Act
             viewModel.setEvent(
-                Event.Initialize(screenSelectionState = CERTIFICATE_SELECTION_STATE)
+                Event.Initialize(screenSelectionState = OptionsSelectionScreenState.CertificateSelection)
             )
 
             // Assert
@@ -890,7 +891,7 @@ class TestOptionsSelectionViewModel {
 
     // Case 11
     // Function setEvent() is called with complete certificate selection flow:
-    // 1. Initialize with CERTIFICATE_SELECTION_STATE
+    // 1. Initialize with CertificateSelection
     // 2. Fetch certificates successfully
     // 3. Select certificate index
     // 4. Show certificate selection
@@ -935,7 +936,7 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            viewModel.setEvent(Event.Initialize(screenSelectionState = CERTIFICATE_SELECTION_STATE))
+            viewModel.setEvent(Event.Initialize(screenSelectionState = OptionsSelectionScreenState.CertificateSelection))
             viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
             // Click certificate selection screen item
             viewModel.setEvent(Event.CertificateSelectionItemPressed)

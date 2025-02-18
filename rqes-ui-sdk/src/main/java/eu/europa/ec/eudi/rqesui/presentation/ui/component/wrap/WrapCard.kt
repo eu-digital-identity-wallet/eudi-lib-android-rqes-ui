@@ -50,6 +50,7 @@ internal fun WrapCard(
     )
     val cardModifier = Modifier
         .clip(cardShape)
+        .then(modifier)
         .then(
             if (enabled && onClick != null) {
                 when (throttleClicks) {
@@ -63,7 +64,6 @@ internal fun WrapCard(
                 }
             } else Modifier.clickable(enabled = false, onClick = {})
         )
-        .then(modifier) // apply modifier last to show ripple on top of padded area
 
     Card(
         modifier = cardModifier,

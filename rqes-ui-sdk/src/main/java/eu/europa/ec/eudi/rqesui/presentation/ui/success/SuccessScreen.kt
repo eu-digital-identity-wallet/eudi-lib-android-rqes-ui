@@ -23,16 +23,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -40,12 +37,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
-import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openIntentChooser
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCard
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCardData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeader
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
@@ -53,7 +49,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
@@ -116,7 +112,7 @@ internal fun SuccessScreen(
         )
 
         if (isBottomSheetOpen) {
-            state.selectionItem?.let { safeSelectionItem ->
+            state.successCardData?.let { safeSuccessCardData ->
                 WrapModalBottomSheet(
                     onDismissRequest = {
                         viewModel.setEvent(
@@ -125,15 +121,13 @@ internal fun SuccessScreen(
                     },
                     sheetState = bottomSheetState
                 ) {
-                    safeSelectionItem.event?.documentData?.uri?.let { safeUri ->
-                        SuccessSheetContent(
-                            sheetContent = state.sheetContent,
-                            documentUri = safeUri,
-                            onEventSent = { event ->
-                                viewModel.setEvent(event)
-                            }
-                        )
-                    }
+                    SuccessSheetContent(
+                        sheetContent = state.sheetContent,
+                        documentUri = safeSuccessCardData.documentData.uri,
+                        onEventSent = { event ->
+                            viewModel.setEvent(event)
+                        }
+                    )
                 }
             }
         }
@@ -161,34 +155,25 @@ private fun Content(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues),
-        verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
+        verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
     ) {
         ContentHeader(
             modifier = Modifier.fillMaxWidth(),
             config = state.headerConfig,
         )
 
-        state.selectionItem?.let { safeSelectionItem ->
-            safeSelectionItem.event?.documentData?.let { safeDocumentData ->
-                SelectionItem(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary
-                    ),
-                    selectionItemData = safeSelectionItem,
-                    verticalPadding = SPACING_LARGE.dp,
-                    horizontalPadding = SPACING_MEDIUM.dp,
-                    trailingActionAlignment = Alignment.CenterVertically,
-                    onClick = {
-                        onEventSend(
-                            Event.ViewDocumentItemPressed(
-                                documentData = safeDocumentData
-                            )
+        state.successCardData?.let { safeSuccessCardData ->
+            SuccessCard(
+                modifier = Modifier.fillMaxWidth(),
+                successCardData = safeSuccessCardData,
+                onClick = {
+                    onEventSend(
+                        Event.ViewDocumentItemPressed(
+                            documentData = safeSuccessCardData.documentData
                         )
-                    }
-                )
-            }
+                    )
+                }
+            )
         }
     }
 
@@ -258,10 +243,6 @@ private fun SuccessSheetContent(
     }
 }
 
-private val DummyEventForPreview = Event.ViewDocumentItemPressed(
-    documentData = DocumentData(documentName = "Document.pdf", uri = "mockedUri".toUri())
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @ThemeModePreviews
 @Composable
@@ -269,12 +250,13 @@ private fun SuccessScreenPreview() {
     PreviewTheme {
         Content(
             state = State(
-                selectionItem = SelectionOptionUi(
-                    mainText = "Document name.PDF",
-                    actionText = "VIEW",
+                successCardData = SuccessCardData(
                     leadingIcon = AppIcons.Verified,
-                    leadingIconTint = ThemeColors.success,
-                    event = DummyEventForPreview
+                    documentData = DocumentData(
+                        documentName = "File_to_be_signed.pdf",
+                        uri = "mockedUri".toUri()
+                    ),
+                    actionText = "VIEW",
                 ),
                 bottomBarButtonText = "Close",
                 sheetContent = SuccessBottomSheetContent.ShareDocument(

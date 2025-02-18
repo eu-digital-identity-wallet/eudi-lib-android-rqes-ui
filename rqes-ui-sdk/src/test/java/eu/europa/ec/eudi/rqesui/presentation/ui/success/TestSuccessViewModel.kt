@@ -27,8 +27,6 @@ import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
-import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableArguments
@@ -36,6 +34,7 @@ import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposabl
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIconAndTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.RelyingPartyData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCardData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeaderConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
@@ -182,17 +181,13 @@ class TestSuccessViewModel {
             val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
 
             val signedDocumentPrefix = "signed_0"
-            val selectionItem = SelectionOptionUi(
+            val successCard = SuccessCardData(
                 leadingIcon = AppIcons.Verified,
-                leadingIconTint = ThemeColors.success,
-                mainText = "${signedDocumentPrefix}_$mockedDocumentName",
-                actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
-                event = Event.ViewDocumentItemPressed(
-                    documentData = DocumentData(
-                        documentName = "${signedDocumentPrefix}_$mockedDocumentName",
-                        uri = documentFileUri
-                    )
+                documentData = DocumentData(
+                    documentName = "${signedDocumentPrefix}_$mockedDocumentName",
+                    uri = documentFileUri
                 ),
+                actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
             )
 
             val title = resourceProvider.getLocalizedString(LocalizableKey.SharingDocument)
@@ -207,7 +202,7 @@ class TestSuccessViewModel {
             val expectedState = State(
                 isLoading = false,
                 headerConfig = headerConfig,
-                selectionItem = selectionItem,
+                successCardData = successCard,
                 error = null,
                 isBottomSheetOpen = false,
                 isBottomBarButtonEnabled = true,

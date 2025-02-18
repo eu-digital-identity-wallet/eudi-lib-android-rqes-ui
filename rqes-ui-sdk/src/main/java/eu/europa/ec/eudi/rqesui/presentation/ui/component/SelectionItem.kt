@@ -22,72 +22,59 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.domain.extension.toUri
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
+import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.Event
 
 @Composable
-internal fun SelectionItem(
+internal fun <T : ViewEvent> SelectionItem(
     modifier: Modifier = Modifier,
-    selectionItemData: SelectionOptionUi<*>,
-    colors: CardColors = CardDefaults.cardColors(
-        containerColor = Color.Transparent
-    ),
-    shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
-    verticalPadding: Dp = SPACING_MEDIUM.dp,
-    horizontalPadding: Dp = SPACING_LARGE.dp,
-    trailingActionAlignment: Alignment.Vertical = Alignment.Top,
-    enabled: Boolean = true,
-    onClick: (() -> Unit)?,
+    selectionItemData: SelectionOptionUi<T>,
+    onClick: ((T) -> Unit),
 ) {
     WrapCard(
         modifier = modifier,
-        onClick = onClick,
+        onClick = { onClick(selectionItemData.event) },
         throttleClicks = true,
-        shape = shape,
-        colors = colors,
-        enabled = enabled
+        shape = RoundedCornerShape(SIZE_SMALL.dp),
+        enabled = selectionItemData.enabled
     ) {
         Row(
-            modifier = Modifier.padding(
-                horizontal = horizontalPadding,
-                vertical = verticalPadding
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = SPACING_MEDIUM.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = trailingActionAlignment
+            verticalAlignment = Alignment.Top
         ) {
             selectionItemData.leadingIcon?.let { safeIcon ->
                 WrapIcon(
-                    modifier = Modifier.padding(end = SPACING_MEDIUM.dp),
                     iconData = safeIcon,
                     customTint = selectionItemData.leadingIconTint
                 )
             }
 
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = SPACING_MEDIUM.dp)
             ) {
                 selectionItemData.overlineText?.let { safeOverlineText ->
                     Text(
@@ -115,11 +102,11 @@ internal fun SelectionItem(
             }
 
             Row(
-                modifier = Modifier.padding(start = SPACING_MEDIUM.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 selectionItemData.actionText?.let { action ->
                     Text(
+                        modifier = Modifier.padding(vertical = SPACING_EXTRA_SMALL.dp),
                         text = action,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
@@ -131,7 +118,8 @@ internal fun SelectionItem(
                 selectionItemData.trailingIcon?.let { safeIcon ->
                     WrapIcon(
                         iconData = safeIcon,
-                        customTint = MaterialTheme.colorScheme.primary
+                        customTint = selectionItemData.trailingIconTint
+                            ?: MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -139,46 +127,30 @@ internal fun SelectionItem(
     }
 }
 
-private val DummyEventForPreview = Event.ViewDocumentItemPressed(
-    documentData = DocumentData(
-        documentName = "Document.pdf",
-        uri = "mockedUri".toUri()
-    )
-)
-
 @ThemeModePreviews
 @Composable
-private fun SelectionItemWithNoSubtitlePreview() {
-    PreviewTheme {
-        SelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            selectionItemData = SelectionOptionUi(
-                mainText = "Select document",
-                actionText = "VIEW",
-                enabled = true,
-                event = DummyEventForPreview
-            ),
-            onClick = {}
-        )
-    }
-}
-
-@ThemeModePreviews
-@Composable
-private fun SelectionItemWithSubtitlePreview(
+private fun SelectionItemPreview(
     @PreviewParameter(TextLengthPreviewProvider::class) text: String
 ) {
+    val dummyEventForPreview = Event.ViewDocumentItemPressed(
+        documentData = DocumentData(
+            documentName = "Document.pdf",
+            uri = "mockedUri".toUri()
+        )
+    )
+
     PreviewTheme {
         SelectionItem(
             modifier = Modifier.fillMaxWidth(),
             selectionItemData = SelectionOptionUi(
-                mainText = text,
+                overlineText = "Document",
+                mainText = "File_to_be_signed.pdf",
                 subtitle = text,
                 actionText = "VIEW",
+                enabled = true,
+                event = dummyEventForPreview,
                 leadingIcon = AppIcons.StepOne,
                 trailingIcon = AppIcons.KeyboardArrowRight,
-                enabled = true,
-                event = DummyEventForPreview
             ),
             onClick = {}
         )

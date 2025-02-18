@@ -43,13 +43,13 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapText
  * @property isVerified A boolean indicating whether the Relying Party is verified.
  * @property name The name of the Relying Party.
  */
-data class RelyingPartyData(
+internal data class RelyingPartyData(
     val isVerified: Boolean,
     val name: String,
 )
 
 @Composable
-fun RelyingParty(
+internal fun RelyingParty(
     modifier: Modifier = Modifier,
     relyingPartyData: RelyingPartyData,
 ) {
