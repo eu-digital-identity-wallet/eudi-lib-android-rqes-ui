@@ -19,14 +19,13 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.options_selection
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -35,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -56,7 +56,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
@@ -161,11 +160,19 @@ private fun Content(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val innerComponentsModifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = paddingValues.calculateStartPadding(LocalLayoutDirection.current))
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(paddingValues)
+            .padding(
+                start = 0.dp,
+                end = 0.dp,
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding()
+            )
             .verticalScroll(scrollState)
     ) {
 
@@ -173,7 +180,8 @@ private fun Content(
             state.documentSelectionItem,
             state.documentSelectionItem?.event
         ) { safeSelectionItem, selectionItemEvent ->
-            SelectionItemWithDivider(
+            SelectionItem(
+                modifier = innerComponentsModifier,
                 selectionItemData = safeSelectionItem,
                 showDividerAbove = false,
                 onClick = onEventSend,
@@ -181,7 +189,8 @@ private fun Content(
         }
 
         state.qtspServiceSelectionItem?.let { safeSelectionItem ->
-            SelectionItemWithDivider(
+            SelectionItem(
+                modifier = innerComponentsModifier,
                 selectionItemData = safeSelectionItem,
                 showDividerAbove = true,
                 onClick = onEventSend,
@@ -190,7 +199,8 @@ private fun Content(
 
         AnimatedVisibility(visible = state.certificateDataList.isNotEmpty()) {
             state.certificateSelectionItem?.let { safeSelectionItem ->
-                SelectionItemWithDivider(
+                SelectionItem(
+                    modifier = innerComponentsModifier,
                     selectionItemData = safeSelectionItem,
                     showDividerAbove = true,
                     onClick = onEventSend,
@@ -304,35 +314,6 @@ private fun OptionsSelectionSheetContent(
             )
         }
     }
-}
-
-@Composable
-private fun <T : Event> SelectionItemWithDivider(
-    selectionItemData: SelectionOptionUi<T>,
-    showDividerAbove: Boolean,
-    onClick: (T) -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        if (showDividerAbove) {
-            ListDivider()
-            VSpacer.Medium()
-        }
-
-        SelectionItem(
-            modifier = Modifier.fillMaxWidth(),
-            selectionItemData = selectionItemData,
-            onClick = onClick
-        )
-    }
-}
-
-
-@Composable
-private fun ListDivider() {
-    HorizontalDivider(
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.outlineVariant
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

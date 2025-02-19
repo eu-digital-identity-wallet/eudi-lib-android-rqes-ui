@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +41,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.HSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_MEDIUM
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapCard
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.Event
@@ -48,6 +50,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.Event
 internal fun <T : ViewEvent> SelectionItem(
     modifier: Modifier = Modifier,
     selectionItemData: SelectionOptionUi<T>,
+    showDividerAbove: Boolean,
     onClick: ((T) -> Unit),
 ) {
     WrapCard(
@@ -57,6 +60,14 @@ internal fun <T : ViewEvent> SelectionItem(
         shape = RoundedCornerShape(SIZE_SMALL.dp),
         enabled = selectionItemData.enabled
     ) {
+        if (showDividerAbove) {
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.outlineVariant
+            )
+            VSpacer.Medium()
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -152,6 +163,7 @@ private fun SelectionItemPreview(
                 leadingIcon = AppIcons.StepOne,
                 trailingIcon = AppIcons.KeyboardArrowRight,
             ),
+            showDividerAbove = false,
             onClick = {}
         )
     }
