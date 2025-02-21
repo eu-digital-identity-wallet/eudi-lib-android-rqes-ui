@@ -215,48 +215,26 @@ private fun DefaultToolBar(
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
 ) {
-
     val isTitlePresent = !toolbarConfig?.title.isNullOrEmpty()
 
-    val topAppBar: @Composable (
-        modifier: Modifier,
-        title: @Composable () -> Unit,
-        navigationIcon: @Composable () -> Unit,
-        actions: @Composable RowScope.() -> Unit,
-        colors: TopAppBarColors
-    ) -> Unit = if (isTitlePresent) {
-        { modifier, title, navigationIcon, actions, colors ->
-            MediumTopAppBar(
-                modifier = modifier,
-                title = title,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                colors = colors
-            )
-        }
-    } else {
-        { modifier, title, navigationIcon, actions, colors ->
-            TopAppBar(
-                modifier = modifier,
-                title = title,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                colors = colors
-            )
-        }
-    }
-
     val modifier = Modifier
-        .shadow(elevation = SPACING_SMALL.dp)
-        .takeIf { toolbarConfig?.hasShadow == true } ?: Modifier
+        .fillMaxWidth()
+        .then(
+            if (toolbarConfig?.hasShadow == true) {
+                Modifier.shadow(elevation = SPACING_SMALL.dp)
+            } else {
+                Modifier
+            }
+        )
 
     val colors = TopAppBarDefaults.topAppBarColors().copy(
         containerColor = MaterialTheme.colorScheme.surface
     )
 
-    topAppBar(
-        modifier,
-        {
+    AdaptiveTopAppBar(
+        modifier = modifier,
+        hasTitle = isTitlePresent,
+        title = {
             if (isTitlePresent) {
                 Text(
                     text = toolbarConfig.title,
@@ -266,7 +244,7 @@ private fun DefaultToolBar(
                 )
             }
         },
-        {
+        navigationIcon = {
             if (navigatableAction != ScreenNavigateAction.NONE) {
                 val icon = when (navigatableAction) {
                     ScreenNavigateAction.CANCELABLE -> AppIcons.Close
@@ -284,11 +262,40 @@ private fun DefaultToolBar(
                 }
             }
         },
-        {
+        actions = {
             ToolBarActions(toolBarActions = toolbarConfig?.actions)
         },
-        colors
+        colors = colors
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AdaptiveTopAppBar(
+    modifier: Modifier,
+    hasTitle: Boolean,
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit,
+    actions: @Composable RowScope.() -> Unit,
+    colors: TopAppBarColors,
+) {
+    if (hasTitle) {
+        MediumTopAppBar(
+            modifier = modifier,
+            title = title,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            colors = colors
+        )
+    } else {
+        TopAppBar(
+            modifier = modifier,
+            title = title,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            colors = colors
+        )
+    }
 }
 
 @Composable
