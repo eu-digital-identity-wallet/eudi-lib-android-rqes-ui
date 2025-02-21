@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,9 +29,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -212,29 +215,66 @@ private fun DefaultToolBar(
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
 ) {
-    TopAppBar(
-        modifier = Modifier
-            .shadow(elevation = SPACING_SMALL.dp)
-            .takeIf { toolbarConfig?.hasShadow == true } ?: Modifier,
-        title = {
-            Text(
-                text = toolbarConfig?.title.orEmpty(),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
+
+    val isTitlePresent = !toolbarConfig?.title.isNullOrEmpty()
+
+    val topAppBar: @Composable (
+        modifier: Modifier,
+        title: @Composable () -> Unit,
+        navigationIcon: @Composable () -> Unit,
+        actions: @Composable RowScope.() -> Unit,
+        colors: TopAppBarColors
+    ) -> Unit = if (isTitlePresent) {
+        { modifier, title, navigationIcon, actions, colors ->
+            MediumTopAppBar(
+                modifier = modifier,
+                title = title,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                colors = colors
             )
+        }
+    } else {
+        { modifier, title, navigationIcon, actions, colors ->
+            TopAppBar(
+                modifier = modifier,
+                title = title,
+                navigationIcon = navigationIcon,
+                actions = actions,
+                colors = colors
+            )
+        }
+    }
+
+    val modifier = Modifier
+        .shadow(elevation = SPACING_SMALL.dp)
+        .takeIf { toolbarConfig?.hasShadow == true } ?: Modifier
+
+    val colors = TopAppBarDefaults.topAppBarColors().copy(
+        containerColor = MaterialTheme.colorScheme.surface
+    )
+
+    topAppBar(
+        modifier,
+        {
+            if (isTitlePresent) {
+                Text(
+                    text = toolbarConfig.title,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
         },
-        navigationIcon = {
-            // Check if we should add back/close button.
+        {
             if (navigatableAction != ScreenNavigateAction.NONE) {
-                val navigationIcon = when (navigatableAction) {
+                val icon = when (navigatableAction) {
                     ScreenNavigateAction.CANCELABLE -> AppIcons.Close
                     else -> AppIcons.ArrowBack
                 }
-
                 Row(modifier = Modifier.padding(start = SPACING_EXTRA_SMALL.dp)) {
                     WrapIconButton(
-                        iconData = navigationIcon,
+                        iconData = icon,
                         onClick = {
                             onBack?.invoke()
                             keyboardController?.hide()
@@ -244,12 +284,10 @@ private fun DefaultToolBar(
                 }
             }
         },
-        // Add toolbar actions.
-        actions = {
+        {
             ToolBarActions(toolBarActions = toolbarConfig?.actions)
         },
-        colors = TopAppBarDefaults.topAppBarColors()
-            .copy(containerColor = MaterialTheme.colorScheme.surface)
+        colors
     )
 }
 

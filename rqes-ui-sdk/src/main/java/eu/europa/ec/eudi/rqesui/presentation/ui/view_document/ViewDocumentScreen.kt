@@ -16,15 +16,10 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.ui.view_document
 
-import android.widget.FrameLayout
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -32,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -44,7 +38,6 @@ import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ToolbarAction
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ToolbarConfig
@@ -67,6 +60,7 @@ internal fun ViewDocumentScreen(
         isLoading = state.isLoading,
         toolBarConfig = rememberToolbarConfig(
             isSigned = state.config.isSigned,
+            state = state
         ),
         navigatableAction = ScreenNavigateAction.BACKABLE,
         onBack = {
@@ -95,51 +89,24 @@ private fun Content(
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.divider),
-        verticalArrangement = Arrangement.Top
+            .background(MaterialTheme.colorScheme.divider)
+            .padding(top = paddingValues.calculateTopPadding())
     ) {
-        ContentTitle(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
-                    end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
-                ),
-            title = state.config.documentData.documentName,
-        )
-
-        // PDF Viewer (in a FrameLayout to prevent size conflicts)
         state.config.documentData.let { file ->
             AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f), // Allocate remaining space to the PDFView
-                factory = { context ->
-                    FrameLayout(context).apply {
-                        addView(
-                            PDFView(context, null).apply {
-                                layoutParams = FrameLayout.LayoutParams(
-                                    FrameLayout.LayoutParams.MATCH_PARENT,
-                                    FrameLayout.LayoutParams.MATCH_PARENT
-                                )
-                            }
-                        )
-                    }
-                },
-                update = { frameLayout ->
-                    val pdfView = frameLayout.getChildAt(0) as? PDFView
+                modifier = Modifier.matchParentSize(),
+                factory = { context -> PDFView(context, null) },
+                update = { pdfView ->
                     pdfView
-                        ?.fromUri(file.uri)
-                        ?.enableAnnotationRendering(true)
-                        ?.onLoad {
+                        .fromUri(file.uri)
+                        .enableAnnotationRendering(true)
+                        .onLoad {
                             onEventSend(Event.LoadingStateChanged(isLoading = false))
                         }
-                        ?.load()
+                        .load()
                 }
             )
         }
@@ -157,6 +124,7 @@ private fun Content(
 @Composable
 private fun rememberToolbarConfig(
     isSigned: Boolean,
+    state: State
 ): ToolbarConfig {
     return remember(isSigned) {
         val toolbarActions = if (isSigned) {
@@ -174,7 +142,8 @@ private fun rememberToolbarConfig(
 
         ToolbarConfig(
             actions = toolbarActions,
-            hasShadow = false,
+            hasShadow = true,
+            title = state.config.documentData.documentName
         )
     }
 }
