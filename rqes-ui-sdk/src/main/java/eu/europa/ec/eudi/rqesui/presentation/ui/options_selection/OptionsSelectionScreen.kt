@@ -50,8 +50,8 @@ import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SelectionItem
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentTitle
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ToolbarConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
@@ -88,6 +88,7 @@ internal fun OptionsSelectionScreen(
         navigatableAction = ScreenNavigateAction.CANCELABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
         contentErrorConfig = state.error,
+        toolBarConfig = ToolbarConfig(title = state.title),
         stickyBottom = { paddingValues ->
             if (state.isBottomBarButtonVisible) {
                 state.bottomBarButtonAction?.let { safeButtonAction ->
@@ -167,7 +168,6 @@ private fun Content(
             .padding(paddingValues)
             .verticalScroll(scrollState)
     ) {
-        ContentTitle(title = state.title)
 
         safeLet(
             state.documentSelectionItem,
