@@ -104,6 +104,7 @@ private fun ErrorTitle(
             text = title,
             style = titleStyle,
         )
+
         VSpacer.Large()
 
         subtitle?.let { safeSubtitle ->
@@ -120,7 +121,7 @@ private fun ErrorTitle(
 
 @ThemeModePreviews
 @Composable
-private fun ErrorTitlePreview() {
+private fun PreviewErrorTitlePreview() {
     PreviewTheme {
         ErrorTitle(
             modifier = Modifier.fillMaxWidth(),
@@ -132,7 +133,7 @@ private fun ErrorTitlePreview() {
 
 @ThemeModePreviews
 @Composable
-private fun ContentTitleNoSubtitlePreview() {
+private fun PreviewErrorTitleNoSubtitlePreview() {
     PreviewTheme {
         ErrorTitle(
             modifier = Modifier.fillMaxWidth(),
