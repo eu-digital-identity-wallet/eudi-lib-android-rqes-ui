@@ -121,7 +121,7 @@ private fun ErrorTitle(
 
 @ThemeModePreviews
 @Composable
-private fun PreviewErrorTitlePreview() {
+private fun PreviewErrorTitle() {
     PreviewTheme {
         ErrorTitle(
             modifier = Modifier.fillMaxWidth(),
@@ -133,7 +133,7 @@ private fun PreviewErrorTitlePreview() {
 
 @ThemeModePreviews
 @Composable
-private fun PreviewErrorTitleNoSubtitlePreview() {
+private fun PreviewErrorTitleNoSubtitle() {
     PreviewTheme {
         ErrorTitle(
             modifier = Modifier.fillMaxWidth(),
