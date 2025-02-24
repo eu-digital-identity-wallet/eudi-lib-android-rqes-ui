@@ -43,6 +43,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedDocumentNotFoundMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
+import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedGenericServiceErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
@@ -128,6 +129,8 @@ class TestRqesController {
             .thenReturn(mockedGenericErrorMessage)
         whenever(resourceProvider.genericServiceErrorMessage())
             .thenReturn(mockedGenericServiceErrorMessage)
+        whenever(resourceProvider.genericErrorTitle())
+            .thenReturn(mockedGenericErrorTitle)
     }
 
     @After
@@ -261,7 +264,8 @@ class TestRqesController {
         val result = rqesController.getQtsps()
 
         // Assert
-        val expectedError = EudiRQESUiError(message = mockedGenericErrorMessage)
+        val expectedError =
+            EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedGenericErrorMessage)
         assertEquals(
             expectedError.message,
             (result as EudiRqesGetQtspsPartialState.Failure).error.message,

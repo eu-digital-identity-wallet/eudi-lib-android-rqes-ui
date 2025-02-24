@@ -38,6 +38,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
+import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
@@ -100,6 +101,8 @@ class TestSuccessInteractor {
         whenever(resourceProvider.genericErrorMessage())
             .thenReturn(mockedGenericErrorMessage)
         whenever(resourceProvider.provideContext()).thenReturn(context)
+        whenever(resourceProvider.genericErrorTitle())
+            .thenReturn(mockedGenericErrorTitle)
     }
 
     @After
@@ -138,7 +141,8 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 2, When getSelectedFileAndQtsp is called, Then Case 2 expected result is returned`() {
         // Arrange
-        val error = EudiRQESUiError(message = mockedPlainFailureMessage)
+        val error =
+            EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedPlainFailureMessage)
         mockGetSelectedFileCall(event = EudiRqesGetSelectedFilePartialState.Failure(error = error))
 
         // Act
@@ -162,7 +166,8 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 3, When getSelectedFileAndQtsp is called, Then Case 3 expected result is returned`() {
         // Arrange
-        val error = EudiRQESUiError(message = mockedPlainFailureMessage)
+        val error =
+            EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedPlainFailureMessage)
         mockGetSelectedFileCall(event = EudiRqesGetSelectedFilePartialState.Success(file = documentData))
         mockGetSelectedQtspCall(event = EudiRqesGetSelectedQtspPartialState.Failure(error = error))
 
@@ -270,7 +275,10 @@ class TestSuccessInteractor {
     fun `Given Case 2, When signAndSaveDocument is called, Then Case 2 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val error = EudiRQESUiError(message = mockedPlainFailureMessage)
+            val error = EudiRQESUiError(
+                title = mockedGenericErrorTitle,
+                message = mockedPlainFailureMessage
+            )
             mockAuthorizeCredentialCall(
                 response = EudiRqesAuthorizeCredentialPartialState.Failure(
                     error = error
@@ -299,7 +307,10 @@ class TestSuccessInteractor {
     fun `Given Case 3, When signAndSaveDocument is called, Then Case 3 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val error = EudiRQESUiError(message = mockedPlainFailureMessage)
+            val error = EudiRQESUiError(
+                title = mockedGenericErrorTitle,
+                message = mockedPlainFailureMessage
+            )
             mockAuthorizeCredentialCall(
                 response = EudiRqesAuthorizeCredentialPartialState.Success(
                     credentialAuthorized
@@ -331,7 +342,10 @@ class TestSuccessInteractor {
     fun `Given Case 4, When signAndSaveDocument is called, Then Case 4 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val error = EudiRQESUiError(message = mockedPlainFailureMessage)
+            val error = EudiRQESUiError(
+                title = mockedGenericErrorTitle,
+                message = mockedPlainFailureMessage
+            )
             mockAuthorizeCredentialCall(
                 response = EudiRqesAuthorizeCredentialPartialState.Success(
                     authorizedCredential = credentialAuthorized

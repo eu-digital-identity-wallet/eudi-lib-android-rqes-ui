@@ -39,7 +39,7 @@ import org.koin.compose.koinInject
 
 internal data class ContentErrorConfig(
     val errorTitle: String,
-    val errorSubTitle: String? = null,
+    val errorSubTitle: String,
     val onCancel: () -> Unit,
     val onRetry: (() -> Unit)? = null
 )
@@ -55,10 +55,6 @@ internal fun ContentError(
     subTitleMaxLines: Int = Int.MAX_VALUE
 ) {
 
-    val subtitle = config.errorSubTitle ?: resourceProvider.getLocalizedString(
-        LocalizableKey.GenericErrorDescription
-    )
-
     Column(
         Modifier
             .fillMaxSize()
@@ -67,7 +63,7 @@ internal fun ContentError(
 
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = subtitle,
+            text = config.errorSubTitle,
             style = subtitleStyle,
             maxLines = subTitleMaxLines,
             overflow = TextOverflow.Ellipsis
@@ -100,6 +96,7 @@ private fun PreviewContentErrorScreen() {
         ContentError(
             config = ContentErrorConfig(
                 errorTitle = "Error Title",
+                errorSubTitle = "Error Message",
                 onCancel = {}
             ),
             paddingValues = PaddingValues(SIZE_MEDIUM.dp)
