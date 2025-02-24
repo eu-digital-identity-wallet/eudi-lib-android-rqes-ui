@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -57,7 +56,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.loader.LoadingIndicato
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.MAX_TOOLBAR_ACTIONS
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.TopSpacing
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.Z_STICKY
@@ -246,20 +244,20 @@ private fun DefaultToolBar(
         },
         navigationIcon = {
             if (navigatableAction != ScreenNavigateAction.NONE) {
-                val icon = when (navigatableAction) {
+                val navigationIcon = when (navigatableAction) {
                     ScreenNavigateAction.CANCELABLE -> AppIcons.Close
                     else -> AppIcons.ArrowBack
                 }
-                Row(modifier = Modifier.padding(start = SPACING_EXTRA_SMALL.dp)) {
-                    WrapIconButton(
-                        iconData = icon,
+
+                ToolbarIcon(
+                    toolbarAction = ToolbarAction(
+                        icon = navigationIcon,
                         onClick = {
                             onBack?.invoke()
                             keyboardController?.hide()
-                        },
-                        customTint = MaterialTheme.colorScheme.onSurface
+                        }
                     )
-                }
+                )
             }
         },
         actions = {
@@ -305,9 +303,7 @@ private fun ToolBarActions(
 ) {
     toolBarActions?.let { actions ->
 
-        var dropDownMenuExpanded by remember {
-            mutableStateOf(false)
-        }
+        var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
         // Show first [MAX_TOOLBAR_ACTIONS] actions.
         actions
@@ -320,12 +316,12 @@ private fun ToolBarActions(
         // Check if there are more actions to show.
         if (actions.size > maxActionsShown) {
             Box {
-                val iconMore = AppIcons.VerticalMore
-                WrapIconButton(
-                    onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
-                    iconData = iconMore,
-                    enabled = true,
-                    customTint = MaterialTheme.colorScheme.primary
+                ToolbarIcon(
+                    toolbarAction = ToolbarAction(
+                        icon = AppIcons.VerticalMore,
+                        onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
+                        enabled = true,
+                    )
                 )
                 DropdownMenu(
                     expanded = dropDownMenuExpanded,
@@ -346,7 +342,7 @@ private fun ToolBarActions(
 @Composable
 private fun ToolbarIcon(toolbarAction: ToolbarAction) {
     val customIconTint = toolbarAction.customTint
-        ?: MaterialTheme.colorScheme.primary
+        ?: MaterialTheme.colorScheme.onSurface
 
     if (toolbarAction.clickable) {
         WrapIconButton(
