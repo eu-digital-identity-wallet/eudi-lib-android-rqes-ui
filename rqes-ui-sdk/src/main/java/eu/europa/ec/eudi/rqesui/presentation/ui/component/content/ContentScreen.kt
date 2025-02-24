@@ -148,6 +148,7 @@ internal fun ContentScreen(
                     onBack = contentErrorConfig?.onCancel ?: onBack,
                     keyboardController = keyboardController,
                     toolbarConfig = toolBarConfig,
+                    contentErrorConfig = contentErrorConfig
                 )
             }
         },
@@ -212,8 +213,11 @@ private fun DefaultToolBar(
     onBack: (() -> Unit)?,
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
+    contentErrorConfig: ContentErrorConfig?
 ) {
-    val isTitlePresent = !toolbarConfig?.title.isNullOrEmpty()
+
+    val title = contentErrorConfig?.errorTitle ?: toolbarConfig?.title
+    val isTitlePresent = !title.isNullOrEmpty()
 
     val modifier = Modifier
         .fillMaxWidth()
@@ -235,7 +239,7 @@ private fun DefaultToolBar(
         title = {
             if (isTitlePresent) {
                 Text(
-                    text = toolbarConfig.title,
+                    text = title,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
