@@ -79,6 +79,9 @@ internal class OptionsSelectionInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
+    private val genericErrorTitle
+        get() = resourceProvider.genericErrorTitle()
+
     override fun getQtsps(): EudiRqesGetQtspsPartialState {
         return eudiRqesController.getQtsps()
     }
@@ -128,6 +131,7 @@ internal class OptionsSelectionInteractorImpl(
             }.getOrElse {
                 OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = it.localizedMessage ?: genericErrorMsg
                     )
                 )
@@ -159,11 +163,15 @@ internal class OptionsSelectionInteractorImpl(
                         }
                     }
                 } ?: return@runCatching EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
-                    error = EudiRQESUiError(message = genericErrorMsg)
+                    error = EudiRQESUiError(
+                        title = genericErrorTitle,
+                        message = genericErrorMsg
+                    )
                 )
             }.getOrElse {
                 EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = it.localizedMessage ?: genericErrorMsg
                     )
                 )
@@ -189,6 +197,7 @@ internal class OptionsSelectionInteractorImpl(
         }.getOrElse {
             OptionsSelectionInteractorGetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )

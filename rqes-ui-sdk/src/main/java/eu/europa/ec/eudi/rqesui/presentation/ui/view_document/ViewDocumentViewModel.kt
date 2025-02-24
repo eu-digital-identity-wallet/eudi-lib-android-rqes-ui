@@ -29,7 +29,6 @@ import org.koin.core.annotation.InjectedParam
 
 internal data class State(
     val config: ViewDocumentUiConfig,
-
     val isLoading: Boolean = false,
     val buttonText: String,
 ) : ViewState
@@ -37,7 +36,6 @@ internal data class State(
 internal sealed class Event : ViewEvent {
     data object Pop : Event()
     data object BottomBarButtonPressed : Event()
-
     data class LoadingStateChanged(val isLoading: Boolean) : Event()
 }
 

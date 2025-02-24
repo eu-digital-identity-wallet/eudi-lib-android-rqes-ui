@@ -51,6 +51,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationUrl
 import eu.europa.ec.eudi.rqesui.util.mockedCertificateName
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import eu.europa.ec.eudi.rqesui.util.mockedFetchCertificatesFailureMessage
+import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedLocalFileUri
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
@@ -362,7 +363,10 @@ class TestOptionsSelectionViewModel {
             whenever(optionsSelectionInteractor.getSelectedFile())
                 .thenReturn(
                     EudiRqesGetSelectedFilePartialState.Failure(
-                        error = EudiRQESUiError(message = errorMessage)
+                        error = EudiRQESUiError(
+                            title = mockedGenericErrorTitle,
+                            message = errorMessage
+                        )
                     )
                 )
 
@@ -416,7 +420,10 @@ class TestOptionsSelectionViewModel {
             whenever(optionsSelectionInteractor.getSelectedQtsp())
                 .thenReturn(
                     OptionsSelectionInteractorGetSelectedQtspPartialState.Failure(
-                        error = EudiRQESUiError(message = errorMessage)
+                        error = EudiRQESUiError(
+                            title = mockedGenericErrorTitle,
+                            message = errorMessage
+                        )
                     )
                 )
 
@@ -530,7 +537,7 @@ class TestOptionsSelectionViewModel {
             // Arrange
             val errorMessage = mockedPlainFailureMessage
             val failureState = EudiRqesGetQtspsPartialState.Failure(
-                error = EudiRQESUiError(message = errorMessage)
+                error = EudiRQESUiError(title = mockedGenericErrorTitle, message = errorMessage)
             )
             whenever(optionsSelectionInteractor.getQtsps())
                 .thenReturn(failureState)
@@ -785,7 +792,10 @@ class TestOptionsSelectionViewModel {
         coroutineRule.runTest {
             // Arrange
             val failureState = EudiRqesSetSelectedQtspPartialState.Failure(
-                error = EudiRQESUiError(message = mockedPlainFailureMessage)
+                error = EudiRQESUiError(
+                    title = mockedGenericErrorTitle,
+                    message = mockedPlainFailureMessage
+                )
             )
             whenever(optionsSelectionInteractor.updateQtspUserSelection(qtspData)).thenReturn(
                 failureState
@@ -1003,7 +1013,10 @@ class TestOptionsSelectionViewModel {
             whenever(optionsSelectionInteractor.getCredentialAuthorizationUrl(certificateData))
                 .thenReturn(
                     EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
-                        error = EudiRQESUiError(message = errorMessage)
+                        error = EudiRQESUiError(
+                            title = mockedGenericErrorTitle,
+                            message = errorMessage
+                        )
                     )
                 )
 
@@ -1151,7 +1164,10 @@ class TestOptionsSelectionViewModel {
             // Arrange
             val response =
                 OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
-                    EudiRQESUiError(message = mockedFetchCertificatesFailureMessage)
+                    EudiRQESUiError(
+                        title = mockedGenericErrorTitle,
+                        message = mockedFetchCertificatesFailureMessage
+                    )
                 )
             mockAuthorizeServiceAndFetchCertificatesCall(response = response)
 

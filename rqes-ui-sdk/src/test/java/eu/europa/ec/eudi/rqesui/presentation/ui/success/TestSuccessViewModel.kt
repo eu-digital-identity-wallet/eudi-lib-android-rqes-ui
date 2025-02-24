@@ -39,6 +39,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeaderC
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
+import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedLocalFileUri
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
@@ -246,7 +247,10 @@ class TestSuccessViewModel {
             // Arrange
             val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
             val errorResponse = SuccessInteractorSignAndSaveDocumentPartialState.Failure(
-                error = EudiRQESUiError(mockedPlainFailureMessage)
+                error = EudiRQESUiError(
+                    title = mockedGenericErrorTitle,
+                    message = mockedPlainFailureMessage
+                )
             )
             mockSignAndSaveDocumentCall(documentName = mockedDocumentName, response = errorResponse)
 

@@ -17,6 +17,7 @@
 package eu.europa.ec.eudi.rqesui.domain.entities.error
 
 class EudiRQESUiError(
+    val title: String,
     override val message: String,
     override val cause: Throwable? = null
 ) : Exception(message, cause)

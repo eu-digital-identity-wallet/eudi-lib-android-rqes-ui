@@ -192,6 +192,7 @@ internal class SuccessViewModel(
                 setState {
                     copy(
                         error = ContentErrorConfig(
+                            errorTitle = getSelectFileAndQtspResponse.error.title,
                             onRetry = {
                                 setEvent(Event.DismissError)
                                 setEvent(event)
@@ -231,6 +232,7 @@ internal class SuccessViewModel(
                     setState {
                         copy(
                             error = ContentErrorConfig(
+                                errorTitle = response.error.title,
                                 onRetry = {
                                     setEvent(Event.DismissError)
                                     setEvent(event)

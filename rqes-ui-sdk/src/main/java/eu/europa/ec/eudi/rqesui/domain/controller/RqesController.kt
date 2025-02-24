@@ -85,6 +85,9 @@ internal class RqesControllerImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
+    private val genericErrorTitle
+        get() = resourceProvider.genericErrorTitle()
+
     private val genericServiceErrorMsg
         get() = resourceProvider.genericServiceErrorMessage()
 
@@ -95,12 +98,14 @@ internal class RqesControllerImpl(
                 EudiRqesGetSelectedFilePartialState.Success(file = safeSelectedFile)
             } ?: EudiRqesGetSelectedFilePartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound)
                 )
             )
         }.getOrElse {
             EudiRqesGetSelectedFilePartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )
@@ -113,6 +118,7 @@ internal class RqesControllerImpl(
         }.getOrElse {
             EudiRqesGetQtspsPartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )
@@ -140,6 +146,7 @@ internal class RqesControllerImpl(
         }.getOrElse {
             EudiRqesSetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )
@@ -153,12 +160,14 @@ internal class RqesControllerImpl(
                 EudiRqesGetSelectedQtspPartialState.Success(qtsp = safeSelectedQtsp)
             } ?: EudiRqesGetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound)
                 )
             )
         }.getOrElse {
             EudiRqesGetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )
@@ -175,6 +184,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesGetServiceAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericServiceErrorMsg
                     )
                 )
@@ -196,12 +206,14 @@ internal class RqesControllerImpl(
                     EudiRqesAuthorizeServicePartialState.Success(authorizedService = authorizedService)
                 } ?: EudiRqesAuthorizeServicePartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericErrorMsg
                     )
                 )
             }.getOrElse {
                 EudiRqesAuthorizeServicePartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericServiceErrorMsg
                     )
                 )
@@ -235,6 +247,7 @@ internal class RqesControllerImpl(
                 } else {
                     EudiRqesGetCertificatesPartialState.Failure(
                         error = EudiRQESUiError(
+                            title = genericErrorTitle,
                             message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorCertificatesNotFound)
                         )
                     )
@@ -242,6 +255,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesGetCertificatesPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericServiceErrorMsg
                     )
                 )
@@ -281,6 +295,7 @@ internal class RqesControllerImpl(
                     EudiRqesGetCredentialAuthorizationUrlPartialState.Success(authorizationUrl = authorizationUrl)
                 } ?: EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = resourceProvider.getLocalizedString(
                             LocalizableKey.GenericErrorDocumentNotFound
                         )
@@ -289,6 +304,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericServiceErrorMsg
                     )
                 )
@@ -311,12 +327,14 @@ internal class RqesControllerImpl(
                     EudiRqesAuthorizeCredentialPartialState.Success(authorizedCredential = authorizedCredential)
                 } ?: EudiRqesAuthorizeCredentialPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericErrorMsg
                     )
                 )
             }.getOrElse {
                 EudiRqesAuthorizeCredentialPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericServiceErrorMsg
                     )
                 )
@@ -332,6 +350,7 @@ internal class RqesControllerImpl(
             }.getOrElse {
                 EudiRqesSignDocumentsPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = genericServiceErrorMsg
                     )
                 )
@@ -361,12 +380,16 @@ internal class RqesControllerImpl(
                     EudiRqesSaveSignedDocumentsPartialState.Success(savedDocumentsUri = uris)
                 } else {
                     EudiRqesSaveSignedDocumentsPartialState.Failure(
-                        error = EudiRQESUiError(message = genericErrorMsg)
+                        error = EudiRQESUiError(
+                            title = genericErrorTitle,
+                            message = genericErrorMsg
+                        )
                     )
                 }
             }.getOrElse {
                 EudiRqesSaveSignedDocumentsPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = it.localizedMessage ?: genericErrorMsg
                     )
                 )
@@ -397,6 +420,7 @@ internal class RqesControllerImpl(
         }.getOrElse {
             EudiRqesCreateServicePartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )

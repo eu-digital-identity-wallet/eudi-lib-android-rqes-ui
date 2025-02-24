@@ -16,7 +16,6 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.ui.component.content
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -35,13 +34,12 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_MEDIUM
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.VSpacer
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 import org.koin.compose.koinInject
 
 internal data class ContentErrorConfig(
-    val errorTitle: String? = null,
-    val errorSubTitle: String? = null,
+    val errorTitle: String,
+    val errorSubTitle: String,
     val onCancel: () -> Unit,
     val onRetry: (() -> Unit)? = null
 )
@@ -51,18 +49,24 @@ internal fun ContentError(
     config: ContentErrorConfig,
     paddingValues: PaddingValues,
     resourceProvider: ResourceProvider = koinInject(),
+    subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
+        color = MaterialTheme.colorScheme.onSurface
+    ),
+    subTitleMaxLines: Int = Int.MAX_VALUE
 ) {
+
     Column(
         Modifier
             .fillMaxSize()
-            .padding(paddingValues),
+            .padding(paddingValues)
     ) {
-        ErrorTitle(
-            title = config.errorTitle
-                ?: resourceProvider.getLocalizedString(LocalizableKey.GenericErrorMessage),
-            subtitle = config.errorSubTitle
-                ?: resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDescription),
-            subTitleMaxLines = 10
+
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            text = config.errorSubTitle,
+            style = subtitleStyle,
+            maxLines = subTitleMaxLines,
+            overflow = TextOverflow.Ellipsis
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -82,67 +86,6 @@ internal fun ContentError(
     }
 }
 
-@Composable
-private fun ErrorTitle(
-    modifier: Modifier = Modifier,
-    title: String,
-    subtitle: String? = null,
-    titleStyle: TextStyle = MaterialTheme.typography.headlineSmall.copy(
-        color = MaterialTheme.colorScheme.onSurface
-    ),
-    subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.onSurface
-    ),
-    subTitleMaxLines: Int = Int.MAX_VALUE,
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Top
-    ) {
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            text = title,
-            style = titleStyle,
-        )
-
-        VSpacer.Large()
-
-        subtitle?.let { safeSubtitle ->
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = safeSubtitle,
-                style = subtitleStyle,
-                maxLines = subTitleMaxLines,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
-
-@ThemeModePreviews
-@Composable
-private fun PreviewErrorTitle() {
-    PreviewTheme {
-        ErrorTitle(
-            modifier = Modifier.fillMaxWidth(),
-            title = "Title",
-            subtitle = "Subtitle"
-        )
-    }
-}
-
-@ThemeModePreviews
-@Composable
-private fun PreviewErrorTitleNoSubtitle() {
-    PreviewTheme {
-        ErrorTitle(
-            modifier = Modifier.fillMaxWidth(),
-            title = "Title",
-            subtitle = null
-        )
-    }
-}
-
 /**
  * Preview composable of [ContentError].
  */
@@ -151,7 +94,11 @@ private fun PreviewErrorTitleNoSubtitle() {
 private fun PreviewContentErrorScreen() {
     PreviewTheme {
         ContentError(
-            config = ContentErrorConfig(onCancel = {}),
+            config = ContentErrorConfig(
+                errorTitle = "Error Title",
+                errorSubTitle = "Error Message",
+                onCancel = {}
+            ),
             paddingValues = PaddingValues(SIZE_MEDIUM.dp)
         )
     }
