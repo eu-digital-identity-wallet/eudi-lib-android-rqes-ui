@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -57,7 +56,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.loader.LoadingIndicato
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.MAX_TOOLBAR_ACTIONS
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.TopSpacing
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.Z_STICKY
@@ -215,48 +213,26 @@ private fun DefaultToolBar(
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
 ) {
-
     val isTitlePresent = !toolbarConfig?.title.isNullOrEmpty()
 
-    val topAppBar: @Composable (
-        modifier: Modifier,
-        title: @Composable () -> Unit,
-        navigationIcon: @Composable () -> Unit,
-        actions: @Composable RowScope.() -> Unit,
-        colors: TopAppBarColors
-    ) -> Unit = if (isTitlePresent) {
-        { modifier, title, navigationIcon, actions, colors ->
-            MediumTopAppBar(
-                modifier = modifier,
-                title = title,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                colors = colors
-            )
-        }
-    } else {
-        { modifier, title, navigationIcon, actions, colors ->
-            TopAppBar(
-                modifier = modifier,
-                title = title,
-                navigationIcon = navigationIcon,
-                actions = actions,
-                colors = colors
-            )
-        }
-    }
-
     val modifier = Modifier
-        .shadow(elevation = SPACING_SMALL.dp)
-        .takeIf { toolbarConfig?.hasShadow == true } ?: Modifier
+        .fillMaxWidth()
+        .then(
+            if (toolbarConfig?.hasShadow == true) {
+                Modifier.shadow(elevation = SPACING_SMALL.dp)
+            } else {
+                Modifier
+            }
+        )
 
     val colors = TopAppBarDefaults.topAppBarColors().copy(
         containerColor = MaterialTheme.colorScheme.surface
     )
 
-    topAppBar(
-        modifier,
-        {
+    AdaptiveTopAppBar(
+        modifier = modifier,
+        hasTitle = isTitlePresent,
+        title = {
             if (isTitlePresent) {
                 Text(
                     text = toolbarConfig.title,
@@ -266,29 +242,58 @@ private fun DefaultToolBar(
                 )
             }
         },
-        {
+        navigationIcon = {
             if (navigatableAction != ScreenNavigateAction.NONE) {
-                val icon = when (navigatableAction) {
+                val navigationIcon = when (navigatableAction) {
                     ScreenNavigateAction.CANCELABLE -> AppIcons.Close
                     else -> AppIcons.ArrowBack
                 }
-                Row(modifier = Modifier.padding(start = SPACING_EXTRA_SMALL.dp)) {
-                    WrapIconButton(
-                        iconData = icon,
+
+                ToolbarIcon(
+                    toolbarAction = ToolbarAction(
+                        icon = navigationIcon,
                         onClick = {
                             onBack?.invoke()
                             keyboardController?.hide()
-                        },
-                        customTint = MaterialTheme.colorScheme.onSurface
+                        }
                     )
-                }
+                )
             }
         },
-        {
+        actions = {
             ToolBarActions(toolBarActions = toolbarConfig?.actions)
         },
-        colors
+        colors = colors
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AdaptiveTopAppBar(
+    modifier: Modifier,
+    hasTitle: Boolean,
+    title: @Composable () -> Unit,
+    navigationIcon: @Composable () -> Unit,
+    actions: @Composable RowScope.() -> Unit,
+    colors: TopAppBarColors,
+) {
+    if (hasTitle) {
+        MediumTopAppBar(
+            modifier = modifier,
+            title = title,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            colors = colors
+        )
+    } else {
+        TopAppBar(
+            modifier = modifier,
+            title = title,
+            navigationIcon = navigationIcon,
+            actions = actions,
+            colors = colors
+        )
+    }
 }
 
 @Composable
@@ -298,9 +303,7 @@ private fun ToolBarActions(
 ) {
     toolBarActions?.let { actions ->
 
-        var dropDownMenuExpanded by remember {
-            mutableStateOf(false)
-        }
+        var dropDownMenuExpanded by remember { mutableStateOf(false) }
 
         // Show first [MAX_TOOLBAR_ACTIONS] actions.
         actions
@@ -313,12 +316,12 @@ private fun ToolBarActions(
         // Check if there are more actions to show.
         if (actions.size > maxActionsShown) {
             Box {
-                val iconMore = AppIcons.VerticalMore
-                WrapIconButton(
-                    onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
-                    iconData = iconMore,
-                    enabled = true,
-                    customTint = MaterialTheme.colorScheme.primary
+                ToolbarIcon(
+                    toolbarAction = ToolbarAction(
+                        icon = AppIcons.VerticalMore,
+                        onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
+                        enabled = true,
+                    )
                 )
                 DropdownMenu(
                     expanded = dropDownMenuExpanded,
@@ -339,7 +342,7 @@ private fun ToolBarActions(
 @Composable
 private fun ToolbarIcon(toolbarAction: ToolbarAction) {
     val customIconTint = toolbarAction.customTint
-        ?: MaterialTheme.colorScheme.primary
+        ?: MaterialTheme.colorScheme.onSurface
 
     if (toolbarAction.clickable) {
         WrapIconButton(
