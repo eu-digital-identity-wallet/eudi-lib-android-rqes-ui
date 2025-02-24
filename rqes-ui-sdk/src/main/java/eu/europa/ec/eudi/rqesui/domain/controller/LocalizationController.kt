@@ -53,7 +53,10 @@ internal class LocalizationControllerImpl(
         args: List<String>,
     ): String {
         if (config.translations.isEmpty()) {
-            throw EudiRQESUiError(message = "No translations found. Please provide translations in the config.")
+            throw EudiRQESUiError(
+                title = "Translation Error",
+                message = "No translations found. Please provide translations in the config."
+            )
         }
 
         val language = Locale.getDefault().language

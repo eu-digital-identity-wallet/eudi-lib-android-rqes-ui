@@ -44,6 +44,9 @@ internal class SuccessInteractorImpl(
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
+    private val genericErrorTitle
+        get() = resourceProvider.genericErrorTitle()
+
     override fun getSelectedFileAndQtsp(): SuccessInteractorGetSelectedFileAndQtspPartialState {
         return runCatching {
             when (val getSelectedFileResponse = eudiRqesController.getSelectedFile()) {
@@ -73,6 +76,7 @@ internal class SuccessInteractorImpl(
         }.getOrElse {
             SuccessInteractorGetSelectedFileAndQtspPartialState.Failure(
                 error = EudiRQESUiError(
+                    title = genericErrorTitle,
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )
@@ -140,6 +144,7 @@ internal class SuccessInteractorImpl(
             }.getOrElse {
                 SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                     error = EudiRQESUiError(
+                        title = genericErrorTitle,
                         message = it.localizedMessage ?: genericErrorMsg
                     )
                 )

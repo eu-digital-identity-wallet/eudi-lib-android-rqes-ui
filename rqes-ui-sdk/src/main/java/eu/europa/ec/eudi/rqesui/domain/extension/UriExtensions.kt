@@ -39,7 +39,12 @@ internal fun Uri.getFileName(context: Context): Result<String> {
         cursor.getString(nameIndex)
     }
     return if (fileName.isNullOrEmpty()) {
-        Result.failure(EudiRQESUiError(message = "Unable to determine file name"))
+        Result.failure(
+            EudiRQESUiError(
+                title = "File Error",
+                message = "Unable to determine file name"
+            )
+        )
     } else {
         Result.success(fileName)
     }

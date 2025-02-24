@@ -38,7 +38,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
 import org.koin.compose.koinInject
 
 internal data class ContentErrorConfig(
-    val errorTitle: String? = null,
+    val errorTitle: String,
     val errorSubTitle: String? = null,
     val onCancel: () -> Unit,
     val onRetry: (() -> Unit)? = null
@@ -98,7 +98,10 @@ internal fun ContentError(
 private fun PreviewContentErrorScreen() {
     PreviewTheme {
         ContentError(
-            config = ContentErrorConfig(onCancel = {}),
+            config = ContentErrorConfig(
+                errorTitle = "Error Title",
+                onCancel = {}
+            ),
             paddingValues = PaddingValues(SIZE_MEDIUM.dp)
         )
     }

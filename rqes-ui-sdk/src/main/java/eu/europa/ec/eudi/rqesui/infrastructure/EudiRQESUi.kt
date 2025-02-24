@@ -40,6 +40,9 @@ import org.koin.ksp.generated.module
 
 object EudiRQESUi {
 
+    private const val SDK_NOT_INITIALIZED_TITLE =
+        "EudiRQESUi Error"
+
     private const val SDK_NOT_INITIALIZED_MESSAGE =
         "Before calling resume, SDK must be initialized firstly. Call EudiRQESUi.launchSDK()"
 
@@ -124,6 +127,7 @@ object EudiRQESUi {
     ) {
         if (!::sessionData.isInitialized) {
             throw EudiRQESUiError(
+                title = SDK_NOT_INITIALIZED_TITLE,
                 message = SDK_NOT_INITIALIZED_MESSAGE
             )
         }
@@ -146,7 +150,10 @@ object EudiRQESUi {
     @Throws(EudiRQESUiError::class)
     internal fun getEudiRQESUiConfig(): EudiRQESUiConfig {
         if (!::_eudiRQESUiConfig.isInitialized) {
-            throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
+            throw EudiRQESUiError(
+                title = SDK_NOT_INITIALIZED_TITLE,
+                message = SDK_NOT_INITIALIZED_MESSAGE
+            )
         }
         return _eudiRQESUiConfig
     }
@@ -195,7 +202,10 @@ object EudiRQESUi {
                 )
             )
         } else {
-            throw EudiRQESUiError(message = "Context passed is not an Activity.")
+            throw EudiRQESUiError(
+                title = "Context Error",
+                message = "Context passed is not an Activity."
+            )
         }
     }
 
@@ -230,7 +240,10 @@ object EudiRQESUi {
                     State.Success
                 }
             }
-        } ?: throw EudiRQESUiError(message = SDK_NOT_INITIALIZED_MESSAGE)
+        } ?: throw EudiRQESUiError(
+            title = SDK_NOT_INITIALIZED_TITLE,
+            message = SDK_NOT_INITIALIZED_MESSAGE
+        )
     }
 
     private fun setState(state: State) {

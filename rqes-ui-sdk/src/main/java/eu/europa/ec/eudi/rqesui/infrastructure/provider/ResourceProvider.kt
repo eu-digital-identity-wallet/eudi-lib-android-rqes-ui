@@ -31,6 +31,7 @@ internal interface ResourceProvider {
     fun getStringFromRaw(@RawRes resId: Int): String
     fun getQuantityString(@PluralsRes resId: Int, quantity: Int, vararg formatArgs: Any): String
     fun getString(@StringRes resId: Int, vararg formatArgs: Any): String
+    fun genericErrorTitle(): String
     fun genericErrorMessage(): String
     fun genericServiceErrorMessage(): String
     fun getLocalizedString(localizableKey: LocalizableKey, args: List<String> = emptyList()): String
@@ -44,6 +45,9 @@ internal class ResourceProviderImpl(
     override fun provideContext() = context
 
     override fun provideContentResolver(): ContentResolver = context.contentResolver
+
+    override fun genericErrorTitle(): String =
+        getLocalizedString(LocalizableKey.GenericErrorMessage)
 
     override fun genericErrorMessage() = getLocalizedString(LocalizableKey.GenericErrorDescription)
 

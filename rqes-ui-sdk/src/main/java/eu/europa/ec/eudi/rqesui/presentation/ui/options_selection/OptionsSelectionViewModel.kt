@@ -236,6 +236,7 @@ internal class OptionsSelectionViewModel(
                         setState {
                             copy(
                                 error = ContentErrorConfig(
+                                    errorTitle = response.error.title,
                                     onRetry = {
                                         setEvent(Event.DismissError)
                                         setEvent(event)
@@ -332,6 +333,7 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(
                         error = ContentErrorConfig(
+                            errorTitle = response.error.title,
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
                             onCancel = {
@@ -371,6 +373,7 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(
                         error = ContentErrorConfig(
+                            errorTitle = response.error.title,
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
                             onCancel = {
@@ -407,6 +410,7 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(
                         error = ContentErrorConfig(
+                            errorTitle = response.error.title,
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
                             onCancel = {
@@ -485,6 +489,7 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(
                         error = ContentErrorConfig(
+                            errorTitle = response.error.title,
                             onRetry = { setEvent(event) },
                             errorSubTitle = response.error.message,
                             onCancel = {
@@ -532,6 +537,7 @@ internal class OptionsSelectionViewModel(
                     setState {
                         copy(
                             error = ContentErrorConfig(
+                                errorTitle = response.error.title,
                                 onRetry = {
                                     setEvent(Event.DismissError)
                                     setEvent(event)
@@ -568,6 +574,7 @@ internal class OptionsSelectionViewModel(
                         copy(
                             certificateDataList = emptyList(),
                             error = ContentErrorConfig(
+                                errorTitle = response.error.title,
                                 onRetry = {
                                     setEvent(Event.DismissError)
                                     setEvent(event)
@@ -610,6 +617,7 @@ internal class OptionsSelectionViewModel(
                     setState {
                         copy(
                             error = ContentErrorConfig(
+                                errorTitle = response.error.title,
                                 onRetry = {
                                     setEvent(Event.DismissError)
                                     setEvent(event)

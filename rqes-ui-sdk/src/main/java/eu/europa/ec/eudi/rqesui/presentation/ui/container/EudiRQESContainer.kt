@@ -99,7 +99,10 @@ internal class EudiRQESContainer : ComponentActivity() {
      */
     private fun buildScreenAndArgumentsFromState(state: EudiRQESUi.State?): Pair<Screen, String> {
         return when (state) {
-            is EudiRQESUi.State.None, null -> throw EudiRQESUiError(message = "EUDIRQESUI-SDK: Missing state")
+            is EudiRQESUi.State.None, null -> throw EudiRQESUiError(
+                title = "State Error",
+                message = "EUDIRQESUI-SDK: Missing state"
+            )
 
             is EudiRQESUi.State.Initial -> SdkScreens.OptionsSelection to prepareOptionsSelectionScreenArguments(
                 OptionsSelectionScreenState.QtspSelection
