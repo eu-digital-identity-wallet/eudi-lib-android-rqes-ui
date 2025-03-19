@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
-
 /*
  * Copyright (c) 2023 European Commission
  *
@@ -15,6 +13,9 @@ import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
  * ANY KIND, either express or implied. See the Licence for the specific language
  * governing permissions and limitations under the Licence.
  */
+
+import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
@@ -65,8 +66,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 }
 
