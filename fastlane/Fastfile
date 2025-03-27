@@ -51,6 +51,15 @@ lane :deploy do |values|
     )
   end
 
+  if ENV['GITHUB_RELEASE_REPO'] && ENV['GITHUB_RELEASE_TOKEN']
+    github_release(
+      token: ENV['GITHUB_RELEASE_TOKEN'],
+      repo: ENV['GITHUB_RELEASE_REPO'],
+      tag: tag,
+      version: tag
+    )
+  end
+
 end
 
 desc "Upload tags"
@@ -61,4 +70,18 @@ lane :upload_tag do |values|
   push_git_tags(tag: tag)
 end
 
+desc "Release to github"
+lane :github_release do |values|
+  token = values[:token]
+  repo = values[:repo]
+  tag = values[:tag]
+  version = values[:version]
+  github_release = set_github_release(
+    repository_name: repo,
+    api_token: token,
+    name: version,
+    tag_name: tag,
+    is_generate_release_notes: true
+  )
+end
 end
