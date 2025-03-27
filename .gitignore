@@ -45,6 +45,8 @@ captures/
 sign
 
 #fastlane
+.env.release
+.env.dev
 fastlane/report.xml
 
 # Kotlin
