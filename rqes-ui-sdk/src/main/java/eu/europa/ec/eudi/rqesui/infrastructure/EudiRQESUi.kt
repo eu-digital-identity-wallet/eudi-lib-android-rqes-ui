@@ -206,13 +206,13 @@ object EudiRQESUi {
      * Initializes the SDK with the provided context, document URI, and remote URL.
      *
      * This function sets up the necessary session data, including the document file information (name and URI)
-     * if a document URI is provided, the remote URL if provided, and initializes other session-related fields.
+     * if a document URI is provided, the remote URI if provided, and initializes other session-related fields.
      * It also resets the RQES service and authorized service instances and sets the initial state of the SDK.
      * Finally, it triggers the launch of the SDK's core functionality.
      *
      * @param context The application context.
      * @param documentUri Optional URI of the document to be processed.  If provided, the document's filename is extracted.
-     * @param remoteUrl Optional URI representing a remote location for the document or related data.
+     * @param remoteUri Optional URI representing a remote location for the document or related data.
      * @throws EudiRQESUiError If an error occurs while extracting the document filename from the provided URI.
      */
     @Throws(EudiRQESUiError::class)
