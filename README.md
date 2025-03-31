@@ -52,6 +52,8 @@ class RQESConfigImpl : EudiRQESUiConfig {
 
     // Optional. Default is false.
     override val printLogs: Boolean get()
+            
+    override val documentRetrievalConfig: DocumentRetrievalConfig get()
 }
 ```
 
@@ -72,16 +74,25 @@ class RQESConfigImpl : EudiRQESUiConfig {
         get() = listOf(
             QtspData(
                 name = "your_name",
-                endpoint = "your_endpoint".toUri(),
+                endpoint = "your_endpoint".toUriOrEmpty(),
                 scaUrl = "your_sca",
             )
         )
 
     override val printLogs: Boolean get() = BuildConfig.DEBUG
+
+    override val documentRetrievalConfig: DocumentRetrievalConfig
+        get() = DocumentRetrievalConfig.X509Certificates(
+            context = activity_context,
+            certificates = listOf(R.raw.my_certificate),
+            shouldLog = should_log_option
+        )
 }
 ```
 
 ### Setup
+
+#### oAuth
 
 Register the `authFlowRedirectionURI` in your application's manifest to ensure the RQES Service can trigger your application.
 It is the application's responsibility to retrieve the `code` query parameter from the deep link and pass it to the SDK to continue the flow.
@@ -103,6 +114,25 @@ It is the application's responsibility to retrieve the `code` query parameter fr
 
 Alternatively, you can use Android App Links [Google Documentation](https://developer.android.com/studio/write/app-link-indexing)
 
+#### Document Retrieval (Same Device Scenario)
+
+Register a deeplink in your application's manifest to allow the RQES Service to trigger your application.
+It is the application's responsibility to retrieve the remote URL and pass it to the SDK in order to initialize the same-device document retrieval flow.
+
+```Xml
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+
+    <data
+        android:host="your_host"
+        android:scheme="your_scheme://" />
+
+</intent-filter>
+```
+
 Initialize the SDK in your Application class by providing your application context, configuration, and, if you are using Koin for dependency injection, the KoinApplication.
 
 ```kotlin
@@ -115,12 +145,25 @@ EudiRQESUi.setup(
 
 ### Initialization
 
+#### Local file
+
 Start the signing process by providing your activity context and the URI of the selected file.
 
 ```kotlin
 EudiRQESUi.initiate(
     context = activity_context,
     documentUri = file_uri
+)
+```
+
+#### Remote url for document retrieval
+
+Start the signing process by providing your activity context and the remote url of the document retrieval service.
+
+```kotlin
+EudiRQESUi.initiate(
+    context = activity_context,
+    remoteUrl = url_string
 )
 ```
 

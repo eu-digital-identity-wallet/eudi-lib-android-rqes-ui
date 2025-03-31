@@ -57,7 +57,7 @@ internal sealed class OptionsSelectionInteractorGetSelectedQtspPartialState {
 internal interface OptionsSelectionInteractor {
     fun getQtsps(): EudiRqesGetQtspsPartialState
 
-    fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+    suspend fun getRemoteOrLocalFile(): EudiRqesGetSelectedFilePartialState
 
     fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState
 
@@ -86,8 +86,8 @@ internal class OptionsSelectionInteractorImpl(
         return eudiRqesController.getQtsps()
     }
 
-    override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
-        return eudiRqesController.getSelectedFile()
+    override suspend fun getRemoteOrLocalFile(): EudiRqesGetSelectedFilePartialState {
+        return eudiRqesController.getRemoteOrLocalFile()
     }
 
     override fun updateQtspUserSelection(qtspData: QtspData): EudiRqesSetSelectedQtspPartialState {

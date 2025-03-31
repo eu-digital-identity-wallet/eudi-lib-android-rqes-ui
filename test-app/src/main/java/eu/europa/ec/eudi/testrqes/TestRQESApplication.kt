@@ -17,10 +17,12 @@
 package eu.europa.ec.eudi.testrqes
 
 import android.app.Application
+import android.content.Context
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.eudi.rqesui.infrastructure.config.DocumentRetrievalConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.RqesServiceConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
@@ -34,11 +36,11 @@ class TestRQESApplication : Application() {
     }
 
     private fun initRQESSDK() {
-        EudiRQESUi.setup(application = this, config = DefaultConfig())
+        EudiRQESUi.setup(application = this, config = DefaultConfig(this))
     }
 }
 
-private class DefaultConfig : EudiRQESUiConfig {
+private class DefaultConfig(val context: Context) : EudiRQESUiConfig {
 
     override val rqesServiceConfig: RqesServiceConfig
         get() = RqesServiceConfig(
@@ -52,7 +54,7 @@ private class DefaultConfig : EudiRQESUiConfig {
         get() = listOf(
             QtspData(
                 name = "Wallet-Centric",
-                endpoint = "https://walletcentric.signer.eudiw.dev/csc/v2".toUri(),
+                endpoint = "https://walletcentric.signer.eudiw.dev/csc/v2".toUriOrEmpty(),
                 scaUrl = "https://walletcentric.signer.eudiw.dev",
             )
         )
@@ -65,4 +67,11 @@ private class DefaultConfig : EudiRQESUiConfig {
                 )
             )
         }
+
+    override val documentRetrievalConfig: DocumentRetrievalConfig
+        get() = DocumentRetrievalConfig.X509Certificates(
+            context = context,
+            certificates = listOf(R.raw.rp_certificate),
+            shouldLog = true
+        )
 }

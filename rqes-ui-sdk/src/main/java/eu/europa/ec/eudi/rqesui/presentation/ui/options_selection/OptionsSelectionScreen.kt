@@ -38,7 +38,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.presentation.entities.ButtonActionUi
@@ -323,7 +323,7 @@ private fun OptionsSelectionScreenContentPreview() {
     val dummyEventForPreview = Event.ViewDocumentItemPressed(
         documentData = DocumentData(
             documentName = "File_to_be_signed.pdf",
-            uri = "mockedUri".toUri()
+            uri = "mockedUri".toUriOrEmpty()
         )
     )
 
@@ -349,7 +349,7 @@ private fun OptionsSelectionScreenContentPreview() {
                 ),
                 bottomBarButtonAction = ButtonActionUi(
                     buttonText = "Continue",
-                    event = Event.BottomBarButtonPressed(uri = "mockedUri".toUri())
+                    event = Event.BottomBarButtonPressed(uri = "mockedUri".toUriOrEmpty())
                 ),
                 selectedQtspIndex = 0,
                 selectedCertificateIndex = 0,

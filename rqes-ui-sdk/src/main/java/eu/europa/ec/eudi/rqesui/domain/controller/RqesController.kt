@@ -17,6 +17,10 @@
 package eu.europa.ec.eudi.rqesui.domain.controller
 
 import android.net.Uri
+import eu.europa.ec.eudi.documentretrieval.DispatchOutcome
+import eu.europa.ec.eudi.documentretrieval.DocumentRetrievalConfig
+import eu.europa.ec.eudi.documentretrieval.JarConfiguration
+import eu.europa.ec.eudi.documentretrieval.SupportedClientIdScheme
 import eu.europa.ec.eudi.rqes.AuthorizationCode
 import eu.europa.ec.eudi.rqes.CSCClientConfig
 import eu.europa.ec.eudi.rqes.OAuth2Client
@@ -25,9 +29,12 @@ import eu.europa.ec.eudi.rqes.core.RQESService.Authorized
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqes.core.UnsignedDocument
 import eu.europa.ec.eudi.rqes.core.UnsignedDocuments
+import eu.europa.ec.eudi.rqes.core.documentRetrieval.DocumentRetrievalService
+import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
+import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.saveBase64DecodedPdfToShareableUri
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.uriToFile
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
@@ -43,7 +50,10 @@ import kotlinx.coroutines.withContext
 import java.net.URL
 
 internal interface RqesController {
+
     fun getSelectedFile(): EudiRqesGetSelectedFilePartialState
+
+    suspend fun getRemoteOrLocalFile(): EudiRqesGetSelectedFilePartialState
 
     fun getQtsps(): EudiRqesGetQtspsPartialState
 
@@ -58,6 +68,8 @@ internal interface RqesController {
     fun setAuthorizedService(authorizedService: Authorized)
 
     fun getAuthorizedService(): Authorized?
+
+    fun getRemoteResolutionOutcome(): ResolutionOutcome?
 
     suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState
 
@@ -93,13 +105,16 @@ internal class RqesControllerImpl(
 
     override fun getSelectedFile(): EudiRqesGetSelectedFilePartialState {
         return runCatching {
-            val selectedFile = eudiRQESUi.getSessionData().file
-            selectedFile?.let { safeSelectedFile ->
-                EudiRqesGetSelectedFilePartialState.Success(file = safeSelectedFile)
+            eudiRQESUi.getSessionData().file?.let { safeSelectedFile ->
+                EudiRqesGetSelectedFilePartialState.Success(
+                    file = safeSelectedFile
+                )
             } ?: EudiRqesGetSelectedFilePartialState.Failure(
                 error = EudiRQESUiError(
                     title = genericErrorTitle,
-                    message = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound)
+                    message = resourceProvider.getLocalizedString(
+                        LocalizableKey.GenericErrorDocumentNotFound
+                    )
                 )
             )
         }.getOrElse {
@@ -109,6 +124,95 @@ internal class RqesControllerImpl(
                     message = it.localizedMessage ?: genericErrorMsg
                 )
             )
+        }
+    }
+
+    override suspend fun getRemoteOrLocalFile(): EudiRqesGetSelectedFilePartialState {
+        return withContext(dispatcher) {
+            runCatching {
+
+                eudiRQESUi.getSessionData().file?.let {
+                    return@runCatching getSelectedFile()
+                }
+
+                eudiRQESUi.getSessionData().remoteUrl?.let {
+
+                    val context = resourceProvider.provideContext()
+
+                    val x509CertificateTrust =
+                        eudiRQESUi.getEudiRQESUiConfig().documentRetrievalConfig.impl
+
+                    val documentRetrievalService = DocumentRetrievalService(
+                        downloadTempDir = FileHelper.getDownloadsDir(context),
+                        config = DocumentRetrievalConfig(
+                            jarConfiguration = JarConfiguration.Default,
+                            supportedClientIdSchemes = listOf(
+//                                SupportedClientIdScheme.X509SanUri(x509CertificateTrust),
+//                                SupportedClientIdScheme.X509SanDns(x509CertificateTrust)
+                                SupportedClientIdScheme.X509SanUri {
+                                    true
+                                },
+                                SupportedClientIdScheme.X509SanDns {
+                                    true
+                                }
+                            )
+                        ),
+                        checkHashes = false
+                    )
+
+                    val resolutionOutcome = documentRetrievalService
+                        .resolveDocument(it)
+                        .getOrThrow()
+
+                    val resolvedDocuments = resolutionOutcome.resolvedDocuments
+
+                    if (resolvedDocuments.isEmpty() || resolvedDocuments.size > 1) {
+                        return@runCatching EudiRqesGetSelectedFilePartialState.Failure(
+                            error = EudiRQESUiError(
+                                title = genericErrorTitle,
+                                message = resourceProvider.getLocalizedString(
+                                    LocalizableKey.GenericErrorDocumentMultipleNotSupported
+                                )
+                            )
+                        )
+                    }
+
+                    val document = resolvedDocuments.first().let {
+                        DocumentData(
+                            documentName = it.file.name,
+                            uri = Uri.fromFile(it.file)
+                        )
+                    }
+
+                    eudiRQESUi.setRemoteResolutionOutcome(
+                        resolutionOutcome
+                    )
+                    eudiRQESUi.setSessionData(
+                        eudiRQESUi.getSessionData().copy(file = document)
+                    )
+
+                    return@runCatching EudiRqesGetSelectedFilePartialState.Success(
+                        file = document
+                    )
+                }
+
+                return@runCatching EudiRqesGetSelectedFilePartialState.Failure(
+                    error = EudiRQESUiError(
+                        title = genericErrorTitle,
+                        message = resourceProvider.getLocalizedString(
+                            LocalizableKey.GenericErrorDocumentNotFound
+                        )
+                    )
+                )
+
+            }.getOrElse {
+                EudiRqesGetSelectedFilePartialState.Failure(
+                    error = EudiRQESUiError(
+                        title = genericErrorTitle,
+                        message = it.localizedMessage ?: genericErrorMsg
+                    )
+                )
+            }
         }
     }
 
@@ -179,7 +283,7 @@ internal class RqesControllerImpl(
             runCatching {
                 val authorizationUrl = rqesService.getServiceAuthorizationUrl()
                     .getOrThrow()
-                    .value.toString().toUri()
+                    .value.toString().toUriOrEmpty()
                 EudiRqesGetServiceAuthorizationUrlPartialState.Success(authorizationUrl = authorizationUrl)
             }.getOrElse {
                 EudiRqesGetServiceAuthorizationUrlPartialState.Failure(
@@ -227,6 +331,10 @@ internal class RqesControllerImpl(
 
     override fun getAuthorizedService(): Authorized? {
         return eudiRQESUi.getAuthorizedService()
+    }
+
+    override fun getRemoteResolutionOutcome(): ResolutionOutcome? {
+        return eudiRQESUi.getRemoteResolutionOutcome()
     }
 
     override suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState {
@@ -290,7 +398,7 @@ internal class RqesControllerImpl(
                             credential = certificateData.certificate,
                             documents = unsignedDocuments,
                         ).getOrThrow()
-                        .value.toString().toUri()
+                        .value.toString().toUriOrEmpty()
 
                     EudiRqesGetCredentialAuthorizationUrlPartialState.Success(authorizationUrl = authorizationUrl)
                 } ?: EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
@@ -377,7 +485,35 @@ internal class RqesControllerImpl(
                 }
 
                 if (uris.isNotEmpty()) {
-                    EudiRqesSaveSignedDocumentsPartialState.Success(savedDocumentsUri = uris)
+
+                    eudiRQESUi.getRemoteResolutionOutcome()?.let {
+                        when (val outcome = it.dispatch(signedDocuments)) {
+                            is DispatchOutcome.Accepted -> {
+                                return@runCatching EudiRqesSaveSignedDocumentsPartialState.Success(
+                                    savedDocumentsUri = uris,
+                                    isRemote = true,
+                                    redirectUri = outcome.redirectURI
+                                        .toString()
+                                        .let { Uri.parse(it) }
+                                )
+                            }
+
+                            DispatchOutcome.Rejected -> {
+                                return@runCatching EudiRqesSaveSignedDocumentsPartialState.Failure(
+                                    error = EudiRQESUiError(
+                                        title = genericErrorTitle,
+                                        message = genericErrorMsg
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    EudiRqesSaveSignedDocumentsPartialState.Success(
+                        savedDocumentsUri = uris,
+                        isRemote = false,
+                        redirectUri = null
+                    )
                 } else {
                     EudiRqesSaveSignedDocumentsPartialState.Failure(
                         error = EudiRQESUiError(
@@ -497,6 +633,12 @@ internal sealed class EudiRqesSignDocumentsPartialState {
 }
 
 internal sealed class EudiRqesSaveSignedDocumentsPartialState {
-    data class Success(val savedDocumentsUri: List<Uri>) : EudiRqesSaveSignedDocumentsPartialState()
+    data class Success(
+        val savedDocumentsUri: List<Uri>,
+        val isRemote: Boolean,
+        val redirectUri: Uri?
+    ) :
+        EudiRqesSaveSignedDocumentsPartialState()
+
     data class Failure(val error: EudiRQESUiError) : EudiRqesSaveSignedDocumentsPartialState()
 }

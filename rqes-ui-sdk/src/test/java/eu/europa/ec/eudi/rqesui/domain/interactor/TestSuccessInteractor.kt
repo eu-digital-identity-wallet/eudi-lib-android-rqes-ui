@@ -254,7 +254,11 @@ class TestSuccessInteractor {
             mockSaveSignedDocumentsCall(
                 documentName = mockedDocumentName,
                 signedDocuments = signedDocuments,
-                event = EudiRqesSaveSignedDocumentsPartialState.Success(savedDocumentsUri = documentsUri)
+                event = EudiRqesSaveSignedDocumentsPartialState.Success(
+                    savedDocumentsUri = documentsUri,
+                    isRemote = false,
+                    redirectUri = null
+                )
             )
             mockGetFileNameFromUri()
 

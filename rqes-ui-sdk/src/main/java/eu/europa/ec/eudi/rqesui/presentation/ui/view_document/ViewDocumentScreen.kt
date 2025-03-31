@@ -31,7 +31,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.github.barteksc.pdfviewer.PDFView
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.divider
@@ -159,7 +159,7 @@ private fun ViewDocumentScreenPreview() {
                     isSigned = true,
                     documentData = DocumentData(
                         documentName = "Document.pdf",
-                        uri = "uriPath".toUri()
+                        uri = "uriPath".toUriOrEmpty()
                     )
                 ),
                 buttonText = "Close"

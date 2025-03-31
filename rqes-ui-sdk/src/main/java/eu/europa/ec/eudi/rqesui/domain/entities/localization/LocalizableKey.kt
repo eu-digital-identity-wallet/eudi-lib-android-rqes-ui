@@ -52,6 +52,7 @@ enum class LocalizableKey {
     GenericServiceErrorMessage,
     GenericErrorDescription,
     GenericErrorDocumentNotFound,
+    GenericErrorDocumentMultipleNotSupported,
     GenericErrorQtspNotFound,
     GenericErrorCertificatesNotFound,
     Certificate;
@@ -90,6 +91,7 @@ enum class LocalizableKey {
             GenericServiceErrorMessage -> "It seems the RQES Signing Service is unavailable. Please try again later."
             GenericErrorDescription -> "If the issue persists, please contact customer support"
             GenericErrorDocumentNotFound -> "No Document data found"
+            GenericErrorDocumentMultipleNotSupported -> "Currently, multiple documents are not supported"
             GenericErrorQtspNotFound -> "No selected QTSP found"
             GenericErrorCertificatesNotFound -> "No certificates found"
             SigningCertificate -> "Signing certificate"

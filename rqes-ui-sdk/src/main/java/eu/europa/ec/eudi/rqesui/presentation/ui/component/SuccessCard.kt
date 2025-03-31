@@ -29,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
@@ -108,7 +108,7 @@ private fun SuccessCardPreview(
                 leadingIcon = AppIcons.Verified,
                 documentData = DocumentData(
                     documentName = text,
-                    uri = "mockedUri".toUri()
+                    uri = "mockedUri".toUriOrEmpty()
                 ),
                 actionText = "VIEW",
             ),

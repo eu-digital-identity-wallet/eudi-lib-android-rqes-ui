@@ -19,7 +19,7 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.success
 import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractorGetSelectedFileAndQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractorSignAndSaveDocumentPartialState
@@ -222,7 +222,9 @@ class TestSuccessViewModel {
                 savedDocument = DocumentData(
                     documentName = "${signedDocumentPrefix}_$mockedDocumentName",
                     uri = documentFileUri
-                )
+                ),
+                isRemote = false,
+                redirectUri = null
             )
             mockSignAndSaveDocumentCall(
                 documentName = mockedDocumentName,
@@ -416,7 +418,7 @@ class TestSuccessViewModel {
     private fun mockQTSPData(qtspData: QtspData) {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
-            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUri())
+            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
             whenever(this.scaUrl).thenReturn(mockedScaUrl)
         }
     }

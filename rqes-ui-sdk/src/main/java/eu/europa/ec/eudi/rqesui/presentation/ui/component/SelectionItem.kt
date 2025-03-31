@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.entities.SelectionOptionUi
@@ -146,7 +146,7 @@ private fun SelectionItemPreview(
     val dummyEventForPreview = Event.ViewDocumentItemPressed(
         documentData = DocumentData(
             documentName = "Document.pdf",
-            uri = "mockedUri".toUri()
+            uri = "mockedUri".toUriOrEmpty()
         )
     )
 

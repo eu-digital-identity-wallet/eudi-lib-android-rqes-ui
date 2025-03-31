@@ -24,7 +24,7 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartial
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
@@ -115,12 +115,14 @@ class TestOptionsSelectionInteractor {
     //region getSelectedFile
     @Test
     fun `When getSelectedFile is called, Then controller getSelectedFile is called`() {
-        // When
-        interactor.getSelectedFile()
+        coroutineRule.runTest {
+            // When
+            interactor.getRemoteOrLocalFile()
 
-        // Then
-        verify(eudiController, times(1))
-            .getSelectedFile()
+            // Then
+            verify(eudiController, times(1))
+                .getRemoteOrLocalFile()
+        }
     }
     //endregion
 
@@ -308,7 +310,7 @@ class TestOptionsSelectionInteractor {
         coroutineRule.runTest {
             // Arrange
             val successResponse = EudiRqesGetCredentialAuthorizationUrlPartialState.Success(
-                authorizationUrl = mockedAuthorizationUrl.toUri()
+                authorizationUrl = mockedAuthorizationUrl.toUriOrEmpty()
             )
             whenever(eudiController.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             mockGetCredentialAuthorizationUrlCall(successResponse)

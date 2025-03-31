@@ -57,6 +57,8 @@ internal data class State(
     val isBottomBarButtonEnabled: Boolean = false,
     val bottomBarButtonText: String,
     val sheetContent: SuccessBottomSheetContent,
+    val isRemote: Boolean = false,
+    val redirectUrl: Uri? = null
 ) : ViewState
 
 internal sealed class Event : ViewEvent {
@@ -89,6 +91,7 @@ internal sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data class SwitchScreen(val screenRoute: String) : Navigation()
         data object Finish : Navigation()
+        data class OpenRedirectUrl(val url: Uri) : Navigation()
     }
 
     data object ShowBottomSheet : Effect()
@@ -144,11 +147,19 @@ internal class SuccessViewModel(
             }
 
             is Event.BottomBarButtonPressed -> {
-                showBottomSheet(
-                    sheetContent = SuccessBottomSheetContent.ShareDocument(
-                        bottomSheetTextData = getShareDocumentTextData()
+                if (viewState.value.isRemote) {
+                    setEffect {
+                        viewState.value.redirectUrl?.let {
+                            Effect.Navigation.OpenRedirectUrl(it)
+                        } ?: Effect.Navigation.Finish
+                    }
+                } else {
+                    showBottomSheet(
+                        sheetContent = SuccessBottomSheetContent.ShareDocument(
+                            bottomSheetTextData = getShareDocumentTextData()
+                        )
                     )
-                )
+                }
             }
 
             is Event.ViewDocumentItemPressed -> {
@@ -225,7 +236,6 @@ internal class SuccessViewModel(
 
     private fun signAndSaveDocument(event: Event, originalDocumentName: String, qtspName: String) {
         setState { copy(isLoading = true) }
-
         viewModelScope.launch {
             when (val response = successInteractor.signAndSaveDocument(originalDocumentName)) {
                 is SuccessInteractorSignAndSaveDocumentPartialState.Failure -> {
@@ -269,6 +279,8 @@ internal class SuccessViewModel(
                             successCardData = successCard,
                             isBottomBarButtonEnabled = true,
                             isLoading = false,
+                            isRemote = response.isRemote,
+                            redirectUrl = response.redirectUri
                         )
                     }
                 }

@@ -24,7 +24,7 @@ import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.RqesServiceConfig
@@ -559,7 +559,7 @@ class TestRqesController {
             // Assert
             assertTrue(result is EudiRqesGetServiceAuthorizationUrlPartialState.Success)
             assertEquals(
-                authorizationResult.value.toString().toUri(),
+                authorizationResult.value.toString().toUriOrEmpty(),
                 (result as EudiRqesGetServiceAuthorizationUrlPartialState.Success).authorizationUrl,
             )
         }
@@ -775,7 +775,7 @@ class TestRqesController {
     private fun mockQTSPData(qtspData: QtspData) {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
-            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUri())
+            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
             whenever(this.scaUrl).thenReturn(mockedScaUrl)
         }
     }

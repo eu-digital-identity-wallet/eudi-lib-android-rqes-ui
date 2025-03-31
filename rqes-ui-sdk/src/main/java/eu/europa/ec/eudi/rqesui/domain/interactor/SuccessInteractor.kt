@@ -16,6 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
+import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
@@ -120,9 +121,11 @@ internal class SuccessInteractorImpl(
                                     }
 
                                     is EudiRqesSaveSignedDocumentsPartialState.Success -> {
+
                                         val savedDocumentUri = saveSignedDocumentsResponse
                                             .savedDocumentsUri
                                             .first()
+
                                         val savedDocumentName = savedDocumentUri.getFileName(
                                             context = resourceProvider.provideContext()
                                         ).getOrThrow()
@@ -133,7 +136,9 @@ internal class SuccessInteractorImpl(
                                         )
 
                                         return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Success(
-                                            savedDocument = savedDocument
+                                            savedDocument = savedDocument,
+                                            isRemote = saveSignedDocumentsResponse.isRemote,
+                                            redirectUri = saveSignedDocumentsResponse.redirectUri
                                         )
                                     }
                                 }
@@ -167,6 +172,8 @@ internal sealed class SuccessInteractorGetSelectedFileAndQtspPartialState {
 internal sealed class SuccessInteractorSignAndSaveDocumentPartialState {
     data class Success(
         val savedDocument: DocumentData,
+        val isRemote: Boolean,
+        val redirectUri: Uri?
     ) : SuccessInteractorSignAndSaveDocumentPartialState()
 
     data class Failure(

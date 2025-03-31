@@ -26,7 +26,7 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetServiceAuthorizatio
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSetSelectedQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState
 import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorGetSelectedQtspPartialState
@@ -197,51 +197,53 @@ class TestOptionsSelectionViewModel {
     // containing the expected `documentData` and `View` action string.
     @Test
     fun `Given Case 1, When setEvent is called, Then the expected result is returned`() {
-        // Arrange
-        whenever(optionsSelectionInteractor.getSelectedFile())
-            .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
+        coroutineRule.runTest {
+            // Arrange
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
+                .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
 
-        // Act
-        viewModel.setEvent(
-            Event.Initialize(
-                screenSelectionState = OptionsSelectionScreenState.QtspSelection
-            )
-        )
-
-        // Assert
-        assertEquals(
-            SelectionOptionUi(
-                overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
-                mainText = documentData.documentName,
-                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
-                actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
-                leadingIcon = AppIcons.StepOne,
-                leadingIconTint = ThemeColors.success,
-                trailingIcon = AppIcons.KeyboardArrowRight,
-                enabled = true,
-                event = Event.ViewDocumentItemPressed(
-                    documentData = documentData
+            // Act
+            viewModel.setEvent(
+                Event.Initialize(
+                    screenSelectionState = OptionsSelectionScreenState.QtspSelection
                 )
-            ),
-            viewModel.viewState.value.documentSelectionItem
-        )
-        assertEquals(
-            SelectionOptionUi(
-                overlineText = null,
-                mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
-                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
-                actionText = null,
-                leadingIcon = AppIcons.StepTwo,
-                trailingIcon = AppIcons.KeyboardArrowRight,
-                enabled = true,
-                event = Event.RqesServiceSelectionItemPressed
-            ),
-            viewModel.viewState.value.qtspServiceSelectionItem
-        )
-        assertEquals(
-            null,
-            viewModel.viewState.value.certificateSelectionItem
-        )
+            )
+
+            // Assert
+            assertEquals(
+                SelectionOptionUi(
+                    overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
+                    mainText = documentData.documentName,
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
+                    actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
+                    leadingIcon = AppIcons.StepOne,
+                    leadingIconTint = ThemeColors.success,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = true,
+                    event = Event.ViewDocumentItemPressed(
+                        documentData = documentData
+                    )
+                ),
+                viewModel.viewState.value.documentSelectionItem
+            )
+            assertEquals(
+                SelectionOptionUi(
+                    overlineText = null,
+                    mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
+                    actionText = null,
+                    leadingIcon = AppIcons.StepTwo,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = true,
+                    event = Event.RqesServiceSelectionItemPressed
+                ),
+                viewModel.viewState.value.qtspServiceSelectionItem
+            )
+            assertEquals(
+                null,
+                viewModel.viewState.value.certificateSelectionItem
+            )
+        }
     }
 
     // Case 2
@@ -254,68 +256,70 @@ class TestOptionsSelectionViewModel {
     // 3. The `certificateSelectionItem` in the ViewModel's state is updated.
     @Test
     fun `Given Case 2, When setEvent is called, Then the expected result is returned`() {
-        // Arrange
-        whenever(optionsSelectionInteractor.getSelectedFile())
-            .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
-        whenever(optionsSelectionInteractor.getSelectedQtsp())
-            .thenReturn(
-                OptionsSelectionInteractorGetSelectedQtspPartialState.Success(
-                    selectedQtsp = qtspData
+        coroutineRule.runTest {
+            // Arrange
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
+                .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
+            whenever(optionsSelectionInteractor.getSelectedQtsp())
+                .thenReturn(
+                    OptionsSelectionInteractorGetSelectedQtspPartialState.Success(
+                        selectedQtsp = qtspData
+                    )
+                )
+
+            // Act
+            viewModel.setEvent(
+                Event.Initialize(
+                    screenSelectionState = OptionsSelectionScreenState.CertificateSelection
                 )
             )
 
-        // Act
-        viewModel.setEvent(
-            Event.Initialize(
-                screenSelectionState = OptionsSelectionScreenState.CertificateSelection
-            )
-        )
-
-        // Assert
-        assertEquals(
-            SelectionOptionUi(
-                overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
-                mainText = documentData.documentName,
-                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
-                actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
-                leadingIcon = AppIcons.StepOne,
-                leadingIconTint = ThemeColors.success,
-                trailingIcon = AppIcons.KeyboardArrowRight,
-                enabled = true,
-                event = Event.ViewDocumentItemPressed(
-                    documentData = documentData
-                )
-            ),
-            viewModel.viewState.value.documentSelectionItem
-        )
-        assertEquals(
-            SelectionOptionUi(
-                overlineText = resourceProvider.getLocalizedString(
-                    LocalizableKey.SigningService
+            // Assert
+            assertEquals(
+                SelectionOptionUi(
+                    overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
+                    mainText = documentData.documentName,
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
+                    actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
+                    leadingIcon = AppIcons.StepOne,
+                    leadingIconTint = ThemeColors.success,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = true,
+                    event = Event.ViewDocumentItemPressed(
+                        documentData = documentData
+                    )
                 ),
-                mainText = qtspData.name,
-                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
-                actionText = null,
-                leadingIcon = AppIcons.StepTwo,
-                leadingIconTint = ThemeColors.success,
-                trailingIcon = AppIcons.KeyboardArrowRight,
-                enabled = false,
-                event = Event.RqesServiceSelectionItemPressed
-            ),
-            viewModel.viewState.value.qtspServiceSelectionItem
-        )
-        assertEquals(
-            SelectionOptionUi(
-                overlineText = null,
-                mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateTitle),
-                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
-                leadingIcon = AppIcons.StepThree,
-                trailingIcon = AppIcons.KeyboardArrowRight,
-                enabled = true,
-                event = Event.CertificateSelectionItemPressed
-            ),
-            viewModel.viewState.value.certificateSelectionItem
-        )
+                viewModel.viewState.value.documentSelectionItem
+            )
+            assertEquals(
+                SelectionOptionUi(
+                    overlineText = resourceProvider.getLocalizedString(
+                        LocalizableKey.SigningService
+                    ),
+                    mainText = qtspData.name,
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
+                    actionText = null,
+                    leadingIcon = AppIcons.StepTwo,
+                    leadingIconTint = ThemeColors.success,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = false,
+                    event = Event.RqesServiceSelectionItemPressed
+                ),
+                viewModel.viewState.value.qtspServiceSelectionItem
+            )
+            assertEquals(
+                SelectionOptionUi(
+                    overlineText = null,
+                    mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningCertificateTitle),
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectCertificateSubtitle),
+                    leadingIcon = AppIcons.StepThree,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = true,
+                    event = Event.CertificateSelectionItemPressed
+                ),
+                viewModel.viewState.value.certificateSelectionItem
+            )
+        }
     }
 
     // Case 3
@@ -329,7 +333,7 @@ class TestOptionsSelectionViewModel {
         coroutineRule.runTest {
             // Arrange
             val mockSuccessState = EudiRqesGetSelectedFilePartialState.Success(file = documentData)
-            whenever(optionsSelectionInteractor.getSelectedFile()).thenReturn(mockSuccessState)
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile()).thenReturn(mockSuccessState)
 
             // Act
             viewModel.setEvent(
@@ -337,10 +341,7 @@ class TestOptionsSelectionViewModel {
             )
 
             // Assert
-            viewModel.viewStateHistory.runFlowTest {
-                val state = awaitItem()
-                assertEquals(documentData, state.documentSelectionItem?.event?.documentData)
-            }
+            assertEquals(documentData, viewModel.viewState.value.documentSelectionItem?.event?.documentData)
         }
 
     // Case 4
@@ -360,7 +361,7 @@ class TestOptionsSelectionViewModel {
         coroutineRule.runTest {
             // Arrange
             val errorMessage = mockedPlainFailureMessage
-            whenever(optionsSelectionInteractor.getSelectedFile())
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(
                     EudiRqesGetSelectedFilePartialState.Failure(
                         error = EudiRQESUiError(
@@ -394,7 +395,7 @@ class TestOptionsSelectionViewModel {
 
                     // Test retry action
                     onRetry?.invoke()
-                    verify(optionsSelectionInteractor, times(4)).getSelectedFile()
+                    verify(optionsSelectionInteractor, times(2)).getRemoteOrLocalFile()
                 }
             }
         }
@@ -413,7 +414,7 @@ class TestOptionsSelectionViewModel {
     fun `Given Case 5, When setEvent is called on CertificateSelection, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            whenever(optionsSelectionInteractor.getSelectedFile())
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
 
             val errorMessage = mockedPlainFailureMessage
@@ -917,7 +918,7 @@ class TestOptionsSelectionViewModel {
     fun `Given Case 11, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            whenever(optionsSelectionInteractor.getSelectedFile())
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
             whenever(optionsSelectionInteractor.getSelectedQtsp())
                 .thenReturn(
@@ -1192,7 +1193,7 @@ class TestOptionsSelectionViewModel {
         coroutineRule.runTest {
             // Arrange
             val response = EudiRqesGetServiceAuthorizationUrlPartialState.Success(
-                authorizationUrl = mockedAuthorizationUrl.toUri()
+                authorizationUrl = mockedAuthorizationUrl.toUriOrEmpty()
             )
             mockGetServiceAuthorizationUrlCall(response = response)
 
@@ -1218,12 +1219,12 @@ class TestOptionsSelectionViewModel {
         coroutineRule.runTest {
             // Act
             viewModel.setEvent(
-                Event.BottomBarButtonPressed(uri = mockedUri.toUri())
+                Event.BottomBarButtonPressed(uri = mockedUri.toUriOrEmpty())
             )
 
             // Assert
             viewModel.effect.runFlowTest {
-                assertEquals(Effect.OpenUrl(mockedUri.toUri()), awaitItem())
+                assertEquals(Effect.OpenUrl(mockedUri.toUriOrEmpty()), awaitItem())
                 assertEquals(Effect.Navigation.Finish, awaitItem())
             }
         }
