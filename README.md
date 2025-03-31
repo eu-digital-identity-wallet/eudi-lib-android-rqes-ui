@@ -152,7 +152,7 @@ Start the signing process by providing your activity context and the URI of the 
 ```kotlin
 EudiRQESUi.initiate(
     context = activity_context,
-    documentUri = file_uri
+    documentUri = DocumentUri(file_uri)
 )
 ```
 
@@ -163,7 +163,7 @@ Start the signing process by providing your activity context and the remote url 
 ```kotlin
 EudiRQESUi.initiate(
     context = activity_context,
-    remoteUrl = url_string
+    remoteUri = RemoteUri(remote_uri)
 )
 ```
 

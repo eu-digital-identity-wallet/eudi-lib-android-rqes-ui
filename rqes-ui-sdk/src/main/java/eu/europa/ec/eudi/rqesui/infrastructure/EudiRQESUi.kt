@@ -27,7 +27,6 @@ import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
 import eu.europa.ec.eudi.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
-import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrThrow
 import eu.europa.ec.eudi.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
@@ -39,6 +38,12 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.ksp.generated.module
+
+@JvmInline
+value class RemoteUri(val uri: Uri)
+
+@JvmInline
+value class DocumentUri(val uri: Uri)
 
 object EudiRQESUi {
 
@@ -66,44 +71,44 @@ object EudiRQESUi {
     }
 
     /**
-     * Starts the SDK with the provided remote url [String].
+     * Starts the SDK with the provided remote [RemoteUri].
      *
-     * This function initializes the SDK with the given remote url [String].
-     * If the remote url is invalid throws [EudiRQESUiError].
+     * This function initializes the SDK with the given remote [RemoteUri].
+     * If the remote [RemoteUri] is invalid throws [EudiRQESUiError].
      *
      * @param context The application [Context].
-     * @param remoteUrl The remote url [String] for document retrieval.
-     * @throws EudiRQESUiError If the remote url [String] is invalid.
+     * @param remoteUri The remote url [RemoteUri] for document retrieval.
+     * @throws EudiRQESUiError If the remote [RemoteUri] is invalid.
      */
     @Throws(EudiRQESUiError::class)
     fun initiate(
         context: Context,
-        remoteUrl: String,
+        remoteUri: RemoteUri,
     ) {
         initializeSDK(
             context = context,
-            remoteUrl = remoteUrl.toUriOrThrow().getOrThrow()
+            remoteUri = remoteUri.uri
         )
     }
 
     /**
-     * Starts the SDK with the provided document [Uri].
+     * Starts the SDK with the provided document [DocumentUri].
      *
-     * This function initializes the SDK with the given document [Uri].
+     * This function initializes the SDK with the given document [DocumentUri].
      * If the filename cannot be determined throws [EudiRQESUiError].
      *
      * @param context The application [Context].
-     * @param documentUri The [Uri] of the document to be loaded.
-     * @throws EudiRQESUiError If the filename cannot be extracted from the [Uri].
+     * @param documentUri The [DocumentUri] of the document to be loaded.
+     * @throws EudiRQESUiError If the filename cannot be extracted from the [DocumentUri].
      */
     @Throws(EudiRQESUiError::class)
     fun initiate(
         context: Context,
-        documentUri: Uri,
+        documentUri: DocumentUri,
     ) {
         initializeSDK(
             context = context,
-            documentUri = documentUri
+            documentUri = documentUri.uri
         )
     }
 
@@ -214,7 +219,7 @@ object EudiRQESUi {
     private fun initializeSDK(
         context: Context,
         documentUri: Uri? = null,
-        remoteUrl: Uri? = null
+        remoteUri: Uri? = null
     ) {
         val documentData = documentUri?.let {
             DocumentData(
@@ -225,7 +230,7 @@ object EudiRQESUi {
 
         sessionData = SessionData(
             file = documentData,
-            remoteUrl = remoteUrl,
+            remoteUrl = remoteUri,
             qtsp = null,
             authorizationCode = null,
         )

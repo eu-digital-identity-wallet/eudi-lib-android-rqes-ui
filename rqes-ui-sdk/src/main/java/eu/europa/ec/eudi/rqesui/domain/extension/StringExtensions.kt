@@ -19,7 +19,6 @@ package eu.europa.ec.eudi.rqesui.domain.extension
 import android.net.Uri
 import android.util.Base64
 import androidx.core.net.toUri
-import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 
 /**
@@ -78,23 +77,4 @@ fun String.toUriOrEmpty(): Uri = try {
     this.toUri()
 } catch (_: Exception) {
     Uri.EMPTY
-}
-
-/**
- * Converts a string to a [Uri] object.  This function is considered "unsafe" because it may throw an exception if the provided string is not a valid URI.
- *
- * @return A [Result] object containing either a [Uri] on success, or a [Result.failure] with an [EudiRQESUiError] on failure.
- * @throws EudiRQESUiError If the string cannot be parsed into a valid URI. The error will contain a title "URI Error" and a message describing the issue (or "Invalid URI" if the exception's localized message is null).
- */
-@Throws(EudiRQESUiError::class)
-fun String.toUriOrThrow(): Result<Uri> = try {
-    val uri = this.toUri()
-    Result.success(uri)
-} catch (e: Exception) {
-    Result.failure(
-        EudiRQESUiError(
-            title = "URI Error",
-            message = e.localizedMessage ?: "Invalid URI"
-        )
-    )
 }

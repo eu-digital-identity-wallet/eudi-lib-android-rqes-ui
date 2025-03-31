@@ -40,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import eu.europa.ec.eudi.rqesui.infrastructure.DocumentUri
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.testrqes.theme.EudiRQESUiTheme
 
@@ -136,6 +137,6 @@ private fun startSdk(
 ) {
     EudiRQESUi.initiate(
         context = context,
-        documentUri = documentUri,
+        documentUri = DocumentUri(documentUri),
     )
 }
