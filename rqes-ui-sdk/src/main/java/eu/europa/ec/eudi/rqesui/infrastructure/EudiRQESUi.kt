@@ -262,12 +262,11 @@ object EudiRQESUi {
     @Throws(EudiRQESUiError::class)
     private fun launchSDK(context: Context) {
         if (context as? Activity != null) {
-            context.startActivity(
-                Intent(context, EudiRQESContainer::class.java).putExtra(
-                    SDK_STATE,
-                    getState()
-                )
-            )
+            val intent = Intent(context, EudiRQESContainer::class.java).apply {
+                putExtra(SDK_STATE, getState())
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
         } else {
             throw EudiRQESUiError(
                 title = "Context Error",
