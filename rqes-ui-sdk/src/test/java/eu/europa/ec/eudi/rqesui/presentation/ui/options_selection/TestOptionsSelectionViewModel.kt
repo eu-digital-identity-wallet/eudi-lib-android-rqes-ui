@@ -341,7 +341,10 @@ class TestOptionsSelectionViewModel {
             )
 
             // Assert
-            assertEquals(documentData, viewModel.viewState.value.documentSelectionItem?.event?.documentData)
+            assertEquals(
+                documentData,
+                viewModel.viewState.value.documentSelectionItem?.event?.documentData
+            )
         }
 
     // Case 4
