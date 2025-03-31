@@ -26,6 +26,7 @@ import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
 import eu.europa.ec.eudi.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.extension.decode
 import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
@@ -87,7 +88,7 @@ object EudiRQESUi {
     ) {
         initializeSDK(
             context = context,
-            remoteUri = remoteUri.uri
+            remoteUri = remoteUri.uri.decode().getOrThrow()
         )
     }
 
