@@ -48,6 +48,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
+import androidx.core.net.toUri
 
 internal interface RqesController {
 
@@ -486,9 +487,7 @@ internal class RqesControllerImpl(
                                 return@runCatching EudiRqesSaveSignedDocumentsPartialState.Success(
                                     savedDocumentsUri = uris,
                                     isRemote = true,
-                                    redirectUri = outcome.redirectURI
-                                        .toString()
-                                        .let { Uri.parse(it) }
+                                    redirectUri = outcome.redirectURI?.toString()?.toUri()
                                 )
                             }
 
