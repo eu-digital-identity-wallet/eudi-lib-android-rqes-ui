@@ -147,14 +147,8 @@ internal class RqesControllerImpl(
                         config = DocumentRetrievalConfig(
                             jarConfiguration = JarConfiguration.Default,
                             supportedClientIdSchemes = listOf(
-//                                SupportedClientIdScheme.X509SanUri(x509CertificateTrust),
-//                                SupportedClientIdScheme.X509SanDns(x509CertificateTrust)
-                                SupportedClientIdScheme.X509SanUri {
-                                    true
-                                },
-                                SupportedClientIdScheme.X509SanDns {
-                                    true
-                                }
+                                SupportedClientIdScheme.X509SanUri(x509CertificateTrust),
+                                SupportedClientIdScheme.X509SanDns(x509CertificateTrust)
                             )
                         ),
                         checkHashes = false
