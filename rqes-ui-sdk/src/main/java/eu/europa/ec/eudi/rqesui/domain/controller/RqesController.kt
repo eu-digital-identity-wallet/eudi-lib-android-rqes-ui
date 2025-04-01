@@ -17,6 +17,7 @@
 package eu.europa.ec.eudi.rqesui.domain.controller
 
 import android.net.Uri
+import androidx.core.net.toUri
 import eu.europa.ec.eudi.documentretrieval.DispatchOutcome
 import eu.europa.ec.eudi.documentretrieval.DocumentRetrievalConfig
 import eu.europa.ec.eudi.documentretrieval.JarConfiguration
@@ -48,7 +49,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.URL
-import androidx.core.net.toUri
 
 internal interface RqesController {
 
@@ -140,19 +140,28 @@ internal class RqesControllerImpl(
 
                     val context = resourceProvider.provideContext()
 
-                    val x509CertificateTrust =
-                        eudiRQESUi.getEudiRQESUiConfig().documentRetrievalConfig.impl
+                    val documentRetrievalConfig = eudiRQESUi
+                        .getEudiRQESUiConfig()
+                        .documentRetrievalConfig
+
+                    val supportedClientIdSchemes: List<SupportedClientIdScheme> =
+                        documentRetrievalConfig.impl?.let {
+                            listOf(
+                                SupportedClientIdScheme.X509SanUri(it),
+                                SupportedClientIdScheme.X509SanDns(it)
+                            )
+                        } ?: listOf(
+                            SupportedClientIdScheme.X509SanUri { true },
+                            SupportedClientIdScheme.X509SanDns { true }
+                        )
 
                     val documentRetrievalService = DocumentRetrievalService(
                         downloadTempDir = FileHelper.getDownloadsDir(context),
                         config = DocumentRetrievalConfig(
                             jarConfiguration = JarConfiguration.Default,
-                            supportedClientIdSchemes = listOf(
-                                SupportedClientIdScheme.X509SanUri(x509CertificateTrust),
-                                SupportedClientIdScheme.X509SanDns(x509CertificateTrust)
-                            )
+                            supportedClientIdSchemes = supportedClientIdSchemes
                         ),
-                        checkHashes = false
+                        checkHashes = documentRetrievalConfig.checkHash
                     )
 
                     val resolutionOutcome = documentRetrievalService

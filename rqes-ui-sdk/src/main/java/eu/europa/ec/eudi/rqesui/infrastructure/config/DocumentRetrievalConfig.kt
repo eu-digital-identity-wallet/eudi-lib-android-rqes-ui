@@ -22,24 +22,27 @@ import eu.europa.ec.eudi.rqesui.domain.extension.getCertificate
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.X509CertificateTrust as X509CertificateTrustMethod
 
 /**
- * Sealed interface representing different configurations for document retrieval related to X.509 certificate trust.
+ * Configuration for document retrieval, specifically focusing on X.509 certificate validation.
  *
- * This interface provides two concrete implementations:
- *  - [X509CertificateImpl]: Allows specifying a custom implementation of [X509CertificateTrust].  Useful for injecting test implementations or custom trust validation logic.
- *  - [X509Certificates]: Configures trust based on a list of certificate resource IDs embedded within the application.  This is a convenient way to include trusted certificates within the app bundle.
- *
- * The `impl` property provides access to the underlying [X509CertificateTrust] implementation used for validation.
+ * This interface allows for different strategies of trusting certificates when retrieving documents,
+ * ranging from providing an explicit trust implementation to relying on a list of certificate resources
+ * within an Android Context, or disabling validation entirely.  It also includes a flag to indicate
+ * whether document integrity should be checked via hashing.
  */
 sealed interface DocumentRetrievalConfig {
 
-    val impl: X509CertificateTrust
+    val impl: X509CertificateTrust?
+    val checkHash: Boolean
 
-    data class X509CertificateImpl(override val impl: X509CertificateTrust) :
-        DocumentRetrievalConfig
+    data class X509CertificateImpl(
+        override val impl: X509CertificateTrust,
+        override val checkHash: Boolean = true
+    ) : DocumentRetrievalConfig
 
     data class X509Certificates(
         val context: Context,
         val certificates: List<Int>,
+        override val checkHash: Boolean = true,
         val shouldLog: Boolean = false
     ) : DocumentRetrievalConfig {
         override val impl: X509CertificateTrust
@@ -53,5 +56,12 @@ sealed interface DocumentRetrievalConfig {
                     null
                 }
             )
+    }
+
+    data object NoValidation : DocumentRetrievalConfig {
+        override val impl: X509CertificateTrust?
+            get() = null
+        override val checkHash: Boolean
+            get() = false
     }
 }
