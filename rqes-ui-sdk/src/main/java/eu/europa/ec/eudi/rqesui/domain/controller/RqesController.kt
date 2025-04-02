@@ -166,7 +166,11 @@ internal class RqesControllerImpl(
 
                     val resolvedDocuments = resolutionOutcome.resolvedDocuments
 
-                    if (resolvedDocuments.isEmpty() || resolvedDocuments.size > 1) {
+                    if (resolvedDocuments.isEmpty()) {
+                        return@let
+                    }
+
+                    if (resolvedDocuments.size > 1) {
                         return@runCatching EudiRqesGetSelectedFilePartialState.Failure(
                             error = EudiRQESUiError(
                                 title = genericErrorTitle,
