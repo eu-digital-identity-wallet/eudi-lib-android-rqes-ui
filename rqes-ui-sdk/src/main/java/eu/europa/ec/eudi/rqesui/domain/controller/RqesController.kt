@@ -157,8 +157,7 @@ internal class RqesControllerImpl(
                         config = DocumentRetrievalConfig(
                             jarConfiguration = JarConfiguration.Default,
                             supportedClientIdSchemes = supportedClientIdSchemes
-                        ),
-                        checkHashes = documentRetrievalConfig.checkHash
+                        )
                     )
 
                     val resolutionOutcome = documentRetrievalService
