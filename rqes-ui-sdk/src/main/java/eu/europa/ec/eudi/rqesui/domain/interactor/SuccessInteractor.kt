@@ -28,6 +28,7 @@ import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -40,6 +41,7 @@ internal interface SuccessInteractor {
 internal class SuccessInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: RqesController,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : SuccessInteractor {
 
     private val genericErrorMsg
@@ -85,7 +87,7 @@ internal class SuccessInteractorImpl(
     }
 
     override suspend fun signAndSaveDocument(originalDocumentName: String): SuccessInteractorSignAndSaveDocumentPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 when (val authorizeCredentialResponse = eudiRqesController.authorizeCredential()) {
                     is EudiRqesAuthorizeCredentialPartialState.Failure -> {

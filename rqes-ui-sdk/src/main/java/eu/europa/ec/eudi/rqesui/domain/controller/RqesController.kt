@@ -31,7 +31,6 @@ import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqes.core.UnsignedDocument
 import eu.europa.ec.eudi.rqes.core.UnsignedDocuments
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.DocumentRetrievalService
-import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
@@ -69,8 +68,6 @@ internal interface RqesController {
     fun setAuthorizedService(authorizedService: Authorized)
 
     fun getAuthorizedService(): Authorized?
-
-    fun getRemoteResolutionOutcome(): ResolutionOutcome?
 
     suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState
 
@@ -335,10 +332,6 @@ internal class RqesControllerImpl(
 
     override fun getAuthorizedService(): Authorized? {
         return eudiRQESUi.getAuthorizedService()
-    }
-
-    override fun getRemoteResolutionOutcome(): ResolutionOutcome? {
-        return eudiRQESUi.getRemoteResolutionOutcome()
     }
 
     override suspend fun getAvailableCertificates(authorizedService: Authorized): EudiRqesGetCertificatesPartialState {
