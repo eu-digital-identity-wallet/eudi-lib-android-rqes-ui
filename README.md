@@ -117,7 +117,7 @@ Alternatively, you can use Android App Links [Google Documentation](https://deve
 #### Document Retrieval (Same Device Scenario)
 
 Register a deeplink in your application's manifest to allow the RQES Service to trigger your application.
-It is the application's responsibility to retrieve the remote URL and pass it to the SDK in order to initialize the same-device document retrieval flow.
+It is the application's responsibility to retrieve the remote URL and pass it to the SDK to initialize the same-device document retrieval flow.
 
 ```Xml
 <intent-filter>
@@ -147,7 +147,7 @@ EudiRQESUi.setup(
 
 #### Local file
 
-Start the signing process by providing your activity context and the URI of the selected file.
+Start the signing process by providing the context of your activity and the URI of the selected file.
 
 ```kotlin
 EudiRQESUi.initiate(
@@ -156,9 +156,9 @@ EudiRQESUi.initiate(
 )
 ```
 
-#### Remote url for document retrieval
+#### Remote URL for document retrieval
 
-Start the signing process by providing your activity context and the remote url of the document retrieval service.
+Start the signing process by providing your activity context and the document retrieval service's remote URL (retrieved via deep link or QR code).
 
 ```kotlin
 EudiRQESUi.initiate(
