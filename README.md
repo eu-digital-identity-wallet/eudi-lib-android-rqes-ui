@@ -60,7 +60,7 @@ class RQESConfigImpl : EudiRQESUiConfig {
 Example:
 
 ```kotlin
-class RQESConfigImpl : EudiRQESUiConfig {
+class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
 
     override val rqesServiceConfig: RqesServiceConfig
         get() = RqesServiceConfig(
@@ -83,7 +83,7 @@ class RQESConfigImpl : EudiRQESUiConfig {
 
     override val documentRetrievalConfig: DocumentRetrievalConfig
         get() = DocumentRetrievalConfig.X509Certificates(
-            context = activity_context,
+            context = context,
             certificates = listOf(R.raw.my_certificate),
             shouldLog = should_log_option
         )
