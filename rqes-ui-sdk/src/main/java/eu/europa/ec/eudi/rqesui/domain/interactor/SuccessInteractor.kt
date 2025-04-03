@@ -16,6 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.domain.interactor
 
+import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesAuthorizeCredentialPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedFilePartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesGetSelectedQtspPartialState
@@ -27,6 +28,7 @@ import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -39,6 +41,7 @@ internal interface SuccessInteractor {
 internal class SuccessInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val eudiRqesController: RqesController,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : SuccessInteractor {
 
     private val genericErrorMsg
@@ -84,7 +87,7 @@ internal class SuccessInteractorImpl(
     }
 
     override suspend fun signAndSaveDocument(originalDocumentName: String): SuccessInteractorSignAndSaveDocumentPartialState {
-        return withContext(Dispatchers.IO) {
+        return withContext(dispatcher) {
             runCatching {
                 when (val authorizeCredentialResponse = eudiRqesController.authorizeCredential()) {
                     is EudiRqesAuthorizeCredentialPartialState.Failure -> {
@@ -120,9 +123,11 @@ internal class SuccessInteractorImpl(
                                     }
 
                                     is EudiRqesSaveSignedDocumentsPartialState.Success -> {
+
                                         val savedDocumentUri = saveSignedDocumentsResponse
                                             .savedDocumentsUri
                                             .first()
+
                                         val savedDocumentName = savedDocumentUri.getFileName(
                                             context = resourceProvider.provideContext()
                                         ).getOrThrow()
@@ -133,7 +138,9 @@ internal class SuccessInteractorImpl(
                                         )
 
                                         return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Success(
-                                            savedDocument = savedDocument
+                                            savedDocument = savedDocument,
+                                            isRemote = saveSignedDocumentsResponse.isRemote,
+                                            redirectUri = saveSignedDocumentsResponse.redirectUri
                                         )
                                     }
                                 }
@@ -167,6 +174,8 @@ internal sealed class SuccessInteractorGetSelectedFileAndQtspPartialState {
 internal sealed class SuccessInteractorSignAndSaveDocumentPartialState {
     data class Success(
         val savedDocument: DocumentData,
+        val isRemote: Boolean,
+        val redirectUri: Uri?
     ) : SuccessInteractorSignAndSaveDocumentPartialState()
 
     data class Failure(

@@ -15,6 +15,9 @@
   -->
 <paths>
     <cache-path
-        name="rqes_cache"
+        name="rqes_cache_signed"
         path="signed_pdfs/" />
+    <cache-path
+        name="rqes_cache_downloads"
+        path="downloads/" />
 </paths>

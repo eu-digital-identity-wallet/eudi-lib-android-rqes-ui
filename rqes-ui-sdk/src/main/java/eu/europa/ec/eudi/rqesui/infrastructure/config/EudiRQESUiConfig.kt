@@ -78,4 +78,9 @@ interface EudiRQESUiConfig {
                 .withTypography(ThemeTypography.typo)
                 .build()
         }
+
+    /**
+     * Specifies the level of trust required for document retrieval operations.
+     */
+    val documentRetrievalConfig: DocumentRetrievalConfig
 }

@@ -88,7 +88,7 @@ class TestStringExtensionsKt {
                 .thenThrow(mockedExceptionWithMessage)
 
             // Act
-            val result = mockedInvalidUri.toUri()
+            val result = mockedInvalidUri.toUriOrEmpty()
 
             // Assert
             assertEquals(Uri.EMPTY, result)

@@ -19,7 +19,7 @@ package eu.europa.ec.eudi.rqesui.presentation.ui.success
 import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractorGetSelectedFileAndQtspPartialState
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractorSignAndSaveDocumentPartialState
@@ -222,7 +222,9 @@ class TestSuccessViewModel {
                 savedDocument = DocumentData(
                     documentName = "${signedDocumentPrefix}_$mockedDocumentName",
                     uri = documentFileUri
-                )
+                ),
+                isRemote = false,
+                redirectUri = null
             )
             mockSignAndSaveDocumentCall(
                 documentName = mockedDocumentName,
@@ -404,6 +406,85 @@ class TestSuccessViewModel {
                 assertTrue(awaitItem() is Effect.Navigation.Finish)
             }
         }
+
+    // Case 11
+    // Function setEvent(Event.BottomBarButtonPressed) is called to trigger the completion for remote flow.
+    // Case 11 Expected Result:
+    // 1. The ViewModel emits the expected effect to exit the SDK.
+    // 2. No redirect before exit
+    @Test
+    fun `Given Case 11, When setEvent is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+
+            // Given
+            val signedDocumentPrefix = "signed_0"
+            val response = SuccessInteractorSignAndSaveDocumentPartialState.Success(
+                savedDocument = DocumentData(
+                    documentName = "${signedDocumentPrefix}_$mockedDocumentName",
+                    uri = documentFileUri
+                ),
+                isRemote = true,
+                redirectUri = null
+            )
+            mockSignAndSaveDocumentCall(
+                documentName = mockedDocumentName,
+                response = response
+            )
+
+            viewModel.setEvent(
+                Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
+            )
+
+            // When
+            viewModel.setEvent(
+                Event.BottomBarButtonPressed
+            )
+
+            // Expected
+            viewModel.effect.runFlowTest {
+                assertEquals(Effect.Navigation.Finish, awaitItem())
+            }
+        }
+
+    // Case 12
+    // Function setEvent(Event.BottomBarButtonPressed) is called to trigger the completion for remote flow.
+    // Case 12 Expected Result:
+    // 1. The ViewModel emits the expected effect to redirect outside the SDK with thr provided Uri.
+    // 2. Exit the SDK
+    @Test
+    fun `Given Case 12, When setEvent is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+
+            // Given
+            val signedDocumentPrefix = "signed_0"
+            val redirectUrl = "https://eudi.test.eu".toUriOrEmpty()
+            val response = SuccessInteractorSignAndSaveDocumentPartialState.Success(
+                savedDocument = DocumentData(
+                    documentName = "${signedDocumentPrefix}_$mockedDocumentName",
+                    uri = documentFileUri
+                ),
+                isRemote = true,
+                redirectUri = redirectUrl
+            )
+            mockSignAndSaveDocumentCall(
+                documentName = mockedDocumentName,
+                response = response
+            )
+
+            viewModel.setEvent(
+                Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
+            )
+
+            // When
+            viewModel.setEvent(
+                Event.BottomBarButtonPressed
+            )
+
+            // Expected
+            viewModel.effect.runFlowTest {
+                assertEquals(Effect.Navigation.OpenRedirectUrl(redirectUrl), awaitItem())
+            }
+        }
     //endregion
 
     // region of helper functions
@@ -416,7 +497,7 @@ class TestSuccessViewModel {
     private fun mockQTSPData(qtspData: QtspData) {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
-            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUri())
+            whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
             whenever(this.scaUrl).thenReturn(mockedScaUrl)
         }
     }

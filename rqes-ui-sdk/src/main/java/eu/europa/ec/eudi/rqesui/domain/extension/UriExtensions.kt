@@ -19,6 +19,7 @@ package eu.europa.ec.eudi.rqesui.domain.extension
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.core.net.toUri
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 
 /**
@@ -48,4 +49,30 @@ internal fun Uri.getFileName(context: Context): Result<String> {
     } else {
         Result.success(fileName)
     }
+}
+
+/**
+ * Decodes a URI string and returns a Result containing the decoded URI.
+ *
+ * This function attempts to decode a given URI string. If successful, it returns a Result
+ * containing the decoded URI. If an error occurs during decoding (e.g., due to an invalid
+ * URI format), it returns a Result containing an EudiRQESUiError.
+ *
+ * @return A Result containing the decoded Uri on success, or a Result containing an
+ *         EudiRQESUiError on failure.
+ * @throws EudiRQESUiError if an error occurs during URI decoding.  Note that while the function
+ *         returns a `Result` to handle errors gracefully, it is still annotated with `@Throws`
+ *         to indicate the potential exception for interoperability with Java.
+ */
+@Throws(EudiRQESUiError::class)
+internal fun Uri.decode(): Result<Uri> = try {
+    val decoded = Uri.decode(this.toString()).toUri()
+    Result.success(decoded)
+} catch (e: Exception) {
+    Result.failure(
+        EudiRQESUiError(
+            title = "Uri Decoder",
+            message = e.localizedMessage ?: "Unable to decode uri"
+        )
+    )
 }

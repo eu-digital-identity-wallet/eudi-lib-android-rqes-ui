@@ -79,7 +79,7 @@ class TestLocalizationController {
         val config =
             testConfiguration(
                 translations =
-                mapOf("en" to mapOf(localizableKey to mockedLocalizedText)),
+                    mapOf("en" to mapOf(localizableKey to mockedLocalizedText)),
             )
         val controller = LocalizationControllerImpl(config)
 

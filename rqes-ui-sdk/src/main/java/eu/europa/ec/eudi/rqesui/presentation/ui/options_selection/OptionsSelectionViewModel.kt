@@ -171,18 +171,7 @@ internal class OptionsSelectionViewModel(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Initialize -> {
-                createFileSelectionItem(event)
-
-                when (event.screenSelectionState) {
-                    is OptionsSelectionScreenState.QtspSelection -> {
-                        createQTSPSelectionItem(event)
-                    }
-
-                    is OptionsSelectionScreenState.CertificateSelection -> {
-                        createQTSPSelectionItemOnSelectCertificateStep(event = event)
-                        createCertificateSelectionItemOnSelectCertificateStep()
-                    }
-                }
+                retrieveAndCreateFileSelectionItem(event)
             }
 
             is Event.Pop -> {
@@ -327,80 +316,81 @@ internal class OptionsSelectionViewModel(
         }
     }
 
-    private fun createFileSelectionItem(event: Event) {
-        when (val response = optionsSelectionInteractor.getSelectedFile()) {
-            is EudiRqesGetSelectedFilePartialState.Failure -> {
-                setState {
-                    copy(
-                        error = ContentErrorConfig(
-                            errorTitle = response.error.title,
-                            onRetry = { setEvent(event) },
-                            errorSubTitle = response.error.message,
-                            onCancel = {
-                                setEvent(Event.DismissError)
-                                setEffect { Effect.Navigation.Finish }
-                            }
-                        )
-                    )
-                }
-            }
-
-            is EudiRqesGetSelectedFilePartialState.Success -> {
-                setState {
-                    copy(
-                        documentSelectionItem = SelectionOptionUi(
-                            overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
-                            mainText = response.file.documentName,
-                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
-                            actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
-                            leadingIcon = AppIcons.StepOne,
-                            leadingIconTint = ThemeColors.success,
-                            trailingIcon = AppIcons.KeyboardArrowRight,
-                            enabled = true,
-                            event = Event.ViewDocumentItemPressed(
-                                documentData = response.file
+    private fun retrieveAndCreateFileSelectionItem(event: Event.Initialize) {
+        setState {
+            copy(isLoading = true)
+        }
+        viewModelScope.launch {
+            when (val response = optionsSelectionInteractor.getRemoteOrLocalFile()) {
+                is EudiRqesGetSelectedFilePartialState.Failure -> {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            error = ContentErrorConfig(
+                                errorTitle = response.error.title,
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = response.error.message,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    setEffect { Effect.Navigation.Finish }
+                                }
                             )
                         )
-                    )
+                    }
+                }
+
+                is EudiRqesGetSelectedFilePartialState.Success -> {
+                    setState {
+                        copy(
+                            isLoading = false,
+                            documentSelectionItem = SelectionOptionUi(
+                                overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
+                                mainText = response.file.documentName,
+                                subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentSubtitle),
+                                actionText = resourceProvider.getLocalizedString(LocalizableKey.View),
+                                leadingIcon = AppIcons.StepOne,
+                                leadingIconTint = ThemeColors.success,
+                                trailingIcon = AppIcons.KeyboardArrowRight,
+                                enabled = true,
+                                event = Event.ViewDocumentItemPressed(
+                                    documentData = response.file
+                                )
+                            )
+                        )
+                    }
+                    createItems(event)
                 }
             }
         }
     }
 
-    private fun createQTSPSelectionItem(event: Event) {
-        when (val response = optionsSelectionInteractor.getSelectedFile()) {
-            is EudiRqesGetSelectedFilePartialState.Failure -> {
-                setState {
-                    copy(
-                        error = ContentErrorConfig(
-                            errorTitle = response.error.title,
-                            onRetry = { setEvent(event) },
-                            errorSubTitle = response.error.message,
-                            onCancel = {
-                                setEvent(Event.DismissError)
-                                setEffect { Effect.Navigation.Finish }
-                            }
-                        )
-                    )
-                }
+    private fun createItems(event: Event.Initialize) {
+        when (event.screenSelectionState) {
+            is OptionsSelectionScreenState.QtspSelection -> {
+                createQTSPSelectionItem()
             }
 
-            is EudiRqesGetSelectedFilePartialState.Success -> {
-                setState {
-                    copy(
-                        qtspServiceSelectionItem = SelectionOptionUi(
-                            overlineText = null,
-                            mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
-                            subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
-                            actionText = null,
-                            leadingIcon = AppIcons.StepTwo,
-                            trailingIcon = AppIcons.KeyboardArrowRight,
-                            enabled = true,
-                            event = Event.RqesServiceSelectionItemPressed
-                        )
-                    )
-                }
+            is OptionsSelectionScreenState.CertificateSelection -> {
+                createQTSPSelectionItemOnSelectCertificateStep(event = event)
+                createCertificateSelectionItemOnSelectCertificateStep()
             }
+        }
+    }
+
+    private fun createQTSPSelectionItem() {
+        setState {
+            copy(
+                qtspServiceSelectionItem = SelectionOptionUi(
+                    overlineText = null,
+                    mainText = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningService),
+                    subtitle = resourceProvider.getLocalizedString(LocalizableKey.SelectSigningServiceSubtitle),
+                    actionText = null,
+                    leadingIcon = AppIcons.StepTwo,
+                    trailingIcon = AppIcons.KeyboardArrowRight,
+                    enabled = true,
+                    event = Event.RqesServiceSelectionItemPressed
+                )
+            )
         }
     }
 

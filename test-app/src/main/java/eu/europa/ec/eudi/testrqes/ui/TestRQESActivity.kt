@@ -24,12 +24,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,10 +46,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
+import eu.europa.ec.eudi.rqesui.infrastructure.DocumentUri
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.eudi.rqesui.infrastructure.RemoteUri
 import eu.europa.ec.eudi.testrqes.theme.EudiRQESUiTheme
 
 class TestRQESActivity : ComponentActivity() {
@@ -81,11 +95,14 @@ private fun Content(padding: PaddingValues) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding),
-        contentAlignment = Alignment.Center
+            .padding(padding)
     ) {
         var documentUri by remember {
             mutableStateOf<Uri?>(null)
+        }
+
+        var remoteUri by remember {
+            mutableStateOf<String>("")
         }
 
         val selectPdfLauncher = rememberLauncherForActivityResult(
@@ -94,37 +111,92 @@ private fun Content(padding: PaddingValues) {
             documentUri = uri
         }
 
-        Column {
-            documentUri?.let {
-                Button(
-                    onClick = {
-                        startSdk(
-                            context = context,
-                            documentUri = it
-                        )
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            Text(
+                text = "Local File Flow",
+                style = LocalTextStyle.current.copy(
+                    fontSize = LocalTextStyle.current.fontSize * 1.5f,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                documentUri?.let {
+                    Button(
+                        onClick = {
+                            startSdk(
+                                context = context,
+                                documentUri = it
+                            )
+                        }
+                    ) {
+                        Text("Start SDK")
                     }
-                ) {
-                    Text("Start SDK")
+                } ?: run {
+                    Button(
+                        onClick = {
+                            selectPdfLauncher.launch(
+                                arrayOf("application/pdf")
+                            )
+                        }
+                    ) {
+                        Text(text = "Select PDF document")
+                    }
                 }
-            } ?: run {
+
                 Button(
                     onClick = {
-                        selectPdfLauncher.launch(
-                            arrayOf("application/pdf")
-                        )
-                    }
+                        documentUri = null
+                    },
+                    enabled = documentUri != null
                 ) {
-                    Text(text = "Select PDF document")
+                    Text(text = "Clear selected PDF")
                 }
             }
 
+            HorizontalDivider(
+                thickness = 2.dp,
+                modifier = Modifier.padding(vertical = 24.dp)
+            )
+
+            Text(
+                text = "Document Retrieval Flow",
+                style = LocalTextStyle.current.copy(
+                    fontSize = LocalTextStyle.current.fontSize * 1.5f,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = remoteUri,
+                onValueChange = { remoteUri = it },
+                label = { Text("Remote URL") },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Uri
+                )
+            )
+
+            Spacer(modifier = Modifier.height(5.dp))
+
             Button(
                 onClick = {
-                    documentUri = null
+                    startSdk(
+                        context = context,
+                        remoteUri = remoteUri
+                    )
                 },
-                enabled = documentUri != null
+                enabled = remoteUri.isNotEmpty()
             ) {
-                Text(text = "Clear selected PDF")
+                Text("Start SDK")
             }
         }
     }
@@ -132,10 +204,18 @@ private fun Content(padding: PaddingValues) {
 
 private fun startSdk(
     context: Context,
-    documentUri: Uri
+    documentUri: Uri? = null,
+    remoteUri: String? = null
 ) {
-    EudiRQESUi.initiate(
-        context = context,
-        documentUri = documentUri,
-    )
+    if (documentUri != null) {
+        EudiRQESUi.initiate(
+            context = context,
+            documentUri = DocumentUri(documentUri),
+        )
+    } else if (remoteUri != null) {
+        EudiRQESUi.initiate(
+            context = context,
+            remoteUri = RemoteUri(remoteUri.toUriOrEmpty()),
+        )
+    }
 }

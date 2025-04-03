@@ -18,6 +18,7 @@ package eu.europa.ec.eudi.rqesui.domain.extension
 
 import android.net.Uri
 import android.util.Base64
+import androidx.core.net.toUri
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 
 /**
@@ -72,8 +73,8 @@ fun String.decodeFromBase64(): String = Base64.decode(
  *
  * @return A [Uri] object representing this string, or an empty [Uri] if the string is not a valid URI.
  */
-fun String.toUri(): Uri = try {
-    Uri.parse(this)
-} catch (e: Exception) {
+fun String.toUriOrEmpty(): Uri = try {
+    this.toUri()
+} catch (_: Exception) {
     Uri.EMPTY
 }

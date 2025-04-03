@@ -35,10 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import eu.europa.ec.eudi.rqesui.domain.extension.toUri
+import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.presentation.extension.finish
 import eu.europa.ec.eudi.rqesui.presentation.extension.openIntentChooser
+import eu.europa.ec.eudi.rqesui.presentation.extension.openUrl
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCard
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.SuccessCardData
@@ -105,6 +106,10 @@ internal fun SuccessScreen(
                     }
 
                     is Effect.Navigation.Finish -> context.finish()
+                    is Effect.Navigation.OpenRedirectUrl -> {
+                        context.openUrl(navigationEffect.url)
+                        context.finish()
+                    }
                 }
             },
             paddingValues = paddingValues,
@@ -254,7 +259,7 @@ private fun SuccessScreenPreview() {
                     leadingIcon = AppIcons.Verified,
                     documentData = DocumentData(
                         documentName = "File_to_be_signed.pdf",
-                        uri = "mockedUri".toUri()
+                        uri = "mockedUri".toUriOrEmpty()
                     ),
                     actionText = "VIEW",
                 ),

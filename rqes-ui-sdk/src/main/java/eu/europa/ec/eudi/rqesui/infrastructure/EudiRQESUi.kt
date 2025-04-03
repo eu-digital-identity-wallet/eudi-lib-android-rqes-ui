@@ -23,8 +23,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
 import eu.europa.ec.eudi.rqes.core.RQESService
+import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
 import eu.europa.ec.eudi.rqesui.domain.di.base.EudiRQESUIModule
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
+import eu.europa.ec.eudi.rqesui.domain.extension.decode
 import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.domain.util.Constants.SDK_STATE
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
@@ -37,6 +39,12 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.ksp.generated.module
+
+@JvmInline
+value class RemoteUri(val uri: Uri)
+
+@JvmInline
+value class DocumentUri(val uri: Uri)
 
 object EudiRQESUi {
 
@@ -52,6 +60,7 @@ object EudiRQESUi {
     private var state: State = State.None
     private var rqesService: RQESService? = null
     private var authorizedService: RQESService.Authorized? = null
+    private var remoteResolutionOutcome: ResolutionOutcome? = null
 
     fun setup(
         application: Application,
@@ -63,41 +72,45 @@ object EudiRQESUi {
     }
 
     /**
-     * Starts the SDK with the provided document [Uri].
+     * Starts the SDK with the provided remote [RemoteUri].
      *
-     * This function initializes the SDK with the given document [Uri].
-     * If the filename cannot be determined throws [EudiRQESUiError].
+     * This function initializes the SDK with the given remote [RemoteUri].
+     * If the remote [RemoteUri] is invalid throws [EudiRQESUiError].
      *
      * @param context The application [Context].
-     * @param documentUri The [Uri] of the document to be loaded.
-     * @throws EudiRQESUiError If the filename cannot be extracted from the [Uri].
+     * @param remoteUri The remote url [RemoteUri] for document retrieval.
+     * @throws EudiRQESUiError If the remote [RemoteUri] is invalid.
      */
     @Throws(EudiRQESUiError::class)
     fun initiate(
         context: Context,
-        documentUri: Uri,
+        remoteUri: RemoteUri,
     ) {
-        val documentData = DocumentData(
-            documentName = documentUri.getFileName(context).getOrThrow(),
-            uri = documentUri
+        initializeSDK(
+            context = context,
+            remoteUri = remoteUri.uri.decode().getOrThrow()
         )
+    }
 
-        sessionData = SessionData(
-            file = documentData,
-            qtsp = null,
-            authorizationCode = null,
+    /**
+     * Starts the SDK with the provided document [DocumentUri].
+     *
+     * This function initializes the SDK with the given document [DocumentUri].
+     * If the filename cannot be determined throws [EudiRQESUiError].
+     *
+     * @param context The application [Context].
+     * @param documentUri The [DocumentUri] of the document to be loaded.
+     * @throws EudiRQESUiError If the filename cannot be extracted from the [DocumentUri].
+     */
+    @Throws(EudiRQESUiError::class)
+    fun initiate(
+        context: Context,
+        documentUri: DocumentUri,
+    ) {
+        initializeSDK(
+            context = context,
+            documentUri = documentUri.uri
         )
-
-        rqesService = null
-        authorizedService = null
-
-        setState(
-            State.Initial(
-                file = documentUri
-            )
-        )
-
-        launchSDK(context)
     }
 
     /**
@@ -174,12 +187,66 @@ object EudiRQESUi {
         return authorizedService
     }
 
+    internal fun setRemoteResolutionOutcome(resolutionOutcome: ResolutionOutcome) {
+        this.remoteResolutionOutcome = resolutionOutcome
+    }
+
+    internal fun getRemoteResolutionOutcome(): ResolutionOutcome? {
+        return remoteResolutionOutcome
+    }
+
     internal fun setSessionData(sessionData: SessionData) {
         this.sessionData = sessionData
     }
 
     internal fun getSessionData(): SessionData {
         return sessionData
+    }
+
+    /**
+     * Initializes the SDK with the provided context, document URI, and remote URL.
+     *
+     * This function sets up the necessary session data, including the document file information (name and URI)
+     * if a document URI is provided, the remote URI if provided, and initializes other session-related fields.
+     * It also resets the RQES service and authorized service instances and sets the initial state of the SDK.
+     * Finally, it triggers the launch of the SDK's core functionality.
+     *
+     * @param context The application context.
+     * @param documentUri Optional URI of the document to be processed.  If provided, the document's filename is extracted.
+     * @param remoteUri Optional URI representing a remote location for the document or related data.
+     * @throws EudiRQESUiError If an error occurs while extracting the document filename from the provided URI.
+     */
+    @Throws(EudiRQESUiError::class)
+    private fun initializeSDK(
+        context: Context,
+        documentUri: Uri? = null,
+        remoteUri: Uri? = null
+    ) {
+        val documentData = documentUri?.let {
+            DocumentData(
+                documentName = it.getFileName(context).getOrThrow(),
+                uri = it
+            )
+        }
+
+        sessionData = SessionData(
+            file = documentData,
+            remoteUrl = remoteUri,
+            qtsp = null,
+            authorizationCode = null,
+        )
+
+        rqesService = null
+        authorizedService = null
+        remoteResolutionOutcome = null
+
+        setState(
+            State.Initial(
+                file = documentUri,
+            )
+        )
+
+        launchSDK(context)
     }
 
     /**
@@ -195,12 +262,11 @@ object EudiRQESUi {
     @Throws(EudiRQESUiError::class)
     private fun launchSDK(context: Context) {
         if (context as? Activity != null) {
-            context.startActivity(
-                Intent(context, EudiRQESContainer::class.java).putExtra(
-                    SDK_STATE,
-                    getState()
-                )
-            )
+            val intent = Intent(context, EudiRQESContainer::class.java).apply {
+                putExtra(SDK_STATE, getState())
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
         } else {
             throw EudiRQESUiError(
                 title = "Context Error",
@@ -212,38 +278,45 @@ object EudiRQESUi {
     /**
      * Calculates the next state in the flow based on the current state.
      *
-     * This function uses the current state and the selected file to determine the next state.
-     * If a file is selected, it transitions through the states: None -> Initial -> Certificate -> Success.
-     * If no file is selected, it throws an [EudiRQESUiError] indicating that the SDK is not initialized.
+     * This function uses the current state and the selected file or remote uri to determine the next state.
+     * If a file is selected or a remote uri is provided, it transitions through the states: None -> Initial -> Certificate -> Success.
+     * If no file is selected or remote uri is not provided, it throws an [EudiRQESUiError] indicating that the SDK is not initialized.
      *
      * @return The next state in the flow.
-     * @throws EudiRQESUiError If the SDK is not initialized (no file selected).
+     * @throws EudiRQESUiError If the SDK is not initialized (no file selected or remote uri provided).
      */
     private fun calculateNextState(): State {
-        sessionData.file?.let { safeFile ->
-            return when (getState()) {
-                is State.None -> {
-                    State.Initial(
-                        file = safeFile.uri
-                    )
-                }
 
-                is State.Initial -> {
-                    State.Certificate
-                }
+        val fileUri = sessionData.file?.uri
+        val remoteUri = sessionData.remoteUrl
 
-                is State.Certificate -> {
-                    State.Success
-                }
+        if (fileUri == null && remoteUri == null) {
+            throw EudiRQESUiError(
+                title = SDK_NOT_INITIALIZED_TITLE,
+                message = SDK_NOT_INITIALIZED_MESSAGE
+            )
+        }
 
-                is State.Success -> {
-                    State.Success
-                }
+        return when (getState()) {
+            is State.None -> {
+                State.Initial(
+                    file = fileUri,
+                    remoteUri = remoteUri
+                )
             }
-        } ?: throw EudiRQESUiError(
-            title = SDK_NOT_INITIALIZED_TITLE,
-            message = SDK_NOT_INITIALIZED_MESSAGE
-        )
+
+            is State.Initial -> {
+                State.Certificate
+            }
+
+            is State.Certificate -> {
+                State.Success
+            }
+
+            is State.Success -> {
+                State.Success
+            }
+        }
     }
 
     private fun setState(state: State) {
@@ -265,13 +338,18 @@ object EudiRQESUi {
     @Parcelize
     internal sealed class State : Parcelable {
         data object None : State()
-        data class Initial(val file: Uri) : State()
+        data class Initial(
+            val file: Uri? = null,
+            val remoteUri: Uri? = null
+        ) : State()
+
         data object Certificate : State()
         data object Success : State()
     }
 
     internal data class SessionData(
         val file: DocumentData?,
+        val remoteUrl: Uri?,
         val qtsp: QtspData?,
         val authorizationCode: String?,
     )
