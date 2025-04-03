@@ -33,6 +33,7 @@ import eu.europa.ec.eudi.rqes.core.UnsignedDocuments
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.DocumentRetrievalService
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.eudi.rqesui.domain.extension.duplicate
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.saveBase64DecodedPdfToShareableUri
@@ -472,22 +473,25 @@ internal class RqesControllerImpl(
     ): EudiRqesSaveSignedDocumentsPartialState {
         return withContext(dispatcher) {
             runCatching {
-                val uris = mutableListOf<Uri>()
 
-                signedDocuments.forEachIndexed { index, inputStream ->
-                    val uri = saveBase64DecodedPdfToShareableUri(
-                        context = resourceProvider.provideContext(),
-                        inputStream = inputStream,
-                        fileName = "signed_${index}_${originalDocumentName}"
-                    ).getOrThrow()
+                val streams = signedDocuments.duplicate()
 
-                    uris.add(uri)
+                val uris = mutableListOf<Uri>().apply {
+                    streams.first.forEachIndexed { index, inputStream ->
+                        val uri = saveBase64DecodedPdfToShareableUri(
+                            context = resourceProvider.provideContext(),
+                            inputStream = inputStream,
+                            fileName = "signed_${index}_${originalDocumentName}"
+                        ).getOrThrow()
+
+                        add(uri)
+                    }
                 }
 
                 if (uris.isNotEmpty()) {
 
                     eudiRQESUi.getRemoteResolutionOutcome()?.let {
-                        when (val outcome = it.dispatch(signedDocuments)) {
+                        when (val outcome = it.dispatch(streams.second)) {
                             is DispatchOutcome.Accepted -> {
                                 return@runCatching EudiRqesSaveSignedDocumentsPartialState.Success(
                                     savedDocumentsUri = uris,
