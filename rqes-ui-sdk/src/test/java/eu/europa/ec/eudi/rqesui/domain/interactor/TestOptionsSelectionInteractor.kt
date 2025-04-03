@@ -112,7 +112,7 @@ class TestOptionsSelectionInteractor {
     }
     //endregion
 
-    //region getSelectedFile
+    //region getRemoteOrLocalFile
     @Test
     fun `When getSelectedFile is called, Then controller getSelectedFile is called`() {
         coroutineRule.runTest {

@@ -406,6 +406,85 @@ class TestSuccessViewModel {
                 assertTrue(awaitItem() is Effect.Navigation.Finish)
             }
         }
+
+    // Case 11
+    // Function setEvent(Event.BottomBarButtonPressed) is called to trigger the completion for remote flow.
+    // Case 11 Expected Result:
+    // 1. The ViewModel emits the expected effect to exit the SDK.
+    // 2. No redirect before exit
+    @Test
+    fun `Given Case 11, When setEvent is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+
+            // Given
+            val signedDocumentPrefix = "signed_0"
+            val response = SuccessInteractorSignAndSaveDocumentPartialState.Success(
+                savedDocument = DocumentData(
+                    documentName = "${signedDocumentPrefix}_$mockedDocumentName",
+                    uri = documentFileUri
+                ),
+                isRemote = true,
+                redirectUri = null
+            )
+            mockSignAndSaveDocumentCall(
+                documentName = mockedDocumentName,
+                response = response
+            )
+
+            viewModel.setEvent(
+                Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
+            )
+
+            // When
+            viewModel.setEvent(
+                Event.BottomBarButtonPressed
+            )
+
+            // Expected
+            viewModel.effect.runFlowTest {
+                assertEquals(Effect.Navigation.Finish, awaitItem())
+            }
+        }
+
+    // Case 12
+    // Function setEvent(Event.BottomBarButtonPressed) is called to trigger the completion for remote flow.
+    // Case 12 Expected Result:
+    // 1. The ViewModel emits the expected effect to redirect outside the SDK with thr provided Uri.
+    // 2. Exit the SDK
+    @Test
+    fun `Given Case 12, When setEvent is called, Then the expected result is returned`() =
+        coroutineRule.runTest {
+
+            // Given
+            val signedDocumentPrefix = "signed_0"
+            val redirectUrl = "https://eudi.test.eu".toUriOrEmpty()
+            val response = SuccessInteractorSignAndSaveDocumentPartialState.Success(
+                savedDocument = DocumentData(
+                    documentName = "${signedDocumentPrefix}_$mockedDocumentName",
+                    uri = documentFileUri
+                ),
+                isRemote = true,
+                redirectUri = redirectUrl
+            )
+            mockSignAndSaveDocumentCall(
+                documentName = mockedDocumentName,
+                response = response
+            )
+
+            viewModel.setEvent(
+                Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
+            )
+
+            // When
+            viewModel.setEvent(
+                Event.BottomBarButtonPressed
+            )
+
+            // Expected
+            viewModel.effect.runFlowTest {
+                assertEquals(Effect.Navigation.OpenRedirectUrl(redirectUrl), awaitItem())
+            }
+        }
     //endregion
 
     // region of helper functions
