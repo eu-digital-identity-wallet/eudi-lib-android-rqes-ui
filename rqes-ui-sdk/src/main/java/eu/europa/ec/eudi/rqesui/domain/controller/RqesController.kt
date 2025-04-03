@@ -476,20 +476,19 @@ internal class RqesControllerImpl(
 
                 val streams = signedDocuments.duplicate()
 
-                val uris = mutableListOf<Uri>().apply {
+                val uris = buildList {
                     streams.first.forEachIndexed { index, inputStream ->
-                        val uri = saveBase64DecodedPdfToShareableUri(
-                            context = resourceProvider.provideContext(),
-                            inputStream = inputStream,
-                            fileName = "signed_${index}_${originalDocumentName}"
-                        ).getOrThrow()
-
-                        add(uri)
+                        add(
+                            saveBase64DecodedPdfToShareableUri(
+                                context = resourceProvider.provideContext(),
+                                inputStream = inputStream,
+                                fileName = "signed_${index}_${originalDocumentName}"
+                            ).getOrThrow()
+                        )
                     }
                 }
 
                 if (uris.isNotEmpty()) {
-
                     eudiRQESUi.getRemoteResolutionOutcome()?.let {
                         when (val outcome = it.dispatch(streams.second)) {
                             is DispatchOutcome.Accepted -> {
