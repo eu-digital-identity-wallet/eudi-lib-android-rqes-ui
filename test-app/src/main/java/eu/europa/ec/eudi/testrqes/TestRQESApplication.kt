@@ -72,13 +72,13 @@ private class DefaultConfig(val context: Context) : EudiRQESUiConfig {
         get() = DocumentRetrievalConfig.X509Certificates(
             context = context,
             certificates = listOf(
-                R.raw.pid_issuer_cacz01,
-                R.raw.pid_issuer_caee01,
-                R.raw.pid_issuer_caeu01,
-                R.raw.pid_issuer_calu01,
-                R.raw.pid_issuer_canl01,
-                R.raw.pid_issuer_capt01,
-                R.raw.pid_issuer_caut01
+                R.raw.pidissuerca02_cz,
+                R.raw.pidissuerca02_ee,
+                R.raw.pidissuerca02_eu,
+                R.raw.pidissuerca02_lu,
+                R.raw.pidissuerca02_nl,
+                R.raw.pidissuerca02_pt,
+                R.raw.pidissuerca02_ut
             ),
             shouldLog = true
         )
