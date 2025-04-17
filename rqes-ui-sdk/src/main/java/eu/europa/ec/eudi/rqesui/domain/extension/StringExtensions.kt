@@ -78,3 +78,35 @@ fun String.toUriOrEmpty(): Uri = try {
 } catch (_: Exception) {
     Uri.EMPTY
 }
+
+private val FY_SEED = intArrayOf(1, 3, 5, 7, 9, 2, 4, 6, 8)
+
+internal fun String.shuffle(seed: IntArray = FY_SEED): String =
+    encodeToBase64().computeShuffle(seed)
+
+internal fun String.unShuffle(seed: IntArray = FY_SEED): String =
+    computeShuffle(seed, true).decodeFromBase64()
+
+private fun String.computeShuffle(seed: IntArray, unShuffle: Boolean = false): String {
+
+    val items = mutableMapOf<Int, String?>()
+    this.toCharArray().forEachIndexed { index, character -> items[index] = character.toString() }
+
+    val iterator = mutableListOf<Int>()
+    items.forEach { iterator.add(it.key) }
+
+    if (unShuffle) iterator.reverse()
+
+    iterator.forEach { i ->
+
+        val k = seed[i % seed.size] % items.size
+
+        val element1 = items[k]
+        val element2 = items[i]
+
+        items[k] = element2
+        items[i] = element1
+    }
+
+    return items.map { it.value }.joinToString(separator = "")
+}

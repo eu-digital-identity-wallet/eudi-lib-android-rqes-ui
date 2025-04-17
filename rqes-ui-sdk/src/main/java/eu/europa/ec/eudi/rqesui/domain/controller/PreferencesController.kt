@@ -17,9 +17,11 @@
 package eu.europa.ec.eudi.rqesui.domain.controller
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import androidx.core.content.edit
+import eu.europa.ec.eudi.rqesui.domain.extension.shuffle
+import eu.europa.ec.eudi.rqesui.domain.extension.unShuffle
 
 internal interface PreferencesController {
 
@@ -49,9 +51,6 @@ internal interface PreferencesController {
      * Assigns given [value] to device storage - shared preferences given [key]. You can
      * retrieve this value by calling [getString].
      *
-     * Shared preferences are encrypted. Do not create your own instance to add or retrieve data.
-     * Instead, call operations of this controller.
-     *
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
      */
@@ -60,9 +59,6 @@ internal interface PreferencesController {
     /**
      * Assigns given [value] to device storage - shared preferences given [key]. You can
      * retrieve this value by calling [getString].
-     *
-     * Shared preferences are encrypted. Do not create your own instance to add or retrieve data.
-     * Instead, call operations of this controller.
      *
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
@@ -75,9 +71,6 @@ internal interface PreferencesController {
      * Assigns given [value] to device storage - shared preferences given [key]. You can
      * retrieve this value by calling [getString].
      *
-     * Shared preferences are encrypted. Do not create your own instance to add or retrieve data.
-     * Instead, call operations of this controller.
-     *
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
      */
@@ -86,9 +79,6 @@ internal interface PreferencesController {
     /**
      * Retrieves a string value from device shared preferences that corresponds to given [key]. If
      * key does not exist or value of given key is null, [defaultValue] is returned.
-     *
-     * Shared preferences are encrypted. Do not create your own instance to add or retrieve data.
-     * Instead, call operations of this controller.
      *
      * @param key          Key to get corresponding value.
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
@@ -100,9 +90,6 @@ internal interface PreferencesController {
      * Retrieves a long value from device shared preferences that corresponds to given [key]. If
      * key does not exist or value of given key is null, [defaultValue] is returned.
      *
-     * Shared preferences are encrypted. Do not create your own instance to add or retrieve data.
-     * Instead, call operations of this controller.
-     *
      * @param key          Key to get corresponding value.
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
      * key value is invalid.
@@ -110,66 +97,65 @@ internal interface PreferencesController {
     fun getLong(key: String, defaultValue: Long): Long
 
     /**
-     * Retrieves a boolean value from device shared preferences that corresponds to given [key]. If
-     * key does not exist or value of given key is null, [defaultValue] is returned.
+     * Retrieves a boolean value from the device's shared preferences associated with the given [key].
      *
-     * Shared preferences are encrypted. Do not create your own instance to add or retrieve data.
-     * Instead, call operations of this controller.
+     * If the [key] is not found in the preferences, or if the value associated with the [key] is null,
+     * the [defaultValue] is returned.  Note that if a value exists for the key but is not a valid
+     * boolean (e.g., a String or an Int), the platform may also return the [defaultValue], depending on
+     * the underlying shared preferences implementation.
      *
-     * @param key          Key to get corresponding value.
-     * @param defaultValue Default value to return if given [key] does not exist in prefs or if
-     * key value is invalid.
+     * @param key The key used to retrieve the boolean value.
+     * @param defaultValue The boolean value to return if the [key] is not found or has a null value.
+     * @return The boolean value associated with the [key], or the [defaultValue] if the [key] is not found or has a null value.
      */
     fun getBool(key: String, defaultValue: Boolean): Boolean
+
+    /**
+     * Sets an integer value associated with the given key in the underlying data store.
+     * If a value already exists for the key, it will be overwritten.
+     *
+     * @param key The unique identifier for the integer value.  Must not be null or empty.
+     * @param value The integer value to store.
+     */
     fun setInt(key: String, value: Int)
+
+    /**
+     * Retrieves an integer value associated with the given key from a data source.
+     * If the key is not found or the value is not an integer, it returns the specified default value.
+     *
+     * @param key The key associated with the integer value to retrieve.
+     * @param defaultValue The default integer value to return if the key is not found or the value is not an integer.
+     * @return The integer value associated with the key, or the default value if the key is not found or the value is invalid.
+     */
     fun getInt(key: String, defaultValue: Int): Int
 }
 
 /**
- * Controller used to manipulate data stored in device [SharedPreferences]. Data are encrypted so
- * you are strongly advised to used this controller to set or get values.
+ * Implementation of the [PreferencesController] interface for managing application preferences.
+ *
+ * This class provides methods for interacting with SharedPreferences, allowing storage and retrieval
+ * of various data types, including Strings, Longs, Booleans, and Integers. It also offers functionalities
+ * for checking the existence of keys and clearing specific or all preferences.  All string values are
+ * shuffled before storage and unshuffled upon retrieval to provide a basic level of obfuscation.
+ *
+ * @property context The application context used to access SharedPreferences.
  */
 internal class PreferencesControllerImpl(
     private val context: Context
 ) : PreferencesController {
 
-    /**
-     * Master key used to encrypt/decrypt shared preferences.
-     */
-    private val masterKey: MasterKey by lazy {
-        MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-    }
 
     /**
-     * Pref key scheme used to initialize [EncryptedSharedPreferences] instance.
-     */
-    private val prefKeyEncryptionScheme by lazy {
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV
-    }
-
-    /**
-     * Pref value scheme used to initialize [EncryptedSharedPreferences] instance.
-     */
-    private val prefValueEncryptionScheme by lazy {
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    }
-
-    /**
-     * Initializes and returns a new [SharedPreferences] instance. Instance is using an encryption
-     * to store data in device.
+     * Retrieves the SharedPreferences instance for the application.
      *
-     * @return A new [SharedPreferences] instance.
+     * This function provides access to the SharedPreferences object used by the application
+     * for persistent storage of key-value pairs. The SharedPreferences are named "eudi-wallet"
+     * and are accessed with private mode, meaning only this application can read or write to them.
+     *
+     * @return The SharedPreferences instance.
      */
     private fun getSharedPrefs(): SharedPreferences {
-        return EncryptedSharedPreferences.create(
-            context,
-            "rqes_shared_prefs",
-            masterKey,
-            prefKeyEncryptionScheme,
-            prefValueEncryptionScheme
-        )
+        return context.getSharedPreferences("eudi-rqes", MODE_PRIVATE)
     }
 
     /**
@@ -189,7 +175,7 @@ internal class PreferencesControllerImpl(
      * irreversible and may lead to data loss.
      */
     override fun clear(key: String) {
-        getSharedPrefs().edit().remove(key).apply()
+        getSharedPrefs().edit { remove(key) }
     }
 
     /**
@@ -197,7 +183,7 @@ internal class PreferencesControllerImpl(
      * irreversible and may lead to data loss.
      */
     override fun clear() {
-        getSharedPrefs().edit().clear().apply()
+        getSharedPrefs().edit { clear() }
     }
 
     /**
@@ -211,9 +197,9 @@ internal class PreferencesControllerImpl(
      * @param value Value to add after given [key].
      */
     override fun setString(key: String, value: String) {
-        getSharedPrefs().edit()
-            .putString(key, value)
-            .apply()
+        getSharedPrefs().edit {
+            putString(key, value.shuffle())
+        }
     }
 
     /**
@@ -229,9 +215,9 @@ internal class PreferencesControllerImpl(
     override fun setLong(
         key: String, value: Long
     ) {
-        getSharedPrefs().edit()
-            .putLong(key, value)
-            .apply()
+        getSharedPrefs().edit {
+            putLong(key, value)
+        }
     }
 
     /**
@@ -245,9 +231,9 @@ internal class PreferencesControllerImpl(
      * @param value Value to add after given [key].
      */
     override fun setBool(key: String, value: Boolean) {
-        getSharedPrefs().edit()
-            .putBoolean(key, value)
-            .apply()
+        getSharedPrefs().edit {
+            putBoolean(key, value)
+        }
     }
 
     /**
@@ -262,7 +248,7 @@ internal class PreferencesControllerImpl(
      * key value is invalid.
      */
     override fun getString(key: String, defaultValue: String): String {
-        return getSharedPrefs().getString(key, defaultValue) ?: defaultValue
+        return getSharedPrefs().getString(key, null)?.unShuffle() ?: defaultValue
     }
 
     /**
@@ -295,13 +281,27 @@ internal class PreferencesControllerImpl(
         return getSharedPrefs().getBoolean(key, defaultValue)
     }
 
+    /**
+     * Retrieves an integer value from SharedPreferences associated with the given key.
+     * If no value is found for the key, returns the provided default value.
+     *
+     * @param key The key associated with the integer value to retrieve.
+     * @param defaultValue The default integer value to return if no value is found for the key.
+     * @return The integer value associated with the key, or the default value if no value is found.
+     */
     override fun getInt(key: String, defaultValue: Int): Int {
         return getSharedPrefs().getInt(key, defaultValue)
     }
 
+    /**
+     * Sets an integer value in the shared preferences.
+     *
+     * @param key The key under which the value should be stored.
+     * @param value The integer value to be stored.
+     */
     override fun setInt(key: String, value: Int) {
-        getSharedPrefs().edit()
-            .putInt(key, value)
-            .apply()
+        getSharedPrefs().edit {
+            putInt(key, value)
+        }
     }
 }
