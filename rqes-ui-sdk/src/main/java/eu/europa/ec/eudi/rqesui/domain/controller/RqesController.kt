@@ -536,22 +536,18 @@ internal class RqesControllerImpl(
 
     private fun createRqesService(qtspData: QtspData): EudiRqesCreateServicePartialState {
         return runCatching {
-            val rqesServiceConfig = eudiRQESUi.getEudiRQESUiConfig().rqesServiceConfig
-            val service: RQESService = with(rqesServiceConfig) {
-                RQESService(
-                    serviceEndpointUrl = qtspData.endpoint.toString(),
-                    config = CSCClientConfig(
-                        client = OAuth2Client.Confidential.ClientSecretBasic(
-                            clientId = clientId,
-                            clientSecret = clientSecret
-                        ),
-                        authFlowRedirectionURI = authFlowRedirectionURI,
-                        scaBaseURL = URL(qtspData.scaUrl),
+            val service = RQESService(
+                serviceEndpointUrl = qtspData.endpoint.toString(),
+                config = CSCClientConfig(
+                    client = OAuth2Client.Confidential.ClientSecretBasic(
+                        clientId = qtspData.clientId,
+                        clientSecret = qtspData.clientSecret
                     ),
-                    hashAlgorithm = hashAlgorithm,
-                )
-            }
-
+                    authFlowRedirectionURI = qtspData.authFlowRedirectionURI,
+                    scaBaseURL = URL(qtspData.scaUrl),
+                ),
+                hashAlgorithm = qtspData.hashAlgorithm,
+            )
             eudiRQESUi.setRqesService(service)
             EudiRqesCreateServicePartialState.Success(service = service)
         }.getOrElse {
