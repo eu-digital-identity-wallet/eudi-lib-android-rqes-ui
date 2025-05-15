@@ -259,6 +259,7 @@ private fun <T : ViewEvent> OptionsList(
             )
 
             if (index < optionItems.lastIndex) {
+                VSpacer.Small()
                 HorizontalDivider(
                     thickness = 1.dp,
                 )

@@ -494,9 +494,9 @@ class TestOptionsSelectionViewModel {
             // Arrange
             val mockQtsps = listOf(qtspData)
             val selectedIndex = 0
-            whenever(qtspData.name).thenReturn(mockedQtspName)
-            whenever(optionsSelectionInteractor.getQtsps())
-                .thenReturn(EudiRqesGetQtspsPartialState.Success(qtsps = mockQtsps))
+            mockGetQtspsCall(
+                response = EudiRqesGetQtspsPartialState.Success(qtsps = mockQtsps)
+            )
 
             // Act
             viewModel.setEvent(
@@ -713,16 +713,20 @@ class TestOptionsSelectionViewModel {
     fun `Given Case 5, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val indexSelected = 0
+            val selectedIndex = 0
+
+            mockGetQtspsCall(
+                response = EudiRqesGetQtspsPartialState.Success(qtsps = listOf(qtspData))
+            )
 
             // Act
             viewModel.setEvent(
-                Event.BottomSheet.QtspIndexSelectedOnRadioButtonPressed(index = indexSelected)
+                Event.BottomSheet.QtspIndexSelectedOnRadioButtonPressed(index = selectedIndex)
             )
 
             // Assert
             assertEquals(
-                indexSelected,
+                selectedIndex,
                 viewModel.viewState.value.selectedQtspIndex
             )
         }
@@ -1314,6 +1318,13 @@ class TestOptionsSelectionViewModel {
                 )
             )
         )
+    }
+
+    private fun mockGetQtspsCall(response: EudiRqesGetQtspsPartialState) {
+        whenever(qtspData.name)
+            .thenReturn(mockedQtspName)
+        whenever(optionsSelectionInteractor.getQtsps())
+            .thenReturn(response)
     }
 
     private suspend fun mockGetServiceAuthorizationUrlCall(response: EudiRqesGetServiceAuthorizationUrlPartialState) {
