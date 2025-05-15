@@ -264,38 +264,22 @@ internal class OptionsSelectionViewModel(
                 setState {
                     copy(selectedQtspIndex = event.index)
                 }
+                showSelectQtspBottomSheet(event)
             }
 
             is Event.RqesServiceSelectionItemPressed -> {
-                getQtsps(event)
+                showSelectQtspBottomSheet(event)
             }
 
             is Event.CertificateSelectionItemPressed -> {
-                val bottomSheetOptions: List<ModalOptionUi<Event>> =
-                    viewState.value.certificateDataList.mapIndexed { index, certificateData ->
-                        ModalOptionUi(
-                            title = certificateData.name,
-                            trailingIcon = null,
-                            event = Event.BottomSheet.CertificateSelectedOnDoneButtonPressed(
-                                certificateData
-                            ),
-                            radioButtonSelected = index == viewState.value.selectedQtspIndex
-                        )
-                    }
-
-                showBottomSheet(
-                    sheetContent = OptionsSelectionBottomSheetContent.SelectCertificate(
-                        bottomSheetTextData = getSelectCertificateTextData(),
-                        options = bottomSheetOptions,
-                        selectedIndex = 0
-                    )
-                )
+                showSelectCertificateBottomSheet()
             }
 
             is Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed -> {
                 setState {
                     copy(selectedCertificateIndex = event.index)
                 }
+                showSelectCertificateBottomSheet()
             }
 
             is Event.BottomSheet.CertificateSelectedOnDoneButtonPressed -> {
@@ -473,7 +457,7 @@ internal class OptionsSelectionViewModel(
         }
     }
 
-    private fun getQtsps(event: Event) {
+    private fun showSelectQtspBottomSheet(event: Event) {
         when (val response = optionsSelectionInteractor.getQtsps()) {
             is EudiRqesGetQtspsPartialState.Failure -> {
                 setState {
@@ -492,13 +476,15 @@ internal class OptionsSelectionViewModel(
             }
 
             is EudiRqesGetQtspsPartialState.Success -> {
+                val currentSelectedQtspIndex = viewState.value.selectedQtspIndex
+
                 val bottomSheetOptions: List<ModalOptionUi<Event>> =
                     response.qtsps.mapIndexed { index, qtspData ->
                         ModalOptionUi(
                             title = qtspData.name,
                             trailingIcon = null,
                             event = Event.BottomSheet.QtspSelectedOnDoneButtonPressed(qtspData),
-                            radioButtonSelected = index == viewState.value.selectedQtspIndex
+                            radioButtonSelected = index == currentSelectedQtspIndex
                         )
                     }
 
@@ -506,11 +492,33 @@ internal class OptionsSelectionViewModel(
                     sheetContent = OptionsSelectionBottomSheetContent.SelectQTSP(
                         bottomSheetTextData = getSelectQTSPTextData(),
                         options = bottomSheetOptions,
-                        selectedIndex = viewState.value.selectedQtspIndex,
+                        selectedIndex = currentSelectedQtspIndex
                     )
                 )
             }
         }
+    }
+
+    private fun showSelectCertificateBottomSheet() {
+        val currentSelectedCertificateIndex = viewState.value.selectedCertificateIndex
+
+        val bottomSheetOptions: List<ModalOptionUi<Event>> =
+            viewState.value.certificateDataList.mapIndexed { index, certificateData ->
+                ModalOptionUi(
+                    title = certificateData.name,
+                    trailingIcon = null,
+                    event = Event.BottomSheet.CertificateSelectedOnDoneButtonPressed(certificateData),
+                    radioButtonSelected = index == currentSelectedCertificateIndex
+                )
+            }
+
+        showBottomSheet(
+            sheetContent = OptionsSelectionBottomSheetContent.SelectCertificate(
+                bottomSheetTextData = getSelectCertificateTextData(),
+                options = bottomSheetOptions,
+                selectedIndex = currentSelectedCertificateIndex
+            )
+        )
     }
 
     private fun fetchServiceAuthorizationUrl(event: Event, service: RQESService) {
