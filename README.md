@@ -46,8 +46,6 @@ class RQESConfigImpl : EudiRQESUiConfig {
     // Optional. Default theme will be used if not set.
     override val themeManager: ThemeManager get()
 
-    override val rqesServiceConfig: RqesServiceConfig get()
-
     override val qtsps: List<QtspData> get()
 
     // Optional. Default is false.
@@ -62,20 +60,16 @@ Example:
 ```kotlin
 class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
 
-    override val rqesServiceConfig: RqesServiceConfig
-        get() = RqesServiceConfig(
-            clientId = "your_clientid",
-            clientSecret = "your_secret",
-            authFlowRedirectionURI = URI.create("your_registered_deeplink"),
-            hashAlgorithm = HashAlgorithmOID.SHA_256,
-        )
-
     override val qtsps: List<QtspData>
         get() = listOf(
             QtspData(
                 name = "your_name",
                 endpoint = "your_endpoint".toUriOrEmpty(),
                 scaUrl = "your_sca",
+                clientId = "your_clientid",
+                clientSecret = "your_secret",
+                authFlowRedirectionURI = URI.create("your_registered_deeplink"),
+                hashAlgorithm = HashAlgorithmOID.SHA_256,
             )
         )
 
