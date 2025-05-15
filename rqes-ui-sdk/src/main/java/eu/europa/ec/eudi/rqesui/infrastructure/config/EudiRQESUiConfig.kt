@@ -24,9 +24,10 @@ import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeTypography
 
 interface EudiRQESUiConfig {
 
-    val rqesServiceConfig: RqesServiceConfig
-
-    // QTSPs List
+    /**
+     * The list of Qualified Trust Service Providers (QTSPs) to be displayed and used for signing.
+     * Each entry in the list provides information about a specific QTSP.
+     */
     val qtsps: List<QtspData>
 
     /**

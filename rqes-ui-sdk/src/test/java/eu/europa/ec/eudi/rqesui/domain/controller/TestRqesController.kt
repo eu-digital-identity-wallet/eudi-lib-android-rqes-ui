@@ -27,7 +27,6 @@ import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
-import eu.europa.ec.eudi.rqesui.infrastructure.config.RqesServiceConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
@@ -97,9 +96,6 @@ class TestRqesController {
 
     @Mock
     private lateinit var rqesService: RQESService
-
-    @Mock
-    private lateinit var rqesServiceConfig: RqesServiceConfig
 
     @Mock
     private lateinit var rqesServiceAuthorized: RQESService.Authorized
@@ -284,7 +280,8 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When setSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
-        mockRQESServiceConfig(eudiRQESUi = eudiRQESUi)
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
+        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
 
         // Act
@@ -296,34 +293,12 @@ class TestRqesController {
     }
 
     // Case 2
-    // 1. A failure scenario is simulated where the RQES service configuration is null.
-    // 2. The `qtspData` are mocked to represent the QTSP being selected.
-    // 3. The `eudiRQESUi.getSessionData()` function provides the current selection.
-    // Expected Result:
-    // 1. The function returns an instance of `EudiRqesSetSelectedQtspPartialState.Failure`.
-    // 2. The failure state indicates an unsuccessful service setup due to a missing RQES service configuration.
-    @Test
-    fun `Given Case 2, When setSelectedQtsp is called, Then the expected result is returned`() {
-        // Arrange
-        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
-        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
-        whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(null)
-        mockQTSPData(qtspData = qtspData)
-
-        // Act
-        val result = rqesController.setSelectedQtsp(qtspData)
-
-        // Assert
-        assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
-    }
-
-    // Case 3
     // 1. The `getSessionData` method in `eudiRQESUi` throws an exception with specific message.
     // Expected Result:
     // 1. The function should return an instance of `EudiRqesSetSelectedQtspPartialState.Failure`.
     // 2. The failure state should confirm that the exception is caught and the failure is handled appropriately.
     @Test
-    fun `Given Case 3, When setSelectedQtsp is called, Then the expected result is returned`() {
+    fun `Given Case 2, When setSelectedQtsp is called, Then the expected result is returned`() {
         // Arrange
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithMessage)
@@ -777,19 +752,11 @@ class TestRqesController {
             whenever(this.name).thenReturn(mockedQtspName)
             whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
             whenever(this.scaUrl).thenReturn(mockedScaUrl)
+            whenever(this.clientId).thenReturn(mockedClientId)
+            whenever(this.clientSecret).thenReturn(mockedClientSecret)
+            whenever(this.authFlowRedirectionURI).thenReturn(URI.create(mockedUri))
+            whenever(this.hashAlgorithm).thenReturn(HashAlgorithmOID.SHA_256)
         }
-    }
-
-    private fun mockRQESServiceConfig(eudiRQESUi: EudiRQESUi) {
-        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
-        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
-        whenever(eudiRQESUiConfig.rqesServiceConfig).thenReturn(rqesServiceConfig)
-        whenever(rqesServiceConfig.clientId).thenReturn(mockedClientId)
-        whenever(rqesServiceConfig.clientSecret).thenReturn(mockedClientSecret)
-        whenever(rqesServiceConfig.authFlowRedirectionURI).thenReturn(
-            URI.create(mockedUri),
-        )
-        whenever(rqesServiceConfig.hashAlgorithm).thenReturn(HashAlgorithmOID.SHA_256)
     }
 
     private suspend fun mockAuthorizeCredentialResultSuccess() {
