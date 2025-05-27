@@ -19,7 +19,7 @@ The `EudiRQESUi` object defines methods for setting up and using the SDK. The SD
 
 ## Requirements
 
-- Android 9 (API level 28) or higher
+- Android 12 (API level 31) or higher
 
 ## Installation
 
