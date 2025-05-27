@@ -27,7 +27,6 @@ import eu.europa.ec.eudi.rqesui.presentation.navigation.SdkScreens
 import eu.europa.ec.eudi.rqesui.presentation.ui.options_selection.OptionsSelectionScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.success.SuccessScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.view_document.ViewDocumentScreen
-import org.koin.androidx.compose.getViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -51,7 +50,7 @@ internal fun NavGraphBuilder.sdkGraph(navController: NavController) {
     ) {
         OptionsSelectionScreen(
             navController = navController,
-            viewModel = getViewModel(
+            viewModel = koinViewModel(
                 parameters = {
                     parametersOf(
                         it.arguments?.getString(
@@ -73,7 +72,7 @@ internal fun NavGraphBuilder.sdkGraph(navController: NavController) {
     ) {
         ViewDocumentScreen(
             navController = navController,
-            viewModel = getViewModel(
+            viewModel = koinViewModel(
                 parameters = {
                     parametersOf(
                         it.arguments?.getString(

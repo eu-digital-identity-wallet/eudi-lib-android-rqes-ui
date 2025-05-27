@@ -58,7 +58,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.test.Test
+import org.junit.Test
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
