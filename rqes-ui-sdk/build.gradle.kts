@@ -122,7 +122,6 @@ ksp {
     arg("KOIN_CONFIG_CHECK", "true")
 }
 
-@Suppress("UnstableApiUsage")
 mavenPublishing {
     configure(
         AndroidMultiVariantLibrary(
@@ -139,44 +138,46 @@ mavenPublishing {
     }
 }
 
-koverReport {
-    filters {
-        excludes {
-            packages(
-                "*.ksp.*",
-                "*.di",
-                "*.serializer",
-                "*.config",
-                "*.config.*",
-                "*.provider.*",
-                "*.provider",
-                "*.localization.*",
-                "*.localization",
-                "*.infrastructure.*",
-                "*.infrastructure",
-                "*.presentation.architecture.*",
-                "*.presentation.architecture",
-                "*.presentation.entities.*",
-                "*.presentation.entities",
-                "*.presentation.extension.*",
-                "*.presentation.extension",
-                "*.presentation.navigation.*",
-                "*.presentation.navigation",
-                "*.presentation.router.*",
-                "*.presentation.router",
-                "*.presentation.ui.component.*",
-                "*.presentation.ui.component",
-                "*.presentation.ui.container.*",
-                "*.presentation.ui.container",
-                "*.util.*",
-                "*.util",
-                "*.helper.*",
-                "*.helper",
-            )
-            classes(
-                "*LogController*",
-                "*Screen*",
-            )
+kover {
+    reports {
+        filters {
+            excludes {
+                packages(
+                    "*.ksp.*",
+                    "*.di",
+                    "*.serializer",
+                    "*.config",
+                    "*.config.*",
+                    "*.provider.*",
+                    "*.provider",
+                    "*.localization.*",
+                    "*.localization",
+                    "*.infrastructure.*",
+                    "*.infrastructure",
+                    "*.presentation.architecture.*",
+                    "*.presentation.architecture",
+                    "*.presentation.entities.*",
+                    "*.presentation.entities",
+                    "*.presentation.extension.*",
+                    "*.presentation.extension",
+                    "*.presentation.navigation.*",
+                    "*.presentation.navigation",
+                    "*.presentation.router.*",
+                    "*.presentation.router",
+                    "*.presentation.ui.component.*",
+                    "*.presentation.ui.component",
+                    "*.presentation.ui.container.*",
+                    "*.presentation.ui.container",
+                    "*.util.*",
+                    "*.util",
+                    "*.helper.*",
+                    "*.helper",
+                )
+                classes(
+                    "*LogController*",
+                    "*Screen*",
+                )
+            }
         }
     }
 }
