@@ -31,7 +31,7 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import kotlin.test.Test
+import org.junit.Test
 
 class TestUriExtensionsKt {
 

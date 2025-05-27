@@ -25,10 +25,10 @@ import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Before
+import org.junit.Test
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
-import kotlin.test.Test
 
 class TestLocalizationController {
     @Mock
