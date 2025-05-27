@@ -2,7 +2,7 @@
 eudiRqesCore = "0.2.1"
 agp = "8.10.0"
 kotlin = "2.1.21"
-kotlinxCoroutines = "1.9.0"
+kotlinxCoroutines = "1.10.2"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
