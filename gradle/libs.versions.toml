@@ -27,6 +27,8 @@ kover = "0.9.1"
 robolectric = "4.14.1"
 turbine = "1.2.0"
 pdfViewer = "3.2.0-beta.3"
+owaspDependencyCheck = "12.1.1"
+sonar = "6.2.0.5505"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
@@ -71,3 +73,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
 kotlin-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owaspDependencyCheck" }
+sonar = { id = "org.sonarqube", version.ref = "sonar" }

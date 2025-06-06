@@ -25,6 +25,8 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.kotlin.kover)
+    alias(libs.plugins.sonar)
+    alias(libs.plugins.owasp.dependencycheck)
 }
 
 val NAMESPACE: String by project
