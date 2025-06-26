@@ -40,7 +40,6 @@ import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposabl
 import eu.europa.ec.eudi.rqesui.presentation.navigation.helper.generateComposableNavigationLink
 import eu.europa.ec.eudi.rqesui.presentation.router.sdkGraph
 import org.koin.android.ext.android.inject
-import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.core.annotation.KoinExperimentalAPI
 
 internal class EudiRQESContainer : ComponentActivity() {
@@ -68,11 +67,9 @@ internal class EudiRQESContainer : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.surface
             ) {
-                KoinAndroidContext {
-                    val startingRoute = getStartingRoute(intent)
-                    routerHost.StartFlow(startDestination = startingRoute) {
-                        builder(it)
-                    }
+                val startingRoute = getStartingRoute(intent)
+                routerHost.StartFlow(startDestination = startingRoute) {
+                    builder(it)
                 }
             }
         }

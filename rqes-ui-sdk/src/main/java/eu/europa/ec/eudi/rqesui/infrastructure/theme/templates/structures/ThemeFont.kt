@@ -22,7 +22,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.theme.templates.structures.ThemeF
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.templates.structures.ThemeFontWeight.Companion.toFontWeight
 
 data class ThemeFont(
-    @FontRes val res: Int,
+    @param:FontRes val res: Int,
     val weight: ThemeFontWeight,
     val style: ThemeFontStyle
 ) {
