@@ -64,6 +64,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.net.URI
 
@@ -127,6 +128,8 @@ class TestRqesController {
             .thenReturn(mockedGenericServiceErrorMessage)
         whenever(resourceProvider.genericErrorTitle())
             .thenReturn(mockedGenericErrorTitle)
+        whenever(resourceProvider.getSignedDocumentsCache())
+            .thenReturn(RuntimeEnvironment.getApplication().cacheDir.absolutePath)
     }
 
     @After

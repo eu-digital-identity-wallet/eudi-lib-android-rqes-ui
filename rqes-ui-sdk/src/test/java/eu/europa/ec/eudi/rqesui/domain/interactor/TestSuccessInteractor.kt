@@ -240,7 +240,7 @@ class TestSuccessInteractor {
     fun `Given Case 1, When signAndSaveDocument is called, Then Case 1 expected result is returned`() =
         coroutineRule.runTest {
             // Arrange
-            val documentsUri = listOf(documentFileUri)
+            val documents = mapOf(mockedDocumentName to documentFileUri)
             mockAuthorizeCredentialCall(
                 response = EudiRqesAuthorizeCredentialPartialState.Success(
                     authorizedCredential = credentialAuthorized
@@ -255,7 +255,7 @@ class TestSuccessInteractor {
                 documentName = mockedDocumentName,
                 signedDocuments = signedDocuments,
                 event = EudiRqesSaveSignedDocumentsPartialState.Success(
-                    savedDocumentsUri = documentsUri,
+                    savedDocuments = documents,
                     isRemote = false,
                     redirectUri = null
                 )

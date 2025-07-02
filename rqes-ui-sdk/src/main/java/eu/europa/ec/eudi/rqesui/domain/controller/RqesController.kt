@@ -46,7 +46,6 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.net.URL
 
 internal interface RqesController {
@@ -473,14 +472,18 @@ internal class RqesControllerImpl(
         return withContext(dispatcher) {
             runCatching {
 
-                val uris = signedDocuments.map { it.value.toUri() }
+                val savedDocuments: Map<String, Uri> = buildMap {
+                    signedDocuments.forEach {
+                        put(it.key, it.value.toUri())
+                    }
+                }
 
-                if (uris.isNotEmpty()) {
+                if (savedDocuments.isNotEmpty()) {
                     eudiRQESUi.getRemoteResolutionOutcome()?.let {
                         when (val outcome = it.dispatch(signedDocuments)) {
                             is DispatchOutcome.Accepted -> {
                                 return@runCatching EudiRqesSaveSignedDocumentsPartialState.Success(
-                                    savedDocumentsUri = uris,
+                                    savedDocuments = savedDocuments,
                                     isRemote = true,
                                     redirectUri = outcome.redirectURI?.toString()?.toUri()
                                 )
@@ -498,7 +501,7 @@ internal class RqesControllerImpl(
                     }
 
                     EudiRqesSaveSignedDocumentsPartialState.Success(
-                        savedDocumentsUri = uris,
+                        savedDocuments = savedDocuments,
                         isRemote = false,
                         redirectUri = null
                     )
@@ -533,10 +536,7 @@ internal class RqesControllerImpl(
                     authFlowRedirectionURI = qtspData.authFlowRedirectionURI,
                     scaBaseURL = URL(qtspData.scaUrl),
                 ),
-                outputPathDir = File(
-                    resourceProvider.provideContext().cacheDir,
-                    "signed_pdfs"
-                ).absolutePath,
+                outputPathDir = resourceProvider.getSignedDocumentsCache(),
                 hashAlgorithm = qtspData.hashAlgorithm
             )
             eudiRQESUi.setRqesService(service)
@@ -622,7 +622,7 @@ internal sealed class EudiRqesSignDocumentsPartialState {
 
 internal sealed class EudiRqesSaveSignedDocumentsPartialState {
     data class Success(
-        val savedDocumentsUri: List<Uri>,
+        val savedDocuments: Map<String, Uri>,
         val isRemote: Boolean,
         val redirectUri: Uri?
     ) :
