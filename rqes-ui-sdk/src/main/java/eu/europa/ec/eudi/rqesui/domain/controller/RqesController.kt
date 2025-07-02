@@ -33,10 +33,8 @@ import eu.europa.ec.eudi.rqes.core.UnsignedDocuments
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.DocumentRetrievalService
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
-import eu.europa.ec.eudi.rqesui.domain.extension.duplicate
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper
-import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.saveBase64DecodedPdfToShareableUri
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.uriToFile
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
@@ -48,6 +46,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.URL
 
 internal interface RqesController {
@@ -474,23 +473,11 @@ internal class RqesControllerImpl(
         return withContext(dispatcher) {
             runCatching {
 
-                val streams = signedDocuments.duplicate()
-
-                val uris = buildList {
-                    streams.first.forEachIndexed { index, inputStream ->
-                        add(
-                            saveBase64DecodedPdfToShareableUri(
-                                context = resourceProvider.provideContext(),
-                                inputStream = inputStream,
-                                fileName = "signed_${index}_${originalDocumentName}"
-                            ).getOrThrow()
-                        )
-                    }
-                }
+                val uris = signedDocuments.map { it.value.toUri() }
 
                 if (uris.isNotEmpty()) {
                     eudiRQESUi.getRemoteResolutionOutcome()?.let {
-                        when (val outcome = it.dispatch(streams.second)) {
+                        when (val outcome = it.dispatch(signedDocuments)) {
                             is DispatchOutcome.Accepted -> {
                                 return@runCatching EudiRqesSaveSignedDocumentsPartialState.Success(
                                     savedDocumentsUri = uris,
@@ -546,7 +533,11 @@ internal class RqesControllerImpl(
                     authFlowRedirectionURI = qtspData.authFlowRedirectionURI,
                     scaBaseURL = URL(qtspData.scaUrl),
                 ),
-                hashAlgorithm = qtspData.hashAlgorithm,
+                outputPathDir = File(
+                    resourceProvider.provideContext().cacheDir,
+                    "signed_pdfs"
+                ).absolutePath,
+                hashAlgorithm = qtspData.hashAlgorithm
             )
             eudiRQESUi.setRqesService(service)
             EudiRqesCreateServicePartialState.Success(service = service)

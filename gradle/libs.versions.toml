@@ -1,5 +1,5 @@
 [versions]
-eudiRqesCore = "0.2.1"
+eudiRqesCore = "0.3.0-SNAPSHOT"
 agp = "8.11.0"
 kotlin = "2.2.0"
 kotlinxCoroutines = "1.10.2"
