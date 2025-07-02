@@ -24,17 +24,6 @@ import java.io.FileOutputStream
 internal object FileHelper {
 
     /**
-     * Returns a [File] representing the downloads cache directory.
-     *
-     * This function retrieves the cache directory for the application's context and creates a subdirectory named "downloads" within it if it doesn't already exist.
-     *
-     * @param context The application context.
-     * @return A [File] object representing the downloads cache directory.
-     */
-    internal fun getDownloadsDir(context: Context): File =
-        File(context.cacheDir, "downloads").apply { mkdirs() }
-
-    /**
      * Converts a content Uri to a File object.
      *
      * This function takes a content Uri, creates a temporary file in the app's cache directory,

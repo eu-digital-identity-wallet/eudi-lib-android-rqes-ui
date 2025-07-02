@@ -134,8 +134,6 @@ internal class RqesControllerImpl(
 
                 eudiRQESUi.getSessionData().remoteUrl?.let {
 
-                    val context = resourceProvider.provideContext()
-
                     val documentRetrievalConfig = eudiRQESUi
                         .getEudiRQESUiConfig()
                         .documentRetrievalConfig
@@ -152,7 +150,7 @@ internal class RqesControllerImpl(
                         )
 
                     val documentRetrievalService = DocumentRetrievalService(
-                        downloadTempDir = FileHelper.getDownloadsDir(context),
+                        downloadTempDir = resourceProvider.getDownloadsCache(),
                         config = DocumentRetrievalConfig(
                             jarConfiguration = JarConfiguration.Default,
                             supportedClientIdSchemes = supportedClientIdSchemes
