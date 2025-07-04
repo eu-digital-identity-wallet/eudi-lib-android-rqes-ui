@@ -33,8 +33,8 @@ import eu.europa.ec.eudi.rqes.core.UnsignedDocuments
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.DocumentRetrievalService
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
+import eu.europa.ec.eudi.rqesui.domain.extension.toShareableUri
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
-import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.uriToFile
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
@@ -46,7 +46,6 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.net.URL
 
 internal interface RqesController {
 
@@ -472,7 +471,12 @@ internal class RqesControllerImpl(
 
                 val savedDocuments: Map<String, Uri> = buildMap {
                     signedDocuments.forEach {
-                        put(it.key, it.value.toUri())
+                        put(
+                            it.key,
+                            it.value
+                                .toShareableUri(resourceProvider.provideContext())
+                                .getOrThrow()
+                        )
                     }
                 }
 
@@ -532,7 +536,7 @@ internal class RqesControllerImpl(
                         clientSecret = qtspData.clientSecret
                     ),
                     authFlowRedirectionURI = qtspData.authFlowRedirectionURI,
-                    scaBaseURL = URL(qtspData.scaUrl),
+                    tsaurl = qtspData.tsaUrl,
                 ),
                 outputPathDir = resourceProvider.getSignedDocumentsCache(),
                 hashAlgorithm = qtspData.hashAlgorithm

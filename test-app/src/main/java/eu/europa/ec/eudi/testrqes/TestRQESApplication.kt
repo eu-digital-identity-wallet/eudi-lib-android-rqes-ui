@@ -46,11 +46,11 @@ private class DefaultConfig(val context: Context) : EudiRQESUiConfig {
             QtspData(
                 name = "Wallet-Centric",
                 endpoint = "https://walletcentric.signer.eudiw.dev/csc/v2".toUriOrEmpty(),
-                scaUrl = "https://walletcentric.signer.eudiw.dev",
                 clientId = "wallet-client-tester",
                 clientSecret = "somesecrettester2",
                 authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
                 hashAlgorithm = HashAlgorithmOID.SHA_256,
+                tsaUrl = null
             )
         )
 

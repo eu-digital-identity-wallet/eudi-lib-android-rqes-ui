@@ -44,7 +44,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedLocalFileUri
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
-import eu.europa.ec.eudi.rqesui.util.mockedScaUrl
+import eu.europa.ec.eudi.rqesui.util.mockedTsaUrl
 import eu.europa.ec.eudi.rqesui.util.runFlowTest
 import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
@@ -52,13 +52,13 @@ import junit.framework.TestCase.assertTrue
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.junit.Test
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -498,7 +498,7 @@ class TestSuccessViewModel {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
             whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
-            whenever(this.scaUrl).thenReturn(mockedScaUrl)
+            whenever(this.tsaUrl).thenReturn(mockedTsaUrl)
         }
     }
 

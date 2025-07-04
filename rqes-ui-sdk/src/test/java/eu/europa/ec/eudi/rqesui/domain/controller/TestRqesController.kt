@@ -47,7 +47,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedGenericServiceErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
 import eu.europa.ec.eudi.rqesui.util.mockedQtspNotFound
-import eu.europa.ec.eudi.rqesui.util.mockedScaUrl
+import eu.europa.ec.eudi.rqesui.util.mockedTsaUrl
 import eu.europa.ec.eudi.rqesui.util.mockedUri
 import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
@@ -754,7 +754,7 @@ class TestRqesController {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
             whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
-            whenever(this.scaUrl).thenReturn(mockedScaUrl)
+            whenever(this.tsaUrl).thenReturn(mockedTsaUrl)
             whenever(this.clientId).thenReturn(mockedClientId)
             whenever(this.clientSecret).thenReturn(mockedClientSecret)
             whenever(this.authFlowRedirectionURI).thenReturn(URI.create(mockedUri))
