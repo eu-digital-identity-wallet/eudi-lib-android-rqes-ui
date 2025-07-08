@@ -129,7 +129,7 @@ class TestRqesController {
         whenever(resourceProvider.genericErrorTitle())
             .thenReturn(mockedGenericErrorTitle)
         whenever(resourceProvider.getSignedDocumentsCache())
-            .thenReturn(RuntimeEnvironment.getApplication().cacheDir.absolutePath)
+            .thenReturn(RuntimeEnvironment.getApplication().cacheDir)
     }
 
     @After
