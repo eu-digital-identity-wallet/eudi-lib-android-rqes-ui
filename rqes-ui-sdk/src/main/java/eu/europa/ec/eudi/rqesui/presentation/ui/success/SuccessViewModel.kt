@@ -135,7 +135,11 @@ internal class SuccessViewModel(
             }
 
             is Event.SignAndSaveDocument -> {
-                signAndSaveDocument(event, event.originalDocumentName, event.qtspName)
+                signAndSaveDocument(
+                    event = event,
+                    originalDocumentName = event.originalDocumentName,
+                    qtspName = event.qtspName
+                )
             }
 
             is Event.Pop -> {

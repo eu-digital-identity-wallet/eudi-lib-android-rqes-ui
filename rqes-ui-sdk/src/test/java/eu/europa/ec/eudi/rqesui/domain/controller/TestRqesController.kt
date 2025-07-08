@@ -47,7 +47,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedGenericServiceErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
 import eu.europa.ec.eudi.rqesui.util.mockedQtspNotFound
-import eu.europa.ec.eudi.rqesui.util.mockedScaUrl
+import eu.europa.ec.eudi.rqesui.util.mockedTsaUrl
 import eu.europa.ec.eudi.rqesui.util.mockedUri
 import eu.europa.ec.eudi.rqesui.util.runTest
 import junit.framework.TestCase.assertEquals
@@ -64,6 +64,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 import java.net.URI
 
@@ -127,6 +128,8 @@ class TestRqesController {
             .thenReturn(mockedGenericServiceErrorMessage)
         whenever(resourceProvider.genericErrorTitle())
             .thenReturn(mockedGenericErrorTitle)
+        whenever(resourceProvider.getSignedDocumentsCache())
+            .thenReturn(RuntimeEnvironment.getApplication().cacheDir.absolutePath)
     }
 
     @After
@@ -751,7 +754,7 @@ class TestRqesController {
         with(qtspData) {
             whenever(this.name).thenReturn(mockedQtspName)
             whenever(this.endpoint).thenReturn(mockedQtspEndpoint.toUriOrEmpty())
-            whenever(this.scaUrl).thenReturn(mockedScaUrl)
+            whenever(this.tsaUrl).thenReturn(mockedTsaUrl)
             whenever(this.clientId).thenReturn(mockedClientId)
             whenever(this.clientSecret).thenReturn(mockedClientSecret)
             whenever(this.authFlowRedirectionURI).thenReturn(URI.create(mockedUri))

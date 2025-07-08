@@ -30,7 +30,7 @@ import java.net.URI
 data class QtspData(
     val name: String,
     val endpoint: Uri,
-    val scaUrl: String,
+    val tsaUrl: String?,
     val clientId: String,
     val clientSecret: String,
     val authFlowRedirectionURI: URI,

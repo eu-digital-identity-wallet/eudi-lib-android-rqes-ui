@@ -24,7 +24,6 @@ import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSaveSignedDocumentsPar
 import eu.europa.ec.eudi.rqesui.domain.controller.EudiRqesSignDocumentsPartialState
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
-import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
@@ -124,17 +123,12 @@ internal class SuccessInteractorImpl(
 
                                     is EudiRqesSaveSignedDocumentsPartialState.Success -> {
 
-                                        val savedDocumentUri = saveSignedDocumentsResponse
-                                            .savedDocumentsUri
-                                            .first()
-
-                                        val savedDocumentName = savedDocumentUri.getFileName(
-                                            context = resourceProvider.provideContext()
-                                        ).getOrThrow()
+                                        val signedDocument = saveSignedDocumentsResponse
+                                            .savedDocuments.entries.first()
 
                                         val savedDocument = DocumentData(
-                                            uri = savedDocumentUri,
-                                            documentName = savedDocumentName,
+                                            uri = signedDocument.value,
+                                            documentName = signedDocument.key,
                                         )
 
                                         return@runCatching SuccessInteractorSignAndSaveDocumentPartialState.Success(

@@ -23,6 +23,7 @@ import androidx.annotation.RawRes
 import androidx.annotation.StringRes
 import eu.europa.ec.eudi.rqesui.domain.controller.LocalizationController
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
+import java.io.File
 
 internal interface ResourceProvider {
     fun provideContext(): Context
@@ -35,6 +36,9 @@ internal interface ResourceProvider {
     fun genericErrorMessage(): String
     fun genericServiceErrorMessage(): String
     fun getLocalizedString(localizableKey: LocalizableKey, args: List<String> = emptyList()): String
+    fun getSignedDocumentsCache(): String
+
+    fun getDownloadsCache(): File
 }
 
 internal class ResourceProviderImpl(
@@ -89,4 +93,14 @@ internal class ResourceProviderImpl(
     override fun getLocalizedString(localizableKey: LocalizableKey, args: List<String>): String {
         return localizationController.get(localizableKey, args)
     }
+
+    override fun getSignedDocumentsCache(): String = File(
+        context.cacheDir,
+        "signed_pdfs"
+    ).apply {
+        mkdirs()
+    }.absolutePath
+
+    override fun getDownloadsCache(): File =
+        File(context.cacheDir, "downloads").apply { mkdirs() }
 }
