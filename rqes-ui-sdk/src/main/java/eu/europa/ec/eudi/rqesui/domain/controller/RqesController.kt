@@ -538,7 +538,7 @@ internal class RqesControllerImpl(
                     authFlowRedirectionURI = qtspData.authFlowRedirectionURI,
                     tsaurl = qtspData.tsaUrl,
                 ),
-                outputPathDir = resourceProvider.getSignedDocumentsCache(),
+                outputPathDir = resourceProvider.getSignedDocumentsCache().absolutePath,
                 hashAlgorithm = qtspData.hashAlgorithm
             )
             eudiRQESUi.setRqesService(service)

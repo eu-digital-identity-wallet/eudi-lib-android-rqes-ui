@@ -36,7 +36,7 @@ internal interface ResourceProvider {
     fun genericErrorMessage(): String
     fun genericServiceErrorMessage(): String
     fun getLocalizedString(localizableKey: LocalizableKey, args: List<String> = emptyList()): String
-    fun getSignedDocumentsCache(): String
+    fun getSignedDocumentsCache(): File
 
     fun getDownloadsCache(): File
 }
@@ -94,12 +94,12 @@ internal class ResourceProviderImpl(
         return localizationController.get(localizableKey, args)
     }
 
-    override fun getSignedDocumentsCache(): String = File(
+    override fun getSignedDocumentsCache(): File = File(
         context.cacheDir,
         "signed_pdfs"
     ).apply {
         mkdirs()
-    }.absolutePath
+    }
 
     override fun getDownloadsCache(): File =
         File(context.cacheDir, "downloads").apply { mkdirs() }
