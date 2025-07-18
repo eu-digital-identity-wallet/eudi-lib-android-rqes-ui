@@ -50,7 +50,7 @@ private class DefaultConfig(val context: Context) : EudiRQESUiConfig {
                 clientSecret = "somesecrettester2",
                 authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
                 hashAlgorithm = HashAlgorithmOID.SHA_256,
-                tsaUrl = null
+                tsaUrl = "https://timestamp.sectigo.com/qualified"
             )
         )
 
