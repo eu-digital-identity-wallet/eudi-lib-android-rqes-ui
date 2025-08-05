@@ -65,7 +65,7 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
             QtspData(
                 name = "your_name",
                 endpoint = "your_endpoint".toUriOrEmpty(),
-                tsaUrl = null,
+                tsaUrl = "your_tsaUrl",
                 clientId = "your_clientid",
                 clientSecret = "your_secret",
                 authFlowRedirectionURI = URI.create("your_registered_deeplink"),
