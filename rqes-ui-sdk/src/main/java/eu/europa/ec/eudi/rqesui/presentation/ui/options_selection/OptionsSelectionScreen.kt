@@ -92,7 +92,7 @@ internal fun OptionsSelectionScreen(
             if (state.isBottomBarButtonVisible) {
                 state.bottomBarButtonAction?.let { safeButtonAction ->
                     WrapBottomBarSecondaryButton(
-                        stickyBottomContentModifier = Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(paddingValues),
                         buttonText = safeButtonAction.buttonText,

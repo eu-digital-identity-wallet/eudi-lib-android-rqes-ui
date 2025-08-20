@@ -21,12 +21,12 @@ import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey.Comp
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedInvalidUri
 import junit.framework.TestCase.assertEquals
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mockStatic
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import org.junit.Test
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)

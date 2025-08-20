@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -139,8 +142,15 @@ internal fun ContentScreen(
 
     Scaffold(
         topBar = {
-            if (topBar != null && contentErrorConfig == null) topBar.invoke()
-            else if (hasToolBar) {
+            if (topBar != null && contentErrorConfig == null) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .statusBarsPadding()
+                ) {
+                    topBar()
+                }
+            } else if (hasToolBar) {
                 DefaultToolBar(
                     navigatableAction = contentErrorConfig?.let {
                         ScreenNavigateAction.CANCELABLE
@@ -152,12 +162,26 @@ internal fun ContentScreen(
                 )
             }
         },
-        bottomBar = bottomBar ?: {},
+        bottomBar = {
+            bottomBar?.let {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .navigationBarsPadding()
+                ) {
+                    bottomBar()
+                }
+            }
+        },
         floatingActionButton = fab,
         floatingActionButtonPosition = fabPosition,
         snackbarHost = {},
 
         ) { padding ->
+
+        val forcedBottomPadding = remember(padding) {
+            screenPaddings(hasStickyBottom = false, append = padding)
+        }
 
         Box(
             modifier = Modifier.fillMaxSize()
@@ -166,14 +190,18 @@ internal fun ContentScreen(
             if (contentErrorConfig != null) {
                 ContentError(
                     config = contentErrorConfig,
-                    paddingValues = screenPaddings(padding)
+                    paddingValues = forcedBottomPadding
                 )
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
 
                     Box(modifier = Modifier.weight(1f)) {
                         bodyContent(
-                            screenPaddings(padding, topSpacing)
+                            screenPaddings(
+                                hasStickyBottom = stickyBottom != null,
+                                append = padding,
+                                topSpacing = topSpacing
+                            )
                         )
                     }
 
@@ -186,7 +214,7 @@ internal fun ContentScreen(
                         ) {
                             stickyBottomContent(
                                 stickyBottomPaddings(
-                                    contentScreenPaddings = screenPaddings(padding),
+                                    contentScreenPaddings = forcedBottomPadding,
                                     layoutDirection = LocalLayoutDirection.current
                                 )
                             )

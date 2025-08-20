@@ -82,7 +82,7 @@ internal fun SuccessScreen(
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
             WrapBottomBarSecondaryButton(
-                stickyBottomContentModifier = Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues),
                 buttonText = state.bottomBarButtonText,
