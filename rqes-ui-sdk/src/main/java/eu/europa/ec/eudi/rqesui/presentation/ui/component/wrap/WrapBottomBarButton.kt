@@ -40,14 +40,14 @@ private sealed interface StickyBottomBarConfig {
 
 @Composable
 internal fun WrapBottomBarPrimaryButton(
-    stickyBottomContentModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     buttonText: String,
     enabled: Boolean = true,
     onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Primary,
-        stickyBottomContentModifier = stickyBottomContentModifier,
+        modifier = modifier,
         buttonText = buttonText,
         enabled = enabled,
         onButtonClick = onButtonClick,
@@ -56,14 +56,14 @@ internal fun WrapBottomBarPrimaryButton(
 
 @Composable
 internal fun WrapBottomBarSecondaryButton(
-    stickyBottomContentModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     buttonText: String,
     enabled: Boolean = true,
     onButtonClick: () -> Unit,
 ) {
     WrapStickyBottomBar(
         config = StickyBottomBarConfig.Secondary,
-        stickyBottomContentModifier = stickyBottomContentModifier,
+        modifier = modifier,
         buttonText = buttonText,
         enabled = enabled,
         onButtonClick = onButtonClick,
@@ -73,7 +73,7 @@ internal fun WrapBottomBarSecondaryButton(
 @Composable
 private fun WrapStickyBottomBar(
     config: StickyBottomBarConfig,
-    stickyBottomContentModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     buttonText: String,
     enabled: Boolean,
     onButtonClick: () -> Unit,
@@ -89,7 +89,7 @@ private fun WrapStickyBottomBar(
         )
 
         Row(
-            modifier = stickyBottomContentModifier,
+            modifier = modifier,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -145,7 +145,7 @@ private fun ConfigBasedButton(
 private fun WrapBottomBarPrimaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarPrimaryButton(
-            stickyBottomContentModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(SPACING_LARGE.dp),
             buttonText = "Sign",
@@ -159,7 +159,7 @@ private fun WrapBottomBarPrimaryButtonPreview() {
 private fun WrapBottomBarSecondaryButtonPreview() {
     PreviewTheme {
         WrapBottomBarSecondaryButton(
-            stickyBottomContentModifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(SPACING_LARGE.dp),
             buttonText = "Sign",
