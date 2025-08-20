@@ -23,6 +23,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,10 +62,13 @@ class TestRQESActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             EudiRQESUiTheme {
                 checkIntent(intent)
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     Content(innerPadding)
                 }
             }
@@ -73,7 +77,6 @@ class TestRQESActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-
         checkIntent(intent)
     }
 
@@ -102,7 +105,7 @@ private fun Content(padding: PaddingValues) {
         }
 
         var remoteUri by remember {
-            mutableStateOf<String>("")
+            mutableStateOf("")
         }
 
         val selectPdfLauncher = rememberLauncherForActivityResult(
