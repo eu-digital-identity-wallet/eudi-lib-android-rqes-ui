@@ -72,6 +72,15 @@ android {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
+
+    val toolchains = extensions.getByType<JavaToolchainService>()
+    tasks.withType<Test>().configureEach {
+        javaLauncher.set(
+            toolchains.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(21))
+            }
+        )
+    }
 }
 
 dependencies {

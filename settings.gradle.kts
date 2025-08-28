@@ -15,6 +15,10 @@
  */
 
 pluginManagement {
+    val toolChainResolverVersion: String by extra
+    plugins {
+        id("org.gradle.toolchains.foojay-resolver-convention") version toolChainResolverVersion
+    }
     repositories {
         google {
             content {
