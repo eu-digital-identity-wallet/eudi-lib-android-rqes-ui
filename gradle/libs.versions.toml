@@ -1,6 +1,6 @@
 [versions]
-eudiRqesCore = "0.3.0"
-agp = "8.12.2"
+eudiRqesCore = "0.4.0-SNAPSHOT"
+agp = "8.13.0"
 kotlin = "2.2.10"
 kotlinxCoroutines = "1.10.2"
 coreKtx = "1.17.0"
