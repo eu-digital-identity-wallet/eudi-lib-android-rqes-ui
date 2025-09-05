@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -67,10 +68,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.stickyBottomPadd
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIconButton
 
-internal enum class LoadingType {
-    NORMAL, NONE
-}
-
 internal data class ToolbarAction(
     val icon: IconData,
     val order: Int = 100,
@@ -90,6 +87,10 @@ internal enum class ScreenNavigateAction {
     BACKABLE, CANCELABLE, NONE
 }
 
+internal enum class ImePaddingConfig {
+    NO_PADDING, WITH_BOTTOM_BAR, ONLY_CONTENT
+}
+
 @Composable
 internal fun ContentScreen(
     isLoading: Boolean = false,
@@ -102,35 +103,7 @@ internal fun ContentScreen(
     fab: @Composable () -> Unit = {},
     fabPosition: FabPosition = FabPosition.End,
     contentErrorConfig: ContentErrorConfig? = null,
-    bodyContent: @Composable (PaddingValues) -> Unit
-) {
-    ContentScreen(
-        loadingType = if (isLoading) LoadingType.NORMAL else LoadingType.NONE,
-        toolBarConfig = toolBarConfig,
-        navigatableAction = navigatableAction,
-        onBack = onBack,
-        topBar = topBar,
-        bottomBar = bottomBar,
-        stickyBottom = stickyBottom,
-        fab = fab,
-        fabPosition = fabPosition,
-        contentErrorConfig = contentErrorConfig,
-        bodyContent = bodyContent
-    )
-}
-
-@Composable
-internal fun ContentScreen(
-    loadingType: LoadingType = LoadingType.NONE,
-    toolBarConfig: ToolbarConfig? = null,
-    navigatableAction: ScreenNavigateAction = ScreenNavigateAction.BACKABLE,
-    onBack: (() -> Unit)? = null,
-    topBar: @Composable (() -> Unit)? = null,
-    bottomBar: @Composable (() -> Unit)? = null,
-    stickyBottom: @Composable ((PaddingValues) -> Unit)? = null,
-    fab: @Composable () -> Unit = {},
-    fabPosition: FabPosition = FabPosition.End,
-    contentErrorConfig: ContentErrorConfig? = null,
+    imePaddingConfig: ImePaddingConfig = ImePaddingConfig.NO_PADDING,
     bodyContent: @Composable (PaddingValues) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -168,6 +141,13 @@ internal fun ContentScreen(
                     modifier = Modifier
                         .wrapContentSize()
                         .navigationBarsPadding()
+                        .then(
+                            if (imePaddingConfig == ImePaddingConfig.WITH_BOTTOM_BAR) {
+                                Modifier.imePadding()
+                            } else {
+                                Modifier
+                            }
+                        )
                 ) {
                     bottomBar()
                 }
@@ -195,7 +175,17 @@ internal fun ContentScreen(
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
 
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (imePaddingConfig == ImePaddingConfig.ONLY_CONTENT) {
+                                    Modifier.imePadding()
+                                } else {
+                                    Modifier
+                                }
+                            )
+                    ) {
                         bodyContent(
                             screenPaddings(
                                 hasStickyBottom = stickyBottom != null,
@@ -222,7 +212,7 @@ internal fun ContentScreen(
                     }
                 }
 
-                if (loadingType == LoadingType.NORMAL) LoadingIndicator()
+                if (isLoading) LoadingIndicator()
             }
         }
     }
