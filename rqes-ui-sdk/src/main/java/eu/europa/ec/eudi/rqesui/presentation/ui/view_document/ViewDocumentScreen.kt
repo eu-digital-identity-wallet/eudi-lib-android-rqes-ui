@@ -31,7 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.github.barteksc.pdfviewer.PDFView
+import com.ahmer.pdfviewer.PDFView
+import com.ahmer.pdfviewer.listener.OnLoadCompleteListener
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.ThemeColors
@@ -105,9 +106,11 @@ private fun Content(
                     pdfView
                         .fromUri(file.uri)
                         .enableAnnotationRendering(true)
-                        .onLoad {
-                            onEventSend(Event.LoadingStateChanged(isLoading = false))
-                        }
+                        .onLoad(object : OnLoadCompleteListener {
+                            override fun loadComplete(totalPages: Int) {
+                                onEventSend(Event.LoadingStateChanged(isLoading = false))
+                            }
+                        })
                         .load()
                 }
             )
