@@ -104,6 +104,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.tooling)
+    api(libs.androidx.compose.material.iconsExtended)
 
     // Koin
     api(libs.koin.android)
