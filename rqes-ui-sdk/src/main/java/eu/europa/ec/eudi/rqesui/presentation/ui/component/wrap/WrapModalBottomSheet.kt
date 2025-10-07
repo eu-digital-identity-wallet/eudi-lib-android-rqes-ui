@@ -144,8 +144,11 @@ internal fun DialogBottomSheet(
 
                 Row {
                     negativeButtonText?.let {
-                        WrapSecondaryButton(
-                            onClick = { onNegativeClick.invoke() },
+                        WrapButton(
+                            buttonConfig = ButtonConfig(
+                                type = ButtonType.SECONDARY,
+                                onClick = { onNegativeClick.invoke() }
+                            ),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
@@ -157,8 +160,11 @@ internal fun DialogBottomSheet(
                     HSpacer.Small()
 
                     positiveButtonText?.let {
-                        WrapPrimaryButton(
-                            onClick = { onPositiveClick.invoke() },
+                        WrapButton(
+                            buttonConfig = ButtonConfig(
+                                type = ButtonType.PRIMARY,
+                                onClick = { onPositiveClick.invoke() }
+                            ),
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
@@ -210,9 +216,12 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                         horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
                     ) {
                         textData.negativeButtonText?.let { safeNegativeButtonText ->
-                            WrapSecondaryButton(
+                            WrapButton(
                                 modifier = Modifier.weight(1f),
-                                onClick = onNegativeClick
+                                buttonConfig = ButtonConfig(
+                                    type = ButtonType.SECONDARY,
+                                    onClick = onNegativeClick
+                                )
                             ) {
                                 Text(
                                     text = safeNegativeButtonText,
@@ -222,9 +231,12 @@ internal fun <T : ViewEvent> BottomSheetWithOptionsList(
                             }
 
                             textData.positiveButtonText?.let { safePositiveButtonText ->
-                                WrapPrimaryButton(
+                                WrapButton(
                                     modifier = Modifier.weight(1f),
-                                    onClick = onPositiveClick
+                                    buttonConfig = ButtonConfig(
+                                        type = ButtonType.PRIMARY,
+                                        onClick = onPositiveClick
+                                    )
                                 ) {
                                     Text(
                                         text = safePositiveButtonText,

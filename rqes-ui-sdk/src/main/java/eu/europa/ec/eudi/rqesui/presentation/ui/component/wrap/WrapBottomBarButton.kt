@@ -119,23 +119,31 @@ private fun ConfigBasedButton(
 ) {
     when (config) {
         is StickyBottomBarConfig.Primary -> {
-            WrapPrimaryButton(
+            WrapButton(
                 modifier = modifier,
-                enabled = enabled,
-                onClick = onButtonClick,
-            ) {
-                content()
-            }
+                buttonConfig = ButtonConfig(
+                    type = ButtonType.PRIMARY,
+                    enabled = enabled,
+                    onClick = onButtonClick,
+                ),
+                content = {
+                    content()
+                }
+            )
         }
 
         is StickyBottomBarConfig.Secondary -> {
-            WrapSecondaryButton(
+            WrapButton(
                 modifier = modifier,
-                enabled = enabled,
-                onClick = onButtonClick,
-            ) {
-                content()
-            }
+                buttonConfig = ButtonConfig(
+                    type = ButtonType.SECONDARY,
+                    enabled = enabled,
+                    onClick = onButtonClick,
+                ),
+                content = {
+                    content()
+                }
+            )
         }
     }
 }
