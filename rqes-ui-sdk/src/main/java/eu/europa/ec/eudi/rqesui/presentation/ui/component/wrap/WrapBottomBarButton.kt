@@ -33,50 +33,11 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 
-private sealed interface StickyBottomBarConfig {
-    data object Primary : StickyBottomBarConfig
-    data object Secondary : StickyBottomBarConfig
-}
-
 @Composable
-internal fun WrapBottomBarPrimaryButton(
-    modifier: Modifier = Modifier,
+internal fun WrapStickyBottomBar(
+    config: ButtonConfig,
     buttonText: String,
-    enabled: Boolean = true,
-    onButtonClick: () -> Unit,
-) {
-    WrapStickyBottomBar(
-        config = StickyBottomBarConfig.Primary,
-        modifier = modifier,
-        buttonText = buttonText,
-        enabled = enabled,
-        onButtonClick = onButtonClick,
-    )
-}
-
-@Composable
-internal fun WrapBottomBarSecondaryButton(
     modifier: Modifier = Modifier,
-    buttonText: String,
-    enabled: Boolean = true,
-    onButtonClick: () -> Unit,
-) {
-    WrapStickyBottomBar(
-        config = StickyBottomBarConfig.Secondary,
-        modifier = modifier,
-        buttonText = buttonText,
-        enabled = enabled,
-        onButtonClick = onButtonClick,
-    )
-}
-
-@Composable
-private fun WrapStickyBottomBar(
-    config: StickyBottomBarConfig,
-    modifier: Modifier = Modifier,
-    buttonText: String,
-    enabled: Boolean,
-    onButtonClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -93,11 +54,9 @@ private fun WrapStickyBottomBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            ConfigBasedButton(
-                config = config,
+            WrapButton(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = enabled,
-                onButtonClick = onButtonClick,
+                buttonConfig = config,
                 content = {
                     Text(
                         text = buttonText,
@@ -109,47 +68,20 @@ private fun WrapStickyBottomBar(
     }
 }
 
-@Composable
-private fun ConfigBasedButton(
-    config: StickyBottomBarConfig,
-    modifier: Modifier,
-    enabled: Boolean,
-    onButtonClick: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    when (config) {
-        is StickyBottomBarConfig.Primary -> {
-            WrapPrimaryButton(
-                modifier = modifier,
-                enabled = enabled,
-                onClick = onButtonClick,
-            ) {
-                content()
-            }
-        }
-
-        is StickyBottomBarConfig.Secondary -> {
-            WrapSecondaryButton(
-                modifier = modifier,
-                enabled = enabled,
-                onClick = onButtonClick,
-            ) {
-                content()
-            }
-        }
-    }
-}
-
 @ThemeModePreviews
 @Composable
 private fun WrapBottomBarPrimaryButtonPreview() {
     PreviewTheme {
-        WrapBottomBarPrimaryButton(
+        WrapStickyBottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(SPACING_LARGE.dp),
             buttonText = "Sign",
-            onButtonClick = {},
+            config = ButtonConfig(
+                type = ButtonType.PRIMARY,
+                enabled = true,
+                onClick = {}
+            )
         )
     }
 }
@@ -158,12 +90,16 @@ private fun WrapBottomBarPrimaryButtonPreview() {
 @Composable
 private fun WrapBottomBarSecondaryButtonPreview() {
     PreviewTheme {
-        WrapBottomBarSecondaryButton(
+        WrapStickyBottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(SPACING_LARGE.dp),
             buttonText = "Sign",
-            onButtonClick = {},
+            config = ButtonConfig(
+                type = ButtonType.SECONDARY,
+                enabled = true,
+                onClick = {}
+            )
         )
     }
 }

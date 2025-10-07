@@ -34,7 +34,9 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SIZE_MEDIUM
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapPrimaryButton
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.ButtonConfig
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.ButtonType
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapButton
 import org.koin.compose.koinInject
 
 internal data class ContentErrorConfig(
@@ -72,11 +74,15 @@ internal fun ContentError(
         Spacer(modifier = Modifier.weight(1f))
 
         config.onRetry?.let { callback ->
-            WrapPrimaryButton(
-                onClick = {
-                    callback()
-                },
-                modifier = Modifier.fillMaxWidth()
+            WrapButton(
+                modifier = Modifier.fillMaxWidth(),
+                buttonConfig = ButtonConfig(
+                    type = ButtonType.PRIMARY,
+                    enabled = true,
+                    onClick = {
+                        callback()
+                    }
+                )
             ) {
                 Text(
                     text = resourceProvider.getLocalizedString(LocalizableKey.GenericErrorButtonRetry)
