@@ -27,7 +27,7 @@ kover = "0.9.2"
 robolectric = "4.16"
 turbine = "1.2.1"
 pdfViewer = "2.0.1"
-owaspDependencyCheck = "12.1.6"
+owaspDependencyCheck = "12.1.8"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
