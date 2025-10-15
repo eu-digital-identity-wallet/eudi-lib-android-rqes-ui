@@ -52,9 +52,11 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.ButtonConfig
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.ButtonType
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapBottomBarSecondaryButton
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapStickyBottomBar
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -81,17 +83,20 @@ internal fun SuccessScreen(
         navigatableAction = ScreenNavigateAction.NONE,
         contentErrorConfig = state.error,
         stickyBottom = { paddingValues ->
-            WrapBottomBarSecondaryButton(
+            WrapStickyBottomBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(paddingValues),
+                config = ButtonConfig(
+                    type = ButtonType.SECONDARY,
+                    enabled = state.isBottomBarButtonEnabled,
+                    onClick = {
+                        viewModel.setEvent(
+                            Event.BottomBarButtonPressed
+                        )
+                    }
+                ),
                 buttonText = state.bottomBarButtonText,
-                enabled = state.isBottomBarButtonEnabled,
-                onButtonClick = {
-                    viewModel.setEvent(
-                        Event.BottomBarButtonPressed
-                    )
-                }
             )
         }
     ) { paddingValues ->
