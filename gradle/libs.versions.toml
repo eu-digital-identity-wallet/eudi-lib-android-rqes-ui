@@ -20,14 +20,14 @@ koin = "4.1.1"
 koinAnnotations = "2.3.1"
 ksp = "2.2.20-2.0.3"
 gson = "2.13.2"
-mavenPublish = "0.34.0"
+mavenPublish = "0.35.0"
 mockito = "5.20.0"
 mockitoKotlin = "6.1.0"
 kover = "0.9.3"
 robolectric = "4.16"
 turbine = "1.2.1"
 pdfViewer = "2.0.1"
-owaspDependencyCheck = "12.1.8"
+owaspDependencyCheck = "12.1.9"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
