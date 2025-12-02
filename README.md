@@ -25,7 +25,7 @@ The `EudiRQESUi` object defines methods for setting up and using the SDK. The SD
 
 Add the following dependency to your app's build.gradle file to include the library in your project.
 
-```Gradle
+```gradle
 dependencies {
     implementation("eu.europa.ec.eudi:eudi-lib-android-rqes-ui:$version")
 }
@@ -91,7 +91,7 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
 Register the `authFlowRedirectionURI` in your application's manifest to ensure the RQES Service can trigger your application.
 It is the application's responsibility to retrieve the `code` query parameter from the deep link and pass it to the SDK to continue the flow.
 
-```Xml
+```xml
 <intent-filter>
     <action android:name="android.intent.action.VIEW" />
 
@@ -113,7 +113,7 @@ Alternatively, you can use Android App Links [Google Documentation](https://deve
 Register a deeplink in your application's manifest to allow the RQES Service to trigger your application.
 It is the application's responsibility to retrieve the remote URL and pass it to the SDK to initialize the same-device document retrieval flow.
 
-```Xml
+```xml
 <intent-filter>
     <action android:name="android.intent.action.VIEW" />
 
