@@ -1,25 +1,10 @@
-/*
- * Copyright (c) 2025 European Commission
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+import com.android.build.api.dsl.LibraryExtension
 import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
@@ -32,28 +17,28 @@ val NAMESPACE: String by project
 val GROUP: String by project
 val SDK_VERSION: String by project
 val MIN_SDK_VERSION: String by project
-
 val POM_SCM_URL: String by project
 
-android {
+group = GROUP
+
+extensions.configure<LibraryExtension>("android") {
     namespace = NAMESPACE
-    group = GROUP
-    compileSdk = Integer.parseInt(SDK_VERSION)
+    compileSdk = SDK_VERSION.toInt()
 
     defaultConfig {
-        minSdk = Integer.parseInt(MIN_SDK_VERSION)
+        minSdk = MIN_SDK_VERSION.toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
-        debug {
+        getByName("debug") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -67,58 +52,54 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+    testOptions {
+        unitTests.all {
+            it.jvmArgs("-Duser.language=en", "-Duser.country=US")
         }
-    }
-
-    val toolchains = extensions.getByType<JavaToolchainService>()
-    tasks.withType<Test>().configureEach {
-        javaLauncher.set(
-            toolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(21))
-            }
-        )
     }
 }
 
+extensions.configure<KotlinAndroidProjectExtension> {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    javaLauncher.set(
+        javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
+    )
+}
+
 dependencies {
-    // RQES-Core
     api(libs.eudi.lib.android.rqes.core)
 
-    // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.material3)
 
-    // Material
     implementation(libs.material)
 
-    // Misc
     implementation(libs.timber)
     implementation(libs.androidx.security)
 
-    // Compose
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.tooling)
     api(libs.androidx.compose.material.iconsExtended)
 
-    // Koin
     api(libs.koin.android)
     implementation(libs.koin.annotations)
     implementation(libs.koin.compose)
     ksp(libs.koin.ksp)
 
-    //Gson
     implementation(libs.gson)
 
-    // PDF
     implementation(libs.android.pdf.viewer)
 
-    // Test Dependencies
     testImplementation(libs.junit)
     testImplementation(libs.koin.test)
     testImplementation(libs.mockito.core)
@@ -128,17 +109,17 @@ dependencies {
     testImplementation(libs.turbine)
 }
 
-// Compile time check
 ksp {
     arg("KOIN_CONFIG_CHECK", "true")
 }
 
+@Suppress("DEPRECATION")
 mavenPublishing {
     configure(
         AndroidMultiVariantLibrary(
             sourcesJar = true,
             publishJavadocJar = true,
-            setOf("release")
+            includedBuildTypeValues = setOf("release")
         )
     )
     pom {
