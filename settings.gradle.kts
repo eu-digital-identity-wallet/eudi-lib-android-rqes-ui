@@ -43,6 +43,10 @@ dependencyResolutionManagement {
     }
 }
 
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention")
+}
+
 rootProject.name = "EudiRQESUi"
 include(":test-app")
 include(":rqes-ui-sdk")

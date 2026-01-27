@@ -132,43 +132,47 @@ mavenPublishing {
 
 kover {
     reports {
-        filters {
-            excludes {
-                packages(
-                    "*.ksp.*",
-                    "*.di",
-                    "*.serializer",
-                    "*.config",
-                    "*.config.*",
-                    "*.provider.*",
-                    "*.provider",
-                    "*.localization.*",
-                    "*.localization",
-                    "*.infrastructure.*",
-                    "*.infrastructure",
-                    "*.presentation.architecture.*",
-                    "*.presentation.architecture",
-                    "*.presentation.entities.*",
-                    "*.presentation.entities",
-                    "*.presentation.extension.*",
-                    "*.presentation.extension",
-                    "*.presentation.navigation.*",
-                    "*.presentation.navigation",
-                    "*.presentation.router.*",
-                    "*.presentation.router",
-                    "*.presentation.ui.component.*",
-                    "*.presentation.ui.component",
-                    "*.presentation.ui.container.*",
-                    "*.presentation.ui.container",
-                    "*.util.*",
-                    "*.util",
-                    "*.helper.*",
-                    "*.helper",
-                )
-                classes(
-                    "*LogController*",
-                    "*Screen*",
-                )
+        total {
+            html { onCheck = false }
+            xml { onCheck = false }
+            filters {
+                excludes {
+                    packages(
+                        "*.ksp.*",
+                        "*.di",
+                        "*.serializer",
+                        "*.config",
+                        "*.config.*",
+                        "*.provider.*",
+                        "*.provider",
+                        "*.localization.*",
+                        "*.localization",
+                        "*.infrastructure.*",
+                        "*.infrastructure",
+                        "*.presentation.architecture.*",
+                        "*.presentation.architecture",
+                        "*.presentation.entities.*",
+                        "*.presentation.entities",
+                        "*.presentation.extension.*",
+                        "*.presentation.extension",
+                        "*.presentation.navigation.*",
+                        "*.presentation.navigation",
+                        "*.presentation.router.*",
+                        "*.presentation.router",
+                        "*.presentation.ui.component.*",
+                        "*.presentation.ui.component",
+                        "*.presentation.ui.container.*",
+                        "*.presentation.ui.container",
+                        "*.util.*",
+                        "*.util",
+                        "*.helper.*",
+                        "*.helper",
+                    )
+                    classes(
+                        "*LogController*",
+                        "*Screen*",
+                    )
+                }
             }
         }
     }
