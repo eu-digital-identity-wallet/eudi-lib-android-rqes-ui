@@ -1,5 +1,7 @@
 import com.android.build.api.dsl.LibraryExtension
 import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SourcesJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
@@ -113,12 +115,11 @@ ksp {
     arg("KOIN_CONFIG_CHECK", "true")
 }
 
-@Suppress("DEPRECATION")
 mavenPublishing {
     configure(
         AndroidMultiVariantLibrary(
-            sourcesJar = true,
-            publishJavadocJar = true,
+            sourcesJar = SourcesJar.Sources(),
+            javadocJar = JavadocJar.Empty(),
             includedBuildTypeValues = setOf("release")
         )
     )
