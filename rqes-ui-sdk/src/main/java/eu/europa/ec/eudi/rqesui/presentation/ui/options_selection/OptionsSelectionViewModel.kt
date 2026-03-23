@@ -51,8 +51,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.AppIcons
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentErrorConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
-import org.koin.core.annotation.InjectedParam
 
 internal data class State(
     val isLoading: Boolean = false,
@@ -142,12 +140,11 @@ internal sealed class OptionsSelectionBottomSheetContent {
     ) : OptionsSelectionBottomSheetContent()
 }
 
-@KoinViewModel
 internal class OptionsSelectionViewModel(
     private val optionsSelectionInteractor: OptionsSelectionInteractor,
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
-    @InjectedParam private val serializedOptionsSelectionUiConfig: String,
+    private val serializedOptionsSelectionUiConfig: String,
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {

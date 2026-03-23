@@ -27,21 +27,32 @@ import eu.europa.ec.eudi.rqesui.domain.controller.RqesController
 import eu.europa.ec.eudi.rqesui.domain.controller.RqesControllerImpl
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Single
+import org.koin.dsl.module
 
-@Single
-internal fun providePreferencesController(context: Context): PreferencesController =
-    PreferencesControllerImpl(context)
+internal val controllerModule = module {
 
-@Single
-internal fun provideLocalizationController(): LocalizationController =
-    LocalizationControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
+    single<PreferencesController> {
+        PreferencesControllerImpl(
+            context = get<Context>()
+        )
+    }
 
-@Single
-internal fun provideRqesController(resourceProvider: ResourceProvider): RqesController =
-    RqesControllerImpl(EudiRQESUi, resourceProvider)
+    single<LocalizationController> {
+        LocalizationControllerImpl(
+            EudiRQESUi.getEudiRQESUiConfig()
+        )
+    }
 
-@Factory
-internal fun provideLogController(): LogController =
-    LogControllerImpl(EudiRQESUi.getEudiRQESUiConfig())
+    single<RqesController> {
+        RqesControllerImpl(
+            EudiRQESUi,
+            get<ResourceProvider>()
+        )
+    }
+
+    factory<LogController> {
+        LogControllerImpl(
+            EudiRQESUi.getEudiRQESUiConfig()
+        )
+    }
+}

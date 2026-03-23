@@ -16,9 +16,17 @@
 
 package eu.europa.ec.eudi.rqesui.domain.di.base
 
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Module
+import eu.europa.ec.eudi.rqesui.domain.di.controllerModule
+import eu.europa.ec.eudi.rqesui.domain.di.interactorModule
+import eu.europa.ec.eudi.rqesui.domain.di.resourceModule
+import eu.europa.ec.eudi.rqesui.domain.di.uiModule
+import eu.europa.ec.eudi.rqesui.presentation.ui.di.viewModelModule
+import org.koin.core.module.Module
 
-@Module
-@ComponentScan("eu.europa.ec.eudi.rqesui")
-internal class EudiRQESUIModule
+internal val eudiRqesUiModules: List<Module> = listOf(
+    controllerModule,
+    interactorModule,
+    resourceModule,
+    uiModule,
+    viewModelModule
+)

@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.kotlin.kover)
@@ -94,9 +93,7 @@ dependencies {
     api(libs.androidx.compose.material.iconsExtended)
 
     api(libs.koin.android)
-    implementation(libs.koin.annotations)
     implementation(libs.koin.compose)
-    ksp(libs.koin.ksp)
 
     implementation(libs.gson)
 
@@ -109,10 +106,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.turbine)
-}
-
-ksp {
-    arg("KOIN_CONFIG_CHECK", "true")
 }
 
 mavenPublishing {

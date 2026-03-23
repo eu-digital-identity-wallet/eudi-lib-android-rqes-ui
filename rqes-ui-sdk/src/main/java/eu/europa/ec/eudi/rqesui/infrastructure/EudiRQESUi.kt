@@ -24,7 +24,7 @@ import android.net.Uri
 import android.os.Parcelable
 import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
-import eu.europa.ec.eudi.rqesui.domain.di.base.EudiRQESUIModule
+import eu.europa.ec.eudi.rqesui.domain.di.base.eudiRqesUiModules
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.extension.decode
 import eu.europa.ec.eudi.rqesui.domain.extension.getFileName
@@ -38,7 +38,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext.startKoin
-import org.koin.ksp.generated.module
 
 @JvmInline
 value class RemoteUri(val uri: Uri)
@@ -326,12 +325,12 @@ object EudiRQESUi {
     private fun getState(): State = this.state
 
     private fun setupKoin(application: Application, koinApplication: KoinApplication?) {
-        koinApplication?.modules(EudiRQESUIModule().module) ?: startKoin {
+        koinApplication?.modules(eudiRqesUiModules) ?: startKoin {
             androidContext(application)
             if (getEudiRQESUiConfig().printLogs) {
                 androidLogger()
             }
-            modules(EudiRQESUIModule().module)
+            modules(eudiRqesUiModules)
         }
     }
 

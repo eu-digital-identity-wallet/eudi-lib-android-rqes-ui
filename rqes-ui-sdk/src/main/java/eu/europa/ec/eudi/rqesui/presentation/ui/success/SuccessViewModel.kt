@@ -43,7 +43,6 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentErrorCo
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentHeaderConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
 
 internal data class State(
     val isLoading: Boolean = false,
@@ -114,7 +113,6 @@ internal sealed class SuccessBottomSheetContent {
     ) : SuccessBottomSheetContent()
 }
 
-@KoinViewModel
 internal class SuccessViewModel(
     private val successInteractor: SuccessInteractor,
     private val resourceProvider: ResourceProvider,

@@ -20,10 +20,14 @@ import android.content.Context
 import eu.europa.ec.eudi.rqesui.domain.controller.LocalizationController
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProviderImpl
-import org.koin.core.annotation.Single
+import org.koin.dsl.module
 
-@Single
-internal fun provideResourceProvider(
-    context: Context,
-    localizationController: LocalizationController
-): ResourceProvider = ResourceProviderImpl(context, localizationController)
+internal val resourceModule = module {
+
+    single<ResourceProvider> {
+        ResourceProviderImpl(
+            get<Context>(),
+            get<LocalizationController>()
+        )
+    }
+}
