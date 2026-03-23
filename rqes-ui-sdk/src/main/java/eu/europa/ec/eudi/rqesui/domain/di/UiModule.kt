@@ -20,11 +20,15 @@ import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializer
 import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializerImpl
 import eu.europa.ec.eudi.rqesui.presentation.navigation.RouterHost
 import eu.europa.ec.eudi.rqesui.presentation.navigation.RouterHostImpl
-import org.koin.core.annotation.Factory
-import org.koin.core.annotation.Single
+import org.koin.dsl.module
 
-@Single
-internal fun provideRouterHost(): RouterHost = RouterHostImpl()
+internal val uiModule = module {
 
-@Factory
-internal fun provideUiSerializer(): UiSerializer = UiSerializerImpl()
+    single<RouterHost> {
+        RouterHostImpl()
+    }
+
+    factory<UiSerializer> {
+        UiSerializerImpl()
+    }
+}

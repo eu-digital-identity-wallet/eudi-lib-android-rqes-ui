@@ -24,8 +24,6 @@ import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewEvent
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewSideEffect
 import eu.europa.ec.eudi.rqesui.presentation.architecture.ViewState
 import eu.europa.ec.eudi.rqesui.presentation.entities.config.ViewDocumentUiConfig
-import org.koin.android.annotation.KoinViewModel
-import org.koin.core.annotation.InjectedParam
 
 internal data class State(
     val config: ViewDocumentUiConfig,
@@ -45,11 +43,10 @@ internal sealed class Effect : ViewSideEffect {
     }
 }
 
-@KoinViewModel
 internal class ViewDocumentViewModel(
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
-    @InjectedParam private val serializedViewDocumentUiConfig: String,
+    private val serializedViewDocumentUiConfig: String,
 ) : MviViewModel<Event, State, Effect>() {
 
     override fun setInitialState(): State {

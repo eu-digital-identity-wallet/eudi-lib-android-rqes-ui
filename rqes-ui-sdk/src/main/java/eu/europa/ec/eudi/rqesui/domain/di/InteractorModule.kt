@@ -22,22 +22,21 @@ import eu.europa.ec.eudi.rqesui.domain.interactor.OptionsSelectionInteractorImpl
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractor
 import eu.europa.ec.eudi.rqesui.domain.interactor.SuccessInteractorImpl
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
-import org.koin.core.annotation.Factory
+import org.koin.dsl.module
 
-@Factory
-internal fun provideOptionsSelectionInteractor(
-    resourceProvider: ResourceProvider,
-    eudiRqesController: RqesController,
-): OptionsSelectionInteractor = OptionsSelectionInteractorImpl(
-    eudiRqesController,
-    resourceProvider
-)
+internal val interactorModule = module {
 
-@Factory
-internal fun provideSuccessInteractor(
-    resourceProvider: ResourceProvider,
-    eudiRqesController: RqesController,
-): SuccessInteractor = SuccessInteractorImpl(
-    resourceProvider,
-    eudiRqesController,
-)
+    factory<OptionsSelectionInteractor> {
+        OptionsSelectionInteractorImpl(
+            get<RqesController>(),
+            get<ResourceProvider>()
+        )
+    }
+
+    factory<SuccessInteractor> {
+        SuccessInteractorImpl(
+            get<ResourceProvider>(),
+            get<RqesController>()
+        )
+    }
+}
