@@ -1,6 +1,6 @@
 [versions]
 eudiRqesCore = "0.5.0"
-agp = "9.2.0"
+agp = "9.2.1"
 kotlin = "2.3.21"
 kotlinxCoroutines = "1.10.2"
 coreKtx = "1.18.0"
@@ -8,7 +8,7 @@ junit = "4.13.2"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 androidxNavigation = "2.9.8"
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 appcompat = "1.7.1"
 material3 = "1.4.0"
 material = "1.13.0"
@@ -23,7 +23,7 @@ kover = "0.9.8"
 robolectric = "4.16.1"
 turbine = "1.2.1"
 pdfViewer = "2.0.1"
-owaspDependencyCheck = "12.2.1"
+owaspDependencyCheck = "12.2.2"
 
 [libraries]
 eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
