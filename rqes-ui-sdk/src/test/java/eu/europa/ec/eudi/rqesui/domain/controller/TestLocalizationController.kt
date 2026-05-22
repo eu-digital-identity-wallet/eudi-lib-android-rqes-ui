@@ -111,6 +111,52 @@ class TestLocalizationController {
         // Assert
         assertTrue(exception is EudiRQESUiError)
     }
+
+    // Case 4
+    // When get() is called with translations configured for a language different from the device locale,
+    // the controller should fall back to the default translation of the key.
+    // Case 4 Expected Result:
+    // 1. The default translation of the key is returned (fallback path via elvis operator).
+    @Test
+    fun `Given Case 4, When get() is called, Then default translation is returned`() {
+        // Arrange: the test environment locale is "en"; we configure only "fr" translations,
+        // so config.translations[language] (i.e. config.translations["en"]) returns null,
+        // triggering the elvis fallback to defaultTranslation().
+        val localizableKey = LocalizableKey.SignDocument
+        val config = testConfiguration(
+            translations = mapOf("fr" to mapOf(localizableKey to mockedLocalizedText))
+        )
+        val controller = LocalizationControllerImpl(config)
+
+        // Act
+        val result = controller.get(localizableKey)
+
+        // Assert
+        assertEquals(localizableKey.defaultTranslation(), result)
+    }
+
+    // Case 5
+    // When get() is called with a language that exists in translations but the specific key is missing,
+    // the controller should fall back to the default translation.
+    // Case 5 Expected Result:
+    // 1. The default translation of the missing key is returned (fallback path via elvis operator
+    //    on the inner ?.get(key) call).
+    @Test
+    fun `Given Case 5, When get() is called for a missing key, Then default translation is returned`() {
+        // Arrange: the test environment locale is "en"; the "en" map exists but does not include SignDocument.
+        val configuredKey = LocalizableKey.Cancel
+        val requestedKey = LocalizableKey.SignDocument
+        val config = testConfiguration(
+            translations = mapOf("en" to mapOf(configuredKey to mockedLocalizedText))
+        )
+        val controller = LocalizationControllerImpl(config)
+
+        // Act
+        val result = controller.get(requestedKey)
+
+        // Assert
+        assertEquals(requestedKey.defaultTranslation(), result)
+    }
     //endregion
 
     //region configuration for test

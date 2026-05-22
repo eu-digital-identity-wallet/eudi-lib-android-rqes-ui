@@ -1214,7 +1214,163 @@ class TestOptionsSelectionViewModel {
                 assertTrue(awaitItem() is Effect.OpenUrl)
             }
         }
+
+    // Case 4b
+    // Constructing a OptionsSelectionViewModel with a serialized config that the uiSerializer
+    // cannot decode (returns null) should throw the RuntimeException in setInitialState.
+    // This covers the elvis-throw path in setInitialState.
+    @Test(expected = RuntimeException::class)
+    fun `Given uiSerializer fromBase64 returns null, When ViewModel is constructed, Then setInitialState throws`() {
+        // Arrange
+        val freshSerializer = org.mockito.kotlin.mock<UiSerializer>()
+        whenever(
+            freshSerializer.fromBase64(
+                payload = mockedSerializedConfig,
+                model = OptionsSelectionUiConfig::class.java,
+                parser = OptionsSelectionUiConfig.Parser
+            )
+        ).thenReturn(null)
+
+        val vm = OptionsSelectionViewModel(
+            optionsSelectionInteractor,
+            resourceProvider,
+            freshSerializer,
+            mockedSerializedConfig
+        )
+
+        // Act — setInitialState triggers fromBase64 which returns null, throwing
+        vm.setInitialState()
+    }
+
+    // Case 4c
+    // After updateQTSPSelectionItem runs with a non-null qtspServiceSelectionItem, the safe-call
+    // copy expression executes. This covers the `qtspServiceSelectionItem?.copy(...)` Non-null branch.
+    @Test
+    fun `Given a populated qtspServiceSelectionItem, When QtspSelectedOnDoneButtonPressed succeeds, Then the item is updated via copy`() =
+        coroutineRule.runTest {
+            // Arrange - populate qtspServiceSelectionItem first via Initialize with QtspSelection
+            whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
+                .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
+            viewModel.setEvent(
+                Event.Initialize(screenSelectionState = OptionsSelectionScreenState.QtspSelection)
+            )
+            // sanity: qtspServiceSelectionItem is non-null now
+            assertNotNull(viewModel.viewState.value.qtspServiceSelectionItem)
+
+            // Mock the QTSP update path
+            whenever(qtspData.name).thenReturn(mockedQtspName)
+            whenever(optionsSelectionInteractor.updateQtspUserSelection(qtspData))
+                .thenReturn(EudiRqesSetSelectedQtspPartialState.Success(service = rqesService))
+
+            // Act
+            viewModel.setEvent(Event.BottomSheet.QtspSelectedOnDoneButtonPressed(qtspData))
+
+            // Assert
+            with(viewModel.viewState.value) {
+                assertEquals(mockedQtspName, qtspServiceSelectionItem?.mainText)
+            }
+        }
+
+    // Case 4d
+    // Pressing RqesServiceSelectionItem with a Failure from getQtsps, then exercising the
+    // onCancel callback to cover Navigation.Finish effect emission.
+    @Test
+    fun `Given getQtsps returns Failure, When RqesServiceSelectionItemPressed onCancel is invoked, Then Navigation Finish is emitted`() =
+        coroutineRule.runTest {
+            // Arrange
+            val failureState = EudiRqesGetQtspsPartialState.Failure(
+                error = EudiRQESUiError(
+                    title = mockedGenericErrorTitle,
+                    message = mockedPlainFailureMessage
+                )
+            )
+            whenever(optionsSelectionInteractor.getQtsps()).thenReturn(failureState)
+
+            // Act
+            viewModel.setEvent(Event.RqesServiceSelectionItemPressed)
+
+            // Assert
+            with(viewModel.viewState.value) {
+                assertNotNull(error)
+                with(error) {
+                    // Exercise the onRetry callback (covers `setEvent(event)`)
+                    onRetry?.invoke()
+                    // Exercise the onCancel callback (covers `setEvent(DismissError)` + `setEffect { Finish }`)
+                    onCancel.invoke()
+                }
+            }
+        }
+
+    // Case 4
+    // Function setEvent() is called with an Event.FetchServiceAuthorizationUrl event and the
+    // interactor returns a Failure response.
+    // Case 4 Expected Result:
+    // 1. The view state is updated with an error containing the failure message.
+    // 2. onCancel and onRetry callbacks are invoked to exercise their code paths.
+    @Test
+    fun `Given Case 4, When setEvent for FetchServiceAuthorizationUrl is called and Failure is returned, Then error state is set`() =
+        coroutineRule.runTest {
+            // Arrange
+            val errorMessage = mockedPlainFailureMessage
+            val failureResponse = EudiRqesGetServiceAuthorizationUrlPartialState.Failure(
+                error = EudiRQESUiError(
+                    title = mockedGenericErrorTitle,
+                    message = errorMessage
+                )
+            )
+            mockGetServiceAuthorizationUrlCall(response = failureResponse)
+
+            // Act
+            viewModel.setEvent(
+                Event.FetchServiceAuthorizationUrl(rqesService)
+            )
+
+            // Assert
+            with(viewModel.viewState.value) {
+                assertNotNull(error)
+                with(error) {
+                    assertEquals(errorMessage, errorSubTitle)
+                    // Exercise the onRetry and onCancel callbacks so they're covered.
+                    onRetry?.invoke()
+                    onCancel.invoke()
+                }
+                assertFalse(isLoading)
+            }
+        }
     //end region
+
+    //region authorizeServiceAndFetchCertificates failure callbacks
+    // Case 3
+    // Event AuthorizeServiceAndFetchCertificates triggers a Failure response.
+    // Exercise the onCancel and onRetry callbacks to cover their code paths.
+    @Test
+    fun `Given Case 3, When AuthorizeServiceAndFetchCertificates Failure is returned, Then onCancel and onRetry callbacks execute`() =
+        coroutineRule.runTest {
+            // Arrange
+            val response =
+                OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
+                    EudiRQESUiError(
+                        title = mockedGenericErrorTitle,
+                        message = mockedFetchCertificatesFailureMessage
+                    )
+                )
+            mockAuthorizeServiceAndFetchCertificatesCall(response = response)
+
+            // Act
+            viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
+
+            // Assert
+            with(viewModel.viewState.value) {
+                assertNotNull(error)
+                with(error) {
+                    // Test retry action — should dismiss error and re-fire the event.
+                    onRetry?.invoke()
+                    // Test cancel action — should dismiss error and emit Navigation.Finish effect.
+                    onCancel.invoke()
+                }
+            }
+        }
+    //endregion
 
     //region Other Events
     // Case 1

@@ -28,7 +28,7 @@ import org.junit.rules.TestWatcher
 import kotlin.time.Duration.Companion.milliseconds
 
 class CoroutineTestRule(
-    private val testDispatcher: TestDispatcher = StandardTestDispatcher(),
+    val testDispatcher: TestDispatcher = StandardTestDispatcher(),
     val testScope: TestScope = TestScope(testDispatcher)
 ) : TestWatcher()
 

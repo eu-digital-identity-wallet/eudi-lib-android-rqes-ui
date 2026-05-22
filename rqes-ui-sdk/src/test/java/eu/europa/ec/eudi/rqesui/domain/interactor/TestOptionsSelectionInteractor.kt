@@ -32,6 +32,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationUrl
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
+import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
@@ -371,6 +372,65 @@ class TestOptionsSelectionInteractor {
             assertEquals(
                 expectedError,
                 (result as EudiRqesGetCredentialAuthorizationUrlPartialState.Failure).error
+            )
+        }
+
+    // Case 4: exception is thrown inside runCatching — exercises the getOrElse fallback path.
+    // Expected Result:
+    // 1. Failure with the exception's message is returned.
+    @Test
+    fun `Given getAuthorizedService throws, When getCredentialAuthorizationUrl is called, Then Failure via getOrElse is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiController.getAuthorizedService())
+                .thenThrow(mockedExceptionWithMessage)
+
+            // Act
+            val result = interactor.getCredentialAuthorizationUrl(certificateData)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
+            assertEquals(
+                mockedExceptionWithMessage.message,
+                (result as EudiRqesGetCredentialAuthorizationUrlPartialState.Failure).error.message
+            )
+        }
+
+    // Case 5: exception without message — exercises the elvis fallback to generic error message.
+    @Test
+    fun `Given getAuthorizedService throws without message, When getCredentialAuthorizationUrl is called, Then Failure with generic message is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiController.getAuthorizedService())
+                .thenThrow(mockedExceptionWithNoMessage)
+
+            // Act
+            val result = interactor.getCredentialAuthorizationUrl(certificateData)
+
+            // Assert
+            assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as EudiRqesGetCredentialAuthorizationUrlPartialState.Failure).error.message
+            )
+        }
+
+    // Case 6: authorizeServiceAndFetchCertificates exception without message — exercises the
+    // elvis fallback to generic error message.
+    @Test
+    fun `Given authorizeService throws without message, When authorizeServiceAndFetchCertificates is called, Then Failure with generic message is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiController.authorizeService()).thenThrow(mockedExceptionWithNoMessage)
+
+            // Act
+            val result = interactor.authorizeServiceAndFetchCertificates()
+
+            // Assert
+            assertTrue(result is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure).error.message
             )
         }
     //endregion
