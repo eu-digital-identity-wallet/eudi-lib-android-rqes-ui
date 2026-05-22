@@ -399,6 +399,27 @@ class TestSuccessInteractor {
             val failureState = result as SuccessInteractorSignAndSaveDocumentPartialState.Failure
             assertTrue(failureState.error.message == mockedExceptionWithMessage.message)
         }
+
+    // Case 6:
+    // Exception WITHOUT a localized message is thrown — exercises the elvis fallback to
+    // the generic error message in the getOrElse block.
+    @Test
+    fun `Given Case 6, When signAndSaveDocument throws exception with no message, Then generic error message is returned`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiRqesController.authorizeCredential())
+                .thenThrow(mockedExceptionWithNoMessage)
+
+            // Act
+            val result = interactor.signAndSaveDocument(mockedDocumentName)
+
+            // Assert
+            assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as SuccessInteractorSignAndSaveDocumentPartialState.Failure).error.message
+            )
+        }
     //endregion
 
     //region helper functions

@@ -1,5 +1,8 @@
 # EUDI Remote Qualified Electronic Signature (RQES) UI library for Android
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Maven Central](https://img.shields.io/maven-central/v/eu.europa.ec.eudi/eudi-lib-android-rqes-ui.svg)](https://central.sonatype.com/artifact/eu.europa.ec.eudi/eudi-lib-android-rqes-ui)
+
 :heavy_exclamation_mark: **Important!** Before you proceed, please read
 the [EUDI Wallet Reference Implementation project description](https://github.com/eu-digital-identity-wallet/.github/blob/main/profile/reference-implementation.md)
 
@@ -8,54 +11,105 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 ## Table of contents
 
 * [Overview](#overview)
+  * [What the SDK shows the user](#what-the-sdk-shows-the-user)
+  * [High-level flow](#high-level-flow)
+* [Requirements](#requirements)
 * [Installation](#installation)
 * [How to use](#how-to-use)
+  * [1. Configuration](#1-configuration)
+  * [2. Setup](#2-setup)
+  * [3. Deep link registration](#3-deep-link-registration)
+  * [4. Host Activity setup](#4-host-activity-setup)
+  * [5. Initialization](#5-initialization)
+* [Error handling](#error-handling)
+* [Sample app](#sample-app)
+* [How to contribute](#how-to-contribute)
 * [License](#license)
 
 ## Overview
 
-This module provides the core and UI functionality for the EUDI Wallet, focusing on the Remote Qualified Electronic Signature (RQES) service. 
-The `EudiRQESUi` object defines methods for setting up and using the SDK. The SDK offers compile-time configuration capabilities through the `EudiRQESUiConfig` interface.
+This module provides core and UI functionality for the EUDI Wallet, focused on the
+**Remote Qualified Electronic Signature (RQES)** service. RQES allows users to sign
+documents using a qualified certificate held remotely by a Qualified Trust Service
+Provider (QTSP).
+
+The SDK supports two flows:
+
+- **Local file flow** — the host app already has a local document (PDF) selected and
+  asks the SDK to sign it.
+- **Remote URL flow** — the host app receives a remote URL (typically via a deep link
+  or QR code) which the SDK resolves to a document and then signs.
+
+It ships ready-made Jetpack Compose screens for QTSP selection, certificate selection,
+document preview, and a success/sharing screen, plus the orchestration around oAuth
+authorization, credential authorization, signing, and sharing the signed document.
+
+You configure the SDK at compile time via the `EudiRQESUiConfig` interface and drive
+it at runtime through the `EudiRQESUi` object.
+
+### What the SDK shows the user
+
+- **Options selection screen** — pick the QTSP and signing certificate.
+- **View document screen** — preview the original or signed PDF.
+- **Success screen** — confirm the signed document and share it.
+
+### High-level flow
+
+```mermaid
+sequenceDiagram
+    participant Host as Host app
+    participant SDK as EudiRQESUi
+    participant Browser as System browser
+    participant QTSP
+
+    Host->>SDK: setup(application, config)
+    Host->>SDK: initiate(documentUri | remoteUri)
+    SDK-->>Host: launches signing UI
+    SDK->>Browser: opens oAuth authorization URL
+    Browser->>QTSP: user authenticates
+    QTSP-->>Host: deep link with authorization code
+    Host->>SDK: resume(authorizationCode)
+    SDK->>QTSP: sign document
+    QTSP-->>SDK: signed document
+    SDK-->>Host: Success screen
+```
 
 ## Requirements
 
 - Android 10 (API level 29) or higher
+- Java 17 (the SDK is compiled with `JvmTarget.JVM_17`)
+- Kotlin and Jetpack Compose (the SDK is built with Compose)
 
 ## Installation
 
-Add the following dependency to your app's build.gradle file to include the library in your project.
+The library is published on Maven Central. Add the dependency to your app's
+`build.gradle.kts`:
 
-```gradle
+```kotlin
 dependencies {
     implementation("eu.europa.ec.eudi:eudi-lib-android-rqes-ui:$version")
 }
 ```
 
+Replace `$version` with the latest released version from
+[Maven Central](https://central.sonatype.com/artifact/eu.europa.ec.eudi/eudi-lib-android-rqes-ui)
+or the [GitHub releases](https://github.com/eu-digital-identity-wallet/eudi-lib-android-rqes-ui/releases) page.
+
 ## How to use
 
-### Configuration
+### 1. Configuration
 
-Implement the `EudiRQESUiConfig` interface and supply all the necessary options for the SDK.
+Implement `EudiRQESUiConfig` to supply runtime configuration to the SDK.
 
-```kotlin
-class RQESConfigImpl : EudiRQESUiConfig {
+| Property                  | Required | Default                            | Purpose                                                                |
+|---------------------------|----------|------------------------------------|------------------------------------------------------------------------|
+| `qtsps`                   | Yes      | —                                  | List of Qualified Trust Service Providers the user can pick from.      |
+| `documentRetrievalConfig` | Yes      | —                                  | How the SDK trusts X.509 certificates when resolving remote documents. |
+| `translations`            | No       | English defaults built into the SDK | Override or extend localized strings.                                  |
+| `themeManager`            | No       | Built-in light/dark theme          | Customize colors and typography.                                       |
+| `printLogs`               | No       | `false`                            | Enable Timber debug logging.                                           |
 
-    // Optional. Default English translations will be used if not set.
-    override val translations: Map<String, Map<LocalizableKey, String>> get()
-
-    // Optional. Default theme will be used if not set.
-    override val themeManager: ThemeManager get()
-
-    override val qtsps: List<QtspData> get()
-
-    // Optional. Default is false.
-    override val printLogs: Boolean get()
-            
-    override val documentRetrievalConfig: DocumentRetrievalConfig get()
-}
-```
-
-Example:
+Example (mirrors the [`:test-app`](test-app/) reference implementation):
 
 ```kotlin
 class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
@@ -63,113 +117,193 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
     override val qtsps: List<QtspData>
         get() = listOf(
             QtspData(
-                name = "your_name",
-                endpoint = "your_endpoint".toUriOrEmpty(),
-                tsaUrl = "your_tsaUrl",
-                clientId = "your_clientid",
-                clientSecret = "your_secret",
-                authFlowRedirectionURI = URI.create("your_registered_deeplink"),
+                // Human-readable name shown in the QTSP picker.
+                name = "Wallet-Centric",
+                // QTSP CSC v2 endpoint.
+                endpoint = "https://walletcentric.signer.eudiw.dev/csc/v2".toUriOrEmpty(),
+                // Optional Timestamp Authority URL.
+                tsaUrl = "https://timestamp.sectigo.com/qualified",
+                // OAuth2 client credentials issued by the QTSP.
+                clientId = "wallet-client-tester",
+                clientSecret = "somesecrettester2",
+                // Deep link the QTSP redirects to after authorization.
+                // Must match the host-app intent filter (see section 3).
+                authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
                 hashAlgorithm = HashAlgorithmOID.SHA_256,
             )
         )
-
-    override val printLogs: Boolean get() = BuildConfig.DEBUG
 
     override val documentRetrievalConfig: DocumentRetrievalConfig
         get() = DocumentRetrievalConfig.X509Certificates(
             context = context,
             certificates = listOf(R.raw.my_certificate),
-            shouldLog = should_log_option
+            shouldLog = BuildConfig.DEBUG,
         )
+
+    // Optional — overrides for individual localized strings.
+    override val translations: Map<String, Map<LocalizableKey, String>>
+        get() = mapOf(
+            "en" to mapOf(LocalizableKey.View to "VIEW")
+        )
+
+    override val printLogs: Boolean
+        get() = BuildConfig.DEBUG
 }
 ```
 
-### Setup
+You can supply multiple `QtspData` entries; the user selects one in the options screen.
 
-#### oAuth
+### 2. Setup
 
-Register the `authFlowRedirectionURI` in your application's manifest to ensure the RQES Service can trigger your application.
-It is the application's responsibility to retrieve the `code` query parameter from the deep link and pass it to the SDK to continue the flow.
-
-```xml
-<intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
-
-    <data
-        android:host="oauth"
-        android:path="/callback"
-        android:scheme="rqes://" />
-
-</intent-filter>
-```
-
-Alternatively, you can use Android App Links [Google Documentation](https://developer.android.com/studio/write/app-link-indexing)
-
-#### Document Retrieval (Same Device Scenario)
-
-Register a deeplink in your application's manifest to allow the RQES Service to trigger your application.
-It is the application's responsibility to retrieve the remote URL and pass it to the SDK to initialize the same-device document retrieval flow.
-
-```xml
-<intent-filter>
-    <action android:name="android.intent.action.VIEW" />
-
-    <category android:name="android.intent.category.DEFAULT" />
-    <category android:name="android.intent.category.BROWSABLE" />
-
-    <data
-        android:host="your_host"
-        android:scheme="your_scheme://" />
-
-</intent-filter>
-```
-
-Initialize the SDK in your Application class by providing your application context, configuration, and, if you are using Koin for dependency injection, the KoinApplication.
+Call `setup()` once, typically from your `Application.onCreate()`. This wires the
+SDK's Koin modules and applies your config.
 
 ```kotlin
-EudiRQESUi.setup(
-    application = application_context,
-    config = rqes_config,
-    koinApplication = koinapplication_if_applicable
-)
+class MyApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        EudiRQESUi.setup(
+            application = this,
+            config = RQESConfigImpl(this),
+            // Optional: if your host app already uses Koin, pass it here so the
+            // SDK adds its modules to your application instead of starting its own.
+            koinApplication = null,
+        )
+    }
+}
 ```
 
-### Initialization
+### 3. Deep link registration
+
+The SDK relies on the system browser for oAuth and (optionally) a deep link for
+same-device document retrieval. Register the corresponding intent filters on the
+Activity that should receive them.
+
+#### oAuth callback
+
+This must match the `authFlowRedirectionURI` set in `QtspData`. For
+`URI.create("rqes://oauth/callback")`:
+
+```xml
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+
+    <!-- scheme is the literal scheme without "://" -->
+    <data
+        android:scheme="rqes"
+        android:host="oauth"
+        android:path="/callback" />
+</intent-filter>
+```
+
+Alternatively, you can use [Android App Links](https://developer.android.com/studio/write/app-link-indexing).
+
+#### Document retrieval (same-device flow)
+
+Only needed if you support the remote-URL flow. The host app receives the remote
+URL via this deep link and passes it to `EudiRQESUi.initiate(remoteUri = ...)`.
+
+```xml
+<intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+
+    <data
+        android:scheme="your_scheme"
+        android:host="your_host" />
+</intent-filter>
+```
+
+### 4. Host Activity setup
+
+The Activity that hosts the deep-link filters needs two things, otherwise the
+return from oAuth will not work:
+
+- **`android:launchMode="singleTask"`** in the manifest so the existing instance
+  receives the deep link instead of launching a new one.
+- An **`onNewIntent` override** that extracts the `code` query parameter from the
+  oAuth callback and forwards it to `EudiRQESUi.resume(...)`.
+
+```kotlin
+class HostActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        checkIntent(intent)
+        // ... your normal setContent { } here
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        checkIntent(intent)
+    }
+
+    private fun checkIntent(intent: Intent) {
+        val code = intent.data?.getQueryParameter("code")
+        if (code != null) {
+            EudiRQESUi.resume(
+                context = this,
+                authorizationCode = code,
+            )
+        }
+    }
+}
+```
+
+### 5. Initialization
 
 #### Local file
 
-Start the signing process by providing the context of your activity and the URI of the selected file.
+Start the signing process with the URI of a local PDF (for example, one returned
+by `ActivityResultContracts.OpenDocument`).
 
 ```kotlin
 EudiRQESUi.initiate(
-    context = activity_context,
-    documentUri = DocumentUri(file_uri)
+    context = activity,
+    documentUri = DocumentUri(fileUri),
 )
 ```
 
 #### Remote URL for document retrieval
 
-Start the signing process by providing your activity context and the document retrieval service's remote URL (retrieved via deep link or QR code).
+Start the signing process with a remote URL (for example, extracted from a QR
+code or the document-retrieval deep link above).
 
 ```kotlin
 EudiRQESUi.initiate(
-    context = activity_context,
-    remoteUri = RemoteUri(remote_uri)
+    context = activity,
+    remoteUri = RemoteUri(remoteUri),
 )
 ```
 
-Resume the signing process once the `authFlowRedirectionURI` triggers your application following the PID presentation process. 
-Provide your activity context and the extracted code from the `authFlowRedirectionURI` deep link.
+In both cases, the SDK opens its own Activity (`EudiRQESContainer`) and drives the
+flow until either the success screen completes or the user cancels.
 
-```kotlin
-EudiRQESUi.resume(
-    context = activity_context,
-    authorizationCode = code
-)
-```
+## Error handling
+
+The SDK exposes errors via `EudiRQESUiError`, a subclass of `Exception`. Methods
+that can throw it are annotated with `@Throws(EudiRQESUiError::class)`:
+
+- `EudiRQESUi.initiate(...)` — thrown if the document URI's filename cannot be
+  extracted or if the remote URI is malformed.
+- `EudiRQESUi.resume(...)` — thrown if `setup()` was never called, if the SDK was
+  not initiated first, or if the supplied `context` is not an Activity.
+
+Failures that happen *inside* the SDK's UI (network errors during oAuth,
+certificate listing, signing, etc.) are surfaced on the in-SDK error screen and
+do not propagate out to the host app.
+
+## Sample app
+
+The [`:test-app`](test-app/) module is a complete, runnable host application that
+demonstrates every integration point: a configured `EudiRQESUiConfig`, deep-link
+registration, Activity wiring, and both local-file and remote-URL flows. It is
+the canonical reference if anything in this README is ambiguous.
 
 ## How to contribute
 
@@ -178,7 +312,7 @@ involved, follow the guidelines found in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-Copyright (c) 2025 European Commission
+Copyright (c) 2026 European Commission
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

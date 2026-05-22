@@ -485,6 +485,66 @@ class TestSuccessViewModel {
                 assertEquals(Effect.Navigation.OpenRedirectUrl(redirectUrl), awaitItem())
             }
         }
+
+    // Case 13
+    // Function setEvent(Event.Initialize) is called and the interactor returns a Failure for getSelectedFileAndQtsp.
+    // Case 13 Expected Result:
+    // 1. The view state is updated with an error containing the failure message.
+    // 2. onRetry and onCancel callbacks of the error config are invoked, exercising their code paths.
+    @Test
+    fun `Given Case 13, When Initialize fails on getSelectedFileAndQtsp, Then error state is set and callbacks execute`() =
+        coroutineRule.runTest {
+            // Arrange
+            val errorMessage = mockedPlainFailureMessage
+            val response = SuccessInteractorGetSelectedFileAndQtspPartialState.Failure(
+                error = EudiRQESUiError(
+                    title = mockedGenericErrorTitle,
+                    message = errorMessage
+                )
+            )
+            mockGetSelectedFileAndQtspCall(response = response)
+
+            // Act
+            viewModel.setEvent(Event.Initialize)
+
+            // Assert
+            with(viewModel.viewState.value) {
+                assertEquals(errorMessage, error?.errorSubTitle)
+                // Exercise onRetry and onCancel callbacks for coverage.
+                error?.onRetry?.invoke()
+                error?.onCancel?.invoke()
+            }
+        }
+
+    // Case 14
+    // Function setEvent(Event.SignAndSaveDocument) is called and the interactor returns a Failure.
+    // Case 14 Expected Result:
+    // 1. The view state is updated with an error containing the failure message.
+    // 2. onRetry and onCancel callbacks of the error config are invoked, exercising their code paths.
+    @Test
+    fun `Given Case 14, When SignAndSaveDocument fails, Then error state callbacks execute`() =
+        coroutineRule.runTest {
+            // Arrange
+            val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
+            val errorResponse = SuccessInteractorSignAndSaveDocumentPartialState.Failure(
+                error = EudiRQESUiError(
+                    title = mockedGenericErrorTitle,
+                    message = mockedPlainFailureMessage
+                )
+            )
+            mockSignAndSaveDocumentCall(documentName = mockedDocumentName, response = errorResponse)
+
+            // Act
+            viewModel.setEvent(event)
+
+            // Assert
+            with(viewModel.viewState.value) {
+                assertEquals(mockedPlainFailureMessage, error?.errorSubTitle)
+                // Exercise onRetry and onCancel callbacks for coverage.
+                error?.onRetry?.invoke()
+                error?.onCancel?.invoke()
+            }
+        }
     //endregion
 
     // region of helper functions
