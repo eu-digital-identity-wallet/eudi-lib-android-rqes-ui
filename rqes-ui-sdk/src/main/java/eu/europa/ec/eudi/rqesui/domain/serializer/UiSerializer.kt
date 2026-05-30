@@ -16,19 +16,41 @@
 
 package eu.europa.ec.eudi.rqesui.domain.serializer
 
+import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.extension.decodeFromBase64
 import eu.europa.ec.eudi.rqesui.domain.extension.encodeToBase64
+import eu.europa.ec.eudi.rqesui.domain.serializer.kserializer.UriSerializer
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.serializer
+
+/**
+ * Shared [Json] used by [UiSerializerImpl] for every [UiSerializable] config.
+ *
+ * The Android [Uri] type is registered contextually so navigation configs that carry
+ * one (e.g. `DocumentData.uri` inside `ViewDocumentUiConfig`) can round-trip without
+ * each call site supplying its own serializer.
+ */
+private val UiJson: Json = Json {
+    ignoreUnknownKeys = true
+    encodeDefaults = true
+    classDiscriminator = "type"
+    serializersModule = SerializersModule {
+        contextual(Uri::class, UriSerializer)
+    }
+}
 
 internal interface UiSerializer {
     fun <M : UiSerializable> toBase64(
         model: M,
-        parser: UiSerializableParser
+        parser: UiSerializableParser,
     ): String?
 
     fun <M : UiSerializable> fromBase64(
         payload: String?,
         model: Class<M>,
-        parser: UiSerializableParser
+        parser: UiSerializableParser,
     ): M?
 }
 
@@ -36,27 +58,23 @@ internal class UiSerializerImpl : UiSerializer {
 
     override fun <M : UiSerializable> toBase64(
         model: M,
-        parser: UiSerializableParser
-    ): String? {
-        return try {
-            parser.provideParser().toJson(model).encodeToBase64()
-        } catch (e: Exception) {
-            null
-        }
-    }
+        parser: UiSerializableParser,
+    ): String? = runCatching {
+        @Suppress("UNCHECKED_CAST")
+        val serializer = serializer(model::class.java) as KSerializer<M>
+        UiJson.encodeToString(serializer, model).encodeToBase64()
+    }.getOrNull()
 
     override fun <M : UiSerializable> fromBase64(
         payload: String?,
         model: Class<M>,
-        parser: UiSerializableParser
+        parser: UiSerializableParser,
     ): M? {
-        return try {
-            parser.provideParser().fromJson(
-                payload?.decodeFromBase64(),
-                model
-            )
-        } catch (e: Exception) {
-            null
-        }
+        if (payload == null) return null
+        return runCatching {
+            @Suppress("UNCHECKED_CAST")
+            val serializer = serializer(model) as KSerializer<M>
+            UiJson.decodeFromString(serializer, payload.decodeFromBase64())
+        }.getOrNull()
     }
 }

@@ -19,9 +19,12 @@ package eu.europa.ec.eudi.rqesui.infrastructure.config.data
 import android.net.Uri
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
 @Parcelize
+@Serializable
 internal data class DocumentData(
     val documentName: String,
-    val uri: Uri,
+    @Contextual val uri: Uri,
 ) : Parcelable
