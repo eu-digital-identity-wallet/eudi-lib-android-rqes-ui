@@ -53,8 +53,8 @@ object EudiRQESUi {
     private const val SDK_NOT_INITIALIZED_MESSAGE =
         "Before calling resume, SDK must be initialized firstly. Call EudiRQESUi.launchSDK()"
 
-    private lateinit var _eudiRQESUiConfig: EudiRQESUiConfig
-    private lateinit var sessionData: SessionData
+    private var _eudiRQESUiConfig: EudiRQESUiConfig? = null
+    private var sessionData: SessionData? = null
 
     private var state: State = State.None
     private var rqesService: RQESService? = null
@@ -137,16 +137,15 @@ object EudiRQESUi {
         context: Context,
         authorizationCode: String
     ) {
-        if (!::sessionData.isInitialized) {
-            throw EudiRQESUiError(
-                title = SDK_NOT_INITIALIZED_TITLE,
-                message = SDK_NOT_INITIALIZED_MESSAGE
-            )
-        }
-        sessionData = sessionData.copy(
+        val currentSession = sessionData ?: throw EudiRQESUiError(
+            title = SDK_NOT_INITIALIZED_TITLE,
+            message = SDK_NOT_INITIALIZED_MESSAGE
+        )
+        val updatedSession = currentSession.copy(
             authorizationCode = authorizationCode
         )
-        setState(calculateNextState())
+        sessionData = updatedSession
+        setState(calculateNextState(updatedSession))
         launchSDK(context)
     }
 
@@ -161,13 +160,10 @@ object EudiRQESUi {
      */
     @Throws(EudiRQESUiError::class)
     internal fun getEudiRQESUiConfig(): EudiRQESUiConfig {
-        if (!::_eudiRQESUiConfig.isInitialized) {
-            throw EudiRQESUiError(
-                title = SDK_NOT_INITIALIZED_TITLE,
-                message = SDK_NOT_INITIALIZED_MESSAGE
-            )
-        }
-        return _eudiRQESUiConfig
+        return _eudiRQESUiConfig ?: throw EudiRQESUiError(
+            title = SDK_NOT_INITIALIZED_TITLE,
+            message = SDK_NOT_INITIALIZED_MESSAGE
+        )
     }
 
     internal fun setRqesService(rqesService: RQESService) {
@@ -199,7 +195,10 @@ object EudiRQESUi {
     }
 
     internal fun getSessionData(): SessionData {
-        return sessionData
+        return sessionData ?: throw EudiRQESUiError(
+            title = SDK_NOT_INITIALIZED_TITLE,
+            message = SDK_NOT_INITIALIZED_MESSAGE
+        )
     }
 
     /**
@@ -284,10 +283,10 @@ object EudiRQESUi {
      * @return The next state in the flow.
      * @throws EudiRQESUiError If the SDK is not initialized (no file selected or remote uri provided).
      */
-    private fun calculateNextState(): State {
+    private fun calculateNextState(session: SessionData): State {
 
-        val fileUri = sessionData.file?.uri
-        val remoteUri = sessionData.remoteUrl
+        val fileUri = session.file?.uri
+        val remoteUri = session.remoteUrl
 
         if (fileUri == null && remoteUri == null) {
             throw EudiRQESUiError(

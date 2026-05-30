@@ -31,7 +31,6 @@ import org.mockito.Mock
 import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import java.io.ByteArrayInputStream
-import java.security.cert.X509Certificate
 
 class TestContextExtensionsKt {
 
@@ -72,7 +71,6 @@ class TestContextExtensionsKt {
         assertTrue(result.isSuccess)
         val cert = result.getOrThrow()
         assertNotNull(cert)
-        assertTrue(cert is X509Certificate)
     }
 
     // Case 2

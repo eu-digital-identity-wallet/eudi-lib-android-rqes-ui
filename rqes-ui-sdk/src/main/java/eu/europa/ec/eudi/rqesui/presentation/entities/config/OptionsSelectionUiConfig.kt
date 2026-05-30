@@ -16,29 +16,29 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.entities.config
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializable
 import eu.europa.ec.eudi.rqesui.domain.serializer.UiSerializableParser
-import eu.europa.ec.eudi.rqesui.domain.serializer.adapter.SerializableTypeAdapter
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal sealed interface OptionsSelectionScreenState {
+
+    @Serializable
+    @SerialName("QtspSelection")
     data object QtspSelection : OptionsSelectionScreenState
+
+    @Serializable
+    @SerialName("CertificateSelection")
     data object CertificateSelection : OptionsSelectionScreenState
 }
 
+@Serializable
 internal data class OptionsSelectionUiConfig(
     val optionsSelectionScreenState: OptionsSelectionScreenState,
 ) : UiSerializable {
+
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "optionsSelectionConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder()
-                .registerTypeAdapter(
-                    OptionsSelectionScreenState::class.java,
-                    SerializableTypeAdapter<OptionsSelectionScreenState>()
-                )
-                .create()
-        }
     }
 }

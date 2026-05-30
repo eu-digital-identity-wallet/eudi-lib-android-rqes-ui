@@ -887,7 +887,8 @@ class TestRqesController {
             whenever(sessionData.file).thenReturn(null)
             whenever(sessionData.remoteUrl).thenReturn(remoteUri)
             whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfigForRetrieval)
-            val trustImpl = org.mockito.kotlin.mock<eu.europa.ec.eudi.documentretrieval.X509CertificateTrust>()
+            val trustImpl =
+                org.mockito.kotlin.mock<eu.europa.ec.eudi.documentretrieval.X509CertificateTrust>()
             whenever(eudiRQESUiConfigForRetrieval.documentRetrievalConfig)
                 .thenReturn(
                     eu.europa.ec.eudi.rqesui.infrastructure.config.DocumentRetrievalConfig.X509CertificateImpl(
@@ -896,7 +897,8 @@ class TestRqesController {
                 )
             whenever(resourceProvider.getDownloadsCache()).thenReturn(context.cacheDir)
 
-            val resolvedDocument = org.mockito.kotlin.mock<eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolvedDocument>()
+            val resolvedDocument =
+                org.mockito.kotlin.mock<eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolvedDocument>()
             whenever(resolvedDocument.file).thenReturn(resolvedFile)
 
             val outcome = org.mockito.kotlin.mock<ResolutionOutcome>()
@@ -914,12 +916,12 @@ class TestRqesController {
                 }
             }.use {
 
-                    // Act
-                    val result = rqesController.getRemoteOrLocalFile()
+                // Act
+                val result = rqesController.getRemoteOrLocalFile()
 
-                    // Assert
-                    assertTrue(result is EudiRqesGetSelectedFilePartialState.Success)
-                }
+                // Assert
+                assertTrue(result is EudiRqesGetSelectedFilePartialState.Success)
+            }
         }
 
     // Case 6
@@ -944,9 +946,11 @@ class TestRqesController {
             whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentMultipleNotSupported))
                 .thenReturn("Multiple documents are not supported")
 
-            val rd1 = org.mockito.kotlin.mock<eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolvedDocument>()
+            val rd1 =
+                org.mockito.kotlin.mock<eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolvedDocument>()
             whenever(rd1.file).thenReturn(file1)
-            val rd2 = org.mockito.kotlin.mock<eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolvedDocument>()
+            val rd2 =
+                org.mockito.kotlin.mock<eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolvedDocument>()
             whenever(rd2.file).thenReturn(file2)
 
             val outcome = org.mockito.kotlin.mock<ResolutionOutcome>()
@@ -964,16 +968,16 @@ class TestRqesController {
                 }
             }.use {
 
-                    // Act
-                    val result = rqesController.getRemoteOrLocalFile()
+                // Act
+                val result = rqesController.getRemoteOrLocalFile()
 
-                    // Assert
-                    assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
-                    assertEquals(
-                        "Multiple documents are not supported",
-                        (result as EudiRqesGetSelectedFilePartialState.Failure).error.message
-                    )
-                }
+                // Assert
+                assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
+                assertEquals(
+                    "Multiple documents are not supported",
+                    (result as EudiRqesGetSelectedFilePartialState.Failure).error.message
+                )
+            }
         }
 
     // Case 7
@@ -1012,16 +1016,16 @@ class TestRqesController {
                 }
             }.use {
 
-                    // Act
-                    val result = rqesController.getRemoteOrLocalFile()
+                // Act
+                val result = rqesController.getRemoteOrLocalFile()
 
-                    // Assert
-                    assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
-                    assertEquals(
-                        mockedDocumentNotFoundMessage,
-                        (result as EudiRqesGetSelectedFilePartialState.Failure).error.message
-                    )
-                }
+                // Assert
+                assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
+                assertEquals(
+                    mockedDocumentNotFoundMessage,
+                    (result as EudiRqesGetSelectedFilePartialState.Failure).error.message
+                )
+            }
         }
     //endregion
 

@@ -18,6 +18,7 @@ import com.android.build.api.dsl.LibraryExtension
 import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SourcesJar
+import org.gradle.plugins.signing.Sign
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
@@ -25,6 +26,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.maven.publish)
     alias(libs.plugins.kotlin.kover)
     alias(libs.plugins.owasp.dependencycheck)
@@ -45,6 +47,7 @@ extensions.configure<LibraryExtension>("android") {
     defaultConfig {
         minSdk = MIN_SDK_VERSION.toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
@@ -111,7 +114,7 @@ dependencies {
     api(libs.koin.android)
     implementation(libs.koin.compose)
 
-    implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.android.pdf.viewer)
 
@@ -140,50 +143,54 @@ mavenPublishing {
     }
 }
 
+// Skip signing when any requested target is `publishToMavenLocal` — local
+if (gradle.startParameter.taskNames.any { it.endsWith("publishToMavenLocal") }) {
+    tasks.withType<Sign>().configureEach { enabled = false }
+}
+
 kover {
     reports {
+        filters {
+            excludes {
+                packages(
+                    "*.ksp.*",
+                    "*.di",
+                    "*.di.*",
+                    "*.config",
+                    "*.config.*",
+                    "*.provider",
+                    "*.provider.*",
+                    "*.localization",
+                    "*.localization.*",
+                    "*.infrastructure.*",
+                    "*.presentation.architecture",
+                    "*.presentation.architecture.*",
+                    "*.entities",
+                    "*.entities.*",
+                    "*.presentation.extension",
+                    "*.presentation.extension.*",
+                    "*.presentation.navigation",
+                    "*.presentation.navigation.*",
+                    "*.presentation.router",
+                    "*.presentation.router.*",
+                    "*.presentation.ui.component",
+                    "*.presentation.ui.component.*",
+                    "*.presentation.ui.container",
+                    "*.presentation.ui.container.*",
+                    "*.util",
+                    "*.util.*",
+                    "*.helper",
+                    "*.helper.*",
+                )
+                classes(
+                    "*LogController*",
+                    "*Screen*",
+                )
+            }
+        }
         total {
             html { onCheck = false }
             xml { onCheck = false }
-            filters {
-                excludes {
-                    packages(
-                        "*.ksp.*",
-                        "*.di",
-                        "*.serializer",
-                        "*.config",
-                        "*.config.*",
-                        "*.provider.*",
-                        "*.provider",
-                        "*.localization.*",
-                        "*.localization",
-                        "*.infrastructure.*",
-                        "*.infrastructure",
-                        "*.presentation.architecture.*",
-                        "*.presentation.architecture",
-                        "*.presentation.entities.*",
-                        "*.presentation.entities",
-                        "*.presentation.extension.*",
-                        "*.presentation.extension",
-                        "*.presentation.navigation.*",
-                        "*.presentation.navigation",
-                        "*.presentation.router.*",
-                        "*.presentation.router",
-                        "*.presentation.ui.component.*",
-                        "*.presentation.ui.component",
-                        "*.presentation.ui.container.*",
-                        "*.presentation.ui.container",
-                        "*.util.*",
-                        "*.util",
-                        "*.helper.*",
-                        "*.helper",
-                    )
-                    classes(
-                        "*LogController*",
-                        "*Screen*",
-                    )
-                }
-            }
         }
     }
 }

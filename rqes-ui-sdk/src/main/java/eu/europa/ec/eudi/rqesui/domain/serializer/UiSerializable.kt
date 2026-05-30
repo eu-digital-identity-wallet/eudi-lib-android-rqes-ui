@@ -16,15 +16,18 @@
 
 package eu.europa.ec.eudi.rqesui.domain.serializer
 
-import com.google.gson.Gson
-
+/**
+ * Marker interface for any model that can be round-tripped through a navigation
+ * argument via [UiSerializer]. Implementations must additionally be annotated with
+ * `@kotlinx.serialization.Serializable`.
+ */
 internal interface UiSerializable
 
+/**
+ * Carries the navigation-argument key used to embed a [UiSerializable] payload in a
+ * route string. Each [UiSerializable] type declares one of these as its companion so
+ * call sites can do `mapOf(MyConfig.serializedKeyName to uiSerializer.toBase64(...))`.
+ */
 internal interface UiSerializableParser {
-
     val serializedKeyName: String
-
-    fun provideParser(): Gson {
-        return Gson()
-    }
 }
