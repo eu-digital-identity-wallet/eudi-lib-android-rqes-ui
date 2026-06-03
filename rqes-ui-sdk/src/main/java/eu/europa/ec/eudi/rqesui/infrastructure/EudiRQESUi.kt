@@ -51,7 +51,7 @@ object EudiRQESUi {
         "EudiRQESUi Error"
 
     private const val SDK_NOT_INITIALIZED_MESSAGE =
-        "Before calling resume, SDK must be initialized firstly. Call EudiRQESUi.launchSDK()"
+        "SDK is not initialized. Ensure EudiRQESUi.setup() and EudiRQESUi.initiate() have been called first."
 
     private var _eudiRQESUiConfig: EudiRQESUiConfig? = null
     private var sessionData: SessionData? = null
