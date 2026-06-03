@@ -21,6 +21,10 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
   * [3. Deep link registration](#3-deep-link-registration)
   * [4. Host Activity setup](#4-host-activity-setup)
   * [5. Initialization](#5-initialization)
+* [Theming and rebranding](#theming-and-rebranding)
+  * [Colors and typography](#colors-and-typography)
+  * [Header logo](#header-logo)
+  * [Text and labels](#text-and-labels)
 * [Error handling](#error-handling)
 * [Sample app](#sample-app)
 * [How to contribute](#how-to-contribute)
@@ -41,7 +45,7 @@ The SDK supports two flows:
   or QR code) which the SDK resolves to a document and then signs.
 
 It ships ready-made Jetpack Compose screens for QTSP selection, certificate selection,
-document preview, and a success/sharing screen, plus the orchestration around oAuth
+document preview, and a success/sharing screen, plus the orchestration around OAuth
 authorization, credential authorization, signing, and sharing the signed document.
 
 You configure the SDK at compile time via the `EudiRQESUiConfig` interface and drive
@@ -65,9 +69,9 @@ sequenceDiagram
     Host->>SDK: setup(application, config)
     Host->>SDK: initiate(documentUri | remoteUri)
     SDK-->>Host: launches signing UI
-    SDK->>Browser: opens oAuth authorization URL
+    SDK->>Browser: opens OAuth authorization URL
     Browser->>QTSP: user authenticates
-    QTSP-->>Host: deep link with authorization code
+    QTSP-->>Host: deep link with authorization code (via browser redirect)
     Host->>SDK: resume(authorizationCode)
     SDK->>QTSP: sign document
     QTSP-->>SDK: signed document
@@ -78,7 +82,9 @@ sequenceDiagram
 
 - Android 10 (API level 29) or higher
 - Java 17 (the SDK is compiled with `JvmTarget.JVM_17`)
-- Kotlin and Jetpack Compose (the SDK is built with Compose)
+- A Kotlin host app is recommended — the public API uses Kotlin `value class` types
+  (`DocumentUri`, `RemoteUri`). The SDK ships its own Jetpack Compose UI, so your app
+  does **not** need to use Compose itself.
 
 ## Installation
 
@@ -104,9 +110,9 @@ Implement `EudiRQESUiConfig` to supply runtime configuration to the SDK.
 | Property                  | Required | Default                            | Purpose                                                                |
 |---------------------------|----------|------------------------------------|------------------------------------------------------------------------|
 | `qtsps`                   | Yes      | —                                  | List of Qualified Trust Service Providers the user can pick from.      |
-| `documentRetrievalConfig` | Yes      | —                                  | How the SDK trusts X.509 certificates when resolving remote documents. |
+| `documentRetrievalConfig` | Yes      | —                                  | Certificate-trust policy for resolving remote documents (required even for local-only flows). |
 | `translations`            | No       | English defaults built into the SDK | Override or extend localized strings.                                  |
-| `themeManager`            | No       | Built-in light/dark theme          | Customize colors and typography.                                       |
+| `themeManager`            | No       | Built-in light/dark theme          | Customize colors and typography (see [Theming](#theming-and-rebranding)). |
 | `printLogs`               | No       | `false`                            | Enable Timber debug logging.                                           |
 
 Example (mirrors the [`:test-app`](test-app/) reference implementation):
@@ -153,6 +159,13 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
 
 You can supply multiple `QtspData` entries; the user selects one in the options screen.
 
+`documentRetrievalConfig` is required even if you only use the local-file flow, although
+it only takes effect when resolving *remote* documents. Besides
+`DocumentRetrievalConfig.X509Certificates` (shown above — trusts certificates bundled as
+raw resources), you can pass `DocumentRetrievalConfig.X509CertificateImpl` with your own
+`X509CertificateTrust`, or `DocumentRetrievalConfig.NoValidation` to skip certificate
+validation (useful for local-only integrations or testing).
+
 ### 2. Setup
 
 Call `setup()` once, typically from your `Application.onCreate()`. This wires the
@@ -175,11 +188,11 @@ class MyApplication : Application() {
 
 ### 3. Deep link registration
 
-The SDK relies on the system browser for oAuth and (optionally) a deep link for
+The SDK relies on the system browser for OAuth and (optionally) a deep link for
 same-device document retrieval. Register the corresponding intent filters on the
 Activity that should receive them.
 
-#### oAuth callback
+#### OAuth callback
 
 This must match the `authFlowRedirectionURI` set in `QtspData`. For
 `URI.create("rqes://oauth/callback")`:
@@ -222,12 +235,12 @@ URL via this deep link and passes it to `EudiRQESUi.initiate(remoteUri = ...)`.
 ### 4. Host Activity setup
 
 The Activity that hosts the deep-link filters needs two things, otherwise the
-return from oAuth will not work:
+return from OAuth will not work:
 
 - **`android:launchMode="singleTask"`** in the manifest so the existing instance
   receives the deep link instead of launching a new one.
 - An **`onNewIntent` override** that extracts the `code` query parameter from the
-  oAuth callback and forwards it to `EudiRQESUi.resume(...)`.
+  OAuth callback and forwards it to `EudiRQESUi.resume(...)`.
 
 ```kotlin
 class HostActivity : ComponentActivity() {
@@ -284,6 +297,112 @@ EudiRQESUi.initiate(
 In both cases, the SDK opens its own Activity (`EudiRQESContainer`) and drives the
 flow until either the success screen completes or the user cancels.
 
+## Theming and rebranding
+
+The SDK renders its screens with **its own Material 3 Compose theme** — your host
+app's theme is not applied to them. It automatically follows the system light/dark
+setting and shows the matching color set (Material You dynamic color is not used).
+
+You can rebrand the SDK along three independent axes, all wired through your
+`EudiRQESUiConfig`:
+
+| What you change      | How                                                  | Types / resources                                          |
+|----------------------|------------------------------------------------------|------------------------------------------------------------|
+| Colors & typography  | Override `themeManager`                              | `ThemeManager.Builder`, `ThemeColorsTemplate`, `ThemeTypographyTemplate` |
+| Header logo          | Shadow the SDK drawables in your app module          | `ic_logo_plain`, `ic_logo_text`                            |
+| Text & labels        | Override `translations`                              | `LocalizableKey` (see [Configuration](#1-configuration))   |
+
+> The public theming types live under `eu.europa.ec.eudi.rqesui.infrastructure.theme`
+> (and its `templates` / `templates.structures` sub-packages). The SDK's built-in
+> palette and typography are `internal`, so you build your own templates rather than
+> tweaking the defaults.
+
+### Colors and typography
+
+Override the `themeManager` property and assemble a `ThemeManager` with the builder.
+Colors are passed as a `ThemeColorsTemplate` (one for light, optionally one for dark);
+fonts and text styles as a `ThemeTypographyTemplate`.
+
+```kotlin
+override val themeManager: ThemeManager
+    get() = ThemeManager.Builder()
+        .withLightColors(brandLightColors)
+        .withDarkColors(brandDarkColors)   // optional — light colors are reused if omitted
+        .withTypography(brandTypography)
+        .build()
+```
+
+**Colors.** Every Material 3 role is required (there are no per-field defaults). Values
+are ARGB `Long` literals, e.g. `0xFF2A5FD9`:
+
+```kotlin
+private val brandLightColors = ThemeColorsTemplate(
+    primary = 0xFF2A5FD9,
+    onPrimary = 0xFFFFFFFF,
+    primaryContainer = 0xFFEADDFF,
+    onPrimaryContainer = 0xFF21005D,
+    secondary = 0xFFD6D9F9,
+    // … provide every remaining role: the secondary/tertiary/error families,
+    // background, surface and the surface*/surfaceContainer* slots, outline, scrim,
+    // the inverse* roles and the *Fixed accent roles.
+)
+// private val brandDarkColors = ThemeColorsTemplate( … )
+```
+
+See `ThemeColorsTemplate` for the full list of roles to fill in.
+
+**Typography.** All 15 text styles must be supplied. Each `ThemeTextStyle` field is
+optional and falls back to Compose defaults when omitted. Bundle your font files under
+`res/font` and reference them via `ThemeFont`:
+
+```kotlin
+private val brandFont = ThemeFont(
+    res = R.font.my_brand_font,
+    weight = ThemeFontWeight.W400,
+    style = ThemeFontStyle.Normal,
+)
+
+private val brandTypography = ThemeTypographyTemplate(
+    headlineSmall = ThemeTextStyle(
+        fontFamily = listOf(brandFont),
+        fontSize = 24,
+        letterSpacing = 0f,
+        textAlign = ThemeTextAlign.Start,
+    ),
+    // … provide the remaining styles: display{Large,Medium,Small},
+    // headline{Large,Medium}, title{Large,Medium,Small},
+    // body{Large,Medium,Small} and label{Large,Medium,Small}.
+)
+```
+
+> A few internal accent colors (success, warning, divider) are not part of
+> `ThemeColorsTemplate` and cannot currently be themed.
+
+### Header logo
+
+The header/success area shows a logo composed of two drawables: `ic_logo_plain` (the
+mark) and `ic_logo_text` (the wordmark). These are not exposed through config — rebrand
+them by **shadowing the resources**: declare drawables with the same names in your app
+module and they override the SDK's at resource-merge time.
+
+```
+your-app/src/main/res/drawable/ic_logo_plain.xml
+your-app/src/main/res/drawable/ic_logo_text.xml
+```
+
+`ic_logo_text` is tinted with the theme's `onSurface` color, so it adapts to light/dark
+automatically; `ic_logo_plain` carries its own colors. Optionally override the
+`content_description_logo_plain_icon` / `content_description_logo_text_icon` strings for
+accessibility.
+
+### Text and labels
+
+All user-facing copy is overridden through `translations` (shown in
+[Configuration](#1-configuration)): map any `LocalizableKey` to your own wording. For
+keys that take runtime arguments, keep the `@arg` placeholder (the `ARGUMENTS_SEPARATOR`
+token) where the value should be inserted — for example
+`LocalizableKey.Certificate to "Cert @arg"`.
+
 ## Error handling
 
 The SDK exposes errors via `EudiRQESUiError`, a subclass of `Exception`. Methods
@@ -291,10 +410,11 @@ that can throw it are annotated with `@Throws(EudiRQESUiError::class)`:
 
 - `EudiRQESUi.initiate(...)` — thrown if the document URI's filename cannot be
   extracted or if the remote URI is malformed.
-- `EudiRQESUi.resume(...)` — thrown if `setup()` was never called, if the SDK was
-  not initiated first, or if the supplied `context` is not an Activity.
+- `EudiRQESUi.resume(...)` — thrown if the SDK was not initiated first (no active
+  signing session — i.e. `initiate(...)` was never called), or if the supplied
+  `context` is not an Activity.
 
-Failures that happen *inside* the SDK's UI (network errors during oAuth,
+Failures that happen *inside* the SDK's UI (network errors during OAuth,
 certificate listing, signing, etc.) are surfaced on the in-SDK error screen and
 do not propagate out to the host app.
 

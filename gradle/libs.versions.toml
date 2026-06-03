@@ -1,67 +1,108 @@
 [versions]
-eudiRqesCore = "0.5.0"
+# Build & Gradle plugins
 agp = "9.2.1"
 kotlin = "2.3.21"
-kotlinxCoroutines = "1.11.0"
-coreKtx = "1.18.0"
-junit = "4.13.2"
-lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.13.0"
-androidxNavigation = "2.9.8"
-composeBom = "2026.05.01"
-appcompat = "1.7.1"
-material3 = "1.4.0"
-material = "1.14.0"
-timber = "5.0.1"
-androidxSecurity = "1.1.0"
-koin = "4.2.1"
-kotlinxSerialization = "1.11.0"
-mavenPublish = "0.36.0"
-mockito = "5.23.0"
-mockitoKotlin = "6.3.0"
 kover = "0.9.8"
-robolectric = "4.16.1"
-turbine = "1.2.1"
-pdfViewer = "2.0.1"
+mavenPublish = "0.36.0"
 owaspDependencyCheck = "12.2.2"
 
+# AndroidX
+activityCompose = "1.13.0"
+androidxNavigation = "2.9.8"
+androidxSecurity = "1.1.0"
+appcompat = "1.7.1"
+coreKtx = "1.18.0"
+lifecycleRuntimeKtx = "2.10.0"
+
+# Compose
+composeBom = "2026.05.01"
+material3 = "1.4.0"
+
+# Material
+material = "1.14.0"
+
+# Kotlin
+kotlinxCoroutines = "1.11.0"
+kotlinxSerialization = "1.11.0"
+
+# Dependency injection
+koin = "4.2.1"
+
+# Logging
+timber = "5.0.1"
+
+# PDF
+pdfViewer = "2.0.1"
+
+# EUDI
+eudiRqesCore = "0.5.0"
+
+# Testing
+junit = "4.13.2"
+mockito = "5.23.0"
+mockitoKotlin = "6.3.0"
+robolectric = "4.16.1"
+turbine = "1.2.1"
+
 [libraries]
-eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+# AndroidX
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigation" }
+androidx-security = { group = "androidx.security", name = "security-crypto", version.ref = "androidxSecurity" }
+
+# Compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-material-iconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
-androidx-compose-material-iconsExtended = { group = "androidx.compose.material", name = "material-icons-extended" }
+
+# Material
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
-androidx-security = { group = "androidx.security", name = "security-crypto", version.ref = "androidxSecurity" }
+
+# Kotlin
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# Dependency injection
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
-koin-test = { group = "io.insert-koin", name = "koin-android-test", version.ref = "koin" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
-mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
-kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
-robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
+# Logging
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# PDF
 android-pdf-viewer = { group = "io.github.ahmerafzal1", name = "ahmer-pdfviewer", version.ref = "pdfViewer" }
 
+# EUDI
+eudi-lib-android-rqes-core = { module = "eu.europa.ec.eudi:eudi-lib-android-rqes-core", version.ref = "eudiRqesCore" }
+
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+koin-test = { group = "io.insert-koin", name = "koin-android-test", version.ref = "koin" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+
 [plugins]
+# Android
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+
+# Kotlin
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
+
+# Quality & publishing
 kotlin-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "mavenPublish" }
 owasp-dependencycheck = { id = "org.owasp.dependencycheck", version.ref = "owaspDependencyCheck" }
