@@ -39,12 +39,12 @@ internal class ThemeColors {
         private const val EudiRQESUi_theme_light_primaryContainer: Long = 0xFFEADDFF
         private const val EudiRQESUi_theme_light_onPrimaryContainer: Long = 0xFF21005D
         private const val EudiRQESUi_theme_light_secondary: Long = 0xFFD6D9F9
-        private const val EudiRQESUi_theme_light_onSecondary: Long = 0xF1D192B
+        private const val EudiRQESUi_theme_light_onSecondary: Long = 0xFF1D192B
         private const val EudiRQESUi_theme_light_secondaryContainer: Long = 0xFFE8DEF8
         private const val EudiRQESUi_theme_light_onSecondaryContainer: Long = 0xFF1D192B
         private const val EudiRQESUi_theme_light_tertiary: Long = 0xFFE4EEE7
         private const val EudiRQESUi_theme_light_onTertiary: Long = 0xFF1D192B
-        private const val EudiRQESUi_theme_light_tertiaryContainer: Long = 0xFFFFD8E4
+        private const val EudiRQESUi_theme_light_tertiaryContainer: Long = 0xFFDAEEE0
         private const val EudiRQESUi_theme_light_onTertiaryContainer: Long = 0xFF31111D
         private const val EudiRQESUi_theme_light_error: Long = 0xFFB3261E
         private const val EudiRQESUi_theme_light_onError: Long = white
@@ -73,24 +73,24 @@ internal class ThemeColors {
         private const val EudiRQESUi_theme_light_surfaceTint: Long = EudiRQESUi_theme_light_surface
 
         // Light theme fixed accent roles (identical in dark as well).
-        private const val eudiw_theme_light_primaryFixed: Long = 0xFFD4DEF7
-        private const val eudiw_theme_light_primaryFixedDim: Long = 0xFFA8BEF0
-        private const val eudiw_theme_light_onPrimaryFixed: Long = 0xFF08122B
-        private const val eudiw_theme_light_onPrimaryFixedVariant: Long = 0xFF173782
+        private const val EudiRQESUi_theme_light_primaryFixed: Long = 0xFFEADDFF
+        private const val EudiRQESUi_theme_light_primaryFixedDim: Long = 0xFFD0BCFF
+        private const val EudiRQESUi_theme_light_onPrimaryFixed: Long = 0xFF21005D
+        private const val EudiRQESUi_theme_light_onPrimaryFixedVariant: Long = 0xFF4F378B
 
-        private const val eudiw_theme_light_secondaryFixed: Long = 0xFFD3D6F8
-        private const val eudiw_theme_light_secondaryFixedDim: Long = 0xFFA6ADF2
-        private const val eudiw_theme_light_onSecondaryFixed: Long = 0xFF070A2C
-        private const val eudiw_theme_light_onSecondaryFixedVariant: Long = 0xFF141D85
+        private const val EudiRQESUi_theme_light_secondaryFixed: Long = 0xFFE8DEF8
+        private const val EudiRQESUi_theme_light_secondaryFixedDim: Long = 0xFFCCC2DC
+        private const val EudiRQESUi_theme_light_onSecondaryFixed: Long = 0xFF1D192B
+        private const val EudiRQESUi_theme_light_onSecondaryFixedVariant: Long = 0xFF4A4458
 
-        private const val eudiw_theme_light_tertiaryFixed: Long = 0xFFE0EBE3
-        private const val eudiw_theme_light_tertiaryFixedDim: Long = 0xFFC0D8C7
-        private const val eudiw_theme_light_onTertiaryFixed: Long = 0xFF141F17
-        private const val eudiw_theme_light_onTertiaryFixedVariant: Long = 0xFF3B5E46
+        private const val EudiRQESUi_theme_light_tertiaryFixed: Long = 0xFFFFD8E4
+        private const val EudiRQESUi_theme_light_tertiaryFixedDim: Long = 0xFFEFB8C8
+        private const val EudiRQESUi_theme_light_onTertiaryFixed: Long = 0xFF31111D
+        private const val EudiRQESUi_theme_light_onTertiaryFixedVariant: Long = 0xFF633B48
 
         // Light theme extra colors palette.
-        internal const val EudiRQESUi_theme_light_success: Long = 0xFF55953B
-        internal const val EudiRQESUi_theme_light_warning: Long = 0xFFAB5200
+        internal const val EudiRQESUi_theme_light_success: Long = 0xFF2C7E0A
+        internal const val EudiRQESUi_theme_light_warning: Long = 0xFFF39626
         internal const val EudiRQESUi_theme_light_divider: Long = 0xFFD9D9D9
         internal const val EudiRQESUi_theme_light_pageFooter: Long = 0xFFA9A9A9
 
@@ -123,7 +123,7 @@ internal class ThemeColors {
         private const val EudiRQESUi_theme_dark_inverseSurface: Long = 0xFFE5E2E1
         private const val EudiRQESUi_theme_dark_inverseOnSurface: Long = 0xFF313030
         private const val EudiRQESUi_theme_dark_inversePrimary: Long = 0xFF1B55CF
-        private const val EudiRQESUi_theme_dark_surfaceDim: Long = 0xFF131313
+        private const val EudiRQESUi_theme_dark_surfaceDim: Long = 0xFF1E1E38
         private const val EudiRQESUi_theme_dark_surfaceBright: Long = 0xFF3A3939
         private const val EudiRQESUi_theme_dark_surfaceContainerLowest: Long = 0xFF0E0E0E
         private const val EudiRQESUi_theme_dark_surfaceContainerLow: Long = 0xFF1C1B1C
@@ -133,20 +133,20 @@ internal class ThemeColors {
         private const val EudiRQESUi_theme_dark_surfaceTint: Long = EudiRQESUi_theme_dark_surface
 
         // Dark theme fixed accent roles (same values as light).
-        private const val eudiw_theme_dark_primaryFixed: Long = 0xFFD4DEF7
-        private const val eudiw_theme_dark_primaryFixedDim: Long = 0xFFA8BEF0
-        private const val eudiw_theme_dark_onPrimaryFixed: Long = 0xFF08122B
-        private const val eudiw_theme_dark_onPrimaryFixedVariant: Long = 0xFF173782
+        private const val EudiRQESUi_theme_dark_primaryFixed: Long = 0xFFEADDFF
+        private const val EudiRQESUi_theme_dark_primaryFixedDim: Long = 0xFFD0BCFF
+        private const val EudiRQESUi_theme_dark_onPrimaryFixed: Long = 0xFF21005D
+        private const val EudiRQESUi_theme_dark_onPrimaryFixedVariant: Long = 0xFF4F378B
 
-        private const val eudiw_theme_dark_secondaryFixed: Long = 0xFFD3D6F8
-        private const val eudiw_theme_dark_secondaryFixedDim: Long = 0xFFA6ADF2
-        private const val eudiw_theme_dark_onSecondaryFixed: Long = 0xFF070A2C
-        private const val eudiw_theme_dark_onSecondaryFixedVariant: Long = 0xFF141D85
+        private const val EudiRQESUi_theme_dark_secondaryFixed: Long = 0xFFE8DEF8
+        private const val EudiRQESUi_theme_dark_secondaryFixedDim: Long = 0xFFCCC2DC
+        private const val EudiRQESUi_theme_dark_onSecondaryFixed: Long = 0xFF1D192B
+        private const val EudiRQESUi_theme_dark_onSecondaryFixedVariant: Long = 0xFF4A4458
 
-        private const val eudiw_theme_dark_tertiaryFixed: Long = 0xFFE0EBE3
-        private const val eudiw_theme_dark_tertiaryFixedDim: Long = 0xFFC0D8C7
-        private const val eudiw_theme_dark_onTertiaryFixed: Long = 0xFF141F17
-        private const val eudiw_theme_dark_onTertiaryFixedVariant: Long = 0xFF3B5E46
+        private const val EudiRQESUi_theme_dark_tertiaryFixed: Long = 0xFFFFD8E4
+        private const val EudiRQESUi_theme_dark_tertiaryFixedDim: Long = 0xFFEFB8C8
+        private const val EudiRQESUi_theme_dark_onTertiaryFixed: Long = 0xFF31111D
+        private const val EudiRQESUi_theme_dark_onTertiaryFixedVariant: Long = 0xFF633B48
 
         // Dark theme extra colors palette.
         internal const val EudiRQESUi_theme_dark_success: Long = 0xFF93D875
@@ -196,18 +196,18 @@ internal class ThemeColors {
             surfaceContainerHighest = EudiRQESUi_theme_light_surfaceContainerHighest,
             surfaceContainerLow = EudiRQESUi_theme_light_surfaceContainerLow,
             surfaceContainerLowest = EudiRQESUi_theme_light_surfaceContainerLowest,
-            primaryFixed = eudiw_theme_light_primaryFixed,
-            primaryFixedDim = eudiw_theme_light_primaryFixedDim,
-            onPrimaryFixed = eudiw_theme_light_onPrimaryFixed,
-            onPrimaryFixedVariant = eudiw_theme_light_onPrimaryFixedVariant,
-            secondaryFixed = eudiw_theme_light_secondaryFixed,
-            secondaryFixedDim = eudiw_theme_light_secondaryFixedDim,
-            onSecondaryFixed = eudiw_theme_light_onSecondaryFixed,
-            onSecondaryFixedVariant = eudiw_theme_light_onSecondaryFixedVariant,
-            tertiaryFixed = eudiw_theme_light_tertiaryFixed,
-            tertiaryFixedDim = eudiw_theme_light_tertiaryFixedDim,
-            onTertiaryFixed = eudiw_theme_light_onTertiaryFixed,
-            onTertiaryFixedVariant = eudiw_theme_light_onTertiaryFixedVariant
+            primaryFixed = EudiRQESUi_theme_light_primaryFixed,
+            primaryFixedDim = EudiRQESUi_theme_light_primaryFixedDim,
+            onPrimaryFixed = EudiRQESUi_theme_light_onPrimaryFixed,
+            onPrimaryFixedVariant = EudiRQESUi_theme_light_onPrimaryFixedVariant,
+            secondaryFixed = EudiRQESUi_theme_light_secondaryFixed,
+            secondaryFixedDim = EudiRQESUi_theme_light_secondaryFixedDim,
+            onSecondaryFixed = EudiRQESUi_theme_light_onSecondaryFixed,
+            onSecondaryFixedVariant = EudiRQESUi_theme_light_onSecondaryFixedVariant,
+            tertiaryFixed = EudiRQESUi_theme_light_tertiaryFixed,
+            tertiaryFixedDim = EudiRQESUi_theme_light_tertiaryFixedDim,
+            onTertiaryFixed = EudiRQESUi_theme_light_onTertiaryFixed,
+            onTertiaryFixedVariant = EudiRQESUi_theme_light_onTertiaryFixedVariant
         )
 
         internal val darkColors = ThemeColorsTemplate(
@@ -247,18 +247,18 @@ internal class ThemeColors {
             surfaceContainerHighest = EudiRQESUi_theme_dark_surfaceContainerHighest,
             surfaceContainerLow = EudiRQESUi_theme_dark_surfaceContainerLow,
             surfaceContainerLowest = EudiRQESUi_theme_dark_surfaceContainerLowest,
-            primaryFixed = eudiw_theme_dark_primaryFixed,
-            primaryFixedDim = eudiw_theme_dark_primaryFixedDim,
-            onPrimaryFixed = eudiw_theme_dark_onPrimaryFixed,
-            onPrimaryFixedVariant = eudiw_theme_dark_onPrimaryFixedVariant,
-            secondaryFixed = eudiw_theme_dark_secondaryFixed,
-            secondaryFixedDim = eudiw_theme_dark_secondaryFixedDim,
-            onSecondaryFixed = eudiw_theme_dark_onSecondaryFixed,
-            onSecondaryFixedVariant = eudiw_theme_dark_onSecondaryFixedVariant,
-            tertiaryFixed = eudiw_theme_dark_tertiaryFixed,
-            tertiaryFixedDim = eudiw_theme_dark_tertiaryFixedDim,
-            onTertiaryFixed = eudiw_theme_dark_onTertiaryFixed,
-            onTertiaryFixedVariant = eudiw_theme_dark_onTertiaryFixedVariant,
+            primaryFixed = EudiRQESUi_theme_dark_primaryFixed,
+            primaryFixedDim = EudiRQESUi_theme_dark_primaryFixedDim,
+            onPrimaryFixed = EudiRQESUi_theme_dark_onPrimaryFixed,
+            onPrimaryFixedVariant = EudiRQESUi_theme_dark_onPrimaryFixedVariant,
+            secondaryFixed = EudiRQESUi_theme_dark_secondaryFixed,
+            secondaryFixedDim = EudiRQESUi_theme_dark_secondaryFixedDim,
+            onSecondaryFixed = EudiRQESUi_theme_dark_onSecondaryFixed,
+            onSecondaryFixedVariant = EudiRQESUi_theme_dark_onSecondaryFixedVariant,
+            tertiaryFixed = EudiRQESUi_theme_dark_tertiaryFixed,
+            tertiaryFixedDim = EudiRQESUi_theme_dark_tertiaryFixedDim,
+            onTertiaryFixed = EudiRQESUi_theme_dark_onTertiaryFixed,
+            onTertiaryFixedVariant = EudiRQESUi_theme_dark_onTertiaryFixedVariant,
         )
 
         internal val success: Color

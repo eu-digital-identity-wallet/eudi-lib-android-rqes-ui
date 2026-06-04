@@ -27,10 +27,8 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePrevi
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapImage
 
-
 internal data class AppIconAndTextData(
-    val appIcon: IconData = AppIcons.LogoPlain,
-    val appText: IconData = AppIcons.LogoText,
+    val appIcon: IconData = AppIcons.LogoIconAndText,
 )
 
 @Composable
@@ -47,7 +45,6 @@ internal fun AppIconAndText(
         verticalAlignment = Alignment.Top
     ) {
         WrapImage(iconData = appIconAndTextData.appIcon)
-        WrapImage(iconData = appIconAndTextData.appText)
     }
 }
 
@@ -56,10 +53,7 @@ internal fun AppIconAndText(
 private fun AppIconAndTextPreview() {
     PreviewTheme {
         AppIconAndText(
-            appIconAndTextData = AppIconAndTextData(
-                appIcon = AppIcons.LogoPlain,
-                appText = AppIcons.LogoText,
-            )
+            appIconAndTextData = AppIconAndTextData()
         )
     }
 }

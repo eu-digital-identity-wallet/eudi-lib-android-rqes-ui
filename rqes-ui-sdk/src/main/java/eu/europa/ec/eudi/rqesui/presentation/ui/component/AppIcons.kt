@@ -117,15 +117,9 @@ internal object AppIcons {
         imageVector = null
     )
 
-    val LogoPlain: IconData = IconData(
-        resourceId = R.drawable.ic_logo_plain,
-        contentDescriptionId = R.string.content_description_logo_plain_icon,
-        imageVector = null
-    )
-
-    val LogoText: IconData = IconData(
-        resourceId = R.drawable.ic_logo_text,
-        contentDescriptionId = R.string.content_description_logo_text_icon,
+    val LogoIconAndText: IconData = IconData(
+        resourceId = R.drawable.ic_logo_icon_and_text,
+        contentDescriptionId = R.string.content_description_logo_icon_and_text,
         imageVector = null
     )
 }
