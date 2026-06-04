@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +34,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.theme.values.success
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.TextLengthPreviewProvider
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_EXTRA_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.TextConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapIcon
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapText
@@ -68,7 +70,9 @@ internal fun RelyingParty(
             ) {
                 if (isVerified) {
                     WrapIcon(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier
+                            .padding(end = SPACING_EXTRA_SMALL.dp)
+                            .size(20.dp),
                         iconData = AppIcons.VerifiedBadge,
                         customTint = MaterialTheme.colorScheme.success,
                     )
