@@ -309,7 +309,7 @@ You can rebrand the SDK along three independent axes, all wired through your
 | What you change      | How                                                  | Types / resources                                          |
 |----------------------|------------------------------------------------------|------------------------------------------------------------|
 | Colors & typography  | Override `themeManager`                              | `ThemeManager.Builder`, `ThemeColorsTemplate`, `ThemeTypographyTemplate` |
-| Header logo          | Shadow the SDK drawables in your app module          | `ic_logo_plain`, `ic_logo_text`                            |
+| Header logo          | Shadow the SDK drawable in your app module           | `ic_logo_icon_and_text`                                    |
 | Text & labels        | Override `translations`                              | `LocalizableKey` (see [Configuration](#1-configuration))   |
 
 > The public theming types live under `eu.europa.ec.eudi.rqesui.infrastructure.theme`
@@ -366,6 +366,7 @@ private val brandTypography = ThemeTypographyTemplate(
     headlineSmall = ThemeTextStyle(
         fontFamily = listOf(brandFont),
         fontSize = 24,
+        lineHeight = 32,
         letterSpacing = 0f,
         textAlign = ThemeTextAlign.Start,
     ),
@@ -380,20 +381,18 @@ private val brandTypography = ThemeTypographyTemplate(
 
 ### Header logo
 
-The header/success area shows a logo composed of two drawables: `ic_logo_plain` (the
-mark) and `ic_logo_text` (the wordmark). These are not exposed through config — rebrand
-them by **shadowing the resources**: declare drawables with the same names in your app
-module and they override the SDK's at resource-merge time.
+The header/success area shows a single logo drawable, `ic_logo_icon_and_text`, which
+combines the mark and the wordmark. It is not exposed through config — rebrand it by
+**shadowing the resource**: declare a drawable with the same name in your app module and
+it overrides the SDK's at resource-merge time.
 
 ```
-your-app/src/main/res/drawable/ic_logo_plain.xml
-your-app/src/main/res/drawable/ic_logo_text.xml
+your-app/src/main/res/drawable/ic_logo_icon_and_text.xml
 ```
 
-`ic_logo_text` is tinted with the theme's `onSurface` color, so it adapts to light/dark
-automatically; `ic_logo_plain` carries its own colors. Optionally override the
-`content_description_logo_plain_icon` / `content_description_logo_text_icon` strings for
-accessibility.
+Within the drawable, the wordmark paths use `?colorOnSurface`, so the text adapts to
+light/dark automatically, while the mark carries its own brand colors. Optionally
+override the `content_description_logo_icon_and_text` string for accessibility.
 
 ### Text and labels
 
