@@ -24,11 +24,12 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v6
 
-      - name: Gradle Setup
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          gradle-version: wrapper
-          arguments: build
+
+      - name: Build
+        run: ./gradlew build --full-stacktrace
+
       - id: extract
         name: Extract code version from gradle.properties
         run: echo "CODE_VERSION=$(awk -F= '$1~/VERSION_NAME/{print $2}' gradle.properties)" >> $GITHUB_OUTPUT
@@ -51,10 +52,11 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v6
 
-      - name: Gradle Setup
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          arguments: test --full-stacktrace
+
+      - name: Run unit tests
+        run: ./gradlew test --full-stacktrace
 
   publish-to-snapshot:
     name: Publish SNAPSHOT to sonatype.org
@@ -79,10 +81,11 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/actions/wrapper-validation@v6
 
-      - name: Publish with Gradle Wrapper
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          arguments: publishAllPublicationsToMavenCentral --full-stacktrace
+
+      - name: Publish with Gradle Wrapper
+        run: ./gradlew publishAllPublicationsToMavenCentral --full-stacktrace
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_REF_NAME: ${{ github.ref_name }}
