@@ -1,7 +1,7 @@
 [versions]
 # Build & Gradle plugins
 agp = "9.2.1"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 kover = "0.9.8"
 mavenPublish = "0.36.0"
 owaspDependencyCheck = "12.2.2"
@@ -11,7 +11,7 @@ activityCompose = "1.13.0"
 androidxNavigation = "2.9.8"
 androidxSecurity = "1.1.0"
 appcompat = "1.7.1"
-coreKtx = "1.18.0"
+coreKtx = "1.19.0"
 lifecycleRuntimeKtx = "2.10.0"
 
 # Compose
@@ -26,7 +26,7 @@ kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
 
 # Dependency injection
-koin = "4.2.1"
+koin = "4.2.2"
 
 # Logging
 timber = "5.0.1"
