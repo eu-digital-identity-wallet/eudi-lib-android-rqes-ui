@@ -1,10 +1,10 @@
 [versions]
 # Build & Gradle plugins
-agp = "9.3.0"
+agp = "9.3.1"
 kotlin = "2.4.10"
 kover = "0.9.9"
 mavenPublish = "0.37.0"
-owaspDependencyCheck = "12.2.2"
+owaspDependencyCheck = "13.0.0"
 
 # AndroidX
 activityCompose = "1.13.0"
