@@ -1,21 +1,21 @@
 [versions]
 # Build & Gradle plugins
-agp = "9.3.1"
-kotlin = "2.4.10"
+agp = "9.4.0"
+kotlin = "2.4.20"
 kover = "0.9.9"
 mavenPublish = "0.37.0"
 owaspDependencyCheck = "13.0.0"
 
 # AndroidX
 activityCompose = "1.13.0"
-androidxNavigation = "2.9.8"
+androidxNavigation = "2.10.0"
 androidxSecurity = "1.1.0"
-appcompat = "1.7.1"
+appcompat = "1.8.0"
 coreKtx = "1.19.0"
 lifecycleRuntimeKtx = "2.11.0"
 
 # Compose
-composeBom = "2026.06.01"
+composeBom = "2026.08.00"
 material3 = "1.4.0"
 
 # Material
