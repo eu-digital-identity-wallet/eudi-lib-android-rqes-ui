@@ -1606,6 +1606,8 @@ class TestRqesController {
             whenever(this.clientSecret).thenReturn(mockedClientSecret)
             whenever(this.authFlowRedirectionURI).thenReturn(URI.create(mockedUri))
             whenever(this.hashAlgorithm).thenReturn(HashAlgorithmOID.SHA_256)
+            whenever(this.signingAlgorithm)
+                .thenReturn(RQESService.SigningAlgorithm.FirstSupportedByCredential)
         }
     }
 

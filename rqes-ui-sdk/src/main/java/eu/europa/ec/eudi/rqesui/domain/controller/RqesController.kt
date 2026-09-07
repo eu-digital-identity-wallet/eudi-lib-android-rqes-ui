@@ -539,7 +539,8 @@ internal class RqesControllerImpl(
                     tsaurl = qtspData.tsaUrl,
                 ),
                 outputPathDir = resourceProvider.getSignedDocumentsCache().absolutePath,
-                hashAlgorithm = qtspData.hashAlgorithm
+                hashAlgorithm = qtspData.hashAlgorithm,
+                signingAlgorithm = qtspData.signingAlgorithm
             )
             eudiRQESUi.setRqesService(service)
             EudiRqesCreateServicePartialState.Success(service = service)

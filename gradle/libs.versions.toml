@@ -35,7 +35,7 @@ timber = "5.0.1"
 pdfViewer = "2.0.1"
 
 # EUDI
-eudiRqesCore = "0.5.0"
+eudiRqesCore = "0.6.0"
 
 # Testing
 junit = "4.13.2"

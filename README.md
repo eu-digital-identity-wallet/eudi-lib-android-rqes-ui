@@ -17,6 +17,8 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
 * [Installation](#installation)
 * [How to use](#how-to-use)
   * [1. Configuration](#1-configuration)
+    * [QtspData fields](#qtspdata-fields)
+    * [Signing algorithm](#signing-algorithm)
   * [2. Setup](#2-setup)
   * [3. Deep link registration](#3-deep-link-registration)
   * [4. Host Activity setup](#4-host-activity-setup)
@@ -135,7 +137,11 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
                 // Deep link the QTSP redirects to after authorization.
                 // Must match the host-app intent filter (see section 3).
                 authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
+                // Algorithm used to hash the document before signing.
                 hashAlgorithm = HashAlgorithmOID.SHA_256,
+                // Optional — algorithm used to sign the document hash.
+                // Defaults to FirstSupportedByCredential (see below).
+                signingAlgorithm = RQESService.SigningAlgorithm.FirstSupportedByCredential,
             )
         )
 
@@ -158,6 +164,46 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
 ```
 
 You can supply multiple `QtspData` entries; the user selects one in the options screen.
+
+#### QtspData fields
+
+| Property                 | Required | Default                     | Purpose                                                                          |
+|--------------------------|----------|-----------------------------|----------------------------------------------------------------------------------|
+| `name`                   | Yes      | —                           | Human-readable name shown in the QTSP picker.                                    |
+| `endpoint`               | Yes      | —                           | QTSP CSC v2 endpoint.                                                            |
+| `tsaUrl`                 | Yes      | — (nullable)                | Timestamp Authority URL, or `null` to skip timestamping.                         |
+| `clientId`               | Yes      | —                           | OAuth2 client id issued by the QTSP.                                             |
+| `clientSecret`           | Yes      | —                           | OAuth2 client secret issued by the QTSP.                                         |
+| `authFlowRedirectionURI` | Yes      | —                           | Deep link the QTSP redirects to after authorization (see [section 3](#3-deep-link-registration)). |
+| `hashAlgorithm`          | Yes      | —                           | Algorithm used to hash the document before signing.                              |
+| `signingAlgorithm`       | No       | `FirstSupportedByCredential` | Algorithm used to sign the document hash (see below).                           |
+
+#### Signing algorithm
+
+`signingAlgorithm` controls which algorithm the QTSP uses to sign the document hash. It
+takes an `RQESService.SigningAlgorithm`, which has two variants:
+
+```kotlin
+// Default — use the first algorithm advertised by the credential the user selects.
+// Always supported by that credential, but you don't control which one is picked.
+signingAlgorithm = RQESService.SigningAlgorithm.FirstSupportedByCredential
+
+// Pin a specific algorithm.
+signingAlgorithm = RQESService.SigningAlgorithm.Specific(SigningAlgorithmOID.ECDSA_SHA256)
+```
+
+The algorithm is resolved when the user selects a credential. A `Specific` algorithm
+**must** be one that credential supports — otherwise signing fails and the SDK shows its
+error screen (see [Error handling](#error-handling)). Prefer `FirstSupportedByCredential`
+unless you have a concrete reason to pin one, such as a policy that mandates a particular
+algorithm.
+
+`SigningAlgorithmOID` provides constants for the common OIDs (`RSA_SHA256`, `RSA_SHA384`,
+`RSA_SHA512`, `ECDSA_SHA256`, `ECDSA_SHA384`, `ECDSA_SHA512`, and others); you can also
+construct one from a raw OID string.
+
+Because the setting lives on `QtspData`, it is configured per QTSP — different providers
+in your `qtsps` list can use different algorithms.
 
 `documentRetrievalConfig` is required even if you only use the local-file flow, although
 it only takes effect when resolving *remote* documents. Besides

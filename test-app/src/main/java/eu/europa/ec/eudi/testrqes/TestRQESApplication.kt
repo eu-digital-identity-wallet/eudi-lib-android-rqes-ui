@@ -19,6 +19,7 @@ package eu.europa.ec.eudi.testrqes
 import android.app.Application
 import android.content.Context
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
+import eu.europa.ec.eudi.rqes.core.RQESService
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
@@ -50,6 +51,7 @@ private class DefaultConfig(val context: Context) : EudiRQESUiConfig {
                 clientSecret = "somesecrettester2",
                 authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
                 hashAlgorithm = HashAlgorithmOID.SHA_256,
+                signingAlgorithm = RQESService.SigningAlgorithm.FirstSupportedByCredential,
                 tsaUrl = "https://timestamp.sectigo.com/qualified"
             )
         )
