@@ -48,7 +48,7 @@ internal class LogControllerImpl(
     }
 
     override fun d(tag: String, message: () -> String) {
-        Timber.d(message())
+        if (config.printLogs) Timber.tag(tag).d(message())
     }
 
     override fun d(message: () -> String) {
@@ -56,11 +56,11 @@ internal class LogControllerImpl(
     }
 
     override fun e(tag: String, message: () -> String) {
-        Timber.e(message())
+        if (config.printLogs) Timber.tag(tag).e(message())
     }
 
     override fun e(tag: String, exception: Throwable) {
-        Timber.e(exception)
+        if (config.printLogs) Timber.tag(tag).e(exception)
     }
 
     override fun e(message: () -> String) {
@@ -72,7 +72,7 @@ internal class LogControllerImpl(
     }
 
     override fun w(tag: String, message: () -> String) {
-        Timber.w(message())
+        if (config.printLogs) Timber.tag(tag).w(message())
     }
 
     override fun w(message: () -> String) {
@@ -80,7 +80,7 @@ internal class LogControllerImpl(
     }
 
     override fun i(tag: String, message: () -> String) {
-        Timber.i(message())
+        if (config.printLogs) Timber.tag(tag).i(message())
     }
 
     override fun i(message: () -> String) {

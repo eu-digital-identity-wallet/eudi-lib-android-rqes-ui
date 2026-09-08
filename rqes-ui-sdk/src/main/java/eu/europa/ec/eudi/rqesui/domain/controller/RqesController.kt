@@ -43,6 +43,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.toCertificatesData
 import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -87,6 +88,7 @@ internal interface RqesController {
 internal class RqesControllerImpl(
     private val eudiRQESUi: EudiRQESUi,
     private val resourceProvider: ResourceProvider,
+    private val logController: LogController,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : RqesController {
 
@@ -114,10 +116,12 @@ internal class RqesControllerImpl(
                 )
             )
         }.getOrElse {
+            logError(it)
             EudiRqesGetSelectedFilePartialState.Failure(
                 error = EudiRQESUiError(
                     title = genericErrorTitle,
-                    message = it.localizedMessage ?: genericErrorMsg
+                    message = it.localizedMessage ?: genericErrorMsg,
+                    cause = it
                 )
             )
         }
@@ -206,10 +210,12 @@ internal class RqesControllerImpl(
                 )
 
             }.getOrElse {
+                logError(it)
                 EudiRqesGetSelectedFilePartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = it.localizedMessage ?: genericErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -220,10 +226,12 @@ internal class RqesControllerImpl(
         return runCatching {
             EudiRqesGetQtspsPartialState.Success(qtsps = eudiRQESUi.getEudiRQESUiConfig().qtsps)
         }.getOrElse {
+            logError(it)
             EudiRqesGetQtspsPartialState.Failure(
                 error = EudiRQESUiError(
                     title = genericErrorTitle,
-                    message = it.localizedMessage ?: genericErrorMsg
+                    message = it.localizedMessage ?: genericErrorMsg,
+                    cause = it
                 )
             )
         }
@@ -248,10 +256,12 @@ internal class RqesControllerImpl(
                 }
             }
         }.getOrElse {
+            logError(it)
             EudiRqesSetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
                     title = genericErrorTitle,
-                    message = it.localizedMessage ?: genericErrorMsg
+                    message = it.localizedMessage ?: genericErrorMsg,
+                    cause = it
                 )
             )
         }
@@ -269,10 +279,12 @@ internal class RqesControllerImpl(
                 )
             )
         }.getOrElse {
+            logError(it)
             EudiRqesGetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
                     title = genericErrorTitle,
-                    message = it.localizedMessage ?: genericErrorMsg
+                    message = it.localizedMessage ?: genericErrorMsg,
+                    cause = it
                 )
             )
         }
@@ -286,10 +298,12 @@ internal class RqesControllerImpl(
                     .value.toString().toUriOrEmpty()
                 EudiRqesGetServiceAuthorizationUrlPartialState.Success(authorizationUrl = authorizationUrl)
             }.getOrElse {
+                logError(it)
                 EudiRqesGetServiceAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = genericServiceErrorMsg
+                        message = genericServiceErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -315,10 +329,12 @@ internal class RqesControllerImpl(
                     )
                 )
             }.getOrElse {
+                logError(it)
                 EudiRqesAuthorizeServicePartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = genericServiceErrorMsg
+                        message = genericServiceErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -357,10 +373,12 @@ internal class RqesControllerImpl(
                     )
                 }
             }.getOrElse {
+                logError(it)
                 EudiRqesGetCertificatesPartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = genericServiceErrorMsg
+                        message = genericServiceErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -406,10 +424,12 @@ internal class RqesControllerImpl(
                     )
                 )
             }.getOrElse {
+                logError(it)
                 EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = genericServiceErrorMsg
+                        message = genericServiceErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -436,10 +456,12 @@ internal class RqesControllerImpl(
                     )
                 )
             }.getOrElse {
+                logError(it)
                 EudiRqesAuthorizeCredentialPartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = genericServiceErrorMsg
+                        message = genericServiceErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -452,10 +474,12 @@ internal class RqesControllerImpl(
                 val signedDocuments = authorizedCredential.signDocuments().getOrThrow()
                 EudiRqesSignDocumentsPartialState.Success(signedDocuments = signedDocuments)
             }.getOrElse {
+                logError(it)
                 EudiRqesSignDocumentsPartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = genericServiceErrorMsg
+                        message = genericServiceErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -516,10 +540,12 @@ internal class RqesControllerImpl(
                     )
                 }
             }.getOrElse {
+                logError(it)
                 EudiRqesSaveSignedDocumentsPartialState.Failure(
                     error = EudiRQESUiError(
                         title = genericErrorTitle,
-                        message = it.localizedMessage ?: genericErrorMsg
+                        message = it.localizedMessage ?: genericErrorMsg,
+                        cause = it
                     )
                 )
             }
@@ -545,12 +571,26 @@ internal class RqesControllerImpl(
             eudiRQESUi.setRqesService(service)
             EudiRqesCreateServicePartialState.Success(service = service)
         }.getOrElse {
+            logError(it)
             EudiRqesCreateServicePartialState.Failure(
                 error = EudiRQESUiError(
                     title = genericErrorTitle,
-                    message = it.localizedMessage ?: genericErrorMsg
+                    message = it.localizedMessage ?: genericErrorMsg,
+                    cause = it
                 )
             )
+        }
+    }
+
+    /**
+     * Reports a throwable caught by one of the [runCatching] blocks below.
+     *
+     * [runCatching] also catches [CancellationException], which is raised on ordinary coroutine
+     * cancellation (the user navigating away mid-request) and is not a fault worth reporting.
+     */
+    private fun logError(throwable: Throwable) {
+        if (throwable !is CancellationException) {
+            logController.e(throwable)
         }
     }
 }

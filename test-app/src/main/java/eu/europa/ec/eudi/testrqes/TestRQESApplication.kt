@@ -65,6 +65,9 @@ private class DefaultConfig(val context: Context) : EudiRQESUiConfig {
             )
         }
 
+    override val printLogs: Boolean
+        get() = true
+
     override val documentRetrievalConfig: DocumentRetrievalConfig
         get() = DocumentRetrievalConfig.X509Certificates(
             context = context,

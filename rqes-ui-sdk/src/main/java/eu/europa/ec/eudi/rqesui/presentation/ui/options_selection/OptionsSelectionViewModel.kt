@@ -250,7 +250,7 @@ internal class OptionsSelectionViewModel(
             }
 
             is Event.AuthorizeServiceAndFetchCertificates -> {
-                authorizeServiceAndFetchCertificates(event)
+                authorizeServiceAndFetchCertificates()
             }
 
             is Event.BottomSheet.CancelQtspSelection -> {
@@ -558,7 +558,7 @@ internal class OptionsSelectionViewModel(
         }
     }
 
-    private fun authorizeServiceAndFetchCertificates(event: Event) {
+    private fun authorizeServiceAndFetchCertificates() {
         setState { copy(isLoading = true) }
 
         viewModelScope.launch {
@@ -570,10 +570,6 @@ internal class OptionsSelectionViewModel(
                             certificateDataList = emptyList(),
                             error = ContentErrorConfig(
                                 errorTitle = response.error.title,
-                                onRetry = {
-                                    setEvent(Event.DismissError)
-                                    setEvent(event)
-                                },
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)
