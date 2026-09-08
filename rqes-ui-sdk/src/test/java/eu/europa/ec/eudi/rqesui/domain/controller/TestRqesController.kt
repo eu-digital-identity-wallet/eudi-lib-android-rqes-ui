@@ -61,6 +61,7 @@ import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
+import kotlinx.coroutines.CancellationException
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -72,6 +73,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -98,6 +100,9 @@ class TestRqesController {
 
     @Mock
     private lateinit var resourceProvider: ResourceProvider
+
+    @Mock
+    private lateinit var logController: LogController
 
     @Mock
     private lateinit var documentData: DocumentData
@@ -143,6 +148,7 @@ class TestRqesController {
             RqesControllerImpl(
                 eudiRQESUi = eudiRQESUi,
                 resourceProvider = resourceProvider,
+                logController = logController,
                 dispatcher = coroutineRule.testDispatcher,
             )
         whenever(resourceProvider.genericErrorMessage())
@@ -687,6 +693,65 @@ class TestRqesController {
                 mockedGenericServiceErrorMessage,
                 (result as EudiRqesAuthorizeServicePartialState.Failure).error.message,
             )
+        }
+
+    // Case 4
+    // 1. Mock `eudiRQESUi.getRqesService()`.
+    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
+    // 3. Mock `rqesService.authorizeService()` to throw an exception.
+    // 4. Mock the current selection.
+    // Expected Result:
+    // 1. The thrown exception is reported to the LogController.
+    // 2. The thrown exception is preserved as the `cause` of the returned error, even though the
+    //    user-facing message stays the generic service message.
+    @Test
+    fun `Given Case 4, When authorizeService throws, Then the throwable is logged and kept as cause`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+            ).thenThrow(mockedExceptionWithMessage)
+            mockSessionData()
+
+            // Act
+            val result = rqesController.authorizeService()
+
+            // Assert
+            verify(logController).e(mockedExceptionWithMessage)
+            assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
+            assertEquals(
+                mockedExceptionWithMessage,
+                (result as EudiRqesAuthorizeServicePartialState.Failure).error.cause,
+            )
+        }
+
+    // Case 5
+    // 1. Mock `eudiRQESUi.getRqesService()`.
+    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
+    // 3. Mock `rqesService.authorizeService()` to throw a CancellationException.
+    // 4. Mock the current selection.
+    // Expected Result:
+    // 1. Ordinary coroutine cancellation is NOT reported to the LogController, so that routine
+    //    navigation away from the screen does not masquerade as an SDK error.
+    @Test
+    fun `Given Case 5, When authorizeService is cancelled, Then the cancellation is not logged`() =
+        coroutineRule.runTest {
+            // Arrange
+            val cancellation = CancellationException("cancelled")
+            whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+            ).thenThrow(cancellation)
+            mockSessionData()
+
+            // Act
+            rqesController.authorizeService()
+
+            // Assert
+            verify(logController, never()).e(cancellation)
         }
     //endregion
 

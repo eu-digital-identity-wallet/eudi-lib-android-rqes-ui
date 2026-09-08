@@ -43,16 +43,17 @@ internal val controllerModule = module {
         )
     }
 
-    single<RqesController> {
-        RqesControllerImpl(
-            EudiRQESUi,
-            get<ResourceProvider>()
+    single<LogController> {
+        LogControllerImpl(
+            EudiRQESUi.getEudiRQESUiConfig()
         )
     }
 
-    factory<LogController> {
-        LogControllerImpl(
-            EudiRQESUi.getEudiRQESUiConfig()
+    single<RqesController> {
+        RqesControllerImpl(
+            EudiRQESUi,
+            get<ResourceProvider>(),
+            get<LogController>()
         )
     }
 }

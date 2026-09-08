@@ -134,7 +134,6 @@ internal class SuccessViewModel(
 
             is Event.SignAndSaveDocument -> {
                 signAndSaveDocument(
-                    event = event,
                     originalDocumentName = event.originalDocumentName,
                     qtspName = event.qtspName
                 )
@@ -236,7 +235,7 @@ internal class SuccessViewModel(
         }
     }
 
-    private fun signAndSaveDocument(event: Event, originalDocumentName: String, qtspName: String) {
+    private fun signAndSaveDocument(originalDocumentName: String, qtspName: String) {
         setState { copy(isLoading = true) }
         viewModelScope.launch {
             when (val response = successInteractor.signAndSaveDocument(originalDocumentName)) {
@@ -245,10 +244,6 @@ internal class SuccessViewModel(
                         copy(
                             error = ContentErrorConfig(
                                 errorTitle = response.error.title,
-                                onRetry = {
-                                    setEvent(Event.DismissError)
-                                    setEvent(event)
-                                },
                                 errorSubTitle = response.error.message,
                                 onCancel = {
                                     setEvent(Event.DismissError)

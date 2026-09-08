@@ -24,6 +24,7 @@ import android.graphics.Color
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
+import androidx.core.graphics.createBitmap
 import eu.europa.ec.eudi.rqesui.presentation.ui.container.EudiRQESContainer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -90,11 +91,7 @@ internal suspend fun Context.loadPdf(
                 for (pageNumber in 0 until renderer.pageCount) {
                     loadingListener(true)
 
-                    val bitmap = Bitmap.createBitmap(
-                        PDF_BITMAP_WIDTH,
-                        PDF_BITMAP_HEIGHT,
-                        Bitmap.Config.ARGB_8888
-                    )
+                    val bitmap = createBitmap(PDF_BITMAP_WIDTH, PDF_BITMAP_HEIGHT)
 
                     val pageCanvas = Canvas(bitmap)
                     pageCanvas.drawColor(Color.WHITE)
