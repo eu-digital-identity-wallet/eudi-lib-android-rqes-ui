@@ -18,7 +18,6 @@ import com.android.build.api.dsl.LibraryExtension
 import com.vanniktech.maven.publish.AndroidMultiVariantLibrary
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.SourcesJar
-import org.gradle.plugins.signing.Sign
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 
@@ -74,7 +73,11 @@ extensions.configure<LibraryExtension>("android") {
 
     testOptions {
         unitTests.all {
-            it.jvmArgs("-Duser.language=en", "-Duser.country=US")
+            it.jvmArgs(
+                "-Duser.language=en",
+                "-Duser.country=US",
+                "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED"
+            )
         }
     }
 }
