@@ -19,6 +19,7 @@ the [EUDI Wallet Reference Implementation project description](https://github.co
   * [1. Configuration](#1-configuration)
     * [QtspData fields](#qtspdata-fields)
     * [Signing algorithm](#signing-algorithm)
+    * [Optional signing logs](#optional-signing-logs)
   * [2. Setup](#2-setup)
   * [3. Deep link registration](#3-deep-link-registration)
   * [4. Host Activity setup](#4-host-activity-setup)
@@ -41,9 +42,9 @@ Provider (QTSP).
 
 The SDK supports two flows:
 
-- **Local file flow** — the host app already has a local document (PDF) selected and
+- **Local file flow** — your app already has a local document (PDF) selected and
   asks the SDK to sign it.
-- **Remote URL flow** — the host app receives a remote URL (typically via a deep link
+- **Remote URL flow** — your app receives a remote URL (typically via a deep link
   or QR code) which the SDK resolves to a document and then signs.
 
 It ships ready-made Jetpack Compose screens for QTSP selection, certificate selection,
@@ -63,28 +64,28 @@ it at runtime through the `EudiRQESUi` object.
 
 ```mermaid
 sequenceDiagram
-    participant Host as Host app
+    participant App as Your app
     participant SDK as EudiRQESUi
     participant Browser as System browser
     participant QTSP
 
-    Host->>SDK: setup(application, config)
-    Host->>SDK: initiate(documentUri | remoteUri)
-    SDK-->>Host: launches signing UI
+    App->>SDK: setup(application, config)
+    App->>SDK: initiate(documentUri | remoteUri)
+    SDK-->>App: launches signing UI
     SDK->>Browser: opens OAuth authorization URL
     Browser->>QTSP: user authenticates
-    QTSP-->>Host: deep link with authorization code (via browser redirect)
-    Host->>SDK: resume(authorizationCode)
+    QTSP-->>App: deep link with authorization code (via browser redirect)
+    App->>SDK: resume(authorizationCode)
     SDK->>QTSP: sign document
     QTSP-->>SDK: signed document
-    SDK-->>Host: Success screen
+    SDK-->>App: Success screen
 ```
 
 ## Requirements
 
 - Android 10 (API level 29) or higher
 - Java 17 (the SDK is compiled with `JvmTarget.JVM_17`)
-- A Kotlin host app is recommended — the public API uses Kotlin `value class` types
+- A Kotlin app is recommended — the public API uses Kotlin `value class` types
   (`DocumentUri`, `RemoteUri`). The SDK ships its own Jetpack Compose UI, so your app
   does **not** need to use Compose itself.
 
@@ -116,6 +117,7 @@ Implement `EudiRQESUiConfig` to supply runtime configuration to the SDK.
 | `translations`            | No       | English defaults built into the SDK | Override or extend localized strings.                                  |
 | `themeManager`            | No       | Built-in light/dark theme          | Customize colors and typography (see [Theming](#theming-and-rebranding)). |
 | `printLogs`               | No       | `false`                            | Enable Timber debug logging.                                           |
+| `signingLogger`           | No       | `null`                             | Receive signing results (see [Optional signing logs](#optional-signing-logs)). |
 
 Example (mirrors the [`:test-app`](test-app/) reference implementation):
 
@@ -135,7 +137,7 @@ class RQESConfigImpl(val context: Context) : EudiRQESUiConfig {
                 clientId = "wallet-client-tester",
                 clientSecret = "somesecrettester2",
                 // Deep link the QTSP redirects to after authorization.
-                // Must match the host-app intent filter (see section 3).
+                // Must match your app's intent filter (see section 3).
                 authFlowRedirectionURI = URI.create("rqes://oauth/callback"),
                 // Algorithm used to hash the document before signing.
                 hashAlgorithm = HashAlgorithmOID.SHA_256,
@@ -212,6 +214,39 @@ raw resources), you can pass `DocumentRetrievalConfig.X509CertificateImpl` with 
 `X509CertificateTrust`, or `DocumentRetrievalConfig.NoValidation` to skip certificate
 validation (useful for local-only integrations or testing).
 
+#### Optional signing logs
+
+Override `signingLogger` in your `EudiRQESUiConfig` to receive signing results for
+both local-file and remote-URL flows. The default is `null` (disabled), independently
+of `printLogs`.
+
+Add the following property to your configuration:
+
+```kotlin
+import eu.europa.ec.eudi.rqes.core.RqesSigningLogger
+
+override val signingLogger: RqesSigningLogger = RqesSigningLogger { record ->
+    signingHistory.enqueue(record)
+}
+```
+
+Here `signingHistory` represents your application's recorder. The SDK forwards
+callbacks directly, without switching threads. Keep callback work brief, and manage
+background storage and errors in your application. The SDK does not store signing history.
+
+The callback receives a `RqesSigningRecord` with the following fields:
+
+- `outcome`: `Completed` or `Failed`, with an optional failure reason.
+- `certificateSerialNumber`: the signing certificate serial number, when available.
+- `documents`: document labels, optional DTBS/R digests and optional byte sizes.
+- `serviceName`: the record's nonblank name and language tag, when available. Otherwise,
+  the SDK uses the selected QTSP's nonblank name with `languageTag = "und"`
+  (undetermined), since `QtspData.name` has no declared language. If neither name
+  is usable, this field is `null`.
+
+The SDK forwards the records it receives. It does not create additional records for
+authorization, navigation, saving, sharing or document dispatch.
+
 ### 2. Setup
 
 Call `setup()` once, typically from your `Application.onCreate()`. This wires the
@@ -224,7 +259,7 @@ class MyApplication : Application() {
         EudiRQESUi.setup(
             application = this,
             config = RQESConfigImpl(this),
-            // Optional: if your host app already uses Koin, pass it here so the
+            // Optional: if your app already uses Koin, pass it here so the
             // SDK adds its modules to your application instead of starting its own.
             koinApplication = null,
         )
@@ -262,7 +297,7 @@ Alternatively, you can use [Android App Links](https://developer.android.com/stu
 
 #### Document retrieval (same-device flow)
 
-Only needed if you support the remote-URL flow. The host app receives the remote
+Only needed if you support the remote-URL flow. Your app receives the remote
 URL via this deep link and passes it to `EudiRQESUi.initiate(remoteUri = ...)`.
 
 ```xml
@@ -345,7 +380,7 @@ flow until either the success screen completes or the user cancels.
 
 ## Theming and rebranding
 
-The SDK renders its screens with **its own Material 3 Compose theme** — your host
+The SDK renders its screens with **its own Material 3 Compose theme** — your
 app's theme is not applied to them. It automatically follows the system light/dark
 setting and shows the matching color set (Material You dynamic color is not used).
 
@@ -461,12 +496,12 @@ that can throw it are annotated with `@Throws(EudiRQESUiError::class)`:
 
 Failures that happen *inside* the SDK's UI (network errors during OAuth,
 certificate listing, signing, etc.) are surfaced on the in-SDK error screen and
-do not propagate out to the host app.
+do not propagate out to your app.
 
 ## Sample app
 
-The [`:test-app`](test-app/) module is a complete, runnable host application that
-demonstrates every integration point: a configured `EudiRQESUiConfig`, deep-link
+The [`:test-app`](test-app/) module is a complete, runnable application that
+demonstrates the main integration points: a configured `EudiRQESUiConfig`, deep-link
 registration, Activity wiring, and both local-file and remote-URL flows. It is
 the canonical reference if anything in this README is ambiguous.
 
