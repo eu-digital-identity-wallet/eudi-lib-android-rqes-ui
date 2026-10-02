@@ -2,16 +2,16 @@
 # Build & Gradle plugins
 agp = "9.4.1"
 kotlin = "2.4.20"
-kover = "0.9.9"
+kover = "0.9.11"
 mavenPublish = "0.37.0"
 owaspDependencyCheck = "13.0.0"
 
 # AndroidX
 activityCompose = "1.13.0"
-androidxNavigation = "2.10.1"
+androidxNavigation = "2.10.2"
 androidxSecurity = "1.1.0"
 appcompat = "1.8.0"
-coreKtx = "1.19.0"
+coreKtx = "1.19.1"
 lifecycleRuntimeKtx = "2.11.0"
 
 # Compose
@@ -35,12 +35,12 @@ timber = "5.0.1"
 pdfViewer = "2.0.1"
 
 # EUDI
-eudiRqesCore = "0.6.0"
+eudiRqesCore = "0.7.0"
 
 # Testing
 junit = "4.13.2"
-mockito = "5.23.0"
-mockitoKotlin = "6.3.0"
+mockito = "5.24.0"
+mockitoKotlin = "6.4.0"
 robolectric = "4.17"
 turbine = "1.2.1"
 

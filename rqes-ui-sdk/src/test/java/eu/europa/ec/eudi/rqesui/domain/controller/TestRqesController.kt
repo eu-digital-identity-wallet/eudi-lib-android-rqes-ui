@@ -24,6 +24,7 @@ import eu.europa.ec.eudi.rqes.CredentialInfo
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
 import eu.europa.ec.eudi.rqes.HttpsUrl
 import eu.europa.ec.eudi.rqes.core.RQESService
+import eu.europa.ec.eudi.rqes.core.RqesSigningLogger
 import eu.europa.ec.eudi.rqes.core.SignedDocuments
 import eu.europa.ec.eudi.rqes.core.documentRetrieval.ResolutionOutcome
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
@@ -76,6 +77,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -94,6 +96,9 @@ class TestRqesController {
 
     @Mock
     private lateinit var eudiRQESUiConfig: EudiRQESUiConfig
+
+    @Mock
+    private lateinit var signingLogger: RqesSigningLogger
 
     @Mock
     private lateinit var sessionData: EudiRQESUi.SessionData
@@ -341,6 +346,26 @@ class TestRqesController {
 
         // Assert
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
+    }
+
+    // Case 3:
+    // An application signing logger is configured when the QTSP is selected.
+    // Expected: the service is created without notifying the logger before signing.
+    @Test
+    fun `Given a signing logger, When setSelectedQtsp is called, Then the service is created without a signing event`() {
+        // Arrange
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
+        whenever(eudiRQESUiConfig.signingLogger).thenReturn(signingLogger)
+        whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
+        mockQTSPData(qtspData = qtspData)
+
+        // Act
+        val result = rqesController.setSelectedQtsp(qtspData)
+
+        // Assert
+        assertTrue(result is EudiRqesSetSelectedQtspPartialState.Success)
+        assertNotNull((result as EudiRqesSetSelectedQtspPartialState.Success).service)
+        verifyNoInteractions(signingLogger)
     }
     //endregion
 
@@ -1621,6 +1646,7 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When setSelectedQtsp triggers createRqesService failure, Then SetSelectedQtsp Failure is returned`() {
         // Arrange
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
         whenever(resourceProvider.getSignedDocumentsCache())
@@ -1644,6 +1670,7 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When setSelectedQtsp triggers createRqesService failure with no message, Then generic error is returned`() {
         // Arrange
+        whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
         whenever(resourceProvider.getSignedDocumentsCache())

@@ -16,6 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.infrastructure.config
 
+import eu.europa.ec.eudi.rqes.core.RqesSigningLogger
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.infrastructure.theme.ThemeManager
@@ -69,6 +70,20 @@ interface EudiRQESUiConfig {
     // Logging is enabled
     val printLogs: Boolean
         get() = false
+
+    /**
+     * Optional [RqesSigningLogger] for receiving signing records.
+     * Defaults to `null` (disabled), independently of [printLogs].
+     *
+     * The SDK forwards callbacks directly, without switching threads. Keep callback work
+     * brief, and manage storage and any required thread switching in the application.
+     *
+     * The SDK preserves a nonblank service name from the record. Otherwise, it uses the
+     * selected [QtspData.name] with language tag `und` (undetermined), since that name has
+     * no declared language. If neither name is usable, the service name remains absent.
+     */
+    val signingLogger: RqesSigningLogger?
+        get() = null
 
     // Theme manager
     val themeManager: ThemeManager

@@ -36,6 +36,7 @@ import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.domain.extension.toShareableUri
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
 import eu.europa.ec.eudi.rqesui.domain.helper.FileHelper.uriToFile
+import eu.europa.ec.eudi.rqesui.domain.logging.QtspSigningLogger
 import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.CertificateData
@@ -554,6 +555,13 @@ internal class RqesControllerImpl(
 
     private fun createRqesService(qtspData: QtspData): EudiRqesCreateServicePartialState {
         return runCatching {
+            val signingLogger = eudiRQESUi.getEudiRQESUiConfig().signingLogger
+                ?.let { configuredLogger ->
+                    QtspSigningLogger(
+                        delegate = configuredLogger,
+                        qtspName = qtspData.name
+                    )
+                }
             val service = RQESService(
                 serviceEndpointUrl = qtspData.endpoint.toString(),
                 config = CSCClientConfig(
@@ -566,7 +574,8 @@ internal class RqesControllerImpl(
                 ),
                 outputPathDir = resourceProvider.getSignedDocumentsCache().absolutePath,
                 hashAlgorithm = qtspData.hashAlgorithm,
-                signingAlgorithm = qtspData.signingAlgorithm
+                signingAlgorithm = qtspData.signingAlgorithm,
+                signingLogger = signingLogger,
             )
             eudiRQESUi.setRqesService(service)
             EudiRqesCreateServicePartialState.Success(service = service)
