@@ -1,7 +1,7 @@
 [versions]
 # Build & Gradle plugins
 agp = "9.4.1"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 kover = "0.9.11"
 mavenPublish = "0.37.0"
 owaspDependencyCheck = "13.0.0"

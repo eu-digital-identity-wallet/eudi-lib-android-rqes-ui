@@ -48,7 +48,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ContentScreen
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigateAction
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OncePerViewModelEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_SMALL
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
@@ -143,7 +143,7 @@ internal fun SuccessScreen(
         }
     }
 
-    OneTimeLaunchedEffect {
+    OncePerViewModelEffect(viewModel) {
         viewModel.setEvent(Event.Initialize)
     }
 }

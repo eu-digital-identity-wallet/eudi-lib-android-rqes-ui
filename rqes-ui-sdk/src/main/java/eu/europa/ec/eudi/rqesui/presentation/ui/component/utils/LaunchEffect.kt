@@ -17,45 +17,26 @@
 package eu.europa.ec.eudi.rqesui.presentation.ui.component.utils
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
+import eu.europa.ec.eudi.rqesui.presentation.architecture.MviViewModel
 
+/**
+ * Runs [block] once per [viewModel] instance for the given [key].
+ *
+ * The "already ran" marker lives in the ViewModel, not in saved instance state, so after
+ * process death the new ViewModel runs [block] again instead of leaving the screen empty.
+ *
+ * @param viewModel The ViewModel that owns the one-time work.
+ * @param key Identifies the one-time work. Defaults to [MviViewModel.ONE_TIME_INIT_KEY].
+ * @param block The work to run.
+ */
 @Composable
-internal fun OneTimeLaunchedEffect(
+internal fun OncePerViewModelEffect(
+    viewModel: MviViewModel<*, *, *>,
+    key: String = MviViewModel.ONE_TIME_INIT_KEY,
     block: () -> Unit
 ) {
-    var initialEffects by rememberSaveable { mutableStateOf(false) }
-    if (!initialEffects) {
-        LaunchedEffect(Unit) {
-            initialEffects = true
-            block()
-        }
-    }
-}
-
-@Composable
-internal fun LifecycleEffect(
-    lifecycleOwner: LifecycleOwner, lifecycleEvent: Lifecycle.Event, block: () -> Unit
-) {
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == lifecycleEvent) {
-                block()
-            }
-        }
-        // Add the observer to the lifecycle
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        // When the effect leaves the Composition, remove the observer
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
+    LaunchedEffect(viewModel, key) {
+        viewModel.runOncePerInstance(key, block)
     }
 }

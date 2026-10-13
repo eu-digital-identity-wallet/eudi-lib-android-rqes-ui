@@ -16,6 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.architecture
 
+import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -43,6 +44,8 @@ internal abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Eff
 
     private val _viewStateHistory: Channel<UiState> = Channel()
     val viewStateHistory get() = _viewStateHistory.receiveAsFlow()
+
+    private val firedOneTimeKeys = mutableSetOf<String>()
 
     init {
         subscribeToEvents()
@@ -75,5 +78,25 @@ internal abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Eff
     protected fun setEffect(builder: () -> Effect) {
         val effectValue = builder()
         viewModelScope.launch { _effect.send(effectValue) }
+    }
+
+    /**
+     * Runs [block] only the first time it is called with [key] on this ViewModel instance.
+     *
+     * "Once" is bound to the ViewModel instance rather than to saved UI state, so a ViewModel
+     * created again after process death runs [block] again.
+     *
+     * @param key Identifies the one-time work. Defaults to [ONE_TIME_INIT_KEY].
+     * @param block The work to run.
+     */
+    @MainThread
+    fun runOncePerInstance(key: String = ONE_TIME_INIT_KEY, block: () -> Unit) {
+        if (firedOneTimeKeys.add(key)) {
+            block()
+        }
+    }
+
+    companion object {
+        const val ONE_TIME_INIT_KEY = "init"
     }
 }
