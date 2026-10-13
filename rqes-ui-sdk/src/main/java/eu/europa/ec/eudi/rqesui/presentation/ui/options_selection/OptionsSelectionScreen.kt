@@ -54,7 +54,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ScreenNavigate
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.content.ToolbarConfig
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.PreviewTheme
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.preview.ThemeModePreviews
-import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OneTimeLaunchedEffect
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.OncePerViewModelEffect
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.utils.SPACING_LARGE
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetTextData
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.BottomSheetWithOptionsList
@@ -143,7 +143,7 @@ internal fun OptionsSelectionScreen(
         }
     }
 
-    OneTimeLaunchedEffect {
+    OncePerViewModelEffect(viewModel) {
         viewModel.setEvent(
             Event.Initialize(
                 screenSelectionState = state.config.optionsSelectionScreenState
