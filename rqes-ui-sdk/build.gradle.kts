@@ -72,6 +72,7 @@ extensions.configure<LibraryExtension>("android") {
     }
 
     testOptions {
+        unitTests.isIncludeAndroidResources = true
         unitTests.all {
             it.jvmArgs(
                 "-Duser.language=en",
