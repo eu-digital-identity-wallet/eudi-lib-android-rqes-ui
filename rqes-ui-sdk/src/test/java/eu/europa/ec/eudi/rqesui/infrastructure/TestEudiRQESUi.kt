@@ -30,6 +30,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.DocumentData
 import eu.europa.ec.eudi.rqesui.infrastructure.config.data.QtspData
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationCode
+import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationState
 import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import eu.europa.ec.eudi.rqesui.util.mockedLocalFileUri
 import junit.framework.TestCase.assertEquals
@@ -332,7 +333,7 @@ class TestEudiRQESUi {
     @Test
     fun `Given Case 1, When resume is called before initiate, Then EudiRQESUiError is thrown`() {
         val error = assertThrows(EudiRQESUiError::class.java) {
-            EudiRQESUi.resume(activity, mockedAuthorizationCode)
+            EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
         }
         assertEquals("EudiRQESUi Error", error.title)
     }
@@ -352,12 +353,13 @@ class TestEudiRQESUi {
                 remoteUrl = null,
                 qtsp = null,
                 authorizationCode = null,
+                authorizationState = null,
             )
         )
 
         // Act + Assert
         val error = assertThrows(EudiRQESUiError::class.java) {
-            EudiRQESUi.resume(nonActivityContext, mockedAuthorizationCode)
+            EudiRQESUi.resume(nonActivityContext, mockedAuthorizationCode, mockedAuthorizationState)
         }
         assertEquals("Context Error", error.title)
     }
@@ -366,7 +368,7 @@ class TestEudiRQESUi {
     // 1. sessionData is initialized; resume() is called repeatedly.
     // Expected Result:
     // 1. State transitions are None -> Initial -> Certificate -> Success -> Success.
-    // 2. sessionData.authorizationCode is updated each time.
+    // 2. sessionData.authorizationCode and authorizationState are updated each time.
     // 3. startActivity is invoked once per resume call.
     @Test
     fun `Given Case 3, When resume is called multiple times, Then state transitions correctly`() {
@@ -379,25 +381,27 @@ class TestEudiRQESUi {
                 remoteUrl = null,
                 qtsp = null,
                 authorizationCode = null,
+                authorizationState = null,
             )
         )
         assertTrue(currentState() is EudiRQESUi.State.None)
 
         // Act + Assert: None -> Initial
-        EudiRQESUi.resume(activity, mockedAuthorizationCode)
+        EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
         assertTrue(currentState() is EudiRQESUi.State.Initial)
         assertEquals(mockedAuthorizationCode, EudiRQESUi.getSessionData().authorizationCode)
+        assertEquals(mockedAuthorizationState, EudiRQESUi.getSessionData().authorizationState)
 
         // Initial -> Certificate
-        EudiRQESUi.resume(activity, mockedAuthorizationCode)
+        EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
         assertTrue(currentState() is EudiRQESUi.State.Certificate)
 
         // Certificate -> Success
-        EudiRQESUi.resume(activity, mockedAuthorizationCode)
+        EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
         assertTrue(currentState() is EudiRQESUi.State.Success)
 
         // Success -> Success (stable)
-        EudiRQESUi.resume(activity, mockedAuthorizationCode)
+        EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
         assertTrue(currentState() is EudiRQESUi.State.Success)
 
         verify(activity, times(4)).startActivity(any<Intent>())
@@ -416,14 +420,52 @@ class TestEudiRQESUi {
                 remoteUrl = null,
                 qtsp = null,
                 authorizationCode = null,
+                authorizationState = null,
             )
         )
 
         // Act + Assert
         val error = assertThrows(EudiRQESUiError::class.java) {
-            EudiRQESUi.resume(activity, mockedAuthorizationCode)
+            EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
         }
         assertEquals("EudiRQESUi Error", error.title)
+    }
+
+    // Case 5
+    // 1. sessionData is initialized; resume() is called for the service redirect, then for the
+    //    credential redirect, and then with a redirect that carried no `state`.
+    // Expected Result:
+    // 1. Each call replaces both the authorization code and the state of the previous one.
+    // 2. A missing state clears the earlier state instead of keeping it.
+    @Test
+    fun `Given Case 5, When resume is called again, Then the code and state of the latest redirect replace the earlier ones`() {
+        // Arrange
+        val docData =
+            DocumentData(documentName = mockedDocumentName, uri = Uri.parse(mockedLocalFileUri))
+        EudiRQESUi.setSessionData(
+            EudiRQESUi.SessionData(
+                file = docData,
+                remoteUrl = null,
+                qtsp = null,
+                authorizationCode = null,
+                authorizationState = null,
+            )
+        )
+
+        // Act + Assert: service redirect
+        EudiRQESUi.resume(activity, "service-code", "service-state")
+        assertEquals("service-code", EudiRQESUi.getSessionData().authorizationCode)
+        assertEquals("service-state", EudiRQESUi.getSessionData().authorizationState)
+
+        // Credential redirect
+        EudiRQESUi.resume(activity, "credential-code", "credential-state")
+        assertEquals("credential-code", EudiRQESUi.getSessionData().authorizationCode)
+        assertEquals("credential-state", EudiRQESUi.getSessionData().authorizationState)
+
+        // Redirect without a state
+        EudiRQESUi.resume(activity, "third-code", null)
+        assertEquals("third-code", EudiRQESUi.getSessionData().authorizationCode)
+        assertNull(EudiRQESUi.getSessionData().authorizationState)
     }
     //endregion
 
@@ -467,6 +509,7 @@ class TestEudiRQESUi {
             remoteUrl = Uri.parse("https://example.org/remote"),
             qtsp = qtspData,
             authorizationCode = mockedAuthorizationCode,
+            authorizationState = mockedAuthorizationState,
         )
         EudiRQESUi.setSessionData(session)
         assertEquals(session, EudiRQESUi.getSessionData())
@@ -524,11 +567,12 @@ class TestEudiRQESUi {
                 remoteUrl = remote,
                 qtsp = null,
                 authorizationCode = null,
+                authorizationState = null,
             )
         )
 
         // Act
-        EudiRQESUi.resume(activity, mockedAuthorizationCode)
+        EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
 
         // Assert
         val state = currentState()
@@ -554,6 +598,7 @@ class TestEudiRQESUi {
             remoteUrl = null,
             qtsp = qtspData,
             authorizationCode = null,
+            authorizationState = null,
         )
         val updated = original.copy(remoteUrl = Uri.parse("https://example.org/remote"))
         assertEquals(original.file, updated.file)

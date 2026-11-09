@@ -116,18 +116,23 @@ object EudiRQESUi {
      * Resumes the SDK flow and automatically calculates the next state.
      *
      * This function should be called after the user has successfully authenticated
-     * with their identity provider and you have received an authorization code.
-     * The SDK will then use this code to proceed with the request process.
+     * with their identity provider and you have received the `code` and `state` query
+     * parameters of the OAuth redirect. The SDK will then use them to proceed with the
+     * request process. Pass the `state` exactly as received with the code: the
+     * authorization fails, and the SDK shows its error screen, if it is missing or does
+     * not match the state of the authorization request.
      *
      * **Important:**
      * -  This function must be called with an Activity context. Passing a non-Activity context
      *    will result in an [EudiRQESUiError] being thrown.
-     * - Ensure that the SDK has been previously initialized using one of the `start()` methods
+     * - Ensure that the SDK has been previously initialized using one of the `initiate()` methods
      *   before calling this function.
      *
      * @param context The Activity [Context] used to launch the SDK.
-     * @param authorizationCode The authorization code obtained after successful authentication
-     *                           with the user's identity provider.
+     * @param authorizationCode The authorization code (the `code` query parameter) obtained after
+     *                           successful authentication with the user's identity provider.
+     * @param authorizationState The `state` query parameter received with the authorization code,
+     *                           or `null` if the redirect carried none.
      *
      * @throws [EudiRQESUiError] if the SDK has not been initialized or if a non-Activity context
      * is provided.
@@ -135,14 +140,16 @@ object EudiRQESUi {
     @Throws(EudiRQESUiError::class)
     fun resume(
         context: Context,
-        authorizationCode: String
+        authorizationCode: String,
+        authorizationState: String?
     ) {
         val currentSession = sessionData ?: throw EudiRQESUiError(
             title = SDK_NOT_INITIALIZED_TITLE,
             message = SDK_NOT_INITIALIZED_MESSAGE
         )
         val updatedSession = currentSession.copy(
-            authorizationCode = authorizationCode
+            authorizationCode = authorizationCode,
+            authorizationState = authorizationState
         )
         sessionData = updatedSession
         setState(calculateNextState(updatedSession))
@@ -232,6 +239,7 @@ object EudiRQESUi {
             remoteUrl = remoteUri,
             qtsp = null,
             authorizationCode = null,
+            authorizationState = null,
         )
 
         rqesService = null
@@ -350,5 +358,6 @@ object EudiRQESUi {
         val remoteUrl: Uri?,
         val qtsp: QtspData?,
         val authorizationCode: String?,
+        val authorizationState: String?,
     )
 }

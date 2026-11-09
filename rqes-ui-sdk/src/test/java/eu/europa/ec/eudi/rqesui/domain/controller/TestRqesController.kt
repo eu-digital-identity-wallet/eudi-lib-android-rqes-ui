@@ -20,6 +20,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import eu.europa.ec.eudi.documentretrieval.DispatchOutcome
 import eu.europa.ec.eudi.rqes.AuthorizationCode
+import eu.europa.ec.eudi.rqes.AuthorizationError
 import eu.europa.ec.eudi.rqes.CredentialInfo
 import eu.europa.ec.eudi.rqes.HashAlgorithmOID
 import eu.europa.ec.eudi.rqes.HttpsUrl
@@ -39,6 +40,7 @@ import eu.europa.ec.eudi.rqesui.infrastructure.provider.ResourceProvider
 import eu.europa.ec.eudi.rqesui.util.CoroutineTestRule
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationCode
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationHttpsUrl
+import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationState
 import eu.europa.ec.eudi.rqesui.util.mockedAuthorizationUrl
 import eu.europa.ec.eudi.rqesui.util.mockedCertificateName
 import eu.europa.ec.eudi.rqesui.util.mockedCertificatesNotFoundMessage
@@ -490,7 +492,7 @@ class TestRqesController {
     //region authorizeCredential
     // Case 1
     // 1. Mock `eudiRQESUi.getSessionData()`
-    // 2. Mock `sessionData.authorizationCode` to return a mocked authorization code.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return a mocked code and state.
     // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
     // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to return a successful result
     // Expected Result:
@@ -502,6 +504,7 @@ class TestRqesController {
             // Arrange
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             mockAuthorizeCredentialResultSuccess()
 
@@ -539,7 +542,7 @@ class TestRqesController {
 
     // Case 3
     // 1. Mock `eudiRQESUi.getSessionData()` to return a valid `sessionData`.
-    // 2. Mock `sessionData.authorizationCode` to return a mocked authorization code.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return a mocked code and state.
     // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
     // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to throw a `RuntimeException` with message.
     // Expected Result:
@@ -551,9 +554,10 @@ class TestRqesController {
             // Arrange
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             whenever(
-                rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode)),
+                rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenThrow(mockedExceptionWithMessage)
 
             // Act
@@ -565,6 +569,70 @@ class TestRqesController {
                 mockedGenericServiceErrorMessage,
                 (result as EudiRqesAuthorizeCredentialPartialState.Failure).error.message,
             )
+        }
+
+    // Case 4
+    // 1. Mock `eudiRQESUi.getSessionData()` to return a valid `sessionData`.
+    // 2. Mock `sessionData.authorizationCode` to return a mocked code and
+    //    `sessionData.authorizationState` to return null (the redirect carried no `state`).
+    // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesAuthorizeCredentialPartialState.Failure`
+    //    with the generic error message.
+    // 2. The credential authorization is never attempted.
+    @Test
+    fun `Given Case 4, When authorizeCredential is called without a state, Then Failure is returned and the credential is not authorized`() =
+        coroutineRule.runTest {
+            // Arrange
+            mockSessionData()
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(null)
+            whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
+
+            // Act
+            val result = rqesController.authorizeCredential()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as EudiRqesAuthorizeCredentialPartialState.Failure).error.message,
+            )
+            verifyNoInteractions(rqesServiceAuthorized)
+        }
+
+    // Case 5
+    // 1. Mock `eudiRQESUi.getSessionData()` to return a valid `sessionData`.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return a mocked code and state.
+    // 3. Mock `eudiRQESUi.getAuthorizedService()` to return a mock of `rqesServiceAuthorized`.
+    // 4. Mock `rqesServiceAuthorized.authorizeCredential()` to fail with
+    //    `AuthorizationError.InvalidAuthorizationState`, as RQES Core does when the state does not match.
+    // Expected Result:
+    // 1. The function should return an instance of `EudiRqesAuthorizeCredentialPartialState.Failure`
+    //    with the generic service error message and the state error as its cause.
+    // 2. The state error is reported to the LogController.
+    @Test
+    fun `Given Case 5, When RQES Core refuses the state, Then authorizeCredential returns Failure with the state error as cause`() =
+        coroutineRule.runTest {
+            // Arrange
+            val stateError = AuthorizationError.InvalidAuthorizationState()
+            mockSessionData()
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
+            whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
+            whenever(
+                rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
+            ).thenReturn(Result.failure(stateError))
+
+            // Act
+            val result = rqesController.authorizeCredential()
+
+            // Assert
+            verify(logController).e(stateError)
+            assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
+            val error = (result as EudiRqesAuthorizeCredentialPartialState.Failure).error
+            assertEquals(mockedGenericServiceErrorMessage, error.message)
+            assertEquals(stateError, error.cause)
         }
     //endregion
 
@@ -639,7 +707,7 @@ class TestRqesController {
     // Case 1
     // 1. Mock RQES current selection.
     // 2. Mock `eudiRQESUi.getRqesService()` to return `rqesService`.
-    // 3. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
+    // 3. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return `mockedAuthorizationCode` and `mockedAuthorizationState`.
     // 4. Mock `rqesService.authorizeService` to return a successful result with `rqesServiceAuthorized`.
     // Expected Result:
     // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Success`.
@@ -651,8 +719,9 @@ class TestRqesController {
             mockSessionData()
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(
-                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenReturn(Result.success(rqesServiceAuthorized))
 
             // Act
@@ -692,7 +761,7 @@ class TestRqesController {
 
     // Case 3
     // 1. Mock `eudiRQESUi.getRqesService()`.
-    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return `mockedAuthorizationCode` and `mockedAuthorizationState`.
     // 3. Mock `rqesService.authorizeService()` to throw an exception.
     // 4. Mock the current selection.
     // Expected Result:
@@ -704,8 +773,9 @@ class TestRqesController {
             // Arrange
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(
-                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenThrow(mockedExceptionWithMessage)
             mockSessionData()
 
@@ -722,7 +792,7 @@ class TestRqesController {
 
     // Case 4
     // 1. Mock `eudiRQESUi.getRqesService()`.
-    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return `mockedAuthorizationCode` and `mockedAuthorizationState`.
     // 3. Mock `rqesService.authorizeService()` to throw an exception.
     // 4. Mock the current selection.
     // Expected Result:
@@ -735,8 +805,9 @@ class TestRqesController {
             // Arrange
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(
-                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenThrow(mockedExceptionWithMessage)
             mockSessionData()
 
@@ -754,7 +825,7 @@ class TestRqesController {
 
     // Case 5
     // 1. Mock `eudiRQESUi.getRqesService()`.
-    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode`.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return `mockedAuthorizationCode` and `mockedAuthorizationState`.
     // 3. Mock `rqesService.authorizeService()` to throw a CancellationException.
     // 4. Mock the current selection.
     // Expected Result:
@@ -767,8 +838,9 @@ class TestRqesController {
             val cancellation = CancellationException("cancelled")
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(
-                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode)),
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenThrow(cancellation)
             mockSessionData()
 
@@ -777,6 +849,70 @@ class TestRqesController {
 
             // Assert
             verify(logController, never()).e(cancellation)
+        }
+
+    // Case 6
+    // 1. Mock `eudiRQESUi.getRqesService()` to return `rqesService`.
+    // 2. Mock `sessionData.authorizationCode` to return `mockedAuthorizationCode` and
+    //    `sessionData.authorizationState` to return null (the redirect carried no `state`).
+    // 3. Mock the current selection.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Failure` with the
+    //    generic error message.
+    // 2. The service authorization is never attempted.
+    @Test
+    fun `Given Case 6, When authorizeService is called without a state, Then Failure is returned and the service is not authorized`() =
+        coroutineRule.runTest {
+            // Arrange
+            whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(null)
+            mockSessionData()
+
+            // Act
+            val result = rqesController.authorizeService()
+
+            // Assert
+            assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
+            assertEquals(
+                mockedGenericErrorMessage,
+                (result as EudiRqesAuthorizeServicePartialState.Failure).error.message,
+            )
+            verifyNoInteractions(rqesService)
+        }
+
+    // Case 7
+    // 1. Mock `eudiRQESUi.getRqesService()` to return `rqesService`.
+    // 2. Mock `sessionData.authorizationCode` and `sessionData.authorizationState` to return `mockedAuthorizationCode` and `mockedAuthorizationState`.
+    // 3. Mock `rqesService.authorizeService()` to fail with `AuthorizationError.InvalidAuthorizationState`,
+    //    as RQES Core does when the state does not match.
+    // 4. Mock the current selection.
+    // Expected Result:
+    // 1. The result should be of type `EudiRqesAuthorizeServicePartialState.Failure` with the generic
+    //    service error message and the state error as its cause.
+    // 2. The state error is reported to the LogController.
+    @Test
+    fun `Given Case 7, When RQES Core refuses the state, Then authorizeService returns Failure with the state error as cause`() =
+        coroutineRule.runTest {
+            // Arrange
+            val stateError = AuthorizationError.InvalidAuthorizationState()
+            whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
+            whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
+            whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
+            whenever(
+                rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
+            ).thenReturn(Result.failure(stateError))
+            mockSessionData()
+
+            // Act
+            val result = rqesController.authorizeService()
+
+            // Assert
+            verify(logController).e(stateError)
+            assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
+            val error = (result as EudiRqesAuthorizeServicePartialState.Failure).error
+            assertEquals(mockedGenericServiceErrorMessage, error.message)
+            assertEquals(stateError, error.cause)
         }
     //endregion
 
@@ -1704,7 +1840,7 @@ class TestRqesController {
     }
 
     private suspend fun mockAuthorizeCredentialResultSuccess() {
-        whenever(rqesServiceAuthorized.authorizeCredential(AuthorizationCode(code = mockedAuthorizationCode)))
+        whenever(rqesServiceAuthorized.authorizeCredential(AuthorizationCode(code = mockedAuthorizationCode), mockedAuthorizationState))
             .thenReturn(Result.success(credentialAuthorized))
     }
 

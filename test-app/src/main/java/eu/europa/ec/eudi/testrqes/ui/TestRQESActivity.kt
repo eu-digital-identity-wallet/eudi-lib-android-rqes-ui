@@ -86,6 +86,7 @@ class TestRQESActivity : ComponentActivity() {
             EudiRQESUi.resume(
                 context = this,
                 authorizationCode = code,
+                authorizationState = intent.data?.getQueryParameter("state"),
             )
         }
     }
