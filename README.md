@@ -74,8 +74,8 @@ sequenceDiagram
     SDK-->>App: launches signing UI
     SDK->>Browser: opens OAuth authorization URL
     Browser->>QTSP: user authenticates
-    QTSP-->>App: deep link with authorization code (via browser redirect)
-    App->>SDK: resume(authorizationCode)
+    QTSP-->>App: deep link with authorization code and state (via browser redirect)
+    App->>SDK: resume(authorizationCode, authorizationState)
     SDK->>QTSP: sign document
     QTSP-->>SDK: signed document
     SDK-->>App: Success screen
@@ -84,7 +84,9 @@ sequenceDiagram
 ## Requirements
 
 - Android 10 (API level 29) or higher
-- Java 17 (the SDK is compiled with `JvmTarget.JVM_17`)
+- Java 17 bytecode (the SDK is compiled with `JvmTarget.JVM_17`). The RQES Core library
+  it depends on is built for Java 21: JVM unit tests that load its classes need a Java 21
+  runtime, and a host app written in Java must be built with JDK 21.
 - A Kotlin app is recommended — the public API uses Kotlin `value class` types
   (`DocumentUri`, `RemoteUri`). The SDK ships its own Jetpack Compose UI, so your app
   does **not** need to use Compose itself.
@@ -320,8 +322,13 @@ return from OAuth will not work:
 
 - **`android:launchMode="singleTask"`** in the manifest so the existing instance
   receives the deep link instead of launching a new one.
-- An **`onNewIntent` override** that extracts the `code` query parameter from the
-  OAuth callback and forwards it to `EudiRQESUi.resume(...)`.
+- An **`onNewIntent` override** that extracts the `code` and `state` query
+  parameters from the OAuth callback and forwards both to `EudiRQESUi.resume(...)`.
+  Pass the `state` exactly as received: the SDK checks it against the state of the
+  authorization request, and shows its error screen if it is missing or does not
+  match. A signing has two such redirects, one for the service authorization and one
+  for the credential authorization, each with its own `state`: forward each callback
+  as it arrives and do not keep a state from an earlier one.
 
 ```kotlin
 class HostActivity : ComponentActivity() {
@@ -343,6 +350,7 @@ class HostActivity : ComponentActivity() {
             EudiRQESUi.resume(
                 context = this,
                 authorizationCode = code,
+                authorizationState = intent.data?.getQueryParameter("state"),
             )
         }
     }

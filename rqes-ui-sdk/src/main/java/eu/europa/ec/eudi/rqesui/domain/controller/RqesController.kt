@@ -314,12 +314,15 @@ internal class RqesControllerImpl(
     override suspend fun authorizeService(): EudiRqesAuthorizeServicePartialState {
         return withContext(dispatcher) {
             runCatching {
+                val sessionData = eudiRQESUi.getSessionData()
                 safeLet(
                     eudiRQESUi.getRqesService(),
-                    eudiRQESUi.getSessionData().authorizationCode
-                ) { safeService, safeAuthorizationCode ->
+                    sessionData.authorizationCode,
+                    sessionData.authorizationState
+                ) { safeService, safeAuthorizationCode, safeAuthorizationState ->
                     val authorizedService = safeService.authorizeService(
-                        authorizationCode = AuthorizationCode(safeAuthorizationCode)
+                        authorizationCode = AuthorizationCode(safeAuthorizationCode),
+                        serverState = safeAuthorizationState
                     ).getOrThrow()
 
                     EudiRqesAuthorizeServicePartialState.Success(authorizedService = authorizedService)
@@ -440,13 +443,16 @@ internal class RqesControllerImpl(
     override suspend fun authorizeCredential(): EudiRqesAuthorizeCredentialPartialState {
         return withContext(dispatcher) {
             runCatching {
+                val sessionData = eudiRQESUi.getSessionData()
                 safeLet(
                     getAuthorizedService(),
-                    eudiRQESUi.getSessionData().authorizationCode
-                ) { safeAuthorizedService, safeAuthorizationCode ->
+                    sessionData.authorizationCode,
+                    sessionData.authorizationState
+                ) { safeAuthorizedService, safeAuthorizationCode, safeAuthorizationState ->
                     val authorizedCredential: RQESService.CredentialAuthorized =
                         safeAuthorizedService.authorizeCredential(
-                            authorizationCode = AuthorizationCode(safeAuthorizationCode)
+                            authorizationCode = AuthorizationCode(safeAuthorizationCode),
+                            serverState = safeAuthorizationState
                         ).getOrThrow()
 
                     EudiRqesAuthorizeCredentialPartialState.Success(authorizedCredential = authorizedCredential)
