@@ -82,11 +82,12 @@ class TestRQESActivity : ComponentActivity() {
 
     private fun checkIntent(intent: Intent) {
         val code = intent.data?.getQueryParameter("code")
-        if (code != null) {
+        val state = intent.data?.getQueryParameter("state")
+        if (code != null && state != null) {
             EudiRQESUi.resume(
                 context = this,
                 authorizationCode = code,
-                authorizationState = intent.data?.getQueryParameter("state"),
+                authorizationState = state,
             )
         }
     }

@@ -323,12 +323,12 @@ return from OAuth will not work:
 - **`android:launchMode="singleTask"`** in the manifest so the existing instance
   receives the deep link instead of launching a new one.
 - An **`onNewIntent` override** that extracts the `code` and `state` query
-  parameters from the OAuth callback and forwards both to `EudiRQESUi.resume(...)`.
-  Pass the `state` exactly as received: the SDK checks it against the state of the
-  authorization request, and shows its error screen if it is missing or does not
-  match. A signing has two such redirects, one for the service authorization and one
-  for the credential authorization, each with its own `state`: forward each callback
-  as it arrives and do not keep a state from an earlier one.
+  parameters from the OAuth callback and, when both are present, forwards them to
+  `EudiRQESUi.resume(...)`. Pass the `state` exactly as received: the SDK checks it
+  against the state of the authorization request, and shows its error screen if it
+  does not match. A signing has two such redirects, one for the service authorization
+  and one for the credential authorization, each with its own `state`: forward each
+  callback as it arrives and do not keep a state from an earlier one.
 
 ```kotlin
 class HostActivity : ComponentActivity() {
@@ -346,11 +346,12 @@ class HostActivity : ComponentActivity() {
 
     private fun checkIntent(intent: Intent) {
         val code = intent.data?.getQueryParameter("code")
-        if (code != null) {
+        val state = intent.data?.getQueryParameter("state")
+        if (code != null && state != null) {
             EudiRQESUi.resume(
                 context = this,
                 authorizationCode = code,
-                authorizationState = intent.data?.getQueryParameter("state"),
+                authorizationState = state,
             )
         }
     }
