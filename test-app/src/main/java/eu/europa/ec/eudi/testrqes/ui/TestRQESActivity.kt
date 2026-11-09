@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import eu.europa.ec.eudi.rqesui.domain.extension.toUriOrEmpty
+import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import eu.europa.ec.eudi.rqesui.infrastructure.DocumentUri
 import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.RemoteUri
@@ -81,9 +82,10 @@ class TestRQESActivity : ComponentActivity() {
     }
 
     private fun checkIntent(intent: Intent) {
-        val code = intent.data?.getQueryParameter("code")
-        val state = intent.data?.getQueryParameter("state")
-        if (code != null && state != null) {
+        safeLet(
+            intent.data?.getQueryParameter("code"),
+            intent.data?.getQueryParameter("state")
+        ) { code, state ->
             EudiRQESUi.resume(
                 context = this,
                 authorizationCode = code,

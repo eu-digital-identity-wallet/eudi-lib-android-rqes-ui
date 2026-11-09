@@ -331,6 +331,8 @@ return from OAuth will not work:
   callback as it arrives and do not keep a state from an earlier one.
 
 ```kotlin
+import eu.europa.ec.eudi.rqesui.domain.util.safeLet
+
 class HostActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -345,9 +347,10 @@ class HostActivity : ComponentActivity() {
     }
 
     private fun checkIntent(intent: Intent) {
-        val code = intent.data?.getQueryParameter("code")
-        val state = intent.data?.getQueryParameter("state")
-        if (code != null && state != null) {
+        safeLet(
+            intent.data?.getQueryParameter("code"),
+            intent.data?.getQueryParameter("state")
+        ) { code, state ->
             EudiRQESUi.resume(
                 context = this,
                 authorizationCode = code,
