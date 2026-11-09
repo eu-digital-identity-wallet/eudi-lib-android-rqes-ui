@@ -1,6 +1,6 @@
 [versions]
 # Build & Gradle plugins
-agp = "9.5.0"
+agp = "9.5.1"
 kotlin = "2.4.21"
 kover = "0.9.11"
 mavenPublish = "0.37.0"
