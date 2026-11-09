@@ -118,9 +118,10 @@ object EudiRQESUi {
      * This function should be called after the user has successfully authenticated
      * with their identity provider and you have received the `code` and `state` query
      * parameters of the OAuth redirect. The SDK will then use them to proceed with the
-     * request process. Pass the `state` exactly as received with the code: the
-     * authorization fails, and the SDK shows its error screen, if it is missing or does
-     * not match the state of the authorization request.
+     * request process. Both are required: call this function only for a redirect that
+     * carries both, and pass the `state` exactly as received with the code. The
+     * authorization fails, and the SDK shows its error screen, if the `state` does not
+     * match the state of the authorization request.
      *
      * **Important:**
      * -  This function must be called with an Activity context. Passing a non-Activity context
@@ -131,8 +132,7 @@ object EudiRQESUi {
      * @param context The Activity [Context] used to launch the SDK.
      * @param authorizationCode The authorization code (the `code` query parameter) obtained after
      *                           successful authentication with the user's identity provider.
-     * @param authorizationState The `state` query parameter received with the authorization code,
-     *                           or `null` if the redirect carried none.
+     * @param authorizationState The `state` query parameter received with the authorization code.
      *
      * @throws [EudiRQESUiError] if the SDK has not been initialized or if a non-Activity context
      * is provided.
@@ -141,7 +141,7 @@ object EudiRQESUi {
     fun resume(
         context: Context,
         authorizationCode: String,
-        authorizationState: String?
+        authorizationState: String
     ) {
         val currentSession = sessionData ?: throw EudiRQESUiError(
             title = SDK_NOT_INITIALIZED_TITLE,

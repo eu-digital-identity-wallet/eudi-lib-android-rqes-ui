@@ -433,10 +433,9 @@ class TestEudiRQESUi {
 
     // Case 5
     // 1. sessionData is initialized; resume() is called for the service redirect, then for the
-    //    credential redirect, and then with a redirect that carried no `state`.
+    //    credential redirect.
     // Expected Result:
     // 1. Each call replaces both the authorization code and the state of the previous one.
-    // 2. A missing state clears the earlier state instead of keeping it.
     @Test
     fun `Given Case 5, When resume is called again, Then the code and state of the latest redirect replace the earlier ones`() {
         // Arrange
@@ -461,10 +460,27 @@ class TestEudiRQESUi {
         EudiRQESUi.resume(activity, "credential-code", "credential-state")
         assertEquals("credential-code", EudiRQESUi.getSessionData().authorizationCode)
         assertEquals("credential-state", EudiRQESUi.getSessionData().authorizationState)
+    }
 
-        // Redirect without a state
-        EudiRQESUi.resume(activity, "third-code", null)
-        assertEquals("third-code", EudiRQESUi.getSessionData().authorizationCode)
+    // Case 6
+    // 1. A signing session has received a callback (code and state stored).
+    // 2. initiate() starts a new signing session.
+    // Expected Result:
+    // 1. The new session carries neither the earlier code nor the earlier state.
+    @Test
+    fun `Given Case 6, When initiate starts a new session after a callback, Then the earlier code and state are cleared`() {
+        // Arrange
+        mockFileNameLookup(activity)
+        val uri = Uri.parse(mockedLocalFileUri)
+        EudiRQESUi.initiate(activity, DocumentUri(uri))
+        EudiRQESUi.resume(activity, mockedAuthorizationCode, mockedAuthorizationState)
+        assertEquals(mockedAuthorizationState, EudiRQESUi.getSessionData().authorizationState)
+
+        // Act
+        EudiRQESUi.initiate(activity, DocumentUri(uri))
+
+        // Assert
+        assertNull(EudiRQESUi.getSessionData().authorizationCode)
         assertNull(EudiRQESUi.getSessionData().authorizationState)
     }
     //endregion
