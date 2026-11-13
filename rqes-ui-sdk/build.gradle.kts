@@ -107,7 +107,6 @@ dependencies {
     implementation(libs.material)
 
     implementation(libs.timber)
-    implementation(libs.androidx.security)
 
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
@@ -123,7 +122,7 @@ dependencies {
     implementation(libs.android.pdf.viewer)
 
     testImplementation(libs.junit)
-    testImplementation(libs.koin.test)
+    testImplementation(libs.kotlin.test)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotlinx.coroutines.test)
