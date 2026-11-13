@@ -111,8 +111,9 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.ui.tooling)
-    api(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.ui.tooling.preview)
+    debugImplementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.compose.material.iconsCore)
 
     api(libs.koin.android)
     implementation(libs.koin.compose)
