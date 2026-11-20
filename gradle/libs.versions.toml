@@ -1,6 +1,6 @@
 [versions]
 # Build & Gradle plugins
-agp = "9.5.1"
+agp = "9.5.2"
 kotlin = "2.4.21"
 kover = "0.9.11"
 mavenPublish = "0.37.0"
@@ -21,7 +21,7 @@ material = "1.14.0"
 
 # Kotlin
 kotlinxCoroutines = "1.11.0"
-kotlinxSerialization = "1.12.0"
+kotlinxSerialization = "1.13.0"
 
 # Dependency injection
 koin = "4.2.2"
@@ -39,7 +39,7 @@ eudiRqesCore = "0.8.0"
 junit = "4.13.2"
 mockito = "5.24.0"
 mockitoKotlin = "6.4.0"
-robolectric = "4.17"
+robolectric = "4.18.1"
 turbine = "1.2.1"
 
 [libraries]
