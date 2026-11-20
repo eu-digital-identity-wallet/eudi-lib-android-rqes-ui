@@ -84,6 +84,9 @@ sequenceDiagram
 ## Requirements
 
 - Android 10 (API level 29) or higher
+- Your app compiles against Android SDK Platform 37.1 (`compileSdk = 37` and
+  `compileSdkMinor = 1`) with Android Gradle Plugin 9.1 or later: the Jetpack Compose
+  libraries the SDK brings require them.
 - Java 17 bytecode (the SDK is compiled with `JvmTarget.JVM_17`). The RQES Core library
   it depends on is built for Java 21: JVM unit tests that load its classes need a Java 21
   runtime, and a host app written in Java must be built with JDK 21.

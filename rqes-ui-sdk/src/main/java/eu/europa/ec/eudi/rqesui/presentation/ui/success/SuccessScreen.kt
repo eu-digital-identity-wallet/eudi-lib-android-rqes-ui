@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +56,7 @@ import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.ButtonType
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.DialogBottomSheet
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapModalBottomSheet
 import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.WrapStickyBottomBar
+import eu.europa.ec.eudi.rqesui.presentation.ui.component.wrap.rememberWrapModalBottomSheetState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -74,9 +74,7 @@ internal fun SuccessScreen(
     val context = LocalContext.current
 
     val isBottomSheetOpen = state.isBottomSheetOpen
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false
-    )
+    val bottomSheetState = rememberWrapModalBottomSheetState()
 
     ContentScreen(
         isLoading = state.isLoading,
@@ -282,7 +280,7 @@ private fun SuccessScreenPreview() {
             onEventSend = {},
             onNavigationRequested = {},
             paddingValues = PaddingValues(all = SPACING_LARGE.dp),
-            modalBottomSheetState = rememberModalBottomSheetState(),
+            modalBottomSheetState = rememberWrapModalBottomSheetState(),
         )
     }
 }

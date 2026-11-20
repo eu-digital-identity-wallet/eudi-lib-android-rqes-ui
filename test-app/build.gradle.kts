@@ -23,12 +23,14 @@ plugins {
 }
 
 val SDK_VERSION = project.property("SDK_VERSION") as String
+val SDK_MINOR_VERSION = project.property("SDK_MINOR_VERSION") as String
 val TARGET_SDK_VERSION = project.property("TARGET_SDK_VERSION") as String
 val MIN_SDK_VERSION = project.property("MIN_SDK_VERSION") as String
 
 android {
     namespace = "eu.europa.ec.eudi.testrqes"
     compileSdk = Integer.parseInt(SDK_VERSION)
+    compileSdkMinor = Integer.parseInt(SDK_MINOR_VERSION)
 
     defaultConfig {
 

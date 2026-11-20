@@ -34,6 +34,7 @@ plugins {
 val NAMESPACE = project.property("NAMESPACE") as String
 val GROUP = project.property("GROUP") as String
 val SDK_VERSION = project.property("SDK_VERSION") as String
+val SDK_MINOR_VERSION = project.property("SDK_MINOR_VERSION") as String
 val MIN_SDK_VERSION = project.property("MIN_SDK_VERSION") as String
 val POM_SCM_URL = project.property("POM_SCM_URL") as String
 
@@ -42,6 +43,7 @@ group = GROUP
 extensions.configure<LibraryExtension>("android") {
     namespace = NAMESPACE
     compileSdk = SDK_VERSION.toInt()
+    compileSdkMinor = SDK_MINOR_VERSION.toInt()
 
     defaultConfig {
         minSdk = MIN_SDK_VERSION.toInt()

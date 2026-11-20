@@ -34,7 +34,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +68,18 @@ private val bottomSheetDefaultBackgroundColor: Color
 
 private val bottomSheetDefaultTextColor: Color
     @Composable get() = MaterialTheme.colorScheme.onSurface
+
+/**
+ * Remembers the state of a [WrapModalBottomSheet] that starts hidden and opens fully expanded,
+ * never partially expanded. Opts in to Material3's experimental sheet state, as
+ * [WrapModalBottomSheet] does.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun rememberWrapModalBottomSheetState(): SheetState = rememberBottomSheetState(
+    initialValue = SheetValue.Hidden,
+    enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
