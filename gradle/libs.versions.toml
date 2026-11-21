@@ -13,8 +13,8 @@ appcompat = "1.8.0"
 coreKtx = "1.19.1"
 
 # Compose
-composeBom = "2026.09.00"
-material3 = "1.4.0"
+composeBom = "2026.11.01"
+material3 = "1.5.0"
 
 # Material
 material = "1.14.0"
