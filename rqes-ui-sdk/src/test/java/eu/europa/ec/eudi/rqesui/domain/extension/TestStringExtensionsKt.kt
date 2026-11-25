@@ -20,7 +20,7 @@ import android.net.Uri
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey.Companion.ARGUMENTS_SEPARATOR
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedInvalidUri
-import junit.framework.TestCase.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mockStatic
@@ -34,63 +34,63 @@ class TestStringExtensionsKt {
 
     //region localizationFormatWithArgs
     @Test
-    fun `When localizationFormatWithArgs is called with empty args, Then initial string is returned`() {
-        // Act
+    fun `Given empty args, When localizationFormatWithArgs is called, Then initial string is returned`() {
+        // When
         val formattedString = textForLocalization.localizationFormatWithArgs()
 
-        // Assert
+        // Then
         assertEquals(textForLocalization, formattedString)
     }
 
     @Test
-    fun `When localizationFormatWithArgs is called with valid args, Then formatted string is returned`() {
-        // Arrange
+    fun `Given valid args, When localizationFormatWithArgs is called, Then formatted string is returned`() {
+        // Given
         val textWithArgSeparator = "$textFollowedByArgSeparator$ARGUMENTS_SEPARATOR"
         val args = listOf(mockedStringArgument)
 
-        // Act
+        // When
         val formattedString =
             textWithArgSeparator.localizationFormatWithArgs(args, ARGUMENTS_SEPARATOR)
 
-        // Assert
+        // Then
         assertEquals("$textFollowedByArgSeparator${args.first()}", formattedString)
     }
     //endregion
 
     //region encodeToBase64
     @Test
-    fun `When encodeToBase64 is called, Then base64 encoded string is returned`() {
-        // Act
+    fun `Given a plain string, When encodeToBase64 is called, Then base64 encoded string is returned`() {
+        // When
         val encodedString = base64DecodedString.encodeToBase64()
 
-        // Assert
+        // Then
         assertEquals(base64String, encodedString)
     }
     //endregion
 
     //region decodeFromBase64
     @Test
-    fun `When decodeFromBase64 is called with a valid Base64 string, Then original string is returned`() {
-        // Act
+    fun `Given a valid Base64 string, When decodeFromBase64 is called, Then original string is returned`() {
+        // When
         val decodedString = base64String.decodeFromBase64()
 
-        // Assert
+        // Then
         assertEquals(base64DecodedString, decodedString)
     }
     //endregion
 
     //region toUri
     @Test
-    fun `When toUri is called and exception is thrown, Then EMPTY Uri is returned`() {
-        // Arrange
+    fun `Given Uri parsing throws, When toUriOrEmpty is called, Then EMPTY Uri is returned`() {
+        // Given
         mockStatic(Uri::class.java).use { _ ->
             whenever(Uri.parse(mockedInvalidUri))
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = mockedInvalidUri.toUriOrEmpty()
 
-            // Assert
+            // Then
             assertEquals(Uri.EMPTY, result)
         }
     }

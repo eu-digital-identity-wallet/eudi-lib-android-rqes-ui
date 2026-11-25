@@ -59,11 +59,11 @@ import eu.europa.ec.eudi.rqesui.util.mockedSerializedConfig
 import eu.europa.ec.eudi.rqesui.util.mockedUri
 import eu.europa.ec.eudi.rqesui.util.runFlowTest
 import eu.europa.ec.eudi.rqesui.util.runTest
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertNull
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -158,10 +158,10 @@ class TestOptionsSelectionViewModel {
     // CancelSignProcessSecondaryText.
     @Test
     fun `Given Case 1, When setInitialState is called, Then the expected result is returned`() {
-        // Act
+        // When
         viewModel.setInitialState()
 
-        // Assert
+        // Then
         val expectedState = State(
             isLoading = false,
             error = null,
@@ -198,18 +198,18 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 1, When setEvent is called, Then the expected result is returned`() {
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.Initialize(
                     screenSelectionState = OptionsSelectionScreenState.QtspSelection
                 )
             )
 
-            // Assert
+            // Then
             assertEquals(
                 SelectionOptionUi(
                     overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
@@ -257,7 +257,7 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 2, When setEvent is called, Then the expected result is returned`() {
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
             whenever(optionsSelectionInteractor.getSelectedQtsp())
@@ -267,14 +267,14 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.Initialize(
                     screenSelectionState = OptionsSelectionScreenState.CertificateSelection
                 )
             )
 
-            // Assert
+            // Then
             assertEquals(
                 SelectionOptionUi(
                     overlineText = resourceProvider.getLocalizedString(LocalizableKey.SelectDocumentTitle),
@@ -331,16 +331,16 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 3 on QtspSelection, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val mockSuccessState = EudiRqesGetSelectedFilePartialState.Success(file = documentData)
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile()).thenReturn(mockSuccessState)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.Initialize(screenSelectionState = OptionsSelectionScreenState.QtspSelection)
             )
 
-            // Assert
+            // Then
             assertEquals(
                 documentData,
                 viewModel.viewState.value.documentSelectionItem?.event?.documentData
@@ -359,10 +359,14 @@ class TestOptionsSelectionViewModel {
     //    - Working retry action that:
     //      * Attempts to get selected file again
     // 3. Error handling flow completes properly
+    /**
+     * Checks the error state and its message, then the cancel action (the error is dismissed and
+     * the navigation effect is sent) and the retry action.
+     */
     @Test
     fun `Given Case 4 on QtspSelection, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val errorMessage = mockedPlainFailureMessage
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(
@@ -374,29 +378,24 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.Initialize(screenSelectionState = OptionsSelectionScreenState.QtspSelection)
             )
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
-                // Verify error state
                 assertNotNull(error)
                 with(error) {
-                    // Check error message
                     assertEquals(errorMessage, errorSubTitle)
 
-                    // Test cancel action
                     onCancel.invoke()
 
-                    // Verify error is dismissed and navigation effect is triggered
                     viewModel.effect.runFlowTest {
                         val effect = awaitItem()
                         assertTrue(effect is Effect.Navigation.Finish)
                     }
 
-                    // Test retry action
                     onRetry?.invoke()
                     verify(optionsSelectionInteractor, times(2)).getRemoteOrLocalFile()
                 }
@@ -413,10 +412,13 @@ class TestOptionsSelectionViewModel {
     //    - Working cancel action
     //    - Working retry action that attempts to get selected QTSP again
     // 2. File selection success state is maintained
+    /**
+     * Checks the error state, then the cancel and retry actions.
+     */
     @Test
     fun `Given Case 5, When setEvent is called on CertificateSelection, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
 
@@ -431,20 +433,17 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.Initialize(screenSelectionState = OptionsSelectionScreenState.CertificateSelection)
             )
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
-                // Assert error state
                 assertNotNull(error)
                 with(error) {
                     assertEquals(errorMessage, errorSubTitle)
-                    // Test cancel action
                     onCancel()
-                    // Test retry action
                     onRetry?.invoke()
                 }
             }
@@ -461,16 +460,16 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 1 for selection item, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val documentData =
                 DocumentData(documentName = mockedDocumentName, uri = documentFileUri)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.ViewDocumentItemPressed(documentData)
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val expectedScreenRoute = mockScreenRouteGeneration(documentData)
                 val expectedEffect =
@@ -491,19 +490,19 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 2 for selection item, When setEvent is called, Then bottom sheet with QTSP options is shown`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val mockQtsps = listOf(qtspData)
             val selectedIndex = 0
             mockGetQtspsCall(
                 response = EudiRqesGetQtspsPartialState.Success(qtsps = mockQtsps)
             )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.RqesServiceSelectionItemPressed
             )
 
-            // Assert
+            // Then
             val expectedBottomSheetContent = OptionsSelectionBottomSheetContent.SelectQTSP(
                 bottomSheetTextData = BottomSheetTextData(
                     title = resourceProvider.getLocalizedString(LocalizableKey.SelectServiceTitle),
@@ -538,7 +537,7 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 3 for selection item, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val errorMessage = mockedPlainFailureMessage
             val failureState = EudiRqesGetQtspsPartialState.Failure(
                 error = EudiRQESUiError(title = mockedGenericErrorTitle, message = errorMessage)
@@ -546,12 +545,12 @@ class TestOptionsSelectionViewModel {
             whenever(optionsSelectionInteractor.getQtsps())
                 .thenReturn(failureState)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.RqesServiceSelectionItemPressed
             )
 
-            // Assert
+            // Then
             assertNotNull(viewModel.viewState.value.error)
         }
 
@@ -564,10 +563,13 @@ class TestOptionsSelectionViewModel {
     // 3. Bottom sheet text data contains correct localized strings
     // 4. First certificate is selected by default (selectedIndex = 0)
     // 5. ShowBottomSheet effect is emitted
+    /**
+     * Fetches the certificates first, then checks that the bottom sheet is shown.
+     */
     @Test
     fun `Given Case 4 for selection item, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(certificateData.name).thenReturn(mockedCertificateName)
             val mockedOtherCertificate = "Certificate 2"
             val mockCertificates = listOf(
@@ -582,13 +584,12 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // First fetch the certificates
             viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
 
-            // Act
+            // When
             viewModel.setEvent(Event.CertificateSelectionItemPressed)
 
-            // Assert
+            // Then
             val expectedBottomSheetContent = OptionsSelectionBottomSheetContent.SelectCertificate(
                 bottomSheetTextData = BottomSheetTextData(
                     title = resourceProvider.getLocalizedString(LocalizableKey.SigningCertificates),
@@ -622,7 +623,6 @@ class TestOptionsSelectionViewModel {
                 viewModel.viewState.value.sheetContent
             )
 
-            // Verify bottom sheet is shown
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.ShowBottomSheet, awaitItem())
             }
@@ -637,10 +637,10 @@ class TestOptionsSelectionViewModel {
     // 1. The bottom sheet should be opened and the view state's `isBottomSheetOpen` field should be true.
     @Test
     fun `Given Case 1, When setEvent for Bottom Sheet is called, Then the expected result is returned`() {
-        // Act
+        // When
         viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
 
-        // Assert
+        // Then
         assertTrue(viewModel.viewState.value.isBottomSheetOpen)
     }
 
@@ -650,12 +650,12 @@ class TestOptionsSelectionViewModel {
     // 1. The bottom sheet should be closed and the view state's `isBottomSheetOpen` field should be false.
     @Test
     fun `Given Case 2, When setEvent for Bottom Sheet is called, Then the expected result is returned`() {
-        // Act
+        // When
         viewModel.setEvent(
             Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed
         )
 
-        // Assert
+        // Then
         assertFalse(viewModel.viewState.value.isBottomSheetOpen)
     }
 
@@ -666,12 +666,12 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 3, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.Navigation.Finish, awaitItem())
             }
@@ -686,17 +686,17 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 4, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(optionsSelectionInteractor.updateQtspUserSelection(qtspData)).thenReturn(
                 EudiRqesSetSelectedQtspPartialState.Success(service = rqesService)
             )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.QtspSelectedOnDoneButtonPressed(qtspData)
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.CloseBottomSheet, awaitItem())
                 assertEquals(Effect.OnSelectedQtspUpdated(service = rqesService), awaitItem())
@@ -712,19 +712,19 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 5, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val selectedIndex = 0
 
             mockGetQtspsCall(
                 response = EudiRqesGetQtspsPartialState.Success(qtsps = listOf(qtspData))
             )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.QtspIndexSelectedOnRadioButtonPressed(index = selectedIndex)
             )
 
-            // Assert
+            // Then
             assertEquals(
                 selectedIndex,
                 viewModel.viewState.value.selectedQtspIndex
@@ -738,15 +738,15 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 6, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val selectedIndex = 0
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed(index = selectedIndex)
             )
 
-            // Assert
+            // Then
             assertEquals(selectedIndex, viewModel.viewState.value.selectedCertificateIndex)
         }
 
@@ -757,12 +757,12 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 7, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CancelSignProcess.SecondaryButtonPressed
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val effect = awaitItem()
                 assertTrue(effect is Effect.Navigation.Finish)
@@ -778,12 +778,12 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 8, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.UpdateBottomSheetState(isOpen = true)
             )
 
-            // Assert
+            // Then
             assertTrue(viewModel.viewState.value.isBottomSheetOpen)
         }
 
@@ -795,10 +795,13 @@ class TestOptionsSelectionViewModel {
     // 2. Error state is set with correct error message
     // 3. Error configuration includes retry and cancel actions
     // 4. Error is properly dismissed when cancel is called
+    /**
+     * Checks the error state and its configuration, then the retry and cancel actions.
+     */
     @Test
     fun `Given Case 9, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val failureState = EudiRqesSetSelectedQtspPartialState.Failure(
                 error = EudiRQESUiError(
                     title = mockedGenericErrorTitle,
@@ -809,27 +812,24 @@ class TestOptionsSelectionViewModel {
                 failureState
             )
 
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.QtspSelectedOnDoneButtonPressed(
                     qtspData = qtspData
                 )
             )
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
-                // Verify error state
                 assertNotNull(error)
                 assertEquals(mockedPlainFailureMessage, error.errorSubTitle)
 
-                // Test error configuration
                 viewModel.effect.runFlowTest {
                     assertEquals(Effect.CloseBottomSheet, awaitItem())
                 }
 
-                // Test retry action
                 error.onRetry?.invoke()
 
-                // Test cancel action
                 error.onCancel()
                 assertNull(viewModel.viewState.value.error)
             }
@@ -844,10 +844,14 @@ class TestOptionsSelectionViewModel {
     // 3. Bottom bar is made visible
     // 4. No error state is present
     // 5. Proper interaction with getCredentialAuthorizationUrl is verified
+    /**
+     * Loads the certificates first, then checks the bottom bar, that no error is shown, and the
+     * interactions.
+     */
     @Test
     fun `Given Case 10, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val authorizationUrl = Uri.parse(mockedAuthorizationUrl)
             val mockedCertificates = listOf(
                 certificateData
@@ -867,19 +871,18 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // First load certificates
             viewModel.setEvent(
                 Event.AuthorizeServiceAndFetchCertificates
             )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CertificateSelectedOnDoneButtonPressed(
                     certificateData
                 )
             )
 
-            // Assert
+            // Then
             viewModel.viewState.runFlowTest {
                 with(viewModel.viewState.value) {
                     assertNotNull(bottomBarButtonAction)
@@ -895,15 +898,12 @@ class TestOptionsSelectionViewModel {
                         )
                     }
 
-                    // Bottom bar visibility
                     assertTrue(isBottomBarButtonVisible)
 
-                    // Verify no error state
                     assertNull(error)
                 }
             }
 
-            // Verify interaction
             verify(optionsSelectionInteractor).getCredentialAuthorizationUrl(certificateData)
         }
 
@@ -921,10 +921,14 @@ class TestOptionsSelectionViewModel {
     //    - Disabled state
     // 2. Selected file and QTSP data are properly maintained
     // 3. Complete flow executes without errors
+    /**
+     * Stubs a successful certificate fetch and the authorization URL fetch, opens the certificate
+     * selection item and selects a certificate.
+     */
     @Test
     fun `Given Case 11, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
             whenever(optionsSelectionInteractor.getSelectedQtsp())
@@ -937,7 +941,6 @@ class TestOptionsSelectionViewModel {
             val authorizationUrl = Uri.parse(mockedAuthorizationUrl)
             whenever(certificateData.name).thenReturn(mockedCertificateName)
 
-            // Mock successful certificates fetch
             val mockCertificates = listOf(certificateData)
             whenever(optionsSelectionInteractor.authorizeServiceAndFetchCertificates())
                 .thenReturn(
@@ -946,7 +949,6 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // Mock authorization URL fetch
             whenever(optionsSelectionInteractor.getCredentialAuthorizationUrl(certificateData))
                 .thenReturn(
                     EudiRqesGetCredentialAuthorizationUrlPartialState.Success(
@@ -956,20 +958,18 @@ class TestOptionsSelectionViewModel {
 
             viewModel.setEvent(Event.Initialize(screenSelectionState = OptionsSelectionScreenState.CertificateSelection))
             viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
-            // Click certificate selection screen item
             viewModel.setEvent(Event.CertificateSelectionItemPressed)
-            // Select certificate index
             val indexSelected = 0
             viewModel.setEvent(Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed(index = indexSelected))
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CertificateSelectedOnDoneButtonPressed(
                     certificateData
                 )
             )
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertNotNull(certificateSelectionItem)
                 with(certificateSelectionItem) {
@@ -999,16 +999,20 @@ class TestOptionsSelectionViewModel {
     //    - Button action is null
     // 3. Interactions are verified:
     //    - Authorization URL is requested correct number of times
+    /**
+     * Stubs the certificate data, a successful certificate fetch and a failing authorization URL
+     * fetch, loads the certificates and selects one. Then checks the error state; retry dismisses
+     * the error and fires the event again, cancel dismisses the error; the bottom bar is hidden
+     * while the error shows; and the interactions.
+     */
     @Test
     fun `Given Case 12, When setEvent for Bottom Sheet is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val errorMessage = mockedPlainFailureMessage
 
-            // Mock certificate data
             whenever(certificateData.name).thenReturn(mockedCertificateName)
 
-            // Mock successful certificates fetch
             val mockedCertificates = listOf(certificateData)
             whenever(optionsSelectionInteractor.authorizeServiceAndFetchCertificates())
                 .thenReturn(
@@ -1017,7 +1021,6 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // Mock authorization URL fetch failure
             whenever(optionsSelectionInteractor.getCredentialAuthorizationUrl(certificateData))
                 .thenReturn(
                     EudiRqesGetCredentialAuthorizationUrlPartialState.Failure(
@@ -1028,47 +1031,38 @@ class TestOptionsSelectionViewModel {
                     )
                 )
 
-            // Initialize certificates
             viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
 
-            // Select certificate index
             val indexSelected = 0
             viewModel.setEvent(
                 Event.BottomSheet.CertificateIndexSelectedOnRadioButtonPressed(index = indexSelected)
             )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CertificateSelectedOnDoneButtonPressed(
                     certificateData
                 )
             )
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
-                // Verify error state
                 assertNotNull(error)
                 error.let { errorConfig ->
                     assertEquals(errorMessage, errorConfig.errorSubTitle)
 
-                    // Test retry action
                     errorConfig.onRetry?.invoke()
-                    // Should dismiss error and retry the event
                     verify(optionsSelectionInteractor, times(2))
                         .getCredentialAuthorizationUrl(certificateData)
 
-                    // Test cancel action
                     errorConfig.onCancel()
-                    // After cancel, error should be dismissed
                     assertNull(viewModel.viewState.value.error)
                 }
 
-                // Verify bottom bar is not visible in error state
                 assertFalse(isBottomBarButtonVisible)
                 assertNull(bottomBarButtonAction)
             }
 
-            // Verify interactions
             verify(optionsSelectionInteractor, times(2))
                 .getCredentialAuthorizationUrl(certificateData)
         }
@@ -1078,10 +1072,12 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 13, When BottomSheet CancelQtspSelection event is sent, Then CloseBottomSheet effect is observed`() =
         coroutineRule.runTest {
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CancelQtspSelection
             )
 
+            // Then
             viewModel.effect.runFlowTest {
                 val effect = awaitItem()
                 assertTrue(effect is Effect.CloseBottomSheet)
@@ -1093,12 +1089,12 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 14, When BottomSheet CancelSignProcess PrimaryButtonPressed event is sent, Then CloseBottomSheet effect is observed`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CancelSignProcess.PrimaryButtonPressed
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val effect = awaitItem()
                 assertTrue(effect is Effect.CloseBottomSheet)
@@ -1110,10 +1106,12 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 15, When BottomSheet CancelCertificateSelection event is sent, Then CloseBottomSheet effect is observed`() =
         coroutineRule.runTest {
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.CancelCertificateSelection
             )
 
+            // Then
             viewModel.effect.runFlowTest {
                 val effect = awaitItem()
                 assertTrue(effect is Effect.CloseBottomSheet)
@@ -1132,7 +1130,7 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 1, When setEvent for AuthorizeServiceAndFetchCertificates is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val mockedCertificates = listOf(certificateData)
             val fetchCertificatesResponse =
                 OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Success(
@@ -1144,7 +1142,7 @@ class TestOptionsSelectionViewModel {
             mockAuthorizeServiceAndFetchCertificatesCall(response = fetchCertificatesResponse)
             mockGetCredentialAuthorizationUrlCall(response = authResponse)
 
-            // Act
+            // When
             viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
             viewModel.setEvent(
                 Event.BottomBarButtonPressed(
@@ -1152,7 +1150,7 @@ class TestOptionsSelectionViewModel {
                 )
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val effect = awaitItem()
                 assertTrue(effect is Effect.OpenUrl)
@@ -1169,7 +1167,7 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 2, When setEvent for AuthorizeServiceAndFetchCertificates is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val response =
                 OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
                     EudiRQESUiError(
@@ -1179,12 +1177,12 @@ class TestOptionsSelectionViewModel {
                 )
             mockAuthorizeServiceAndFetchCertificatesCall(response = response)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.AuthorizeServiceAndFetchCertificates
             )
 
-            // Assert
+            // Then
             val viewState = viewModel.viewState.value
             assertTrue(viewState.error != null)
             assertEquals(mockedFetchCertificatesFailureMessage, viewState.error?.errorSubTitle)
@@ -1198,18 +1196,18 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 3, When setEvent for FetchServiceAuthorizationUrl is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val response = EudiRqesGetServiceAuthorizationUrlPartialState.Success(
                 authorizationUrl = mockedAuthorizationUrl.toUriOrEmpty()
             )
             mockGetServiceAuthorizationUrlCall(response = response)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.FetchServiceAuthorizationUrl(rqesService)
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertTrue(awaitItem() is Effect.OpenUrl)
             }
@@ -1219,9 +1217,12 @@ class TestOptionsSelectionViewModel {
     // Constructing a OptionsSelectionViewModel with a serialized config that the uiSerializer
     // cannot decode (returns null) should throw the RuntimeException in setInitialState.
     // This covers the elvis-throw path in setInitialState.
+    /**
+     * setInitialState calls fromBase64, which returns null, so it throws.
+     */
     @Test(expected = RuntimeException::class)
     fun `Given uiSerializer fromBase64 returns null, When ViewModel is constructed, Then setInitialState throws`() {
-        // Arrange
+        // Given
         val freshSerializer = org.mockito.kotlin.mock<UiSerializer>()
         whenever(
             freshSerializer.fromBase64(
@@ -1238,34 +1239,36 @@ class TestOptionsSelectionViewModel {
             mockedSerializedConfig
         )
 
-        // Act — setInitialState triggers fromBase64 which returns null, throwing
+        // Then
         vm.setInitialState()
     }
 
     // Case 4c
     // After updateQTSPSelectionItem runs with a non-null qtspServiceSelectionItem, the safe-call
     // copy expression executes. This covers the `qtspServiceSelectionItem?.copy(...)` Non-null branch.
+    /**
+     * Populates qtspServiceSelectionItem through Initialize with QtspSelection, checks it is
+     * non-null, then stubs the QTSP update.
+     */
     @Test
     fun `Given a populated qtspServiceSelectionItem, When QtspSelectedOnDoneButtonPressed succeeds, Then the item is updated via copy`() =
         coroutineRule.runTest {
-            // Arrange - populate qtspServiceSelectionItem first via Initialize with QtspSelection
+            // Given
             whenever(optionsSelectionInteractor.getRemoteOrLocalFile())
                 .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
             viewModel.setEvent(
                 Event.Initialize(screenSelectionState = OptionsSelectionScreenState.QtspSelection)
             )
-            // sanity: qtspServiceSelectionItem is non-null now
             assertNotNull(viewModel.viewState.value.qtspServiceSelectionItem)
 
-            // Mock the QTSP update path
             whenever(qtspData.name).thenReturn(mockedQtspName)
             whenever(optionsSelectionInteractor.updateQtspUserSelection(qtspData))
                 .thenReturn(EudiRqesSetSelectedQtspPartialState.Success(service = rqesService))
 
-            // Act
+            // When
             viewModel.setEvent(Event.BottomSheet.QtspSelectedOnDoneButtonPressed(qtspData))
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertEquals(mockedQtspName, qtspServiceSelectionItem?.mainText)
             }
@@ -1274,10 +1277,14 @@ class TestOptionsSelectionViewModel {
     // Case 4d
     // Pressing RqesServiceSelectionItem with a Failure from getQtsps, then exercising the
     // onCancel callback to cover Navigation.Finish effect emission.
+    /**
+     * Exercises the onRetry callback (it calls `setEvent(event)`) and the onCancel callback
+     * (`setEvent(DismissError)` and the `Finish` effect).
+     */
     @Test
-    fun `Given getQtsps returns Failure, When RqesServiceSelectionItemPressed onCancel is invoked, Then Navigation Finish is emitted`() =
+    fun `Given getQtsps returns Failure, When RqesServiceSelectionItemPressed is sent, Then an error is set and its callbacks run`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val failureState = EudiRqesGetQtspsPartialState.Failure(
                 error = EudiRQESUiError(
                     title = mockedGenericErrorTitle,
@@ -1286,16 +1293,14 @@ class TestOptionsSelectionViewModel {
             )
             whenever(optionsSelectionInteractor.getQtsps()).thenReturn(failureState)
 
-            // Act
+            // When
             viewModel.setEvent(Event.RqesServiceSelectionItemPressed)
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertNotNull(error)
                 with(error) {
-                    // Exercise the onRetry callback (covers `setEvent(event)`)
                     onRetry?.invoke()
-                    // Exercise the onCancel callback (covers `setEvent(DismissError)` + `setEffect { Finish }`)
                     onCancel.invoke()
                 }
             }
@@ -1310,7 +1315,7 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 4, When setEvent for FetchServiceAuthorizationUrl is called and Failure is returned, Then error state is set`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val errorMessage = mockedPlainFailureMessage
             val failureResponse = EudiRqesGetServiceAuthorizationUrlPartialState.Failure(
                 error = EudiRQESUiError(
@@ -1320,33 +1325,37 @@ class TestOptionsSelectionViewModel {
             )
             mockGetServiceAuthorizationUrlCall(response = failureResponse)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.FetchServiceAuthorizationUrl(rqesService)
             )
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertNotNull(error)
                 with(error) {
                     assertEquals(errorMessage, errorSubTitle)
-                    // Exercise the onRetry and onCancel callbacks so they're covered.
                     onRetry?.invoke()
                     onCancel.invoke()
                 }
                 assertFalse(isLoading)
             }
         }
-    //end region
+
+    //endregion
 
     //region authorizeServiceAndFetchCertificates failure callbacks
     // Case 3
     // Event AuthorizeServiceAndFetchCertificates triggers a Failure response.
     // Exercise the onCancel and onRetry callbacks to cover their code paths.
+    /**
+     * Retry dismisses the error and fires the event again; cancel dismisses the error and emits
+     * `Navigation.Finish`.
+     */
     @Test
     fun `Given Case 3, When AuthorizeServiceAndFetchCertificates Failure is returned, Then onCancel and onRetry callbacks execute`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val response =
                 OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure(
                     EudiRQESUiError(
@@ -1356,16 +1365,14 @@ class TestOptionsSelectionViewModel {
                 )
             mockAuthorizeServiceAndFetchCertificatesCall(response = response)
 
-            // Act
+            // When
             viewModel.setEvent(Event.AuthorizeServiceAndFetchCertificates)
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertNotNull(error)
                 with(error) {
-                    // Test retry action — should dismiss error and re-fire the event.
                     onRetry?.invoke()
-                    // Test cancel action — should dismiss error and emit Navigation.Finish effect.
                     onCancel.invoke()
                 }
             }
@@ -1378,14 +1385,14 @@ class TestOptionsSelectionViewModel {
     // Case 1 Expected Result:
     // 1. The given uri should be opened and the activity should finish
     @Test
-    fun `When setEvent for BottomBarButtonPressed is called, Then the expected result is returned`() =
+    fun `Given a BottomBarButtonPressed event with a uri, When setEvent is called, Then the uri is opened and the SDK finishes`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomBarButtonPressed(uri = mockedUri.toUriOrEmpty())
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.OpenUrl(mockedUri.toUriOrEmpty()), awaitItem())
                 assertEquals(Effect.Navigation.Finish, awaitItem())
@@ -1397,13 +1404,13 @@ class TestOptionsSelectionViewModel {
     // Case 2 Expected Result:
     // 1. The view state should have its error field set to null, indicating that the error has been cleared.
     @Test
-    fun `When setEvent for DismissError is called, Then the expected result is returned`() {
-        // Act
+    fun `Given a ViewModel, When setEvent for DismissError is called, Then the error is null`() {
+        // When
         viewModel.setEvent(
             Event.DismissError
         )
 
-        // Assert
+        // Then
         assertNull(viewModel.viewState.value.error)
     }
 
@@ -1416,17 +1423,17 @@ class TestOptionsSelectionViewModel {
     @Test
     fun `Given Case 3, When setEvent for Event Pop is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val sheetContent = OptionsSelectionBottomSheetContent.ConfirmCancellation(
                 bottomSheetTextData = mockConfirmCancellationTextData()
             )
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.Pop
             )
 
-            // Assert
+            // Then
             assertEquals(sheetContent, viewModel.viewState.value.sheetContent)
             viewModel.effect.runFlowTest {
                 val expectedEffect = Effect.ShowBottomSheet
@@ -1437,19 +1444,20 @@ class TestOptionsSelectionViewModel {
     // Case 4
     // Function setEvent(Event.Finish)
     @Test
-    fun `When Finish event is sent, Then Navigation Finish effect is observed`() =
+    fun `Given a ViewModel, When Finish event is sent, Then Navigation Finish effect is observed`() =
         coroutineRule.runTest {
+            // When
             viewModel.setEvent(
                 Event.Finish
             )
 
+            // Then
             viewModel.effect.runFlowTest {
                 val effect = awaitItem()
                 assertTrue(effect is Effect.Navigation.Finish)
             }
         }
     //endregion
-
 
     //region of helper functions
     private fun mockLocalizedStrings(resourceProvider: ResourceProvider) {

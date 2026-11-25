@@ -32,33 +32,53 @@ class TestUriSerializer {
     private val json = Json
 
     @Test
-    fun `https URI roundtrips losslessly`() {
+    fun `Given an https URI, When it is encoded and decoded, Then it roundtrips losslessly`() {
+        // Given
         val uri = Uri.parse("https://example.com/path?query=value#frag")
+
+        // When
         val encoded = json.encodeToString(UriSerializer, uri)
         val decoded = json.decodeFromString(UriSerializer, encoded)
+
+        // Then
         assertEquals(uri, decoded)
     }
 
     @Test
-    fun `content URI roundtrips losslessly`() {
+    fun `Given a content URI, When it is encoded and decoded, Then it roundtrips losslessly`() {
+        // Given
         val uri = Uri.parse("content://com.example.provider/documents/42")
+
+        // When
         val encoded = json.encodeToString(UriSerializer, uri)
         val decoded = json.decodeFromString(UriSerializer, encoded)
+
+        // Then
         assertEquals(uri, decoded)
     }
 
     @Test
-    fun `file URI roundtrips losslessly`() {
+    fun `Given a file URI, When it is encoded and decoded, Then it roundtrips losslessly`() {
+        // Given
         val uri = Uri.parse("file:///data/local/tmp/document.pdf")
+
+        // When
         val encoded = json.encodeToString(UriSerializer, uri)
         val decoded = json.decodeFromString(UriSerializer, encoded)
+
+        // Then
         assertEquals(uri, decoded)
     }
 
     @Test
-    fun `serialized form is a JSON string`() {
+    fun `Given a URI, When it is encoded, Then the serialized form is a JSON string`() {
+        // Given
         val uri = Uri.parse("https://example.com/")
+
+        // When
         val encoded = json.encodeToString(UriSerializer, uri)
+
+        // Then
         assertEquals("\"https://example.com/\"", encoded)
     }
 }

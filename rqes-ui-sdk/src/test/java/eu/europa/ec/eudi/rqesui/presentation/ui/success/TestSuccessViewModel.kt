@@ -47,9 +47,9 @@ import eu.europa.ec.eudi.rqesui.util.mockedQtspName
 import eu.europa.ec.eudi.rqesui.util.mockedTsaUrl
 import eu.europa.ec.eudi.rqesui.util.runFlowTest
 import eu.europa.ec.eudi.rqesui.util.runTest
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -105,10 +105,10 @@ class TestSuccessViewModel {
     // the app icon, a bottom bar and the related wordings for the bottom sheet.
     @Test
     fun `Given Case 1, When setInitialState is called, Then the expected result is returned`() {
-        // Act
+        // When
         val initialState = viewModel.setInitialState()
 
-        // Assert
+        // Then
         val expectedSheetContentData = SuccessBottomSheetContent.ShareDocument(
             BottomSheetTextData(
                 title = resourceProvider.getLocalizedString(LocalizableKey.SharingDocument),
@@ -144,7 +144,7 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 1, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val response = SuccessInteractorGetSelectedFileAndQtspPartialState.Success(
                 selectedFile = DocumentData(mockedDocumentName, uri = documentFileUri),
                 selectedQtsp = qtspData
@@ -152,10 +152,10 @@ class TestSuccessViewModel {
             mockQTSPData(qtspData = qtspData)
             mockGetSelectedFileAndQtspCall(response = response)
 
-            // Act
+            // When
             viewModel.setEvent(Event.Initialize)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val expectedEffect = Effect.OnSelectedFileAndQtspGot(
                     selectedFile = DocumentData(
@@ -178,7 +178,7 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 2, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
 
             val signedDocumentPrefix = "signed_0"
@@ -231,10 +231,10 @@ class TestSuccessViewModel {
                 response = response
             )
 
-            // Act
+            // When
             viewModel.setEvent(event)
 
-            // Assert
+            // Then
             assertEquals(expectedState, viewModel.viewState.value)
         }
 
@@ -246,7 +246,7 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 3, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
             val errorResponse = SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                 error = EudiRQESUiError(
@@ -256,10 +256,10 @@ class TestSuccessViewModel {
             )
             mockSignAndSaveDocumentCall(documentName = mockedDocumentName, response = errorResponse)
 
-            // Act
+            // When
             viewModel.setEvent(event)
 
-            // Assert
+            // Then
             val currentState = viewModel.viewState.value
             assertEquals(
                 mockedPlainFailureMessage,
@@ -275,15 +275,15 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 4, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val expectedState = viewModel.viewState.value.copy(isBottomSheetOpen = true)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomSheet.UpdateBottomSheetState(isOpen = true)
             )
 
-            // Assert
+            // Then
             assertEquals(
                 expectedState.isBottomSheetOpen,
                 viewModel.viewState.value.isBottomSheetOpen
@@ -298,15 +298,15 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 5, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val documentData = DocumentData(mockedDocumentName, documentFileUri)
 
-            // Act
+            // When
             viewModel.setEvent(
                 Event.ViewDocumentItemPressed(documentData = documentData)
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val expectedScreenRoute = mockScreenRouteGeneration(documentData)
                 val expectedEffect =
@@ -322,10 +322,10 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 6, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(Event.Pop)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.Navigation.Finish, awaitItem())
             }
@@ -338,12 +338,12 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 7, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(
                 Event.BottomBarButtonPressed
             )
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.ShowBottomSheet, awaitItem())
             }
@@ -355,10 +355,10 @@ class TestSuccessViewModel {
     // 1. The error in the ViewState should be set to null, indicating the the error was cleared.
     @Test
     fun `Given Case 8, When setEvent is called, Then the expected result is returned`() {
-        // Act
+        // When
         viewModel.setEvent(Event.DismissError)
 
-        // Assert
+        // Then
         assertEquals(null, viewModel.viewState.value.error)
     }
 
@@ -371,14 +371,14 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 9, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val event =
                 Event.BottomSheet.ShareDocument.PrimaryButtonPressed(documentUri = documentFileUri)
 
-            // Act
+            // When
             viewModel.setEvent(event)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertTrue(awaitItem() is Effect.CloseBottomSheet)
                 assertTrue(awaitItem() is Effect.SharePdf)
@@ -394,13 +394,13 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 10, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val event = Event.BottomSheet.ShareDocument.SecondaryButtonPressed
 
-            // Act
+            // When
             viewModel.setEvent(event)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 assertTrue(awaitItem() is Effect.CloseBottomSheet)
                 assertTrue(awaitItem() is Effect.Navigation.Finish)
@@ -415,7 +415,6 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 11, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-
             // Given
             val signedDocumentPrefix = "signed_0"
             val response = SuccessInteractorSignAndSaveDocumentPartialState.Success(
@@ -440,7 +439,7 @@ class TestSuccessViewModel {
                 Event.BottomBarButtonPressed
             )
 
-            // Expected
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.Navigation.Finish, awaitItem())
             }
@@ -454,7 +453,6 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 12, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-
             // Given
             val signedDocumentPrefix = "signed_0"
             val redirectUrl = "https://eudi.test.eu".toUriOrEmpty()
@@ -480,7 +478,7 @@ class TestSuccessViewModel {
                 Event.BottomBarButtonPressed
             )
 
-            // Expected
+            // Then
             viewModel.effect.runFlowTest {
                 assertEquals(Effect.Navigation.OpenRedirectUrl(redirectUrl), awaitItem())
             }
@@ -494,7 +492,7 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 13, When Initialize fails on getSelectedFileAndQtsp, Then error state is set and callbacks execute`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val errorMessage = mockedPlainFailureMessage
             val response = SuccessInteractorGetSelectedFileAndQtspPartialState.Failure(
                 error = EudiRQESUiError(
@@ -504,13 +502,12 @@ class TestSuccessViewModel {
             )
             mockGetSelectedFileAndQtspCall(response = response)
 
-            // Act
+            // When
             viewModel.setEvent(Event.Initialize)
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertEquals(errorMessage, error?.errorSubTitle)
-                // Exercise onRetry and onCancel callbacks for coverage.
                 error?.onRetry?.invoke()
                 error?.onCancel?.invoke()
             }
@@ -524,7 +521,7 @@ class TestSuccessViewModel {
     @Test
     fun `Given Case 14, When SignAndSaveDocument fails, Then error state callbacks execute`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val event = Event.SignAndSaveDocument(mockedDocumentName, mockedQtspName)
             val errorResponse = SuccessInteractorSignAndSaveDocumentPartialState.Failure(
                 error = EudiRQESUiError(
@@ -534,13 +531,12 @@ class TestSuccessViewModel {
             )
             mockSignAndSaveDocumentCall(documentName = mockedDocumentName, response = errorResponse)
 
-            // Act
+            // When
             viewModel.setEvent(event)
 
-            // Assert
+            // Then
             with(viewModel.viewState.value) {
                 assertEquals(mockedPlainFailureMessage, error?.errorSubTitle)
-                // Exercise onRetry and onCancel callbacks for coverage.
                 error?.onRetry?.invoke()
                 error?.onCancel?.invoke()
             }

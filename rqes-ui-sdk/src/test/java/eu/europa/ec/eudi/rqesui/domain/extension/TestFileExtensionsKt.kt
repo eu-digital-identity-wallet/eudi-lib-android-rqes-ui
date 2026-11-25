@@ -20,9 +20,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -67,8 +67,8 @@ class TestFileExtensionsKt {
     // Expected Result:
     // 1. The function should return a successful Result containing the same Uri.
     @Test
-    fun `When toShareableUri is called and FileProvider returns a Uri, Then success result with that Uri is returned`() {
-        // Arrange
+    fun `Given FileProvider returns a Uri, When toShareableUri is called, Then success result with that Uri is returned`() {
+        // Given
         val file = File("test_file.pdf")
         mockStatic(FileProvider::class.java).use { mocked ->
             mocked.`when`<Uri> {
@@ -79,10 +79,10 @@ class TestFileExtensionsKt {
                 )
             }.thenReturn(fileUri)
 
-            // Act
+            // When
             val result = file.toShareableUri(context)
 
-            // Assert
+            // Then
             assertTrue(result.isSuccess)
             assertEquals(fileUri, result.getOrThrow())
         }
@@ -93,8 +93,8 @@ class TestFileExtensionsKt {
     // Expected Result:
     // 1. The function should return a failure Result wrapping the exception.
     @Test
-    fun `When toShareableUri is called and FileProvider throws, Then failure result is returned`() {
-        // Arrange
+    fun `Given FileProvider throws, When toShareableUri is called, Then failure result is returned`() {
+        // Given
         val file = File("test_file.pdf")
         mockStatic(FileProvider::class.java).use { mocked ->
             mocked.`when`<Uri> {
@@ -105,10 +105,10 @@ class TestFileExtensionsKt {
                 )
             }.thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = file.toShareableUri(context)
 
-            // Assert
+            // Then
             assertTrue(result.isFailure)
             assertEquals(mockedExceptionWithMessage.message, result.exceptionOrNull()?.message)
         }

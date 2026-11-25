@@ -41,9 +41,9 @@ import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.util.runTest
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -119,14 +119,14 @@ class TestSuccessInteractor {
     // 4. The `selectedQtsp` in the returned result should match the mock `qtspData`.
     @Test
     fun `Given Case 1, When getSelectedFileAndQtsp is called, Then Case 1 expected result is returned`() {
-        // Arrange
+        // Given
         mockGetSelectedFileCall(event = EudiRqesGetSelectedFilePartialState.Success(file = documentData))
         mockGetSelectedQtspCall(event = EudiRqesGetSelectedQtspPartialState.Success(qtsp = qtspData))
 
-        // Act
+        // When
         val result = interactor.getSelectedFileAndQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Success)
         val success = result as SuccessInteractorGetSelectedFileAndQtspPartialState.Success
         assertEquals(documentData, success.selectedFile)
@@ -140,15 +140,15 @@ class TestSuccessInteractor {
     // 3. The `error` in the returned result should match the mocked `EudiRQESUiError` with the failure message.
     @Test
     fun `Given Case 2, When getSelectedFileAndQtsp is called, Then Case 2 expected result is returned`() {
-        // Arrange
+        // Given
         val error =
             EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedPlainFailureMessage)
         mockGetSelectedFileCall(event = EudiRqesGetSelectedFilePartialState.Failure(error = error))
 
-        // Act
+        // When
         val result = interactor.getSelectedFileAndQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Failure)
         assertEquals(
             error,
@@ -165,16 +165,16 @@ class TestSuccessInteractor {
     // 4. The `error` in the returned result should match the mocked `EudiRQESUiError` with the failure message.
     @Test
     fun `Given Case 3, When getSelectedFileAndQtsp is called, Then Case 3 expected result is returned`() {
-        // Arrange
+        // Given
         val error =
             EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedPlainFailureMessage)
         mockGetSelectedFileCall(event = EudiRqesGetSelectedFilePartialState.Success(file = documentData))
         mockGetSelectedQtspCall(event = EudiRqesGetSelectedQtspPartialState.Failure(error = error))
 
-        // Act
+        // When
         val result = interactor.getSelectedFileAndQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Failure)
         assertEquals(
             error,
@@ -190,14 +190,14 @@ class TestSuccessInteractor {
     // 2. The result should be a `Failure` with the exception's message included in the error.
     @Test
     fun `Given Case 4, When getSelectedFileAndQtsp is called, Then Case 4 expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRqesController.getSelectedFile())
             .thenThrow(mockedExceptionWithMessage)
 
-        // Act
+        // When
         val result = interactor.getSelectedFileAndQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Failure)
         val failure = result as SuccessInteractorGetSelectedFileAndQtspPartialState.Failure
         assertEquals(mockedExceptionWithMessage.message, failure.error.message)
@@ -212,14 +212,14 @@ class TestSuccessInteractor {
     // 2. The result should be a `Failure` with the mocked generic error message.
     @Test
     fun `Given Case 5, When getSelectedFileAndQtsp is called, Then Case 5 expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRqesController.getSelectedFile())
             .thenThrow(mockedExceptionWithNoMessage)
 
-        // Act
+        // When
         val result = interactor.getSelectedFileAndQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is SuccessInteractorGetSelectedFileAndQtspPartialState.Failure)
         val failure = result as SuccessInteractorGetSelectedFileAndQtspPartialState.Failure
         assertEquals(mockedGenericErrorMessage, failure.error.message)
@@ -239,7 +239,7 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 1, When signAndSaveDocument is called, Then Case 1 expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val documents = mapOf(mockedDocumentName to documentFileUri)
             mockAuthorizeCredentialCall(
                 response = EudiRqesAuthorizeCredentialPartialState.Success(
@@ -262,10 +262,10 @@ class TestSuccessInteractor {
             )
             mockGetFileNameFromUri()
 
-            // Act
+            // When
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
-            // Assert
+            // Then
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Success)
         }
 
@@ -278,7 +278,7 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 2, When signAndSaveDocument is called, Then Case 2 expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val error = EudiRQESUiError(
                 title = mockedGenericErrorTitle,
                 message = mockedPlainFailureMessage
@@ -289,10 +289,10 @@ class TestSuccessInteractor {
                 )
             )
 
-            // Act
+            // When
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
-            // Assert
+            // Then
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
             assertEquals(
                 error,
@@ -310,7 +310,7 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 3, When signAndSaveDocument is called, Then Case 3 expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val error = EudiRQESUiError(
                 title = mockedGenericErrorTitle,
                 message = mockedPlainFailureMessage
@@ -322,10 +322,10 @@ class TestSuccessInteractor {
             )
             mockSignDocumentsCall(response = EudiRqesSignDocumentsPartialState.Failure(error = error))
 
-            // Act
+            // When
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
-            // Assert
+            // Then
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
             assertEquals(
                 error,
@@ -345,7 +345,7 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 4, When signAndSaveDocument is called, Then Case 4 expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val error = EudiRQESUiError(
                 title = mockedGenericErrorTitle,
                 message = mockedPlainFailureMessage
@@ -366,10 +366,10 @@ class TestSuccessInteractor {
                 event = EudiRqesSaveSignedDocumentsPartialState.Failure(error = error)
             )
 
-            // Act
+            // When
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
-            // Assert
+            // Then
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
             assertEquals(
                 error,
@@ -386,15 +386,15 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 5, When signAndSaveDocument is called, Then Case 5 expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRqesController.authorizeCredential()).thenThrow(
                 mockedExceptionWithMessage
             )
 
-            // Act
+            // When
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
-            // Assert
+            // Then
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
             val failureState = result as SuccessInteractorSignAndSaveDocumentPartialState.Failure
             assertTrue(failureState.error.message == mockedExceptionWithMessage.message)
@@ -406,14 +406,14 @@ class TestSuccessInteractor {
     @Test
     fun `Given Case 6, When signAndSaveDocument throws exception with no message, Then generic error message is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRqesController.authorizeCredential())
                 .thenThrow(mockedExceptionWithNoMessage)
 
-            // Act
+            // When
             val result = interactor.signAndSaveDocument(mockedDocumentName)
 
-            // Assert
+            // Then
             assertTrue(result is SuccessInteractorSignAndSaveDocumentPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,

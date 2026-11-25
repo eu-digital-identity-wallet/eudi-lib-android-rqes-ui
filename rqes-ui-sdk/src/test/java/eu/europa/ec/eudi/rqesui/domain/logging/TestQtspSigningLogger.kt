@@ -63,10 +63,10 @@ class TestQtspSigningLogger {
     // Expected: one callback preserves both documents and fills the missing service name.
     @Test
     fun `Given a completed multi-document record, When notified, Then only the service name is enriched`() {
-        // Act
+        // When
         signingLogger.onSigningCompleted(mockedRecord)
 
-        // Assert
+        // Then
         val expectedRecord = mockedRecord.copy(
             serviceName = RqesSigningRecord.LocalizedName(
                 languageTag = "und",
@@ -82,15 +82,15 @@ class TestQtspSigningLogger {
     // Expected: the failed outcome, exact reason and metadata are preserved.
     @Test
     fun `Given a failed record with a reason, When notified, Then the failure is forwarded unchanged`() {
-        // Arrange
+        // Given
         val record = mockedRecord.copy(
             outcome = RqesSigningRecord.Outcome.Failed(reason = "  Signing service declined  ")
         )
 
-        // Act
+        // When
         signingLogger.onSigningCompleted(record)
 
-        // Assert
+        // Then
         val expectedRecord = record.copy(
             serviceName = RqesSigningRecord.LocalizedName(
                 languageTag = "und",
@@ -106,7 +106,7 @@ class TestQtspSigningLogger {
     // Expected: the callback preserves the absent metadata and empty document list.
     @Test
     fun `Given an empty failed record, When notified, Then missing metadata and the empty list are retained`() {
-        // Arrange
+        // Given
         val record = RqesSigningRecord(
             outcome = RqesSigningRecord.Outcome.Failed(reason = null),
             certificateSerialNumber = null,
@@ -114,10 +114,10 @@ class TestQtspSigningLogger {
             serviceName = null
         )
 
-        // Act
+        // When
         signingLogger.onSigningCompleted(record)
 
-        // Assert
+        // Then
         val expectedRecord = record.copy(
             serviceName = RqesSigningRecord.LocalizedName(
                 languageTag = "und",
@@ -133,7 +133,7 @@ class TestQtspSigningLogger {
     // Expected: its language tag and exact text, including surrounding spaces, take precedence.
     @Test
     fun `Given a recorded service name, When notified, Then its original name and language are retained`() {
-        // Arrange
+        // Given
         val record = mockedRecord.copy(
             serviceName = RqesSigningRecord.LocalizedName(
                 languageTag = "fr-CA",
@@ -141,10 +141,10 @@ class TestQtspSigningLogger {
             )
         )
 
-        // Act
+        // When
         signingLogger.onSigningCompleted(record)
 
-        // Assert
+        // Then
         verify(delegate).onSigningCompleted(record)
         verifyNoMoreInteractions(delegate)
     }
@@ -154,17 +154,17 @@ class TestQtspSigningLogger {
     // Expected: each callback uses the captured QTSP name with an undetermined language.
     @Test
     fun `Given blank recorded service names, When notified, Then the selected QTSP name is used`() {
-        // Arrange
+        // Given
         val records = listOf("", "   ").map { name ->
             mockedRecord.copy(
                 serviceName = RqesSigningRecord.LocalizedName(languageTag = "fr", name = name)
             )
         }
 
-        // Act
+        // When
         records.forEach(signingLogger::onSigningCompleted)
 
-        // Assert
+        // Then
         val expectedRecord = mockedRecord.copy(
             serviceName = RqesSigningRecord.LocalizedName(
                 languageTag = "und",
@@ -180,7 +180,7 @@ class TestQtspSigningLogger {
     // Expected: every input record is forwarded with an absent service name.
     @Test
     fun `Given no usable service name, When notified, Then no name or language is invented`() {
-        // Arrange
+        // Given
         val records = listOf(
             null,
             RqesSigningRecord.LocalizedName(languageTag = "en", name = ""),
@@ -188,13 +188,13 @@ class TestQtspSigningLogger {
         ).map { name -> mockedRecord.copy(serviceName = name) }
         val qtspNames = listOf("", "   ")
 
-        // Act
+        // When
         qtspNames.forEach { qtspName ->
             val logger = QtspSigningLogger(delegate = delegate, qtspName = qtspName)
             records.forEach(logger::onSigningCompleted)
         }
 
-        // Assert
+        // Then
         verify(delegate, times(qtspNames.size * records.size)).onSigningCompleted(mockedRecord)
         verifyNoMoreInteractions(delegate)
     }
@@ -204,18 +204,18 @@ class TestQtspSigningLogger {
     // Expected: a later callback to the first adapter still uses its original QTSP name and delegate.
     @Test
     fun `Given two service adapters, When callbacks arrive, Then each retains its QTSP name and delegate`() {
-        // Arrange
+        // Given
         val otherQtspName = "  Another signing service  "
         val otherSigningLogger = QtspSigningLogger(
             delegate = otherDelegate,
             qtspName = otherQtspName
         )
 
-        // Act
+        // When
         otherSigningLogger.onSigningCompleted(mockedRecord)
         signingLogger.onSigningCompleted(mockedRecord)
 
-        // Assert
+        // Then
         verify(delegate).onSigningCompleted(
             mockedRecord.copy(
                 serviceName = RqesSigningRecord.LocalizedName(
@@ -240,16 +240,16 @@ class TestQtspSigningLogger {
     // Expected: both callbacks reach the delegate once in their original order.
     @Test
     fun `Given successive signing attempts, When notified, Then each outcome reaches the delegate in order`() {
-        // Arrange
+        // Given
         val records = listOf(
             mockedRecord,
             mockedRecord.copy(outcome = RqesSigningRecord.Outcome.Failed(reason = null))
         )
 
-        // Act
+        // When
         records.forEach(signingLogger::onSigningCompleted)
 
-        // Assert
+        // Then
         val recordCaptor = argumentCaptor<RqesSigningRecord>()
         verify(delegate, times(records.size)).onSigningCompleted(recordCaptor.capture())
         assertEquals(records.map { it.outcome }, recordCaptor.allValues.map { it.outcome })

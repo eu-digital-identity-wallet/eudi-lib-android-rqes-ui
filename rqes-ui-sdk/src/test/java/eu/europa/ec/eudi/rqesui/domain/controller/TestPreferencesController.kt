@@ -20,16 +20,16 @@ import eu.europa.ec.eudi.rqesui.util.getMockedContext
 import eu.europa.ec.eudi.rqesui.util.mockedDefaultPreferenceValue
 import eu.europa.ec.eudi.rqesui.util.mockedPreferenceStringValue
 import eu.europa.ec.eudi.rqesui.util.mockedPreferencesKey
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.MockitoAnnotations
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -49,20 +49,20 @@ class TestPreferencesController {
         closeable.close()
     }
 
-    // region getBool
+    //region getBool
     // Case 1: Test setting and getting a boolean value
     // Expected Result:
     // 1. The boolean value should be set correctly and the correct value should be retrieved.
     @Test
     fun `Given Case 1, When setBool and getBool are called, Then the correct boolean value is returned`() {
-        // Arrange
+        // Given
         val preferenceValue = true
         preferencesController.setBool(mockedPreferencesKey, preferenceValue)
 
-        // Act
+        // When
         val result = preferencesController.getBool(mockedPreferencesKey, false)
 
-        // Assert
+        // Then
         assertEquals(preferenceValue, result)
     }
     //endregion
@@ -73,13 +73,13 @@ class TestPreferencesController {
     // 1. The string value should be set correctly, and the correct value should be retrieved.
     @Test
     fun `Given Case 1, When setString and getString are called, Then the correct string value is returned`() {
-        // Arrange
+        // Given
         preferencesController.setString(mockedPreferencesKey, mockedPreferenceStringValue)
 
-        // Act
+        // When
         val result = preferencesController.getString(mockedPreferencesKey, "")
 
-        // Assert
+        // Then
         assertEquals(mockedPreferenceStringValue, result)
     }
 
@@ -88,27 +88,29 @@ class TestPreferencesController {
     // 1. If the key does not exist, the default value should be returned.
     @Test
     fun `Given Case 2, When getString with default value is called, Then the default value is returned`() {
-        // Act
+        // When
         val result =
             preferencesController.getString(mockedPreferencesKey, mockedDefaultPreferenceValue)
 
-        // Assert
+        // Then
         assertEquals(mockedDefaultPreferenceValue, result)
     }
+
+    //endregion
 
     //region contains
     // Case 1: Test specific key being contained
     // Expected Result:
     // 1. After calling setString for a given key and value, `contains` should return true.
     @Test
-    fun `Given Case 1, When contains is called, Then false should be returned`() {
-        // Arrange
+    fun `Given Case 1, When contains is called, Then true should be returned`() {
+        // Given
         preferencesController.setString(mockedPreferencesKey, mockedPreferenceStringValue)
 
-        // Act
+        // When
         val result = preferencesController.contains(mockedPreferencesKey)
 
-        // Assert
+        // Then
         assertTrue(result)
     }
     //endregion
@@ -119,13 +121,13 @@ class TestPreferencesController {
     // 1. All preferences should be cleared, and subsequent attempts to access any key should return false.
     @Test
     fun `Given Case 1, When clear() is called, Then all preferences are cleared`() {
-        // Arrange
+        // Given
         preferencesController.setString(mockedPreferencesKey, mockedPreferenceStringValue)
 
-        // Act
+        // When
         preferencesController.clear()
 
-        // Assert
+        // Then
         assertFalse(preferencesController.contains(mockedPreferencesKey))
     }
 
@@ -134,13 +136,13 @@ class TestPreferencesController {
     // 1. The specified key should be removed, and subsequent attempts to access it should return false.
     @Test
     fun `Given Case 2, When remove specific key is called, Then the key is removed and not found`() {
-        // Arrange
+        // Given
         preferencesController.setString(mockedPreferencesKey, mockedPreferenceStringValue)
 
-        // Act
+        // When
         preferencesController.clear(mockedPreferencesKey)
 
-        // Assert
+        // Then
         val result = preferencesController.contains(mockedPreferencesKey)
         assertFalse(result)
     }
@@ -152,14 +154,14 @@ class TestPreferencesController {
     // 1. The integer value should be set correctly, and the correct value should be retrieved.
     @Test
     fun `Given Case 1, When setInt and getInt are called, Then the correct integer value is returned`() {
-        // Arrange
+        // Given
         val preferenceValue = 100
         preferencesController.setInt(mockedPreferencesKey, preferenceValue)
 
-        // Act
+        // When
         val result = preferencesController.getInt(mockedPreferencesKey, 0)
 
-        // Assert
+        // Then
         assertEquals(preferenceValue, result)
     }
     //endregion
@@ -170,14 +172,14 @@ class TestPreferencesController {
     // 1. The long value should be set correctly, and the correct value should be retrieved.
     @Test
     fun `Given Case 1, When setLong and getLong are called, Then the correct long value is returned`() {
-        // Arrange
+        // Given
         val preferenceLongValue = 100L
         preferencesController.setLong(mockedPreferencesKey, preferenceLongValue)
 
-        // Act
+        // When
         val result = preferencesController.getLong(mockedPreferencesKey, 0)
 
-        // Assert
+        // Then
         assertEquals(preferenceLongValue, result)
     }
     //endregion

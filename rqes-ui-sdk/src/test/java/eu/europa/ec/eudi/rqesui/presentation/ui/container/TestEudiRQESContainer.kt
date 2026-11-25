@@ -16,7 +16,7 @@
 
 package eu.europa.ec.eudi.rqesui.presentation.ui.container
 
-import junit.framework.TestCase.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.w3c.dom.Element
 import java.io.File
@@ -26,17 +26,17 @@ class TestEudiRQESContainer {
 
     @Test
     fun `Given the library manifest, When the EudiRQESContainer declaration is read, Then it is not exported`() {
-        // Arrange
+        // Given
         val manifest = File("src/main/AndroidManifest.xml")
         val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(manifest)
 
-        // Act
+        // When
         val activities = document.getElementsByTagName("activity")
         val container = (0 until activities.length)
             .map { activities.item(it) as Element }
             .single { EudiRQESContainer::class.java.name.endsWith(it.getAttribute("android:name")) }
 
-        // Assert
+        // Then
         assertEquals("false", container.getAttribute("android:exported"))
     }
 }
