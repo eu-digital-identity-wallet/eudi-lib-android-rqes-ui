@@ -26,9 +26,9 @@ import eu.europa.ec.eudi.rqesui.util.mockedDocumentName
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
 import eu.europa.ec.eudi.rqesui.util.mockedUri
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,8 +70,8 @@ class TestUriExtensionsKt {
 
     //region getFileName
     @Test
-    fun `When getFileName is called, Then assert the expected file name is returned`() {
-        // Arrange
+    fun `Given a Uri with a file name, When getFileName is called, Then the expected file name is returned`() {
+        // Given
         whenever(context.contentResolver).thenReturn(contentResolver)
         whenever(
             contentResolver.query(
@@ -83,17 +83,17 @@ class TestUriExtensionsKt {
         whenever(cursor.moveToFirst()).thenReturn(true)
         whenever(cursor.getString(0)).thenReturn(mockedDocumentName)
 
-        // Act
+        // When
         val fileNameResult = fileUri.getFileName(context).getOrThrow()
 
-        // Assert
+        // Then
         assertEquals(mockedDocumentName, fileNameResult)
         verify(cursor).close()
     }
 
     @Test
-    fun `When getFileName is called and file name is null, Then assert failure result is returned`() {
-        // Arrange
+    fun `Given the file name is null, When getFileName is called, Then failure result is returned`() {
+        // Given
         whenever(context.contentResolver).thenReturn(contentResolver)
         whenever(
             contentResolver.query(
@@ -105,10 +105,10 @@ class TestUriExtensionsKt {
         whenever(cursor.moveToFirst()).thenReturn(true)
         whenever(cursor.getString(0)).thenReturn(null)
 
-        // Act
+        // When
         val fileNameResult = fileUri.getFileName(context)
 
-        // Assert
+        // Then
         assertTrue(fileNameResult.isFailure)
         val exception = fileNameResult.exceptionOrNull()
         assertTrue(exception is EudiRQESUiError)
@@ -116,8 +116,8 @@ class TestUriExtensionsKt {
     }
 
     @Test
-    fun `When getFileName is called and contentResolver query returns null cursor, Then failure result is returned`() {
-        // Arrange
+    fun `Given contentResolver query returns a null cursor, When getFileName is called, Then failure result is returned`() {
+        // Given
         whenever(context.contentResolver).thenReturn(contentResolver)
         whenever(
             contentResolver.query(
@@ -125,10 +125,10 @@ class TestUriExtensionsKt {
             )
         ).thenReturn(null)
 
-        // Act
+        // When
         val fileNameResult = fileUri.getFileName(context)
 
-        // Assert
+        // Then
         assertTrue(fileNameResult.isFailure)
         val exception = fileNameResult.exceptionOrNull()
         assertTrue(exception is EudiRQESUiError)
@@ -141,14 +141,14 @@ class TestUriExtensionsKt {
     // Expected Result:
     // 1. The function should return a successful Result containing the decoded Uri.
     @Test
-    fun `When decode is called on a valid Uri, Then success result with decoded Uri is returned`() {
-        // Arrange
+    fun `Given a valid Uri, When decode is called, Then success result with decoded Uri is returned`() {
+        // Given
         val uri = Uri.parse(mockedUri)
 
-        // Act
+        // When
         val result = uri.decode()
 
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         assertEquals(mockedUri, result.getOrThrow().toString())
     }
@@ -158,16 +158,16 @@ class TestUriExtensionsKt {
     // Expected Result:
     // 1. The function should return a failure Result with EudiRQESUiError containing the exception's message.
     @Test
-    fun `When decode is called and Uri decode throws with message, Then failure with that message is returned`() {
+    fun `Given Uri decode throws with message, When decode is called, Then failure with that message is returned`() {
         mockStatic(Uri::class.java).use { mocked ->
-            // Arrange
+            // Given
             mocked.`when`<String> { Uri.decode(fileUri.toString()) }
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = fileUri.decode()
 
-            // Assert
+            // Then
             assertTrue(result.isFailure)
             val exception = result.exceptionOrNull()
             assertTrue(exception is EudiRQESUiError)
@@ -181,16 +181,16 @@ class TestUriExtensionsKt {
     // Expected Result:
     // 1. The function should return a failure Result with EudiRQESUiError containing the fallback message.
     @Test
-    fun `When decode is called and Uri decode throws without message, Then failure with fallback message is returned`() {
+    fun `Given Uri decode throws without message, When decode is called, Then failure with fallback message is returned`() {
         mockStatic(Uri::class.java).use { mocked ->
-            // Arrange
+            // Given
             mocked.`when`<String> { Uri.decode(fileUri.toString()) }
                 .thenThrow(mockedExceptionWithNoMessage)
 
-            // Act
+            // When
             val result = fileUri.decode()
 
-            // Assert
+            // Then
             assertTrue(result.isFailure)
             val exception = result.exceptionOrNull()
             assertTrue(exception is EudiRQESUiError)

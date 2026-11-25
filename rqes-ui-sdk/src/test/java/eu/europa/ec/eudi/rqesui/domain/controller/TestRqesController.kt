@@ -60,12 +60,12 @@ import eu.europa.ec.eudi.rqesui.util.mockedQtspNotFound
 import eu.europa.ec.eudi.rqesui.util.mockedTsaUrl
 import eu.europa.ec.eudi.rqesui.util.mockedUri
 import eu.europa.ec.eudi.rqesui.util.runTest
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNotNull
-import junit.framework.TestCase.assertNull
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.CancellationException
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -180,16 +180,16 @@ class TestRqesController {
     // 2. The `file` property in the returned state should match the `sessionData.file` value
     @Test
     fun `Given Case 1, When getSelectedFile is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenReturn(sessionData)
         whenever(sessionData.file)
             .thenReturn(documentData)
 
-        // Act
+        // When
         val result = rqesController.getSelectedFile()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedFilePartialState.Success)
         val state = result as EudiRqesGetSelectedFilePartialState.Success
         assertEquals(sessionData.file, state.file)
@@ -201,14 +201,14 @@ class TestRqesController {
     // 1. The function should return an instance of `EudiRqesGetSelectedFilePartialState.Failure`.
     @Test
     fun `Given Case 2, When getSelectedFile is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenReturn(null)
 
-        // Act
+        // When
         val result = rqesController.getSelectedFile()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
     }
 
@@ -220,14 +220,14 @@ class TestRqesController {
     // 2. The failure state should contain the error message from the thrown exception.
     @Test
     fun `Given Case 3, When getSelectedFile is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenThrow(mockedExceptionWithMessage)
 
-        // Act
+        // When
         val result = rqesController.getSelectedFile()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
         val failureState = result as EudiRqesGetSelectedFilePartialState.Failure
         assertEquals(mockedExceptionWithMessage.message, failureState.error.message)
@@ -241,7 +241,7 @@ class TestRqesController {
     // 2. The failure state contains the expected error message from the resource provider.
     @Test
     fun `Given Case 4, When getSelectedFile is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenReturn(sessionData)
         whenever(sessionData.file)
@@ -249,10 +249,10 @@ class TestRqesController {
         whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound))
             .thenReturn(mockedDocumentNotFoundMessage)
 
-        // Act
+        // When
         val result = rqesController.getSelectedFile()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
         val failureState = result as EudiRqesGetSelectedFilePartialState.Failure
         assertEquals(
@@ -270,16 +270,16 @@ class TestRqesController {
     // 2. The success state should include the list of QTSPs.
     @Test
     fun `Given Case 1, When getQtsps is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig())
             .thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUiConfig.qtsps)
             .thenReturn(qtspDataList)
 
-        // Act
+        // When
         val result = rqesController.getQtsps()
 
-        // Assert
+        // Then
         assertEquals(EudiRqesGetQtspsPartialState.Success(qtspDataList), result)
     }
 
@@ -291,14 +291,14 @@ class TestRqesController {
     // 2. The failure state should include an `EudiRQESUiError` with the generic error message.
     @Test
     fun `Given Case 2, When getQtsps is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig())
             .thenThrow(mockedExceptionWithNoMessage)
 
-        // Act
+        // When
         val result = rqesController.getQtsps()
 
-        // Assert
+        // Then
         val expectedError =
             EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedGenericErrorMessage)
         assertEquals(
@@ -318,15 +318,15 @@ class TestRqesController {
     // 2. The success state should include a non-null service object, representing the created RQES service.
     @Test
     fun `Given Case 1, When setSelectedQtsp is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
 
-        // Act
+        // When
         val result = rqesController.setSelectedQtsp(qtspData)
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Success)
         assertNotNull((result as EudiRqesSetSelectedQtspPartialState.Success).service)
     }
@@ -338,15 +338,15 @@ class TestRqesController {
     // 2. The failure state should confirm that the exception is caught and the failure is handled appropriately.
     @Test
     fun `Given Case 2, When setSelectedQtsp is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithMessage)
         mockQTSPData(qtspData = qtspData)
 
-        // Act
+        // When
         val result = rqesController.setSelectedQtsp(qtspData)
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
     }
 
@@ -355,16 +355,16 @@ class TestRqesController {
     // Expected: the service is created without notifying the logger before signing.
     @Test
     fun `Given a signing logger, When setSelectedQtsp is called, Then the service is created without a signing event`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUiConfig.signingLogger).thenReturn(signingLogger)
         whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
 
-        // Act
+        // When
         val result = rqesController.setSelectedQtsp(qtspData)
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Success)
         assertNotNull((result as EudiRqesSetSelectedQtspPartialState.Success).service)
         verifyNoInteractions(signingLogger)
@@ -380,16 +380,16 @@ class TestRqesController {
     // 2. The success state should include the `qtsp` value matching the mocked `qtspData`.
     @Test
     fun `Given Case 1, When getSelectedQtsp is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenReturn(sessionData)
         whenever(sessionData.qtsp)
             .thenReturn(qtspData)
 
-        // Act
+        // When
         val result = rqesController.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedQtspPartialState.Success)
         assertEquals(qtspData, (result as EudiRqesGetSelectedQtspPartialState.Success).qtsp)
     }
@@ -402,7 +402,7 @@ class TestRqesController {
     // 2. The failure state should include an error message indicating that the QTSP could not be found.
     @Test
     fun `Given Case 2, When getSelectedQtsp is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenReturn(sessionData)
         whenever(sessionData.qtsp)
@@ -410,10 +410,10 @@ class TestRqesController {
         whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound))
             .thenReturn(mockedQtspNotFound)
 
-        // Act
+        // When
         val result = rqesController.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedQtspPartialState.Failure)
         assertEquals(
             resourceProvider.getLocalizedString(LocalizableKey.GenericErrorQtspNotFound),
@@ -429,14 +429,14 @@ class TestRqesController {
     // 2. The failure state should include the error message from the exception.
     @Test
     fun `Given Case 3, When getSelectedQtsp is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData())
             .thenThrow(mockedExceptionWithMessage)
 
-        // Act
+        // When
         val result = rqesController.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedQtspPartialState.Failure)
         assertEquals(
             mockedExceptionWithMessage.message,
@@ -454,14 +454,14 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When signDocuments is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(credentialAuthorized.signDocuments())
                 .thenReturn(Result.success(signedDocuments))
 
-            // Act
+            // When
             val result = rqesController.signDocuments(credentialAuthorized)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesSignDocumentsPartialState.Success)
         }
 
@@ -473,14 +473,14 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When signDocuments throws an exception, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(credentialAuthorized.signDocuments())
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = rqesController.signDocuments(credentialAuthorized)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesSignDocumentsPartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -501,17 +501,17 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When authorizeCredential is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             mockAuthorizeCredentialResultSuccess()
 
-            // Act
+            // When
             val result = rqesController.authorizeCredential()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Success)
             assertEquals(
                 credentialAuthorized,
@@ -528,15 +528,15 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When authorizeCredential is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             mockSessionData()
             whenever(eudiRQESUi.getAuthorizedService())
                 .thenReturn(null)
 
-            // Act
+            // When
             val result = rqesController.authorizeCredential()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
         }
 
@@ -551,7 +551,7 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When authorizeCredential is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
@@ -560,10 +560,10 @@ class TestRqesController {
                 rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = rqesController.authorizeCredential()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -583,16 +583,16 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When authorizeCredential is called without a state, Then Failure is returned and the credential is not authorized`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(sessionData.authorizationState).thenReturn(null)
             whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
 
-            // Act
+            // When
             val result = rqesController.authorizeCredential()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -614,7 +614,7 @@ class TestRqesController {
     @Test
     fun `Given Case 5, When RQES Core refuses the state, Then authorizeCredential returns Failure with the state error as cause`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val stateError = AuthorizationError.InvalidAuthorizationState()
             mockSessionData()
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
@@ -624,10 +624,10 @@ class TestRqesController {
                 rqesServiceAuthorized.authorizeCredential(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenReturn(Result.failure(stateError))
 
-            // Act
+            // When
             val result = rqesController.authorizeCredential()
 
-            // Assert
+            // Then
             verify(logController).e(stateError)
             assertTrue(result is EudiRqesAuthorizeCredentialPartialState.Failure)
             val error = (result as EudiRqesAuthorizeCredentialPartialState.Failure).error
@@ -647,16 +647,16 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When getServiceAuthorizationUrl is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val authorizationResult = HttpsUrl(mockedAuthorizationHttpsUrl).getOrThrow()
             whenever(rqesService.getServiceAuthorizationUrl()).thenReturn(
                 Result.success(authorizationResult),
             )
 
-            // Act
+            // When
             val result = rqesController.getServiceAuthorizationUrl(rqesService)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetServiceAuthorizationUrlPartialState.Success)
             assertEquals(
                 authorizationResult.value.toString().toUriOrEmpty(),
@@ -672,14 +672,14 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When getServiceAuthorizationUrl is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(rqesService.getServiceAuthorizationUrl())
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = rqesController.getServiceAuthorizationUrl(rqesService)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetServiceAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -694,10 +694,10 @@ class TestRqesController {
     // 1. The setAuthorizedService on eudiRQESUi should be called exactly once with a rqesServiceAuthorized argument.
     @Test
     fun `Given Case 1, When setAuthorizedService is called, Then the expected result is returned`() {
-        // Act
+        // When
         rqesController.setAuthorizedService(rqesServiceAuthorized)
 
-        // Assert
+        // Then
         verify(eudiRQESUi, times(1))
             .setAuthorizedService(rqesServiceAuthorized)
     }
@@ -715,7 +715,7 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When authorizeService is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             mockSessionData()
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
@@ -724,10 +724,10 @@ class TestRqesController {
                 rqesService.authorizeService(AuthorizationCode(mockedAuthorizationCode), mockedAuthorizationState),
             ).thenReturn(Result.success(rqesServiceAuthorized))
 
-            // Act
+            // When
             val result = rqesController.authorizeService()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Success)
             assertEquals(
                 rqesServiceAuthorized,
@@ -744,14 +744,14 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When authorizeService is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getRqesService()).thenReturn(null)
             mockSessionData()
 
-            // Act
+            // When
             val result = rqesController.authorizeService()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -770,7 +770,7 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When authorizeService is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
@@ -779,10 +779,10 @@ class TestRqesController {
             ).thenThrow(mockedExceptionWithMessage)
             mockSessionData()
 
-            // Act
+            // When
             val result = rqesController.authorizeService()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -802,7 +802,7 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When authorizeService throws, Then the throwable is logged and kept as cause`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(sessionData.authorizationState).thenReturn(mockedAuthorizationState)
@@ -811,10 +811,10 @@ class TestRqesController {
             ).thenThrow(mockedExceptionWithMessage)
             mockSessionData()
 
-            // Act
+            // When
             val result = rqesController.authorizeService()
 
-            // Assert
+            // Then
             verify(logController).e(mockedExceptionWithMessage)
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
             assertEquals(
@@ -834,7 +834,7 @@ class TestRqesController {
     @Test
     fun `Given Case 5, When authorizeService is cancelled, Then the cancellation is not logged`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val cancellation = CancellationException("cancelled")
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
@@ -844,10 +844,10 @@ class TestRqesController {
             ).thenThrow(cancellation)
             mockSessionData()
 
-            // Act
+            // When
             rqesController.authorizeService()
 
-            // Assert
+            // Then
             verify(logController, never()).e(cancellation)
         }
 
@@ -863,16 +863,16 @@ class TestRqesController {
     @Test
     fun `Given Case 6, When authorizeService is called without a state, Then Failure is returned and the service is not authorized`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
             whenever(sessionData.authorizationState).thenReturn(null)
             mockSessionData()
 
-            // Act
+            // When
             val result = rqesController.authorizeService()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -894,7 +894,7 @@ class TestRqesController {
     @Test
     fun `Given Case 7, When RQES Core refuses the state, Then authorizeService returns Failure with the state error as cause`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val stateError = AuthorizationError.InvalidAuthorizationState()
             whenever(eudiRQESUi.getRqesService()).thenReturn(rqesService)
             whenever(sessionData.authorizationCode).thenReturn(mockedAuthorizationCode)
@@ -904,10 +904,10 @@ class TestRqesController {
             ).thenReturn(Result.failure(stateError))
             mockSessionData()
 
-            // Act
+            // When
             val result = rqesController.authorizeService()
 
-            // Assert
+            // Then
             verify(logController).e(stateError)
             assertTrue(result is EudiRqesAuthorizeServicePartialState.Failure)
             val error = (result as EudiRqesAuthorizeServicePartialState.Failure).error
@@ -929,7 +929,7 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When getAvailableCertificates is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val mockedCertificateData =
                 CertificateData(name = mockedCertificateName, certificate = credentialInfo)
             val mockedCertificatesList = listOf(mockedCertificateData)
@@ -938,10 +938,10 @@ class TestRqesController {
             whenever(rqesServiceAuthorized.listCredentials())
                 .thenReturn(Result.success(mockCredentialInfoList))
 
-            // Act
+            // When
             val result = rqesController.getAvailableCertificates(rqesServiceAuthorized)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCertificatesPartialState.Success)
             assertEquals(
                 mockedCertificatesList,
@@ -958,15 +958,15 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When getAvailableCertificates is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(rqesServiceAuthorized.listCredentials())
                 .thenReturn(Result.success(emptyList()))
             mockNoCertificatesFoundMessage()
 
-            // Act
+            // When
             val result = rqesController.getAvailableCertificates(rqesServiceAuthorized)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCertificatesPartialState.Failure)
             assertEquals(
                 mockedCertificatesNotFoundMessage,
@@ -982,14 +982,14 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When getAvailableCertificates is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(rqesServiceAuthorized.listCredentials())
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = rqesController.getAvailableCertificates(rqesServiceAuthorized)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCertificatesPartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -1006,14 +1006,14 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When getRemoteOrLocalFile is called, Then Success state with the selected file is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
             whenever(sessionData.file).thenReturn(documentData)
 
-            // Act
+            // When
             val result = rqesController.getRemoteOrLocalFile()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetSelectedFilePartialState.Success)
             assertEquals(documentData, (result as EudiRqesGetSelectedFilePartialState.Success).file)
         }
@@ -1026,17 +1026,17 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When getRemoteOrLocalFile is called, Then Failure with document not found is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
             whenever(sessionData.file).thenReturn(null)
             whenever(sessionData.remoteUrl).thenReturn(null)
             whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound))
                 .thenReturn(mockedDocumentNotFoundMessage)
 
-            // Act
+            // When
             val result = rqesController.getRemoteOrLocalFile()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
             assertEquals(
                 mockedDocumentNotFoundMessage,
@@ -1051,13 +1051,13 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When getRemoteOrLocalFile is called, Then Failure via getOrElse is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = rqesController.getRemoteOrLocalFile()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
             assertEquals(
                 mockedExceptionWithMessage.message,
@@ -1075,7 +1075,7 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When getRemoteOrLocalFile is called with remoteUrl and null impl, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
             whenever(sessionData.file).thenReturn(null)
             whenever(sessionData.remoteUrl).thenReturn(Uri.parse("https://example.org/unreachable"))
@@ -1085,10 +1085,10 @@ class TestRqesController {
             whenever(resourceProvider.getDownloadsCache())
                 .thenReturn(RuntimeEnvironment.getApplication().cacheDir)
 
-            // Act
+            // When
             val result = rqesController.getRemoteOrLocalFile()
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
         }
 
@@ -1102,7 +1102,7 @@ class TestRqesController {
     @Test
     fun `Given Case 5, When getRemoteOrLocalFile is called with remoteUrl and a single resolved document, Then Success is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             val resolvedFile = File(context.cacheDir, "remote_$mockedDocumentName").apply {
                 writeBytes(ByteArray(8))
@@ -1141,11 +1141,10 @@ class TestRqesController {
                     whenever(mock.resolveDocument(any())).thenReturn(Result.success(outcome))
                 }
             }.use {
-
-                // Act
+                // When
                 val result = rqesController.getRemoteOrLocalFile()
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesGetSelectedFilePartialState.Success)
             }
         }
@@ -1157,7 +1156,7 @@ class TestRqesController {
     @Test
     fun `Given Case 6, When getRemoteOrLocalFile is called and resolveDocument returns multiple documents, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             val file1 = File(context.cacheDir, "f1.pdf").apply { writeBytes(ByteArray(8)) }
             val file2 = File(context.cacheDir, "f2.pdf").apply { writeBytes(ByteArray(8)) }
@@ -1193,11 +1192,10 @@ class TestRqesController {
                     whenever(mock.resolveDocument(any())).thenReturn(Result.success(outcome))
                 }
             }.use {
-
-                // Act
+                // When
                 val result = rqesController.getRemoteOrLocalFile()
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
                 assertEquals(
                     "Multiple documents are not supported",
@@ -1214,7 +1212,7 @@ class TestRqesController {
     @Test
     fun `Given Case 7, When getRemoteOrLocalFile is called and resolveDocument returns empty, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
 
             whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
@@ -1241,11 +1239,10 @@ class TestRqesController {
                     whenever(mock.resolveDocument(any())).thenReturn(Result.success(outcome))
                 }
             }.use {
-
-                // Act
+                // When
                 val result = rqesController.getRemoteOrLocalFile()
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
                 assertEquals(
                     mockedDocumentNotFoundMessage,
@@ -1262,13 +1259,13 @@ class TestRqesController {
     // 1. The function delegates to eudiRQESUi.getAuthorizedService() and returns the same instance.
     @Test
     fun `Given Case 1, When getAuthorizedService is called, Then the underlying service is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
 
-        // Act
+        // When
         val result = rqesController.getAuthorizedService()
 
-        // Assert
+        // Then
         assertEquals(rqesServiceAuthorized, result)
     }
 
@@ -1278,13 +1275,13 @@ class TestRqesController {
     // 1. The function delegates to eudiRQESUi.getAuthorizedService() and returns null.
     @Test
     fun `Given Case 2, When getAuthorizedService is called, Then null is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getAuthorizedService()).thenReturn(null)
 
-        // Act
+        // When
         val result = rqesController.getAuthorizedService()
 
-        // Assert
+        // Then
         assertNull(result)
     }
     //endregion
@@ -1298,7 +1295,7 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When getCredentialAuthorizationUrl is called, Then Failure with document not found is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
             whenever(sessionData.file).thenReturn(null)
             val certificateData =
@@ -1306,13 +1303,13 @@ class TestRqesController {
             whenever(resourceProvider.getLocalizedString(LocalizableKey.GenericErrorDocumentNotFound))
                 .thenReturn(mockedDocumentNotFoundMessage)
 
-            // Act
+            // When
             val result = rqesController.getCredentialAuthorizationUrl(
                 authorizedService = rqesServiceAuthorized,
                 certificateData = certificateData
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedDocumentNotFoundMessage,
@@ -1327,18 +1324,18 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When getCredentialAuthorizationUrl is called and an exception is thrown, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithMessage)
             val certificateData =
                 CertificateData(name = mockedCertificateName, certificate = credentialInfo)
 
-            // Act
+            // When
             val result = rqesController.getCredentialAuthorizationUrl(
                 authorizedService = rqesServiceAuthorized,
                 certificateData = certificateData
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -1352,13 +1349,16 @@ class TestRqesController {
     // 3. Mock authorizedService.getCredentialAuthorizationUrl() to return a valid HttpsUrl.
     // Expected Result:
     // 1. The function returns Success with the parsed authorization Uri.
+    /**
+     * A real file is created on disk and its file:// URI is used so the contentResolver can
+     * open it.
+     */
     @Test
     fun `Given Case 3, When getCredentialAuthorizationUrl is called with a valid file, Then Success is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
-            // Create a real file on disk and use its file:// URI so the contentResolver can open it.
             val sourceFile = File(context.cacheDir, "source_$mockedDocumentName").apply {
                 writeBytes(ByteArray(8))
             }
@@ -1376,13 +1376,13 @@ class TestRqesController {
                 rqesServiceAuthorized.getCredentialAuthorizationUrl(any(), any(), anyOrNull())
             ).thenReturn(Result.success(httpsUrl))
 
-            // Act
+            // When
             val result = rqesController.getCredentialAuthorizationUrl(
                 authorizedService = rqesServiceAuthorized,
                 certificateData = certificateData
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Success)
             assertEquals(
                 httpsUrl.value.toString().toUriOrEmpty(),
@@ -1398,7 +1398,7 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When getCredentialAuthorizationUrl is called and authorized service fails, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
             File(context.cacheDir, mockedDocumentName).apply { createNewFile() }
@@ -1415,13 +1415,13 @@ class TestRqesController {
                 rqesServiceAuthorized.getCredentialAuthorizationUrl(any(), any(), anyOrNull())
             ).thenReturn(Result.failure(mockedExceptionWithMessage))
 
-            // Act
+            // When
             val result = rqesController.getCredentialAuthorizationUrl(
                 authorizedService = rqesServiceAuthorized,
                 certificateData = certificateData
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedGenericServiceErrorMessage,
@@ -1438,17 +1438,17 @@ class TestRqesController {
     @Test
     fun `Given Case 1, When saveSignedDocuments is called with empty documents, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val emptySignedDocuments = newSignedDocuments(emptyMap())
             whenever(eudiRQESUi.getRemoteResolutionOutcome()).thenReturn(null)
 
-            // Act
+            // When
             val result = rqesController.saveSignedDocuments(
                 originalDocumentName = mockedDocumentName,
                 signedDocuments = emptySignedDocuments
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -1465,7 +1465,7 @@ class TestRqesController {
     @Test
     fun `Given Case 2, When saveSignedDocuments is called with non-empty documents and no remote outcome, Then Success isRemote false is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
@@ -1477,13 +1477,13 @@ class TestRqesController {
                     FileProvider.getUriForFile(eq(context), any(), eq(signedFile))
                 }.thenReturn(shareableUri)
 
-                // Act
+                // When
                 val result = rqesController.saveSignedDocuments(
                     originalDocumentName = mockedDocumentName,
                     signedDocuments = nonEmptySignedDocs
                 )
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Success)
                 val success = result as EudiRqesSaveSignedDocumentsPartialState.Success
                 assertEquals(false, success.isRemote)
@@ -1501,7 +1501,7 @@ class TestRqesController {
     @Test
     fun `Given Case 3, When saveSignedDocuments is called and remote outcome is Accepted, Then Success isRemote true with redirectUri is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
@@ -1516,13 +1516,13 @@ class TestRqesController {
                     FileProvider.getUriForFile(eq(context), any(), eq(signedFile))
                 }.thenReturn(shareableUri)
 
-                // Act
+                // When
                 val result = rqesController.saveSignedDocuments(
                     originalDocumentName = mockedDocumentName,
                     signedDocuments = nonEmptySignedDocs
                 )
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Success)
                 val success = result as EudiRqesSaveSignedDocumentsPartialState.Success
                 assertEquals(true, success.isRemote)
@@ -1539,7 +1539,7 @@ class TestRqesController {
     @Test
     fun `Given Case 4, When saveSignedDocuments is called and remote outcome is Rejected, Then Failure is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
@@ -1553,13 +1553,13 @@ class TestRqesController {
                     FileProvider.getUriForFile(eq(context), any(), eq(signedFile))
                 }.thenReturn(shareableUri)
 
-                // Act
+                // When
                 val result = rqesController.saveSignedDocuments(
                     originalDocumentName = mockedDocumentName,
                     signedDocuments = nonEmptySignedDocs
                 )
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Failure)
                 assertEquals(
                     mockedGenericErrorMessage,
@@ -1576,19 +1576,19 @@ class TestRqesController {
     @Test
     fun `Given Case 5, When saveSignedDocuments throws an exception, Then Failure with exception message is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
             val nonEmptySignedDocs = newSignedDocuments(mapOf(mockedDocumentName to signedFile))
             whenever(resourceProvider.provideContext()).thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = rqesController.saveSignedDocuments(
                 originalDocumentName = mockedDocumentName,
                 signedDocuments = nonEmptySignedDocs
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Failure)
             assertEquals(
                 mockedExceptionWithMessage.message,
@@ -1604,19 +1604,19 @@ class TestRqesController {
     @Test
     fun `Given Case 6, When saveSignedDocuments throws exception without message, Then Failure with generic message is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
             val nonEmptySignedDocs = newSignedDocuments(mapOf(mockedDocumentName to signedFile))
             whenever(resourceProvider.provideContext()).thenThrow(mockedExceptionWithNoMessage)
 
-            // Act
+            // When
             val result = rqesController.saveSignedDocuments(
                 originalDocumentName = mockedDocumentName,
                 signedDocuments = nonEmptySignedDocs
             )
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -1632,13 +1632,13 @@ class TestRqesController {
     // 1. The function returns Failure with the generic error message (elvis fallback).
     @Test
     fun `Given Case 5, When getSelectedFile is called and exception has no message, Then generic error message is used`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithNoMessage)
 
-        // Act
+        // When
         val result = rqesController.getSelectedFile()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedFilePartialState.Failure)
         assertEquals(
             mockedGenericErrorMessage,
@@ -1652,13 +1652,13 @@ class TestRqesController {
     // 1. The function returns Failure with the generic error message (elvis fallback).
     @Test
     fun `Given Case 6, When getSelectedQtsp is called and exception has no message, Then generic error message is used`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithNoMessage)
 
-        // Act
+        // When
         val result = rqesController.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesGetSelectedQtspPartialState.Failure)
         assertEquals(
             mockedGenericErrorMessage,
@@ -1675,7 +1675,7 @@ class TestRqesController {
     @Test
     fun `Given Case 7, When saveSignedDocuments Accepted outcome has null redirectURI, Then Success with null redirectUri is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
@@ -1689,13 +1689,13 @@ class TestRqesController {
                     FileProvider.getUriForFile(eq(context), any(), eq(signedFile))
                 }.thenReturn(shareableUri)
 
-                // Act
+                // When
                 val result = rqesController.saveSignedDocuments(
                     originalDocumentName = mockedDocumentName,
                     signedDocuments = nonEmptySignedDocs
                 )
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Success)
                 val success = result as EudiRqesSaveSignedDocumentsPartialState.Success
                 assertEquals(true, success.isRemote)
@@ -1711,10 +1711,13 @@ class TestRqesController {
     // Expected Result:
     // 1. The safe-call chain `outcome.redirectURI?.toString()?.toUri()` resolves to null on the
     //    second `?.` step, yielding Success with null redirectUri.
+    /**
+     * URI.toString() is forced to return null to cover the second safe-call branch.
+     */
     @Test
     fun `Given Case 8, When saveSignedDocuments and URI toString returns null, Then null redirectUri Success is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val context = RuntimeEnvironment.getApplication().applicationContext
             whenever(resourceProvider.provideContext()).thenReturn(context)
             val signedFile = File(context.cacheDir, "signed_$mockedDocumentName")
@@ -1722,7 +1725,6 @@ class TestRqesController {
             whenever(eudiRQESUi.getRemoteResolutionOutcome()).thenReturn(resolutionOutcome)
 
             val mockedRedirectURI = org.mockito.kotlin.mock<URI>()
-            // Force URI.toString() to return null to cover the second safe-call branch.
             org.mockito.Mockito.doReturn(null).`when`(mockedRedirectURI).toString()
             whenever(resolutionOutcome.dispatch(nonEmptySignedDocs))
                 .thenReturn(DispatchOutcome.Accepted(redirectURI = mockedRedirectURI))
@@ -1732,13 +1734,13 @@ class TestRqesController {
                     FileProvider.getUriForFile(eq(context), any(), eq(signedFile))
                 }.thenReturn(shareableUri)
 
-                // Act
+                // When
                 val result = rqesController.saveSignedDocuments(
                     originalDocumentName = mockedDocumentName,
                     signedDocuments = nonEmptySignedDocs
                 )
 
-                // Assert
+                // Then
                 assertTrue(result is EudiRqesSaveSignedDocumentsPartialState.Success)
                 val success = result as EudiRqesSaveSignedDocumentsPartialState.Success
                 assertEquals(true, success.isRemote)
@@ -1755,15 +1757,15 @@ class TestRqesController {
     // 1. The function returns Failure with the generic error message (outer getOrElse elvis fallback).
     @Test
     fun `Given Case 5, When setSelectedQtsp outer getOrElse runs with no-message exception, Then generic error is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenThrow(mockedExceptionWithNoMessage)
         mockQTSPData(qtspData = qtspData)
 
-        // Act
+        // When
         val result = rqesController.setSelectedQtsp(qtspData)
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
         assertEquals(
             mockedGenericErrorMessage,
@@ -1781,17 +1783,17 @@ class TestRqesController {
     //    an EudiRqesSetSelectedQtspPartialState.Failure carrying the exception's message.
     @Test
     fun `Given Case 3, When setSelectedQtsp triggers createRqesService failure, Then SetSelectedQtsp Failure is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
         whenever(resourceProvider.getSignedDocumentsCache())
             .thenThrow(mockedExceptionWithMessage)
 
-        // Act
+        // When
         val result = rqesController.setSelectedQtsp(qtspData)
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
         assertEquals(
             mockedExceptionWithMessage.message,
@@ -1805,17 +1807,17 @@ class TestRqesController {
     // 1. The function should return Failure with the generic error message via the fallback.
     @Test
     fun `Given Case 4, When setSelectedQtsp triggers createRqesService failure with no message, Then generic error is returned`() {
-        // Arrange
+        // Given
         whenever(eudiRQESUi.getEudiRQESUiConfig()).thenReturn(eudiRQESUiConfig)
         whenever(eudiRQESUi.getSessionData()).thenReturn(sessionData)
         mockQTSPData(qtspData = qtspData)
         whenever(resourceProvider.getSignedDocumentsCache())
             .thenThrow(mockedExceptionWithNoMessage)
 
-        // Act
+        // When
         val result = rqesController.setSelectedQtsp(qtspData)
 
-        // Assert
+        // Then
         assertTrue(result is EudiRqesSetSelectedQtspPartialState.Failure)
         assertEquals(
             mockedGenericErrorMessage,

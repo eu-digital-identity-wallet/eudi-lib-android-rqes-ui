@@ -49,92 +49,130 @@ class TestUiSerializer {
     }
 
     @Test
-    fun `OptionsSelectionUiConfig with QtspSelection roundtrips`() {
+    fun `Given a QtspSelection config, When it is encoded and decoded, Then it roundtrips`() {
+        // Given
         val original = OptionsSelectionUiConfig(
             optionsSelectionScreenState = OptionsSelectionScreenState.QtspSelection,
         )
+
+        // When
         val encoded = serializer.toBase64(original, OptionsSelectionUiConfig.Parser)
+
+        // Then
         assertNotNull(encoded)
 
+        // When
         val decoded = serializer.fromBase64(
             encoded,
             OptionsSelectionUiConfig::class.java,
             OptionsSelectionUiConfig.Parser,
         )
+
+        // Then
         assertEquals(original, decoded)
     }
 
     @Test
-    fun `OptionsSelectionUiConfig with CertificateSelection roundtrips`() {
+    fun `Given a CertificateSelection config, When it is encoded and decoded, Then it roundtrips`() {
+        // Given
         val original = OptionsSelectionUiConfig(
             optionsSelectionScreenState = OptionsSelectionScreenState.CertificateSelection,
         )
+
+        // When
         val encoded = serializer.toBase64(original, OptionsSelectionUiConfig.Parser)
         val decoded = serializer.fromBase64(
             encoded,
             OptionsSelectionUiConfig::class.java,
             OptionsSelectionUiConfig.Parser,
         )
+
+        // Then
         assertEquals(original, decoded)
     }
 
     @Test
-    fun `ViewDocumentUiConfig roundtrips and preserves the Uri`() {
+    fun `Given a ViewDocumentUiConfig with a Uri, When it is encoded and decoded, Then it roundtrips and preserves the Uri`() {
+        // Given
         val uri = Uri.parse("content://com.example.docs/1")
         val original = ViewDocumentUiConfig(
             isSigned = true,
             documentData = DocumentData(documentName = "contract.pdf", uri = uri),
         )
+
+        // When
         val encoded = serializer.toBase64(original, ViewDocumentUiConfig.Parser)
+
+        // Then
         assertNotNull(encoded)
 
+        // When
         val decoded = serializer.fromBase64(
             encoded,
             ViewDocumentUiConfig::class.java,
             ViewDocumentUiConfig.Parser,
         )
+
+        // Then
         assertEquals(original, decoded)
         assertEquals(uri, decoded?.documentData?.uri)
     }
 
     @Test
-    fun `fromBase64 with null payload returns null`() {
+    fun `Given a null payload, When fromBase64 is called, Then null is returned`() {
+        // When
         val decoded = serializer.fromBase64(
             null,
             OptionsSelectionUiConfig::class.java,
             OptionsSelectionUiConfig.Parser,
         )
+
+        // Then
         assertNull(decoded)
     }
 
     @Test
-    fun `fromBase64 with malformed base64 returns null`() {
+    fun `Given malformed base64, When fromBase64 is called, Then null is returned`() {
+        // When
         val decoded = serializer.fromBase64(
             "!!not%base64\$\$",
             OptionsSelectionUiConfig::class.java,
             OptionsSelectionUiConfig.Parser,
         )
+
+        // Then
         assertNull(decoded)
     }
 
+    /**
+     * The payload `Z2FyYmFnZQ==` is "garbage" base64-encoded.
+     */
     @Test
-    fun `fromBase64 with valid base64 but invalid JSON returns null`() {
+    fun `Given valid base64 with invalid JSON, When fromBase64 is called, Then null is returned`() {
+        // When
         val decoded = serializer.fromBase64(
-            "Z2FyYmFnZQ==", // "garbage" base64-encoded
+            "Z2FyYmFnZQ==",
             OptionsSelectionUiConfig::class.java,
             OptionsSelectionUiConfig.Parser,
         )
+
+        // Then
         assertNull(decoded)
     }
 
+    /**
+     * `serializer(Class<*>)` throws SerializationException for non-Serializable classes;
+     * UiSerializerImpl wraps it in runCatching and surfaces null.
+     */
     @Test
-    fun `toBase64 returns null for a UiSerializable that is not Serializable`() {
-        // `serializer(Class<*>)` throws SerializationException for non-Serializable
-        // classes; UiSerializerImpl wraps it in runCatching and surfaces null.
+    fun `Given a UiSerializable that is not Serializable, When toBase64 is called, Then null is returned`() {
+        // When
         val encoded = serializer.toBase64(
             NonSerializableConfig(),
             NonSerializableConfig.Parser,
         )
+
+        // Then
         assertNull(encoded)
     }
 }

@@ -27,7 +27,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedQtspEndpoint
 import eu.europa.ec.eudi.rqesui.util.mockedQtspName
 import eu.europa.ec.eudi.rqesui.util.mockedTsaUrl
 import eu.europa.ec.eudi.rqesui.util.mockedUri
-import junit.framework.TestCase.assertEquals
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -71,9 +71,13 @@ class TestQtspData {
     // the selected credential decide.
     @Test
     fun `Given no signing algorithm, When QtspData is created, Then FirstSupportedByCredential is the default`() {
+        // When
+        val signingAlgorithm = qtspData().signingAlgorithm
+
+        // Then
         assertEquals(
             RQESService.SigningAlgorithm.FirstSupportedByCredential,
-            qtspData().signingAlgorithm
+            signingAlgorithm
         )
     }
 
@@ -82,10 +86,13 @@ class TestQtspData {
     // Expected: the object is restored unchanged.
     @Test
     fun `Given FirstSupportedByCredential, When QtspData is parcelled, Then it round-trips unchanged`() {
+        // Given
         val original = qtspData(RQESService.SigningAlgorithm.FirstSupportedByCredential)
 
+        // When
         val restored = original.parcelRoundTrip()
 
+        // Then
         assertEquals(original, restored)
         assertEquals(
             RQESService.SigningAlgorithm.FirstSupportedByCredential,
@@ -98,12 +105,15 @@ class TestQtspData {
     // Expected: the object is restored unchanged, including the algorithm OID.
     @Test
     fun `Given a Specific signing algorithm, When QtspData is parcelled, Then it round-trips unchanged`() {
+        // Given
         val expectedAlgorithm =
             RQESService.SigningAlgorithm.Specific(SigningAlgorithmOID.ECDSA_SHA256)
         val original = qtspData(expectedAlgorithm)
 
+        // When
         val restored = original.parcelRoundTrip()
 
+        // Then
         assertEquals(original, restored)
         assertEquals(expectedAlgorithm, restored.signingAlgorithm)
         assertEquals(

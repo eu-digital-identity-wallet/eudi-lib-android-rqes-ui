@@ -21,10 +21,10 @@ import android.content.res.Resources
 import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithMessage
 import eu.europa.ec.eudi.rqesui.util.mockedExceptionWithNoMessage
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertNotNull
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -59,15 +59,15 @@ class TestContextExtensionsKt {
     // Expected Result:
     // 1. The function should return a successful Result containing an X509Certificate.
     @Test
-    fun `When getCertificate is called with valid certificate bytes, Then success result with X509Certificate is returned`() {
-        // Arrange
+    fun `Given valid certificate bytes, When getCertificate is called, Then success result with X509Certificate is returned`() {
+        // Given
         whenever(resources.openRawResource(certRawResId))
             .thenReturn(ByteArrayInputStream(validCertificateBytes))
 
-        // Act
+        // When
         val result = context.getCertificate(certRawResId)
 
-        // Assert
+        // Then
         assertTrue(result.isSuccess)
         val cert = result.getOrThrow()
         assertNotNull(cert)
@@ -78,15 +78,15 @@ class TestContextExtensionsKt {
     // Expected Result:
     // 1. The function should return a failure Result with an EudiRQESUiError containing the exception's message.
     @Test
-    fun `When getCertificate is called and openRawResource throws with message, Then failure with that message is returned`() {
-        // Arrange
+    fun `Given openRawResource throws with message, When getCertificate is called, Then failure with that message is returned`() {
+        // Given
         whenever(resources.openRawResource(certRawResId))
             .thenThrow(mockedExceptionWithMessage)
 
-        // Act
+        // When
         val result = context.getCertificate(certRawResId)
 
-        // Assert
+        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertTrue(exception is EudiRQESUiError)
@@ -100,15 +100,15 @@ class TestContextExtensionsKt {
     // 1. The function should return a failure Result with EudiRQESUiError containing the fallback message
     //    referencing the resource id.
     @Test
-    fun `When getCertificate is called and openRawResource throws without message, Then failure with fallback message is returned`() {
-        // Arrange
+    fun `Given openRawResource throws without message, When getCertificate is called, Then failure with fallback message is returned`() {
+        // Given
         whenever(resources.openRawResource(certRawResId))
             .thenThrow(mockedExceptionWithNoMessage)
 
-        // Act
+        // When
         val result = context.getCertificate(certRawResId)
 
-        // Assert
+        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertTrue(exception is EudiRQESUiError)
@@ -121,15 +121,15 @@ class TestContextExtensionsKt {
     // Expected Result:
     // 1. The function should return a failure Result with an EudiRQESUiError.
     @Test
-    fun `When getCertificate is called with invalid certificate bytes, Then failure result is returned`() {
-        // Arrange
+    fun `Given invalid certificate bytes, When getCertificate is called, Then failure result is returned`() {
+        // Given
         whenever(resources.openRawResource(certRawResId))
             .thenReturn(ByteArrayInputStream("not a certificate".toByteArray()))
 
-        // Act
+        // When
         val result = context.getCertificate(certRawResId)
 
-        // Assert
+        // Then
         assertTrue(result.isFailure)
         val exception = result.exceptionOrNull()
         assertTrue(exception is EudiRQESUiError)

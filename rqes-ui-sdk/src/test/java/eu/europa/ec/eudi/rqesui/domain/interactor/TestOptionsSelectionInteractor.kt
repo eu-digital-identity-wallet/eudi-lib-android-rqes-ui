@@ -37,9 +37,9 @@ import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorMessage
 import eu.europa.ec.eudi.rqesui.util.mockedGenericErrorTitle
 import eu.europa.ec.eudi.rqesui.util.mockedPlainFailureMessage
 import eu.europa.ec.eudi.rqesui.util.runTest
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -103,7 +103,7 @@ class TestOptionsSelectionInteractor {
 
     //region getQtsps
     @Test
-    fun `When getQtsps is called, Then getQtsps of the eudiController is called`() {
+    fun `Given an eudiController, When getQtsps is called, Then getQtsps of the eudiController is called`() {
         // When
         interactor.getQtsps()
 
@@ -115,7 +115,7 @@ class TestOptionsSelectionInteractor {
 
     //region getRemoteOrLocalFile
     @Test
-    fun `When getSelectedFile is called, Then controller getSelectedFile is called`() {
+    fun `Given a controller, When getRemoteOrLocalFile is called, Then controller getRemoteOrLocalFile is called`() {
         coroutineRule.runTest {
             // When
             interactor.getRemoteOrLocalFile()
@@ -129,7 +129,7 @@ class TestOptionsSelectionInteractor {
 
     //region updateQtspUserSelection
     @Test
-    fun `When updateQtspUserSelection is called, Then controller setSelectedQtsp is called`() {
+    fun `Given a controller, When updateQtspUserSelection is called, Then controller setSelectedQtsp is called`() {
         // When
         interactor.updateQtspUserSelection(qtspData)
 
@@ -141,7 +141,7 @@ class TestOptionsSelectionInteractor {
 
     //region getServiceAuthorizationUrl
     @Test
-    fun `When getServiceAuthorizationUrl is called, Then controller getServiceAuthorizationUrl is called`() =
+    fun `Given a controller, When getServiceAuthorizationUrl is called, Then controller getServiceAuthorizationUrl is called`() =
         coroutineRule.runTest {
             // When
             interactor.getServiceAuthorizationUrl(rqesService)
@@ -156,7 +156,7 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given service authorization and certificate fetch succeed, When authorizeServiceAndFetchCertificates is called, Then return Success`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val certificateDataList = listOf(certificateData)
             mockAuthorizeServiceCall(
                 EudiRqesAuthorizeServicePartialState.Success(authorizedService = rqesServiceAuthorized)
@@ -165,10 +165,10 @@ class TestOptionsSelectionInteractor {
                 EudiRqesGetCertificatesPartialState.Success(certificates = certificateDataList)
             )
 
-            // Act
+            // When
             val result = interactor.authorizeServiceAndFetchCertificates()
 
-            // Assert
+            // Then
             assertTrue(result is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Success)
             assertEquals(
                 certificateDataList,
@@ -180,7 +180,7 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given that service authorization fails, When authorizeServiceAndFetchCertificates is called, Then return Failure`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val error = EudiRQESUiError(
                 title = mockedGenericErrorTitle,
                 message = mockedPlainFailureMessage
@@ -189,10 +189,10 @@ class TestOptionsSelectionInteractor {
                 EudiRqesAuthorizeServicePartialState.Failure(error)
             )
 
-            // Act
+            // When
             val result = interactor.authorizeServiceAndFetchCertificates()
 
-            // Assert
+            // Then
             assertTrue(result is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure)
             assertEquals(
                 error,
@@ -203,14 +203,14 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given service authorization fails with exception thrown, When authorizeServiceAndFetchCertificates is called, Then Case 3 expected result is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiController.authorizeService())
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = interactor.authorizeServiceAndFetchCertificates()
 
-            // Assert
+            // Then
             assertTrue(result is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure)
             assertEquals(
                 mockedExceptionWithMessage.message,
@@ -221,7 +221,7 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given service authorization succeeds but certificate fetch fails, When authorizeServiceAndFetchCertificates is called, Then return Failure`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val error = EudiRQESUiError(
                 title = mockedGenericErrorTitle,
                 message = mockedPlainFailureMessage
@@ -233,10 +233,10 @@ class TestOptionsSelectionInteractor {
                 EudiRqesGetCertificatesPartialState.Failure(error = error)
             )
 
-            // Act
+            // When
             val result = interactor.authorizeServiceAndFetchCertificates()
 
-            // Assert
+            // Then
             assertTrue(result is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure)
             assertEquals(
                 error,
@@ -248,16 +248,16 @@ class TestOptionsSelectionInteractor {
     //region getSelectedQtsp
     @Test
     fun `Given both file and qtsp are selected, When getSelectedFileAndQtsp is called, Then return Success`() {
-        // Arrange
+        // Given
         whenever(eudiController.getSelectedFile())
             .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
         whenever(eudiController.getSelectedQtsp())
             .thenReturn(EudiRqesGetSelectedQtspPartialState.Success(qtsp = qtspData))
 
-        // Act
+        // When
         val result = interactor.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is OptionsSelectionInteractorGetSelectedQtspPartialState.Success)
         with(result as OptionsSelectionInteractorGetSelectedQtspPartialState.Success) {
             assertEquals(qtspData, selectedQtsp)
@@ -266,16 +266,16 @@ class TestOptionsSelectionInteractor {
 
     @Test
     fun `Given selected file retrieval fails, When getSelectedFileAndQtsp is called, Then return Failure`() {
-        // Arrange
+        // Given
         val error =
             EudiRQESUiError(title = mockedGenericErrorTitle, message = mockedGenericErrorMessage)
         whenever(eudiController.getSelectedFile())
             .thenReturn(EudiRqesGetSelectedFilePartialState.Failure(error))
 
-        // Act
+        // When
         val result = interactor.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is OptionsSelectionInteractorGetSelectedQtspPartialState.Failure)
         assertEquals(
             error.message,
@@ -285,7 +285,7 @@ class TestOptionsSelectionInteractor {
 
     @Test
     fun `Given selected QTSP retrieval fails, When getSelectedFileAndQtsp is called, Then return Failure`() {
-        // Arrange
+        // Given
         whenever(eudiController.getSelectedFile())
             .thenReturn(EudiRqesGetSelectedFilePartialState.Success(file = documentData))
         val failureError =
@@ -293,10 +293,10 @@ class TestOptionsSelectionInteractor {
         whenever(eudiController.getSelectedQtsp())
             .thenReturn(EudiRqesGetSelectedQtspPartialState.Failure(error = failureError))
 
-        // Act
+        // When
         val result = interactor.getSelectedQtsp()
 
-        // Assert
+        // Then
         assertTrue(result is OptionsSelectionInteractorGetSelectedQtspPartialState.Failure)
         assertEquals(
             failureError,
@@ -309,33 +309,33 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given authorized service exists, When getCredentialAuthorizationUrl called, Then return Success`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val successResponse = EudiRqesGetCredentialAuthorizationUrlPartialState.Success(
                 authorizationUrl = mockedAuthorizationUrl.toUriOrEmpty()
             )
             whenever(eudiController.getAuthorizedService()).thenReturn(rqesServiceAuthorized)
             mockGetCredentialAuthorizationUrlCall(successResponse)
 
-            // Act
+            // When
             val result = interactor.getCredentialAuthorizationUrl(certificateData)
 
-            // Assert
+            // Then
             assertEquals(successResponse, result)
         }
 
     @Test
     fun `Given getAuthorizedService returns null, When getCredentialAuthorizationUrl called, Then return Failure with generic message`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiController.getAuthorizedService())
                 .thenReturn(null)
             whenever(resourceProvider.genericErrorMessage())
                 .thenReturn(mockedGenericErrorMessage)
 
-            // Act
+            // When
             val result = interactor.getCredentialAuthorizationUrl(certificateData)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -346,7 +346,7 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given getCredentialAuthorizationUrl returns Failure, When getCredentialAuthorizationUrl is called, Then Failure state is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             val expectedError = EudiRQESUiError(
                 title = mockedGenericErrorTitle,
                 message = mockedPlainFailureMessage
@@ -364,10 +364,10 @@ class TestOptionsSelectionInteractor {
                 )
             ).thenReturn(failureResponse)
 
-            // Act
+            // When
             val result = interactor.getCredentialAuthorizationUrl(certificateData)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 expectedError,
@@ -381,14 +381,14 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given getAuthorizedService throws, When getCredentialAuthorizationUrl is called, Then Failure via getOrElse is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiController.getAuthorizedService())
                 .thenThrow(mockedExceptionWithMessage)
 
-            // Act
+            // When
             val result = interactor.getCredentialAuthorizationUrl(certificateData)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedExceptionWithMessage.message,
@@ -400,14 +400,14 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given getAuthorizedService throws without message, When getCredentialAuthorizationUrl is called, Then Failure with generic message is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiController.getAuthorizedService())
                 .thenThrow(mockedExceptionWithNoMessage)
 
-            // Act
+            // When
             val result = interactor.getCredentialAuthorizationUrl(certificateData)
 
-            // Assert
+            // Then
             assertTrue(result is EudiRqesGetCredentialAuthorizationUrlPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,
@@ -420,13 +420,13 @@ class TestOptionsSelectionInteractor {
     @Test
     fun `Given authorizeService throws without message, When authorizeServiceAndFetchCertificates is called, Then Failure with generic message is returned`() =
         coroutineRule.runTest {
-            // Arrange
+            // Given
             whenever(eudiController.authorizeService()).thenThrow(mockedExceptionWithNoMessage)
 
-            // Act
+            // When
             val result = interactor.authorizeServiceAndFetchCertificates()
 
-            // Assert
+            // Then
             assertTrue(result is OptionsSelectionInteractorAuthorizeServiceAndFetchCertificatesPartialState.Failure)
             assertEquals(
                 mockedGenericErrorMessage,

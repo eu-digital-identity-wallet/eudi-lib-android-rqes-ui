@@ -29,6 +29,7 @@ import eu.europa.ec.eudi.rqesui.util.mockedSerializedConfig
 import eu.europa.ec.eudi.rqesui.util.runFlowTest
 import eu.europa.ec.eudi.rqesui.util.runTest
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Rule
@@ -39,7 +40,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import kotlin.test.assertEquals
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -101,7 +101,7 @@ class TestViewDocumentViewModel {
     // 3. The buttonText field is set to the localized string for Close.
     @Test
     fun `Given Case 1, When setInitialState is called, Then the expected result is returned`() {
-        // Arrange
+        // Given
         whenever(
             uiSerializer.fromBase64(
                 payload = mockedSerializedConfig,
@@ -110,10 +110,10 @@ class TestViewDocumentViewModel {
             )
         ).thenReturn(deserializedConfig)
 
-        // Act
+        // When
         val initialState = viewModel.setInitialState()
 
-        // Assert
+        // Then
         assertEquals(true, initialState.isLoading)
         assertEquals(deserializedConfig, initialState.config)
         assertEquals(
@@ -128,6 +128,7 @@ class TestViewDocumentViewModel {
     // 1. A RuntimeException should be thrown.
     @Test
     fun `Given Case 2, When setInitialState is called, Then the expected result is returned`() {
+        // Given
         whenever(
             uiSerializer.fromBase64(
                 payload = mockedSerializedConfig,
@@ -136,7 +137,7 @@ class TestViewDocumentViewModel {
             )
         ).thenReturn(null)
 
-        // Assert that a RuntimeException is thrown
+        // Then
         assertThrows(RuntimeException::class.java) {
             viewModel.setInitialState()
         }
@@ -151,10 +152,10 @@ class TestViewDocumentViewModel {
     @Test
     fun `Given Case 1, When handleEvents is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.handleEvents(Event.Pop)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val expectedResult = Effect.Navigation.Pop
                 assertEquals(expectedResult, awaitItem())
@@ -170,10 +171,10 @@ class TestViewDocumentViewModel {
     @Test
     fun `Given Case 1, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(Event.Pop)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val expectedResult = Effect.Navigation.Pop
                 assertEquals(expectedResult, awaitItem())
@@ -187,10 +188,10 @@ class TestViewDocumentViewModel {
     @Test
     fun `Given Case 2, When setEvent is called, Then the expected result is returned`() =
         coroutineRule.runTest {
-            // Act
+            // When
             viewModel.setEvent(Event.BottomBarButtonPressed)
 
-            // Assert
+            // Then
             viewModel.effect.runFlowTest {
                 val expectedResult = Effect.Navigation.Pop
                 assertEquals(expectedResult, awaitItem())
@@ -202,12 +203,13 @@ class TestViewDocumentViewModel {
     // Case 3 Expected Result:
     // 1. The view state should be updated with the a loading state value of false.
     @Test
-    fun `Given Case 3 When setEvent is called, Then the expected result is returned`() {
-        // Act
+    fun `Given Case 3, When setEvent is called, Then the expected result is returned`() {
+        // When
         viewModel.setEvent(
             Event.LoadingStateChanged(isLoading = false)
         )
 
+        // Then
         val expectedState = false
         assertEquals(expectedState, viewModel.viewState.value.isLoading)
     }

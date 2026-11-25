@@ -28,17 +28,17 @@ class TestEudiRQESUiConfig {
     @Test
     fun `Given no signing logger, When diagnostic logging changes, Then signing callbacks remain disabled`() {
         listOf(false, true).forEach { diagnosticLogsEnabled ->
-            // Arrange
+            // Given
             val config = object : EudiRQESUiConfig {
                 override val qtsps: List<QtspData> = emptyList()
                 override val documentRetrievalConfig = DocumentRetrievalConfig.NoValidation
                 override val printLogs = diagnosticLogsEnabled
             }
 
-            // Act
+            // When
             val signingLogger = config.signingLogger
 
-            // Assert
+            // Then
             assertNull(signingLogger)
         }
     }

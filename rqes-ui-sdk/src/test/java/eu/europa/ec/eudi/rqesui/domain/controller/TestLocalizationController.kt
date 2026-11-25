@@ -20,10 +20,10 @@ import eu.europa.ec.eudi.rqesui.domain.entities.error.EudiRQESUiError
 import eu.europa.ec.eudi.rqesui.domain.entities.localization.LocalizableKey
 import eu.europa.ec.eudi.rqesui.infrastructure.config.EudiRQESUiConfig
 import eu.europa.ec.eudi.rqesui.util.mockedLocalizedText
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
@@ -56,13 +56,13 @@ class TestLocalizationController {
     // 1. The defaultTranslation string is returned
     @Test
     fun `Given Case 1, When get() is called, Then Case 1 expected result is returned`() {
-        // Arrange
+        // Given
         val localizableKey = LocalizableKey.SignDocument
 
-        // Act
+        // When
         val result = controller.get(localizableKey)
 
-        // Assert
+        // Then
         assertEquals(localizableKey.defaultTranslation(), result)
     }
 
@@ -74,7 +74,7 @@ class TestLocalizationController {
     // 2. The test checks that the controller correctly retrieves the translation from the configuration.
     @Test
     fun `Given Case 2, When get() is called, Then Case 2 expected result is returned`() {
-        // Arrange
+        // Given
         val localizableKey = LocalizableKey.SignDocument
         val config =
             testConfiguration(
@@ -83,10 +83,10 @@ class TestLocalizationController {
             )
         val controller = LocalizationControllerImpl(config)
 
-        // Act
+        // When
         val result = controller.get(localizableKey)
 
-        // Assert
+        // Then
         assertEquals(mockedLocalizedText, result)
     }
 
@@ -95,20 +95,20 @@ class TestLocalizationController {
     // it should throw an `EudiRQESUiError`.
     // Case 3 Expected Result:
     // 1. An exception of type `EudiRQESUiError` should be thrown when attempting to retrieve a missing translation.
+    /**
+     * Any LocalizableKey missing from the translations throws the same way.
+     */
     @Test
     fun `Given Case 3, When get() is called, Then Case 3 expected result is returned`() {
-        // Arrange
+        // Given
         val config = testConfiguration(translations = emptyMap())
         val controller = LocalizationControllerImpl(config)
 
-        // Act
+        // Then
         val exception =
             assertThrows(EudiRQESUiError::class.java) {
                 controller.get(LocalizableKey.entries.first())
-                // or when attempting to get any non-existent Localizable key
             }
-
-        // Assert
         assertTrue(exception is EudiRQESUiError)
     }
 
@@ -117,21 +117,24 @@ class TestLocalizationController {
     // the controller should fall back to the default translation of the key.
     // Case 4 Expected Result:
     // 1. The default translation of the key is returned (fallback path via elvis operator).
+    /**
+     * The test environment locale is "en" and only "fr" translations are configured, so
+     * config.translations[language] (i.e. config.translations["en"]) returns null, triggering
+     * the elvis fallback to defaultTranslation().
+     */
     @Test
     fun `Given Case 4, When get() is called, Then default translation is returned`() {
-        // Arrange: the test environment locale is "en"; we configure only "fr" translations,
-        // so config.translations[language] (i.e. config.translations["en"]) returns null,
-        // triggering the elvis fallback to defaultTranslation().
+        // Given
         val localizableKey = LocalizableKey.SignDocument
         val config = testConfiguration(
             translations = mapOf("fr" to mapOf(localizableKey to mockedLocalizedText))
         )
         val controller = LocalizationControllerImpl(config)
 
-        // Act
+        // When
         val result = controller.get(localizableKey)
 
-        // Assert
+        // Then
         assertEquals(localizableKey.defaultTranslation(), result)
     }
 
@@ -141,9 +144,13 @@ class TestLocalizationController {
     // Case 5 Expected Result:
     // 1. The default translation of the missing key is returned (fallback path via elvis operator
     //    on the inner ?.get(key) call).
+    /**
+     * The test environment locale is "en"; the "en" map exists but does not include
+     * SignDocument.
+     */
     @Test
     fun `Given Case 5, When get() is called for a missing key, Then default translation is returned`() {
-        // Arrange: the test environment locale is "en"; the "en" map exists but does not include SignDocument.
+        // Given
         val configuredKey = LocalizableKey.Cancel
         val requestedKey = LocalizableKey.SignDocument
         val config = testConfiguration(
@@ -151,10 +158,10 @@ class TestLocalizationController {
         )
         val controller = LocalizationControllerImpl(config)
 
-        // Act
+        // When
         val result = controller.get(requestedKey)
 
-        // Assert
+        // Then
         assertEquals(requestedKey.defaultTranslation(), result)
     }
     //endregion
